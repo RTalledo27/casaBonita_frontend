@@ -1,0 +1,43 @@
+    <div class="p-6 space-y-6">
+        <!-- KPI CARDS -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div *ngFor="let kpi of kpis" class="bg-gray-800 text-white rounded-xl p-4 shadow flex items-center gap-4">
+                <div class="bg-gray-700 p-2 rounded-md">
+                    <lucide-icon [name]="kpi.icon" class="w-5 h-5 text-gray-300" />
+                </div>
+                <div>
+                    <div class="text-sm">{{ kpi.label }}</div>
+                    <div class="text-2xl font-bold">{{ kpi.value }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CHARTS -->
+        <div class="grid md:grid-cols-2 gap-6">
+            <div class="bg-gray-800 rounded-xl p-4 shadow text-white">
+                <h2 class="text-lg font-semibold mb-4">Sales Overview</h2>
+                <canvas baseChart [data]="salesChartData" [options]="salesChartOptions" [type]="'line'">
+                    </canvas>
+                </div>
+            <div class="bg-gray-800 rounded-xl p-4 shadow text-white">
+                <h2 class="text-lg font-semibold mb-4">Lots Sold</h2>
+                <canvas baseChart [data]="lotsChartData" chartType="bar"></canvas>
+            </div>
+        </div>
+
+        <!-- ACTIVITY + EVENTS -->
+        <div class="grid md:grid-cols-2 gap-6">
+            <div class="bg-gray-800 rounded-xl p-4 shadow text-white">
+                <h2 class="text-lg font-semibold mb-4">Recent Activity</h2>
+                <ul class="text-sm space-y-2">
+                    <li *ngFor="let item of activity">{{ item.icon }} {{ item.label }}</li>
+                </ul>
+            </div>
+            <div class="bg-gray-800 rounded-xl p-4 shadow text-white">
+                <h2 class="text-lg font-semibold mb-4">Upcoming Events</h2>
+                <ul class="text-sm space-y-2">
+                    <li *ngFor="let event of events">{{ event.icon }} {{ event.label }} - {{ event.date }}</li>
+                </ul>
+            </div>
+        </div>
+        </div>
