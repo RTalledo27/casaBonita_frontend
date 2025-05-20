@@ -3,11 +3,13 @@ import { ChangeDetectorRef, Component, EventEmitter, Output } from '@angular/cor
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { User,Phone,Building,Lock, Users, LucideAngularModule, ChevronUp, ChevronDown, X } from 'lucide-angular';
 import {trigger, state, style, transition, animate} from '@angular/animations';
+import { Role } from '../../models/role';
+import { BehaviorSubject, map, Observable, switchMap } from 'rxjs';
+import { RolesService } from '../../../services/roles.service';
 @Component({
   selector: 'app-user-form',
   imports: [ReactiveFormsModule, CommonModule, LucideAngularModule],
-  templateUrl: './user-form.component.html',
-  styleUrl: './user-form.component.scss',
+  templateUrl: './user-form.component.html', // ← CORRECTO
   animations: [
     trigger('expandCollapse', [
       state('void', style({ height: 0, opacity: 0 })),
@@ -22,6 +24,21 @@ export class UserFormComponent {
   /* ───────────── outputs ───────────── */
   @Output() submitForm = new EventEmitter<any>();
   @Output() cancel = new EventEmitter<void>();
+  //IMPLEMENTAR CARGA POR API
+
+ // 1. roles$ 
+ roles$!: Observable<Role[]>;
+
+ // 2. roleNames$ solo chheckbox de nombres para el form
+ roleNames$!: Observable<string[]>;
+
+ // 3. selectedRoles$ - ROLES SELECCIONADOS
+ private selectedRolesSubject = new BehaviorSubject<string[]>([]);
+ selectedRoles$ = this.selectedRolesSubject.asObservable();
+
+ // 4. selectedPermissions$ . PERMISOS SELECCIONADOS
+ selectedPermissions$!: Observable<string[]>;
+
 
   /* ───────────── form ──────────────── */
   form: FormGroup;
@@ -43,8 +60,9 @@ export class UserFormComponent {
 
 
   constructor(private fb: FormBuilder,
-    private cdr: ChangeDetectorRef) {
+    private cdr: ChangeDetectorRef, private roleService: RolesService ) {
 
+    
     this.form = this.fb.group({
       /* personal */
       first_name: ['', [Validators.required, Validators.minLength(3)]],
@@ -72,8 +90,29 @@ export class UserFormComponent {
 
       /* roles */
       roles: [[], Validators.required]
-    }, { validators: this.passwordMatch });
+    }, { validators: this.passwordMatch }
+    );
   }
+
+  //FUNCION OBTENER ROLES:
+  
+
+  ngOnInit(): void {
+    //Called after the constructor, initializing input properties, and the first call to ngOnChanges.
+    //Add 'implements OnInit' to the class.
+    this.roles$ = this.roleService.getAllRoles();
+
+    //EXTRAER NOMBRES DE ROLES
+    this.roleNames$ = this.roles$.pipe(
+      map(roles => roles.map(role => role.name))
+    );
+
+    //CALCULAR PERMISOS CADA VEZ QUE SE CAMBIA EL ROL
+    this.selectedPermissions$ = this.selectedRoles$.pipe(
+      switchMap(names => this.roleService.getPermissionsForRoles(names))
+    );
+  }
+
 
   /* shortcut para template */
   fc = (n: string) => this.form.get(n)!;
@@ -104,16 +143,18 @@ export class UserFormComponent {
   }
 
   /* roles checkbox handler */
-  onRoleChange(evt: Event, role: string): void {
-    const input = evt.target as HTMLInputElement;
+  onRoleChange(evt: Event, roleName: string): void {
+    const checked = (evt.target as HTMLInputElement).checked;
     const current = this.form.value.roles as string[];
-    const next = input.checked
-      ? [...current, role]
-      : current.filter(r => r !== role);
+    const next = checked
+      ? [...current, roleName]
+      : current.filter(r => r !== roleName);
 
-    this.fc('roles').setValue(next);
-    this.fc('roles').markAsTouched();
-    this.fc('roles').updateValueAndValidity();
+    //Actualizo el FormControl
+    this.form.get('roles')!.setValue(next);
+
+    // Emite la nueva lista en el stream
+    this.selectedRolesSubject.next(next);
   }
 
   /*────────────── onPhotoChange ──────────────*/

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { UsersService } from './users.service';
-import { User } from './user';
+import { UsersService } from '../services/users.service';
+import { User } from './models/user';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { UserFilterPipe } from './user-filter.pipe';

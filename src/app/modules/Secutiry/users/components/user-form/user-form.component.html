@@ -1,6 +1,5 @@
 <!-- container -->
-<div class="w-full max-w-md sm:max-w-xl p-6 bg-gray-900 text-white rounded-2xl shadow-2xl">
-
+<div class="w-full max-w-md sm:max-w-xl p-6 bg-gray-900 text-white rounded-2xl shadow-2xl max-h-[80vh] overflow-y-auto" >
     <!-- header -->
     <div class="flex justify-between items-start mb-6">
         <div>
@@ -169,13 +168,24 @@
                 <ng-container *ngIf="s.key === 'roles'">
                     <label class="label">Roles</label>
                     <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                        <label *ngFor="let role of roles" class="flex items-center gap-2 text-sm select-none">
-                            <input type="checkbox" [checked]="form.value.roles.includes(role)"
-                                (change)="onRoleChange($event, role)" class="accent-blue-600 w-4 h-4 rounded" />
-                            {{ role | titlecase }}
-                        </label>
+                        <ng-container *ngIf="roleNames$ | async as roleNames">
+                            <label *ngFor="let role of roleNames" class="flex items-center gap-2 text-sm select-none">
+                                <input type="checkbox" [checked]="form.value.roles.includes(role)" (change)="onRoleChange($event, role)"
+                                    class="accent-blue-600 w-4 h-4 rounded" />
+                                {{ role | titlecase }}
+                            </label>
+                        </ng-container>
                     </div>
+                
+                    <!-- aquí mostramos los permisos derivados -->
+                    <ng-container *ngIf="selectedPermissions$ | async as perms">
+                        <label *ngIf="perms.length" class="label mt-4">Permissions</label>
+                        <ul *ngIf="perms.length" class="list-disc list-inside text-gray-300 text-sm space-y-1">
+                            <li *ngFor="let p of perms">{{ p | titlecase }}</li>
+                        </ul>
+                    </ng-container>
                 </ng-container>
+                  
 
                 <!-- buttons -->
                 <div class="pt-4 text-right">
