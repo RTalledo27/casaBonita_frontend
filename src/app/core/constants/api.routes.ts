@@ -4,9 +4,9 @@ const BASE = environment.URL_BACKEND;
 
 export const API_ROUTES = {
   AUTH: {
-    LOGIN: `${BASE}/auth/login`,
-    LOGOUT: `${BASE}/auth/logout`,
-    PROFILE: `${BASE}/auth/me`,
+    LOGIN: `${BASE}/security/login`,
+    LOGOUT: `${BASE}/security/logout`,
+    PROFILE: `${BASE}/security/me`,
   },
 
   SECURITY: {

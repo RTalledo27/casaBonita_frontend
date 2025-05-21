@@ -1,0 +1,12 @@
+<!-- toast-container.component.html -->
+<div class="fixed top-4 right-4 space-y-2 z-50">
+    <div *ngFor="let t of toasts" class="px-4 py-2 rounded shadow-lg text-sm flex items-center" [ngClass]="{
+           'bg-green-600 text-white': t.type==='success',
+           'bg-red-600   text-white': t.type==='error',
+           'bg-blue-600  text-white': t.type==='info'
+         }">
+        {{ t.message }}
+        <button class="ml-2 font-bold" (click)="dismiss(t.id)">×</button>
+    </div>
+</div>
+  

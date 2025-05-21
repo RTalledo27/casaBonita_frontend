@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 import { UserFilterPipe } from './user-filter.pipe';
 import { HttpClient } from '@angular/common/http';
 import { UserFormComponent } from './components/user-form/user-form.component';
+import { Role } from './models/role';
 
 @Component({
   selector: 'app-users',
@@ -41,9 +42,9 @@ export class UsersComponent {
 
   getUsers(): void {
     this.loading = true;
-    this.userService.getAll().subscribe({
-      next: (res) => {
-        this.users = res;
+    this.userService.list().subscribe({
+      next: (res:any) => {
+        this.users = res.data;
         this.loading = false;
       },
       error: () => {
@@ -58,11 +59,24 @@ onCreate(): void {
   this.showForm = true;
 }
 
-onFormSubmit(data: any): void {
-  console.log('User submitted:', data);
-  this.showForm = false;
-  // Aquí puedes llamar a this.userService.create(data)
-}
+  onFormSubmit(data: Role): void {
+  
+    // preparamos FormData si hay foto
+    const fd = new FormData();
+
+    
+
+    Object.entries(data).forEach(([k,v]) => v != null && fd.append(k, v));
+    this.userService.create(fd).subscribe({
+      next: () => {
+        console.log(fd.values());
+        console.log('User created');
+        this.showForm = false;
+        this.getUsers();
+      }
+    });
+  }
+
 
 onFormCancel(): void {
   this.showForm = false;

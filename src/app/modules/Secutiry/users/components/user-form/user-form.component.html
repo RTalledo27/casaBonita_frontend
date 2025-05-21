@@ -133,41 +133,65 @@
 
                 <!-- ACCESS -->
                 <ng-container *ngIf="s.key === 'access'">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                        <div class="field">
-                            <label class="label">Username</label>
-                            <input class="input" placeholder="jdoe" formControlName="username" />
-                        </div>
-                        <div class="field">
-                            <label class="label">Email</label>
-                            <input class="input" type="email" placeholder="mail@example.com" formControlName="email" />
-                            <div *ngIf="fc('email').touched && fc('email').invalid" class="error-msg">Invalid email
-                            </div>
-                        </div>
-                        <div class="field">
-                            <label class="label">Status</label>
-                            <select class="input" formControlName="status">
-                                <option value="active">Active</option>
-                                <option value="blocked">Blocked</option>
-                            </select>
-                        </div>
-                        <div class="field">
-                            <label class="label">Password</label>
-                            <input class="input" type="password" formControlName="password" />
-                        </div>
-                        <div class="field">
-                            <label class="label">Confirm Password</label>
-                            <input class="input" type="password" formControlName="confirmPassword" />
-                            <div *ngIf="form.hasError('mismatch') &&
-                            fc('confirmPassword').touched" class="error-msg">Passwords do not match</div>
-                        </div>
+                <!-- dentro del <ng-container *ngIf="s.key === 'access'"> -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                
+                    <!-- Username -->
+                    <div class="field">
+                        <label class="label">Username</label>
+                        <input class="input" formControlName="username" />
                     </div>
+                
+                    <!-- Email -->
+                    <div class="field">
+                        <label class="label">Email</label>
+                        <input class="input" type="email" formControlName="email" />
+                    </div>
+                
+                    <!-- Status -->
+                    <div class="field">
+                        <label class="label">Status</label>
+                        <select class="input" formControlName="status">
+                            <option value="active">Active</option>
+                            <option value="blocked">Blocked</option>
+                        </select>
+                    </div>
+                
+                    <!-- Password -->
+                    <div class="field">
+                        <label class="label">Password</label>
+                        <input class="input" type="password" formControlName="password" (focus)="showPassRules = true"
+                            />
+                    </div>
+                
+                    <!-- Confirm Password -->
+                    <div class="field">
+                        <label class="label">Confirm Password</label>
+                        <input class="input" type="password" formControlName="password_confirmation" />
+                    </div>
+                
+                    <!-- Aquí, justo después de los inputs, metes la lista de reglas -->
+                    <div *ngIf="showPassRules" class="sm:col-span-2 mt-2 space-y-1 text-sm">
+                        <ul>
+                            <li *ngFor="let rule of passRules" [ngClass]="{
+                            'text-green-400': rule.valid,
+                            'text-gray-500': !rule.valid
+                          }">
+                                • {{ rule.label }}
+                            </li>
+                        </ul>
+                    </div>
+                
+                </div>
+  
                 </ng-container>
+
+                <!-- ROLES -->
 
                 <!-- ROLES -->
                 <ng-container *ngIf="s.key === 'roles'">
                     <label class="label">Roles</label>
-                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
                         <ng-container *ngIf="roleNames$ | async as roleNames">
                             <label *ngFor="let role of roleNames" class="flex items-center gap-2 text-sm select-none">
                                 <input type="checkbox" [checked]="form.value.roles.includes(role)" (change)="onRoleChange($event, role)"
@@ -177,15 +201,19 @@
                         </ng-container>
                     </div>
                 
-                    <!-- aquí mostramos los permisos derivados -->
+                    <!-- Badges de permisos -->
                     <ng-container *ngIf="selectedPermissions$ | async as perms">
-                        <label *ngIf="perms.length" class="label mt-4">Permissions</label>
-                        <ul *ngIf="perms.length" class="list-disc list-inside text-gray-300 text-sm space-y-1">
-                            <li *ngFor="let p of perms">{{ p | titlecase }}</li>
-                        </ul>
+                        <label *ngIf="perms.length" class="label">Permissions</label>
+                        <div class="flex flex-wrap gap-2">
+                            <span *ngFor="let p of perms" class="text-xs px-2 py-1 bg-gray-800 rounded-full whitespace-nowrap">
+                                {{ p | titlecase }}
+                            </span>
+                        </div>
                     </ng-container>
                 </ng-container>
-                  
+  
+               
+
 
                 <!-- buttons -->
                 <div class="pt-4 text-right">

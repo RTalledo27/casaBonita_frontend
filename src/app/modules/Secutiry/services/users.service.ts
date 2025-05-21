@@ -12,9 +12,22 @@ export class UsersService {
 
   constructor(private http: HttpClient) {}
 
-  getAll(): Observable<User[]> {
-    console.log('Fetching users from API, URL:', API_ROUTES.SECURITY.USERS);
-    return this.http.get<User[]>(API_ROUTES.SECURITY.USERS);
+  private base = API_ROUTES.SECURITY.USERS;
+
+  list(): Observable<User[]> {
+    return this.http.get<User[]>(this.base);
+  }
+  get(id: number): Observable<User> {
+    return this.http.get<User>(`${this.base}/${id}`);
+  }
+  create(fd: FormData): Observable<User> {
+    return this.http.post<User>(this.base, fd);
+  }
+  update(id: number, fd: FormData): Observable<User> {
+    return this.http.post<User>(`${this.base}/${id}`, fd);
+  }
+  delete(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.base}/${id}`);
   }
 
   
