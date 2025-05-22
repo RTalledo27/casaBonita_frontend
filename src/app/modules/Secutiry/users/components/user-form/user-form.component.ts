@@ -3,6 +3,7 @@ import {
   ChangeDetectorRef,
   Component,
   EventEmitter,
+  Input,
   Output,
 } from '@angular/core';
 import {
@@ -30,10 +31,12 @@ import {
   style,
   transition,
   animate,
+  keyframes,
 } from '@angular/animations';
 import { Role } from '../../models/role';
 import { BehaviorSubject, debounceTime, map, merge, Observable, switchMap } from 'rxjs';
 import { RolesService } from '../../../services/roles.service';
+import { ActivatedRoute } from '@angular/router';
 
 
 interface PassRule {
@@ -49,18 +52,52 @@ interface PassRule {
   imports: [ReactiveFormsModule, CommonModule, LucideAngularModule],
   templateUrl: './user-form.component.html', // ← CORRECTO
   animations: [
+    // vieja animación de acordeón
     trigger('expandCollapse', [
       state('void', style({ height: 0, opacity: 0 })),
       state('*', style({ height: '*', opacity: 1 })),
       transition('void <=> *', animate('450ms cubic-bezier(0.4,0,0.2,1)')),
     ]),
+
+    // nueva animación general para el modal
+    trigger('fadeSlideUp', [
+      transition(':enter', [
+        animate(
+          '300ms ease-out',
+          keyframes([
+            style({ opacity: 0, transform: 'translateY(20px)', offset: 0 }),
+            style({ opacity: 1, transform: 'translateY(0)', offset: 1 }),
+          ])
+        ),
+      ]),
+      transition(':leave', [
+        animate(
+          '200ms ease-in',
+          keyframes([
+            style({ opacity: 1, transform: 'translateY(0)', offset: 0 }),
+            style({ opacity: 0, transform: 'translateY(20px)', offset: 1 }),
+          ])
+        ),
+      ]),
+    ]),
   ],
+  host: {
+    // aplicamos la animación al elemento raíz
+    '[@fadeSlideUp]': '',
+  },
 })
 export class UserFormComponent {
+  @Input() userData?: any; // datos para editar (si los pasan)
+
+  //ERRORES BACKEND:
+  @Input() serverErrors: Record<string, string[]> = {};
+
   /* ───────────── outputs ───────────── */
-  @Output() submitForm = new EventEmitter<any>();
+  @Output() submitForm = new EventEmitter<{ data: any; isEdit: boolean }>();
   @Output() cancel = new EventEmitter<void>();
   //IMPLEMENTAR CARGA POR API
+
+  isEditMode = false; // modo create vs edit
 
   // 1. roles$
   roles$!: Observable<Role[]>;
@@ -78,6 +115,7 @@ export class UserFormComponent {
   /* ───────────── form ──────────────── */
   form: FormGroup;
   roles: string[] = ['admin', 'editor', 'viewer'];
+  rolesList: Role[] = [];
 
   sections = [
     { title: 'Personal Info', icon: User, key: 'personal', expanded: true },
@@ -130,37 +168,40 @@ export class UserFormComponent {
   constructor(
     private fb: FormBuilder,
     private cdr: ChangeDetectorRef,
-    private roleService: RolesService
+    private roleService: RolesService,
+    private route: ActivatedRoute //  obtener el ID del usuario desde ruta
   ) {
     this.form = this.fb.group(
       {
-        /* personal */
+        // PERSONAL
         first_name: ['', [Validators.required, Validators.minLength(3)]],
         last_name: ['', [Validators.required, Validators.minLength(3)]],
         birth_date: [
           '',
           [Validators.required, Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)],
         ],
-        photo_profile: [null], // opcional
 
-        /* contact */
-        dni: ['', Validators.required],
-        phone: ['', Validators.required],
-        address: [''],
+        // CONTACT
+        dni: ['', [Validators.required, Validators.pattern(/^\d{7,20}$/)]],
+        phone: [
+          '',
+          [Validators.required, Validators.pattern(/^[0-9+\-\s]{7,20}$/)],
+        ],
+        address: ['', Validators.maxLength(255)],
 
-        /* work */
-        position: ['', Validators.required],
-        department: ['', Validators.required],
-        hire_date: [''],
+        // WORK
+        position: ['', [Validators.required, Validators.maxLength(60)]],
+        department: ['', [Validators.required, Validators.maxLength(60)]],
+        hire_date: ['', Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)],
 
-        /* access */
-        username: [{ value: '', disabled: true }, Validators.required],
+        // ACCESS
+        username: ['', [Validators.required, Validators.maxLength(60)]],
         email: ['', [Validators.required, Validators.email]],
-        password: ['', [Validators.required, Validators.minLength(6)]],
+        password: ['', [Validators.required, Validators.minLength(8)]],
         password_confirmation: ['', Validators.required],
         status: ['active', Validators.required],
 
-        /* roles */
+        // ROLES
         roles: [[], Validators.required],
       },
       { validators: this.passwordMatch }
@@ -170,26 +211,45 @@ export class UserFormComponent {
   //FUNCION OBTENER ROLES:
 
   ngOnInit(): void {
-    //Called after the constructor, initializing input properties, and the first call to ngOnChanges.
-    //Add 'implements OnInit' to the class.
+    // Detectar modo edición
+    const id = this.route.snapshot.paramMap.get('id');
 
+    this.isEditMode = !!this.userData;
+    if (this.isEditMode) {
+      this.form.patchValue(this.userData);
+    }
+
+    // Patch en edición
+    if (this.userData) {
+      this.form.patchValue(this.userData);
+    }
+
+    // Carga única de roles
     this.roles$ = this.roleService.getAllRoles();
-    
-    //EXTRAER NOMBRES DE ROLES
-    this.roleNames$ = this.roles$.pipe(
-      map((roles) => roles.map((r) => r.name))
-    );
+    this.roles$.subscribe((list) => {
+      this.rolesList = list;
 
-    //CALCULAR PERMISOS CADA VEZ QUE SE CAMBIA EL ROL
-    this.selectedPermissions$ = this.selectedRoles$.pipe(
+      if (this.isEditMode && this.userData) {
+        // parchear valores simples
+        this.form.patchValue(this.userData);
+
+        // parchear lista de roles en el FormControl y stream
+        this.form.get('roles')!.setValue(this.userData.roles);
+        this.selectedRolesSubject.next(this.userData.roles);
+      }
+    });
+
+    // Permisos
+    this.selectedPermissions$ = this.selectedRolesSubject.pipe(
       switchMap((names) => this.roleService.getPermissionsForRoles(names))
     );
 
+    // Validaciones en vivo de contraseña
     merge(this.password.valueChanges, this.confirm.valueChanges)
       .pipe(debounceTime(100))
       .subscribe(() => {
-        const pw = this.password.value as string;
-        const cp = this.confirm.value as string;
+        const pw = this.password.value;
+        const cp = this.confirm.value;
         this.passRules.forEach((r) => (r.valid = r.test(pw, cp)));
       });
   }
@@ -265,17 +325,14 @@ export class UserFormComponent {
   }
 
   /* roles checkbox handler */
-  onRoleChange(evt: Event, roleName: string): void {
+  onRoleChange(evt: Event, roleName: string) {
     const checked = (evt.target as HTMLInputElement).checked;
-    const current = this.form.value.roles as string[];
+    const current: string[] = this.form.value.roles;
     const next = checked
       ? [...current, roleName]
       : current.filter((r) => r !== roleName);
 
-    //Actualizo el FormControl
     this.form.get('roles')!.setValue(next);
-
-    // Emite la nueva lista en el stream
     this.selectedRolesSubject.next(next);
   }
 
@@ -303,11 +360,20 @@ export class UserFormComponent {
 
   /* submit */
   submit(): void {
-    if (!this.form.valid) return;
+    if (this.form.invalid) {
+      return;
+    }
 
-    // Incluye even los disabled:
+    // 1) Obtiene todos los valores (incluido el File)
     const data = this.form.getRawValue();
-    this.submitForm.emit(data);
+
+    // 2) Si estamos en modo edición, agrega el id al payload
+    if (this.isEditMode && this.userData?.id) {
+      data.id = this.userData.id;
+    }
+
+    // 3) Emite un objeto con los datos y la bandera 'edit'
+    this.submitForm.emit({ data: data, isEdit: this.isEditMode });
   }
 
   private controlsFor(key: string): string[] {

@@ -3,8 +3,8 @@
     <!-- header -->
     <div class="flex justify-between items-start mb-6">
         <div>
-            <h3 class="text-2xl font-bold">Create User</h3>
-
+            <h3 class="text-2xl font-bold">
+                {{ isEditMode ? 'Edit User' : 'Create User' }}         </h3>
             <!-- progress bar -->
             <div class="mt-2 h-1 w-full bg-gray-800 rounded">
                 <div class="bg-blue-600 h-1 rounded transition-all duration-300"
@@ -192,11 +192,12 @@
                 <ng-container *ngIf="s.key === 'roles'">
                     <label class="label">Roles</label>
                     <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
-                        <ng-container *ngIf="roleNames$ | async as roleNames">
-                            <label *ngFor="let role of roleNames" class="flex items-center gap-2 text-sm select-none">
-                                <input type="checkbox" [checked]="form.value.roles.includes(role)" (change)="onRoleChange($event, role)"
-                                    class="accent-blue-600 w-4 h-4 rounded" />
-                                {{ role | titlecase }}
+                        <ng-container *ngIf="rolesList.length">
+                            <label *ngFor="let r of rolesList" class="flex items-center gap-2">
+                                <!-- MARCAR según r.name, no r.role_id -->
+                                <input type="checkbox" [checked]="form.value.roles.includes(r.name)"
+                                    (change)="onRoleChange($event, r.name)" class="accent-blue-600 w-4 h-4 rounded" />
+                                {{ r.name | titlecase }}
                             </label>
                         </ng-container>
                     </div>
@@ -211,6 +212,7 @@
                         </div>
                     </ng-container>
                 </ng-container>
+                  
   
                
 
@@ -223,9 +225,11 @@
                         Next
                     </button>
 
-                    <button *ngIf="i === sections.length - 1" type="submit" class="bg-green-600 hover:bg-green-500 text-sm px-5 py-2 rounded
-                           shadow-lg transition disabled:opacity-40" [disabled]="form.invalid">
-                        Create
+                    <button *ngIf="i === sections.length - 1" type="submit" [ngClass]="{
+                        'bg-green-600 hover:bg-green-500': !isEditMode,
+                        'bg-blue-600 hover:bg-blue-500': isEditMode
+                      }" class="text-sm px-5 py-2 rounded shadow-lg transition disabled:opacity-40" [disabled]="form.invalid">
+                        {{ isEditMode ? 'Save Changes' : 'Create' }}
                     </button>
                 </div>
 

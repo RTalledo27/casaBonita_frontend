@@ -24,6 +24,7 @@ export class UsersService {
     return this.http.post<User>(this.base, fd);
   }
   update(id: number, fd: FormData): Observable<User> {
+    console.log('update', fd);
     return this.http.post<User>(`${this.base}/${id}`, fd);
   }
   delete(id: number): Observable<void> {

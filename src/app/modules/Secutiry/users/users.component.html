@@ -8,7 +8,9 @@
     <div *ngIf="showForm"
         class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fade-in">
         <div class="animate-slide-up">
-            <app-user-form (submitForm)="onFormSubmit($event)" (cancel)="onFormCancel()"></app-user-form>
+            <app-user-form *ngIf="showForm" [userData]="editingUser" (submitForm)="onFormSubmit($event)" (cancel)="onFormCancel()">
+                </app-user-form>            <app-toast-container></app-toast-container>
+
         </div>
     </div>
 
@@ -51,7 +53,7 @@
                 </td>
                 <td class="px-4 py-2">{{ user.roles.join(', ') }}</td>
                 <td class="px-4 py-2 text-right">
-                    <button class="text-blue-500 hover:underline">Edit</button>
+                    <button class="text-blue-500 hover:underline" (click)="onEdit(user)">Edit</button>
                 </td>
             </tr>
         </tbody>
