@@ -3,6 +3,8 @@ import { AppComponent } from './app.component';
 import { userRoutes } from './modules/Secutiry/users/routes/user.routes';
 import { authGuard } from './core/guards/auth.guard';
 import { permissionGuard } from './modules/Secutiry/users/guards/permission.guard';
+import { roleRoutes } from './modules/Secutiry/roles/routes/role.routes';
+import { permissionRoutes } from './modules/Secutiry/permissions/routes/permission.routes';
 export const routes: Routes = [
   {
     path: 'auth',
@@ -30,8 +32,8 @@ export const routes: Routes = [
           },
           {
                 path: 'security',
-                children: [...userRoutes],
-              canActivateChild: [permissionGuard]   // opcional, si quieres aplicarlo en bloque
+                children: [...userRoutes, ...roleRoutes, ...permissionRoutes],
+                canActivateChild: [permissionGuard]   // opcional, si quieres aplicarlo en bloque
           },
       {
             path: 'unauthorized',
