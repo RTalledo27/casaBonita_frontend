@@ -34,9 +34,11 @@ import {
   keyframes,
 } from '@angular/animations';
 import { Role } from '../../models/role';
-import { BehaviorSubject, debounceTime, map, merge, Observable, switchMap } from 'rxjs';
+import { BehaviorSubject, debounceTime, filter, map, merge, Observable, switchMap } from 'rxjs';
 import { RolesService } from '../../../services/roles.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { UsersService } from '../../../services/users.service';
+import { ToastService } from '../../../../../core/services/toast.service';
 
 
 interface PassRule {
@@ -87,17 +89,18 @@ interface PassRule {
   },
 })
 export class UserFormComponent {
-  @Input() userData?: any; // datos para editar (si los pasan)
+  //@Input() userData?: any; // datos para editar (si los pasan)
 
   //ERRORES BACKEND:
   @Input() serverErrors: Record<string, string[]> = {};
 
   /* ───────────── outputs ───────────── */
   @Output() submitForm = new EventEmitter<{ data: any; isEdit: boolean }>();
-  @Output() cancel = new EventEmitter<void>();
+  @Output() modalClosed = new EventEmitter<boolean>(); // Emite un booleano
   //IMPLEMENTAR CARGA POR API
 
-  isEditMode = false; // modo create vs edit
+  isEditMode = false;
+  private editingId!: number;
 
   // 1. roles$
   roles$!: Observable<Role[]>;
@@ -128,6 +131,7 @@ export class UserFormComponent {
   ChevronUp = ChevronUp;
   ChevronDown = ChevronDown;
   X = X;
+  User = User;
   showPassRules = false;
 
   passRules: PassRule[] = [
@@ -169,6 +173,9 @@ export class UserFormComponent {
     private fb: FormBuilder,
     private cdr: ChangeDetectorRef,
     private roleService: RolesService,
+    private userService: UsersService,
+    private router: Router,
+    private toast: ToastService,
     private route: ActivatedRoute //  obtener el ID del usuario desde ruta
   ) {
     this.form = this.fb.group(
@@ -180,6 +187,7 @@ export class UserFormComponent {
           '',
           [Validators.required, Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)],
         ],
+        photo_profile: [null, Validators.required],
 
         // CONTACT
         dni: ['', [Validators.required, Validators.pattern(/^\d{7,20}$/)]],
@@ -211,40 +219,33 @@ export class UserFormComponent {
   //FUNCION OBTENER ROLES:
 
   ngOnInit(): void {
-    // Detectar modo edición
-    const id = this.route.snapshot.paramMap.get('id');
-
-    this.isEditMode = !!this.userData;
-    if (this.isEditMode) {
-      this.form.patchValue(this.userData);
-    }
-
-    // Patch en edición
-    if (this.userData) {
-      this.form.patchValue(this.userData);
-    }
-
-    // Carga única de roles
+    // 1) Cargo roles
     this.roles$ = this.roleService.getAllRoles();
-    this.roles$.subscribe((list) => {
-      this.rolesList = list;
+    this.roles$.subscribe((list) => (this.rolesList = list));
 
-      if (this.isEditMode && this.userData) {
-        // parchear valores simples
-        this.form.patchValue(this.userData);
-
-        // parchear lista de roles en el FormControl y stream
-        this.form.get('roles')!.setValue(this.userData.roles);
-        this.selectedRolesSubject.next(this.userData.roles);
-      }
-    });
-
-    // Permisos
+    // 2) Permisos dinámicos
     this.selectedPermissions$ = this.selectedRolesSubject.pipe(
       switchMap((names) => this.roleService.getPermissionsForRoles(names))
     );
 
-    // Validaciones en vivo de contraseña
+    // 3) Detecto si hay :id en la ruta
+    this.route.paramMap
+      .pipe(
+        filter((p) => p.has('id')),
+        map((p) => +p.get('id')!),
+        switchMap((id) => {
+          this.isEditMode = true;
+          this.editingId = id;
+          return this.userService.get(id);
+        })
+      )
+      .subscribe((u) => {
+        this.form.patchValue(u);
+        this.selectedRolesSubject.next(u.roles);
+        this.photoPreview = u.photo_url || null;
+      });
+
+    // 4) Validación en vivo de contraseñas
     merge(this.password.valueChanges, this.confirm.valueChanges)
       .pipe(debounceTime(100))
       .subscribe(() => {
@@ -345,10 +346,7 @@ export class UserFormComponent {
   onPhotoChange(e: Event): void {
     const file = (e.target as HTMLInputElement).files?.[0] ?? null;
     this.fc('photo_profile').setValue(file);
-
-    /* libera la URL anterior */
     if (this.photoPreview) URL.revokeObjectURL(this.photoPreview);
-
     this.photoPreview = file ? URL.createObjectURL(file) : null;
   }
 
@@ -361,19 +359,70 @@ export class UserFormComponent {
   /* submit */
   submit(): void {
     if (this.form.invalid) {
+      this.toast.show('Revisa los campos marcados en rojo', 'error');
       return;
     }
 
-    // 1) Obtiene todos los valores (incluido el File)
-    const data = this.form.getRawValue();
+    // 1) Armar FormData igual que en onFormSubmit
+    const raw = this.form.getRawValue();
+    const fd = new FormData();
+    Object.entries(raw).forEach(([key, val]) => {
+      if (val == null) return;
+      if (Array.isArray(val)) {
+        val.forEach((v) => fd.append(`${key}[]`, v));
+      } else if (val instanceof File) {
+        fd.append(key, val, val.name);
+      } else {
+        fd.append(key, val.toString());
+      }
+    });
 
-    // 2) Si estamos en modo edición, agrega el id al payload
-    if (this.isEditMode && this.userData?.id) {
-      data.id = this.userData.id;
+    // 2) Elegir create vs update
+    let req$;
+    if (this.isEditMode && this.editingId) {
+      fd.append('_method', 'PATCH');
+      req$ = this.userService.update(this.editingId, fd);
+    } else {
+      req$ = this.userService.create(fd);
     }
 
-    // 3) Emite un objeto con los datos y la bandera 'edit'
-    this.submitForm.emit({ data: data, isEdit: this.isEditMode });
+    // 3) Suscribirse y manejar toast + cierre modal
+    req$.subscribe({
+      next: (user) => {
+        this.toast.show(
+          this.isEditMode ? 'Usuario actualizado' : 'Usuario creado',
+          'success'
+        );
+        this.submitForm.emit({ data: user, isEdit: this.isEditMode }); // ✅ Emitir aquí
+
+        // cerrar modal (asumiendo que parent escucha ruta auxiliar)
+        this.router.navigate([{ outlets: { modal: null } }], {
+          relativeTo: this.route.parent,
+        });
+        // opcional: emitir evento para refrescar lista
+        this.submitForm.emit({ data: user, isEdit: this.isEditMode });
+      },
+      error: (err) => {
+        console.log(err);
+        const errors: Record<string, string[]> = err.error?.errors || {};
+        // 1) Guárdalos para pintarlos inline
+        this.serverErrors = errors;
+        console.log(this.serverErrors);
+        // 2) Y muéstralos en toast
+        Object.values(errors)
+          .flat()
+          .forEach((msg) => this.toast.show(msg, 'error', 5000));
+
+        if (!Object.keys(errors).length) {
+          this.toast.show(
+            this.isEditMode
+              ? 'Error al actualizar el usuario'
+              : 'Error al crear el usuario',
+            'error'
+          );
+        }
+      },
+    });
   }
 
   private controlsFor(key: string): string[] {
@@ -403,5 +452,13 @@ export class UserFormComponent {
     const p = ctrl.get('password')?.value;
     const c = ctrl.get('password_confirmation')?.value;
     return p && c && p !== c ? { mismatch: true } : null;
+  }
+
+  onCancel() {
+    this.modalClosed.emit(false);
+    this.router.navigate([{ outlets: { modal: null } }], {
+      relativeTo: this.route.parent, // Mantén la ruta base (security/users)
+      skipLocationChange: true,
+    }); 
   }
 }

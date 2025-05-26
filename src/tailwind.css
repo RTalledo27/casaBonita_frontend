@@ -42,3 +42,42 @@
     scrollbar-width: thin;
     scrollbar-color: rgba(100, 116, 139, 0.6) transparent;
 }
+
+/*OUTLET ROUTER*/
+
+
+.modal-content {
+    background: #1a1a1a;
+    border-radius: 8px;
+    padding: 20px;
+    width: 90%;
+    max-width: 600px;
+}
+
+/* Asegúrate de que el contenido del modal tenga un tamaño adecuado */
+app-user-form {
+    width: 90%;
+    max-width: 600px;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0
+    }
+
+    to {
+        opacity: 1
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(24px)
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0)
+    }
+}

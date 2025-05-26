@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { UsersService } from '../services/users.service';
 import { User } from './models/user';
 import { FormsModule } from '@angular/forms';
@@ -9,6 +9,8 @@ import { UserFormComponent } from './components/user-form/user-form.component';
 import { Role } from './models/role';
 import {  ToastService } from '../../../core/services/toast.service';
 import { ToastContainerComponent } from '../../../shared/components/toast-container/toast-container/toast-container.component';
+import { ActivatedRoute, Router, RouterLink, RouterOutlet } from '@angular/router';
+import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-users',
   standalone: true,
@@ -16,8 +18,8 @@ import { ToastContainerComponent } from '../../../shared/components/toast-contai
     CommonModule,
     FormsModule,
     UserFilterPipe,
-    UserFormComponent,
-    ToastContainerComponent,
+    RouterLink,
+    RouterOutlet,
   ],
   templateUrl: './users.component.html',
   styleUrl: './users.component.scss',
@@ -29,8 +31,17 @@ export class UsersComponent {
   status = '';
   showForm = false;
   editingUser: any = null;
+  isModalOpen = false;
 
-  constructor(private userService: UsersService, private toast: ToastService) {}
+  private modalSub?: Subscription;
+  @ViewChild('modalOutlet', { read: RouterOutlet })
+  modalOutlet!: RouterOutlet; // Usa el estado nativo del RouterOutlet
+  constructor(
+    private userService: UsersService,
+    private toast: ToastService,
+    private router: Router,
+    private route: ActivatedRoute
+  ) {}
 
   ngOnInit(): void {
     this.getUsers();
@@ -48,6 +59,8 @@ export class UsersComponent {
     }
   }
 
+  
+
   getUsers(): void {
     this.loading = true;
     this.userService.list().subscribe({
@@ -63,20 +76,61 @@ export class UsersComponent {
   }
 
   onCreate() {
-    this.editingUser = undefined;
-    this.showForm = true;
+    /*this.editingUser = undefined;
+    this.showForm = true;*/
+    this.isModalOpen = true;
+    this.router.navigate([{ outlets: { modal: 'create' } }], {
+      relativeTo: this.route,
+    });
   }
 
-  onEdit(user: any) {
-    // map API payload into form shape
-    this.editingUser = { ...user };
-    this.showForm = true;
+  onEdit(user: User) {
+    this.isModalOpen = true;
+    this.router.navigate(
+      [{ outlets: { modal: [user.id.toString(), 'edit'] } }],
+      { relativeTo: this.route }
+    );
   }
 
-  onFormSubmit(payload: { data: any; isEdit: boolean }) {
+  //MOSTRAR Y SUPERPONER DIV CONTENEDOR DE FORM(EDIT-CREATE)
+
+  //RECIBIR EL EMIT DE RECARGA
+  reloadUsers(component: any) {
+    if (component instanceof UserFormComponent) {
+      // Escuchar el evento de submit exitoso
+     
+    }
+  }
+  
+
+ 
+
+  onModalActivate(component: any) {
+    console.log('oa');
+    if (component instanceof UserFormComponent) {
+      component.modalClosed.subscribe((isOpen: boolean) => {
+        //this.getUsers(); // Vuelve a cargar la lista completa
+
+        this.isModalOpen = isOpen; // Actualiza el estado
+        this.router.navigate(['security/users']); // Opcional: Navega
+      });
+
+      component.submitForm.subscribe(({ data, isEdit }) => {
+        this.getUsers();
+      });
+    }
+  }
+
+  
+  onModalDeactivate() {
+    this.isModalOpen = false;
+    console.log(this.isModalOpen);
+  }
+
+  /*onFormSubmit(payload: { data: any; isEdit: boolean }) {
     const { data, isEdit } = payload;
     const fd = new FormData();
-    fd.append('_method', 'PATCH');
+    console.log("enviando");
     Object.entries(data).forEach(([key, val]) => {
       if (val == null) return;
       if (Array.isArray(val)) {
@@ -91,6 +145,8 @@ export class UsersComponent {
     if (isEdit && this.editingUser) {
       // **no** id in the FormData!
       console.log('updating user', fd);
+      fd.append('_method', 'PATCH');
+
       this.userService.update(this.editingUser.id, fd).subscribe({
         next: () => {
           this.toast.show('User updated', 'success');
@@ -98,8 +154,17 @@ export class UsersComponent {
           this.getUsers();
         },
         error: (err) => {
-          console.error(err);
-          this.toast.show('Error updating user', 'error');
+          // Si Laravel envía validación, vienen en err.error.errors
+          const errors: Record<string, string[]> = err.error?.errors || {};
+          // Recorremos todos los arrays de mensajes
+          Object.values(errors).forEach((fieldMsgs) => {
+            // Mostramos cada mensaje en un toast de error
+            fieldMsgs.forEach((msg) => this.toast.show(msg, 'error', 5000));
+          });
+          // Si no viene detalle de validación, mostramos un genérico
+          if (!Object.keys(errors).length) {
+            this.toast.show('Error al procesar la solicitud', 'error');
+          }
         },
       });
     } else {
@@ -110,13 +175,19 @@ export class UsersComponent {
           this.getUsers();
         },
         error: (err) => {
-          console.error(err);
-          this.toast.show('Error creating user', 'error');
+          // Si Laravel envía validación, vienen en err.error.errors
+          const errors: Record<string, string[]> = err.error?.errors || {};
+          // Recorremos todos los arrays de mensajes
+          Object.values(errors).forEach((fieldMsgs) => {
+            // Mostramos cada mensaje en un toast de error
+            fieldMsgs.forEach((msg) => this.toast.show(msg, 'error', 5000));
+          });
+          // Si no viene detalle de validación, mostramos un genérico
+          if (!Object.keys(errors).length) {
+            this.toast.show('Error al procesar la solicitud', 'error');
+          }
         },
       });
     }
-  }
-  onFormCancel(): void {
-    this.showForm = false;
-  }
+  }*/
 }
