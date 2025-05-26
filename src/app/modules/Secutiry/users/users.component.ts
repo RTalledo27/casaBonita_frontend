@@ -11,6 +11,7 @@ import {  ToastService } from '../../../core/services/toast.service';
 import { ToastContainerComponent } from '../../../shared/components/toast-container/toast-container/toast-container.component';
 import { ActivatedRoute, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { TranslateModule } from '@ngx-translate/core';
 @Component({
   selector: 'app-users',
   standalone: true,
@@ -20,6 +21,7 @@ import { Subscription } from 'rxjs';
     UserFilterPipe,
     RouterLink,
     RouterOutlet,
+    TranslateModule,
   ],
   templateUrl: './users.component.html',
   styleUrl: './users.component.scss',
@@ -112,10 +114,13 @@ export class UsersComponent {
         //this.getUsers(); // Vuelve a cargar la lista completa
 
         this.isModalOpen = isOpen; // Actualiza el estado
+        console.log(this.isModalOpen);
         this.router.navigate(['security/users']); // Opcional: Navega
       });
 
       component.submitForm.subscribe(({ data, isEdit }) => {
+        this.isModalOpen = false; // Cierra el modal
+        console.log(this.isModalOpen);
         this.getUsers();
       });
     }

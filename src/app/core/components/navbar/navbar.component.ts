@@ -2,10 +2,12 @@ import { Component } from '@angular/core';
 import { AuthService, UserResource } from '../../services/auth.service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { LangSwitcherComponent } from "../../../shared/components/lang-switcher/lang-switcher.component";
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-navbar',
-  imports: [CommonModule],
+  imports: [CommonModule, LangSwitcherComponent,TranslateModule],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.scss'
 })

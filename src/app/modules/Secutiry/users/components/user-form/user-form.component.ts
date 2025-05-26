@@ -32,6 +32,7 @@ import {
   transition,
   animate,
   keyframes,
+  
 } from '@angular/animations';
 import { Role } from '../../models/role';
 import { BehaviorSubject, debounceTime, filter, map, merge, Observable, switchMap } from 'rxjs';
@@ -39,7 +40,7 @@ import { RolesService } from '../../../services/roles.service';
 import { ActivatedRoute, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { UsersService } from '../../../services/users.service';
 import { ToastService } from '../../../../../core/services/toast.service';
-
+import { TranslateModule } from '@ngx-translate/core';
 
 interface PassRule {
   label: string;
@@ -51,7 +52,7 @@ interface PassRule {
 
 @Component({
   selector: 'app-user-form',
-  imports: [ReactiveFormsModule, CommonModule, LucideAngularModule],
+  imports: [ReactiveFormsModule, CommonModule, LucideAngularModule, TranslateModule],
   templateUrl: './user-form.component.html', // ← CORRECTO
   animations: [
     // vieja animación de acordeón
@@ -121,11 +122,11 @@ export class UserFormComponent {
   rolesList: Role[] = [];
 
   sections = [
-    { title: 'Personal Info', icon: User, key: 'personal', expanded: true },
-    { title: 'Contact Info', icon: Phone, key: 'contact', expanded: false },
-    { title: 'Work Info', icon: Building, key: 'work', expanded: false },
-    { title: 'Access Info', icon: Lock, key: 'access', expanded: false },
-    { title: 'Roles', icon: Users, key: 'roles', expanded: false },
+    { title: 'personalInfo', icon: User, key: 'personal', expanded: true },
+    { title: 'contactInfo', icon: Phone, key: 'contact', expanded: false },
+    { title: 'workInfo', icon: Building, key: 'work', expanded: false },
+    { title: 'accessInfo', icon: Lock, key: 'access', expanded: false },
+    { title: 'roles', icon: Users, key: 'roles', expanded: false },
   ];
 
   ChevronUp = ChevronUp;

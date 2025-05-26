@@ -2,9 +2,9 @@
 <div class="p-6 space-y-4">
     <!-- Header y filtro igual que antes -->
     <div class="flex items-center justify-between mb-4">
-        <h2 class="text-xl font-bold text-white">Users</h2>
+        <h2 class="text-xl font-bold text-white">{{'users.title'|translate}}</h2>
         <button (click)="onCreate()" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
-            + Create
+            {{'users.create' | translate}}
         </button>
     </div>
     <div class="flex items-center gap-4 mb-4">
@@ -38,11 +38,11 @@
         <table class="min-w-full text-sm text-left text-white">
             <thead>
                 <tr class="bg-gray-700">
-                    <th class="px-4 py-2">Name</th>
-                    <th class="px-4 py-2">Email</th>
-                    <th class="px-4 py-2">Status</th>
-                    <th class="px-4 py-2">Roles</th>
-                    <th class="px-4 py-2 text-right">Actions</th>
+                    <th class="px-4 py-2">{{'users.name'|translate}}</th>
+                    <th class="px-4 py-2">{{'users.email'|translate}}</th>
+                    <th class="px-4 py-2">{{'users.status'|translate}}</th>
+                    <th class="px-4 py-2">{{'users.roles'|translate}}</th>
+                    <th class="px-4 py-2 text-right">{{'users.actions'|translate}}</th>
                 </tr>
             </thead>
             <tbody>
@@ -56,13 +56,13 @@
                       'bg-green-600 text-white': user.status === 'active',
                       'bg-gray-600 text-white': user.status === 'blocked'
                     }">
-                            {{ user.status | titlecase }}
+                            {{ 'users.'+user.status |translate | titlecase }}
                         </span>
                     </td>
                     <td class="px-4 py-2">{{ user.roles.join(', ') }}</td>
                     <td class="px-4 py-2 text-right">
                         <button (click)="onEdit(user); $event.stopPropagation()" class="text-blue-400 hover:underline">
-                            Edit
+                            {{'users.edit'| translate}}
                         </button>
                     </td>
                 </tr>

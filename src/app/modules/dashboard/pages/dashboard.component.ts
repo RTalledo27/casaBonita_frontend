@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { ChartConfiguration } from 'chart.js';
 import { LucideAngularModule } from 'lucide-angular';
 import {User, UserCheck,FileWarning} from 'lucide-angular';
@@ -8,17 +9,17 @@ import { BaseChartDirective } from 'ng2-charts';
 @Component({
   selector: 'app-dashboard',
   standalone: true,  // <--- Componente standalone
-  imports: [LucideAngularModule,    BaseChartDirective,CommonModule  ],
+  imports: [LucideAngularModule,    BaseChartDirective,CommonModule,TranslateModule  ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
 })
 export class DashboardComponent {
   // KPI DATA
   kpis = [
-    { label: 'Total Clients', value: 120, icon: User },
-    { label: 'Total Users', value: 8, icon: UserCheck },
-    { label: 'Active Contracts', value: 45, icon: FileWarning },
-    { label: 'Pending Payments', value: 20, icon: UserCheck },
+    { label: 'totalClients', value: 120, icon: User },
+    { label: 'totalUsers', value: 8, icon: UserCheck },
+    { label: 'activeContracts', value: 45, icon: FileWarning },
+    { label: 'pendingPayments', value: 20, icon: UserCheck },
   ];
 
   // CHART DATA

@@ -3,10 +3,11 @@ import { RouterOutlet } from '@angular/router';
 import { LayoutComponent } from "./core/layouts/layout/layout.component";
 import { ToastContainerComponent } from './shared/components/toast-container/toast-container/toast-container.component';
 import { CommonModule } from '@angular/common';
+import { LangSwitcherComponent } from "./shared/components/lang-switcher/lang-switcher.component";
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, ToastContainerComponent,CommonModule],
+  imports: [RouterOutlet, ToastContainerComponent, CommonModule, ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })

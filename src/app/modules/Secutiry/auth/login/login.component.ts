@@ -3,10 +3,12 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService, LoginResponse } from '../../../../core/services/auth.service';
 import { ActivatedRoute, Router } from '@angular/router';
+import { LangSwitcherComponent } from "../../../../shared/components/lang-switcher/lang-switcher.component";
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-login',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, LangSwitcherComponent, TranslateModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })

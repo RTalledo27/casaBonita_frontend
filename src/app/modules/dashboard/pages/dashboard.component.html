@@ -6,7 +6,7 @@
                     <lucide-icon [name]="kpi.icon" class="w-5 h-5 text-gray-300" />
                 </div>
                 <div>
-                    <div class="text-sm">{{ kpi.label }}</div>
+                    <div class="text-sm">{{'dashboard.'+kpi.label|translate }}</div>
                     <div class="text-2xl font-bold">{{ kpi.value }}</div>
                 </div>
             </div>
@@ -15,12 +15,12 @@
         <!-- CHARTS -->
         <div class="grid md:grid-cols-2 gap-6">
             <div class="bg-gray-800 rounded-xl p-4 shadow text-white">
-                <h2 class="text-lg font-semibold mb-4">Sales Overview</h2>
+                <h2 class="text-lg font-semibold mb-4">{{'dashboard.salesOverview'|translate}}</h2>
                 <canvas baseChart [data]="salesChartData" [options]="salesChartOptions" [type]="'line'">
                     </canvas>
                 </div>
             <div class="bg-gray-800 rounded-xl p-4 shadow text-white">
-                <h2 class="text-lg font-semibold mb-4">Lots Sold</h2>
+                <h2 class="text-lg font-semibold mb-4">{{'dashboard.lotsSold'|translate}}</h2>
                 <canvas baseChart [data]="lotsChartData" chartType="bar"></canvas>
             </div>
         </div>
@@ -28,13 +28,13 @@
         <!-- ACTIVITY + EVENTS -->
         <div class="grid md:grid-cols-2 gap-6">
             <div class="bg-gray-800 rounded-xl p-4 shadow text-white">
-                <h2 class="text-lg font-semibold mb-4">Recent Activity</h2>
+                <h2 class="text-lg font-semibold mb-4">{{'dashboard.recentActivities'|translate}}</h2>
                 <ul class="text-sm space-y-2">
                     <li *ngFor="let item of activity">{{ item.icon }} {{ item.label }}</li>
                 </ul>
             </div>
             <div class="bg-gray-800 rounded-xl p-4 shadow text-white">
-                <h2 class="text-lg font-semibold mb-4">Upcoming Events</h2>
+                <h2 class="text-lg font-semibold mb-4">{{'dashboard.upcomingEvents'|translate}}</h2>
                 <ul class="text-sm space-y-2">
                     <li *ngFor="let event of events">{{ event.icon }} {{ event.label }} - {{ event.date }}</li>
                 </ul>

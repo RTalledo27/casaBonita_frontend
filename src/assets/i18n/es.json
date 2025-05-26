@@ -1,0 +1,102 @@
+{
+  "login": {
+    "h2WelcomeTo": "Bienvenido a Casa Bonita",
+    "username": "Usuario",
+    "placeHolderUser": "Ingrese tu usuario",
+    "password": "Contraseña",
+    "remember": "Recuérdame",
+    "charging": "validando...",
+    "submit": "Iniciar sesión",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "userEmpty": "El usuario es obligatorio.",
+    "passwordEmpty": "La contraseña es obligatoria."
+  },
+
+  "sidebar": {
+    
+      "dashboard": {
+        "title": "Dashboard"
+      },
+      "crm":{
+          "title": "CRM"
+      },
+      "security": {
+        "title": "Seguridad",
+        "users": {
+        "title": "Usuarios"
+      },
+        "roles": {
+            "title": "Roles"
+        },
+        "permissions": {
+            "title": "Permisos"
+        }
+       
+      },
+      "inventory":{
+        "title": "Inventario"
+      },
+      "sales":{
+        "title": "Ventas"
+      },
+      "accounting":{
+        "title": "Contabilidad"
+      },
+      "service desk":{
+        "title": "Incidencias"
+      },
+      "audit":{
+        "title": "Auditoría"
+      },
+      "settings":{
+        "title": "Configuración"
+      }
+    
+  },
+  "navbar": {
+    "welcome": "Bienvenido",
+    "logout": "Cerrar sesión",
+    "profile": "Perfil",
+    "language": "Idioma"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "totalClients": "Total de Clientes", 
+    "totalUsers": "Total de Usuarios",
+    "activeContracts": "Contratos Activos",
+    "pendingPayments": "Pagos Pendientes",
+    "salesOverview": "Resumen de Ventas",
+    "lotsSold": "Lotes Vendidos",
+    "recentActivities": "Actividades Recientes",
+    "upcomingEvents": "Próximos Eventos"    
+  },
+  "users":{
+    "title": "Usuarios",
+    "create":"crear usuario",
+    "edit":"editar",
+    "name":"Nombre",
+    "email":"Correo Electrónico",
+    "status":"Estado",
+    "active":"Activo",
+    "blocked":"Bloqueado",
+    "roles": "Roles",
+    "searchPlaceholder":"Buscar Usuario",
+    "allUsers": "Todos los Usuarios",
+    "actions": "Acciones",
+    "createUser": {
+      "titleEdit": "Editar Usuario",
+      "titleCreate": "Crear Usuario",
+      "personalInfo": "Información Personal",
+      "contactInfo": "Información de Contacto",
+      "workInfo": "Información Laboral",
+      "accessInfo": "Información de Acceso",
+      "roles": "Roles",
+      "firstName": "Nombre",
+      "lastName": "Apellido",
+      "birthDate": "Fecha de Nacimiento",
+      "profilePicture": "Foto de Perfil"
+      
+    }
+  }
+  
+}

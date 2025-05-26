@@ -18,6 +18,8 @@
     "@angular/platform-browser": "^19.2.0",
     "@angular/platform-browser-dynamic": "^19.2.0",
     "@angular/router": "^19.2.0",
+    "@ngx-translate/core": "^16.0.4",
+    "@ngx-translate/http-loader": "^16.0.1",
     "@tailwindcss/cli": "^4.1.7",
     "chart.js": "^4.4.9",
     "lucide-angular": "^0.511.0",

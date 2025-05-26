@@ -1,5 +1,5 @@
 <header class="h-14 bg-gray-950 border-b border-gray-800 flex items-center justify-between px-6 shadow-sm">
-    <span class="text-sm text-gray-400">Bienvenido, {{ user?.name || 'Usuario' }}</span>
+    <span class="text-sm text-gray-400">{{'navbar.welcome'|translate}}, {{ user?.name || 'Usuario' }}</span>
     <div class="relative flex items-center gap-4">
         <!-- Notificaciones -->
         <button aria-label="Notificaciones" class="text-gray-300 hover:text-white focus:outline-none">
@@ -11,6 +11,7 @@
         </button>
 
         <!-- Perfil / Logout -->
+         <app-lang-switcher></app-lang-switcher>
         <div class="relative">
             <button (click)="toggleMenu()" aria-label="Perfil"
                 class="text-gray-300 hover:text-white focus:outline-none">
@@ -19,7 +20,7 @@
             <ul *ngIf="menuOpen" class="absolute right-0 mt-2 bg-white text-gray-800 rounded shadow-lg w-32 py-1">
                 <li>
                     <button (click)="logout()" class="w-full text-left px-4 py-2 hover:bg-gray-100 transition">
-                        Cerrar sesión
+                        {{'navbar.logout' | translate }}
                     </button>
                 </li>
             </ul>

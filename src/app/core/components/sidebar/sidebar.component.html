@@ -6,7 +6,7 @@
             <a *ngIf="!item.children" [routerLink]="item.route" routerLinkActive="bg-gray-800 text-white"
                 class="flex items-center gap-3 px-3 py-2 rounded-md text-sm hover:bg-gray-800 transition">
                 <lucide-icon [name]="item.icon" class="w-5 h-5"></lucide-icon>
-                <span>{{ item.label }}</span>
+                <span>{{'sidebar.'+item.label+'.title'|translate}}</span>
             </a>
 
             <div *ngIf="item.children">
@@ -14,7 +14,7 @@
                     class="flex items-center justify-between px-3 py-2 rounded-md text-sm cursor-pointer hover:bg-gray-800 transition">
                     <div class="flex items-center gap-3">
                         <lucide-icon [name]="item.icon" class="w-5 h-5"></lucide-icon>
-                        <span>{{ item.label }}</span>
+                        <span>{{'sidebar.'+item.label+'.title'|translate }}</span>
                     </div>
                     <lucide-icon [name]="this.chevronDown[0].icon" class="w-4 h-4" [class.rotate-180]="item.expanded"></lucide-icon>
                 </div>
@@ -22,7 +22,7 @@
                 <div *ngIf="item.expanded" class="mt-1 flex flex-col space-y-1 ml-9">
                     <a *ngFor="let child of item.children" [routerLink]="child.route" routerLinkActive="bg-gray-800 text-white"
                         class="block px-3 py-2 rounded-md text-sm hover:bg-gray-800 transition">
-                        {{ child.label }}
+                        {{ 'sidebar.' + item.label + '.' + child.label+'.title' | translate }}
                     </a>
                 </div>
                   

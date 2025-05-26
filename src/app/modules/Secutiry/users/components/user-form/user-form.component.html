@@ -3,7 +3,7 @@
   <div class="flex justify-between items-start mb-6">
     <div>
       <h3 class="text-2xl font-bold">
-        {{ isEditMode ? 'Edit User' : 'Create User' }}
+        {{ (isEditMode ? 'users.createUser.titleEdit' : 'users.createUser.titleCreate') | translate }}
       </h3>
       <!-- progress bar -->
       <div class="mt-2 h-1 w-full bg-gray-800 rounded">
@@ -40,7 +40,7 @@
           </span>
           <lucide-icon [name]="s.icon" class="w-4 h-4"
             [ngClass]="s.expanded ? 'text-blue-400' : 'text-gray-400'"></lucide-icon>
-          <span class="font-medium text-sm">{{ s.title }}</span>
+          <span class="font-medium text-sm">{{'users.createUser.'+s.title|translate }}</span>
         </div>
         <lucide-icon [name]="s.expanded ? ChevronUp : ChevronDown" class="w-4 h-4 text-gray-400"></lucide-icon>
       </button>
@@ -53,7 +53,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:col-span-2">
               <!-- First Name -->
               <div class="sm:col-span-2 field">
-                <label class="label">First Name</label>
+                <label class="label">{{'users.createUser.firstName'|translate}}</label>
                 <input class="input" placeholder="John" formControlName="first_name" />
                  <div *ngIf="fc('first_name').touched && fc('first_name').invalid" class="error-msg">
                   <span *ngIf="fc('first_name').errors?.['required']">First name is required.</span>
@@ -66,7 +66,7 @@
         
               <!-- Last Name -->
               <div class="sm:col-span-2 field">
-                <label class="label">Last Name</label>
+                <label class="label">{{'users.createUser.lastName'|translate}}</label>
                 <input class="input" placeholder="Doe" formControlName="last_name" />
                  <div *ngIf="fc('last_name').touched && fc('last_name').invalid" class="error-msg">
                   <span *ngIf="fc('last_name').errors?.['required']">Last name is required.</span>
@@ -79,10 +79,10 @@
         
               <!-- Birth Date (ocupa 2 columnas) -->
               <div class="sm:col-span-4 field">
-                <label class="label">Birth Date</label>
+                <label class="label">{{'users.createUser.birthDate'|translate}}</label>
                 <input type="date" class="input" formControlName="birth_date" />
                  <div *ngIf="fc('birth_date').touched && fc('birth_date').invalid" class="error-msg">
-                  <span *ngIf="fc('birth_date').errors?.['required']">Birth date is required.</span>
+                  <span *ngIf="fc('birth_date').errors?.['required']">{{ 'validation.birthDate.required' | translate }}</span>
                   <span *ngIf="fc('birth_date').errors?.['pattern']">Invalid date format.</span>
                 </div>
                 <div *ngIf="serverErrors['birth_date']" class="error-msg">
@@ -93,7 +93,7 @@
         
             <!-- Columna derecha: Foto de perfil -->
             <div class="field flex flex-col items-center">
-              <label class="label text-center">Profile Photo<br /><span class="text-xs">(optional)</span></label>
+              <label class="label text-center">{{'users.createUser.profilePicture'|translate}}<br /><span class="text-xs">(optional)</span></label>
               <div class="w-20 h-20 mb-2 rounded-full overflow-hidden border-2 border-blue-600 shadow">
                 <img *ngIf="photoPreview; else placeholder" [src]="photoPreview" class="object-cover w-full h-full" />
                 <ng-template #placeholder>

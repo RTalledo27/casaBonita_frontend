@@ -1,0 +1,98 @@
+{
+  "login": {
+    "h2WelcomeTo": "Welcome to Casa Bonita",
+    "username": "Username",
+    "placeHolderUser": "Enter your user",
+    "password": "Password",
+    "remember": "Remember Me",
+    "charging": "validating...",
+    "submit": "Login",
+    "forgotPassword": "Forgot Password?",
+    "userEmpty":"User is required.",
+    "passwordEmpty": "Password is required."
+    
+},
+  "sidebar": {
+    "dashboard": {
+      "title": "Dashboard"
+    },
+    "crm":{
+        "title": "CRM"
+    },
+    "security": {
+      "title": "Security",
+      "users": {
+        "title": "Users"
+      },
+        "roles": {
+            "title": "Roles"
+        },
+        "permissions": {
+            "title": "Permissions"
+        }
+     
+    },
+    "inventory":{
+        "title": "Inventory"
+      },
+    "sales":{
+        "title": "Sales"
+      },
+    "accounting":{
+        "title": "Accounting"
+      },
+    "service desk":{
+        "title": "Service Desk"
+      },
+    "audit":{
+        "title": "Audit"
+      },
+    "settings":{
+        "title": "Settings"
+      }
+  },
+  "navbar": {
+    "welcome": "Welcome",
+    "logout": "Logout",
+    "profile": "Profile",
+    "language": "Language"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "totalClients": "Total Clients", 
+    "totalUsers": "Total Users",
+    "activeContracts": "Active Contracts",
+    "pendingPayments": "Pending Payments",
+    "salesOvewrview": "Sales Overview",
+    "lotsSold": "Lots Sold",
+    "recentActivities": "Recent Activities",
+    "upcomingEvents": "Upcoming Events"
+  },
+  "users":{
+    "title": "Users",
+    "create": "Create User",
+    "edit": "Edit",
+    "name": "Name",
+    "email": "Email",
+    "role": "Roles",
+    "status": "Status",
+    "active": "Active",
+    "blocked": "Blocked",
+    "searchPlaceholder": "Search User",
+    "allUsers": "All Users",
+    "actions": "Actions",
+    "createUser": {
+      "title": "Create User",
+      "personalInfo": "Personal Information",
+      "contactInfo": "Contact Information",
+      "workInfo": "Work Information",
+      "accessInfo": "Access Information",
+      "roles": "Roles",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "birthDate": "Birth Date",
+      "profilePicture": "Foto de Perfil"
+     
+    }
+  }
+}
