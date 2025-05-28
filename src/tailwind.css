@@ -81,3 +81,6 @@ app-user-form {
         transform: translateY(0)
     }
 }
+.icon-btn {
+    @apply inline-flex items-center justify-center w-8 h-8 rounded hover:bg-gray-800 transition;
+}

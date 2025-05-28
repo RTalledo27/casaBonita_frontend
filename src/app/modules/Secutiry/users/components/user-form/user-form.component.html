@@ -324,7 +324,7 @@
             <label *ngIf="perms.length" class="label">Permissions</label>
             <div class="flex flex-wrap gap-2">
               <span *ngFor="let p of perms" class="text-xs px-2 py-1 bg-gray-800 rounded-full whitespace-nowrap">
-                {{ p | titlecase }}
+                {{ p | translate }}
               </span>
             </div>
           </ng-container>

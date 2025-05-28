@@ -1,29 +1,67 @@
-<header class="h-14 bg-gray-950 border-b border-gray-800 flex items-center justify-between px-6 shadow-sm">
-    <span class="text-sm text-gray-400">{{'navbar.welcome'|translate}}, {{ user?.name || 'Usuario' }}</span>
-    <div class="relative flex items-center gap-4">
+<header
+    class="h-16 bg-gradient-to-r from-blue-900 to-indigo-900 border-b border-indigo-700 flex items-center justify-between px-6 shadow-xl">
+    <div class="flex items-center">
+        <span class="text-sm text-blue-100 font-medium">{{'navbar.welcome'|translate}}, {{ user?.name || 'Usuario'
+            }}</span>
+    </div>
+
+    <div class="relative flex items-center gap-6">
         <!-- Notificaciones -->
-        <button aria-label="Notificaciones" class="text-gray-300 hover:text-white focus:outline-none">
-            🔔
-            <span *ngIf="unreadCount>0"
-                class="absolute top-0 right-0 -mt-1 -mr-1 bg-red-500 text-white rounded-full text-xs h-4 w-4 flex items-center justify-center">
-                {{ unreadCount }}
-            </span>
+        <button aria-label="Notificaciones"
+            class="text-blue-200 hover:text-white focus:outline-none relative transition-colors">
+            <div class="relative">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path
+                        d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
+                </svg>
+                <span *ngIf="unreadCount>0"
+                    class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full text-xs h-4 w-4 flex items-center justify-center">
+                    {{ unreadCount }}
+                </span>
+            </div>
         </button>
 
+        <!-- Cambio de idioma -->
+        <app-lang-switcher></app-lang-switcher>
+
         <!-- Perfil / Logout -->
-         <app-lang-switcher></app-lang-switcher>
         <div class="relative">
             <button (click)="toggleMenu()" aria-label="Perfil"
-                class="text-gray-300 hover:text-white focus:outline-none">
-                👤
+                class="flex items-center space-x-2 focus:outline-none group">
+                <div
+                    class="w-8 h-8 rounded-full bg-gradient-to-r from-amber-400 to-yellow-500 flex items-center justify-center text-blue-900 font-bold">
+                    {{ user?.name?.charAt(0) || 'U' }}
+                </div>
+                <svg xmlns="http://www.w3.org/2000/svg"
+                    class="h-4 w-4 text-blue-200 group-hover:text-white transition-colors" viewBox="0 0 20 20"
+                    fill="currentColor">
+                    <path fill-rule="evenodd"
+                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                        clip-rule="evenodd" />
+                </svg>
             </button>
-            <ul *ngIf="menuOpen" class="absolute right-0 mt-2 bg-white text-gray-800 rounded shadow-lg w-32 py-1">
-                <li>
-                    <button (click)="logout()" class="w-full text-left px-4 py-2 hover:bg-gray-100 transition">
-                        {{'navbar.logout' | translate }}
-                    </button>
-                </li>
-            </ul>
+
+            <div *ngIf="menuOpen"
+                class="absolute right-0 mt-2 bg-white rounded-lg shadow-2xl py-2 w-48 z-50 border border-gray-200">
+                <div class="px-4 py-3 border-b border-gray-100">
+                    <p class="text-sm font-medium text-gray-900 truncate">{{ user?.name || 'Usuario' }}</p>
+                    <p class="text-xs text-gray-500 truncate">{{ user?.email || 'usuario@ejemplo.com' }}</p>
+                </div>
+                <ul>
+                    <li>
+                        <button (click)="logout()"
+                            class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 transition flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-gray-500"
+                                viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            {{'navbar.logout' | translate }}
+                        </button>
+                    </li>
+                </ul>
+            </div>
         </div>
     </div>
-    </header>
+</header>

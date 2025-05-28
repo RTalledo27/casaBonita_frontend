@@ -8,48 +8,46 @@
     "charging": "validating...",
     "submit": "Login",
     "forgotPassword": "Forgot Password?",
-    "userEmpty":"User is required.",
+    "userEmpty": "User is required.",
     "passwordEmpty": "Password is required."
-    
-},
+  },
   "sidebar": {
     "dashboard": {
       "title": "Dashboard"
     },
-    "crm":{
-        "title": "CRM"
+    "crm": {
+      "title": "CRM"
     },
     "security": {
       "title": "Security",
       "users": {
         "title": "Users"
       },
-        "roles": {
-            "title": "Roles"
-        },
-        "permissions": {
-            "title": "Permissions"
-        }
-     
-    },
-    "inventory":{
-        "title": "Inventory"
+      "roles": {
+        "title": "Roles"
       },
-    "sales":{
-        "title": "Sales"
-      },
-    "accounting":{
-        "title": "Accounting"
-      },
-    "service desk":{
-        "title": "Service Desk"
-      },
-    "audit":{
-        "title": "Audit"
-      },
-    "settings":{
-        "title": "Settings"
+      "permissions": {
+        "title": "Permissions"
       }
+    },
+    "inventory": {
+      "title": "Inventory"
+    },
+    "sales": {
+      "title": "Sales"
+    },
+    "accounting": {
+      "title": "Accounting"
+    },
+    "service desk": {
+      "title": "Service Desk"
+    },
+    "audit": {
+      "title": "Audit"
+    },
+    "settings": {
+      "title": "Settings"
+    }
   },
   "navbar": {
     "welcome": "Welcome",
@@ -59,7 +57,7 @@
   },
   "dashboard": {
     "title": "Dashboard",
-    "totalClients": "Total Clients", 
+    "totalClients": "Total Clients",
     "totalUsers": "Total Users",
     "activeContracts": "Active Contracts",
     "pendingPayments": "Pending Payments",
@@ -68,7 +66,7 @@
     "recentActivities": "Recent Activities",
     "upcomingEvents": "Upcoming Events"
   },
-  "users":{
+  "users": {
     "title": "Users",
     "create": "Create User",
     "edit": "Edit",
@@ -92,7 +90,101 @@
       "lastName": "Last Name",
       "birthDate": "Birth Date",
       "profilePicture": "Foto de Perfil"
-     
     }
+  },
+  "common": {
+    "new": "New",
+    "create": "Create",
+    "update": "Update",
+    "edit": "Edit",
+    "cancel": "Cancel",
+    "back": "Back",
+    "delete": "Delete",
+    "saved": "Saved successfully",
+    "deleted": "Deleted successfully",
+    "errorLoad": "Unable to load data.",
+    "errorSave": "Unable to save changes.",
+    "records": "records",
+    "created": "Created at",
+    "step": "Step",
+    "of": "of",
+    "noData": "No records found",
+    "next":"next"
+  },
+  "security": {
+    "access": "System Access",
+    "permissions": {
+      "title": "Permissions",
+      "codName": "Permission",
+      "name":"name",
+      "view": "View Permissions",
+      "store": "Create Permissions",
+      "update": "Edit Permissions",
+      "destroy": "Delete Permissions"
+    },
+    "roles": {
+      "title": "Roles",
+      "singular": "Role",
+      "name": "Name",
+      "description": "Description",
+      "permissions": "Permissions",
+      "basic": "Basic Data",
+      "view": "View Roles",
+      "store": "Create Roles",
+      "update": "Edit Roles",
+      "destroy": "Delete Roles"
+      ,
+       "editTitle": "Role Edit",
+        "createTitle": "Role Create"
+    },
+    "users": {
+      "title": "Users",
+      "index": "View User List",
+      "view": "View User",
+      "store": "Create User",
+      "update": "Edit User",
+      "destroy": "Delete User",
+      "change-password": "Change Password",
+      "toggle-status": "Enable/Disable User"
+    },
+    "clients": {
+      "view": "View Clients",
+      "store": "Create Client",
+      "update": "Edit Client",
+      "delete": "Delete Client",
+      "export": "Export Clients",
+      "spouses": {
+        "view": "View Spouses",
+        "create": "Add Spouse",
+        "delete": "Delete Spouse"
+      }
+    }
+  },
+ "crm": {
+  "access": "CRM Access",
+  "addresses": {
+    "view": "View Addresses",
+    "store": "Create Address",
+    "update": "Edit Address",
+    "destroy": "Delete Address"
+  },
+  "clients": {
+    "view": "View Clients",
+    "store": "Create Client",
+    "update": "Edit Client",
+    "delete": "Delete Client",
+    "export": "Export Clients",
+    "spouses": {
+      "view": "View Spouses",
+      "create": "Add Spouse",
+      "delete": "Delete Spouse"
+    }
+  },
+  "interactions": {
+    "view": "View Interactions",
+    "create": "Log Interaction"
   }
+  
+
+}
 }

@@ -47,9 +47,9 @@ export class UsersComponent {
 
   ngOnInit(): void {
     this.getUsers();
-
     document.addEventListener('keydown', this.handleKeydown.bind(this));
   }
+  
 
   ngOnDestroy(): void {
     document.removeEventListener('keydown', this.handleKeydown.bind(this));

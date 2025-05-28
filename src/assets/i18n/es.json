@@ -11,47 +11,44 @@
     "userEmpty": "El usuario es obligatorio.",
     "passwordEmpty": "La contraseña es obligatoria."
   },
-
   "sidebar": {
-    
-      "dashboard": {
-        "title": "Dashboard"
-      },
-      "crm":{
-          "title": "CRM"
-      },
-      "security": {
-        "title": "Seguridad",
-        "users": {
+    "dashboard": {
+      "title": "Dashboard"
+    },
+    "crm": {
+      "title": "CRM"
+    },
+    "security": {
+      "title": "Seguridad",
+      "users": {
         "title": "Usuarios"
       },
-        "roles": {
-            "title": "Roles"
-        },
-        "permissions": {
-            "title": "Permisos"
-        }
+      "roles": {
+        "title": "Roles"
        
       },
-      "inventory":{
-        "title": "Inventario"
-      },
-      "sales":{
-        "title": "Ventas"
-      },
-      "accounting":{
-        "title": "Contabilidad"
-      },
-      "service desk":{
-        "title": "Incidencias"
-      },
-      "audit":{
-        "title": "Auditoría"
-      },
-      "settings":{
-        "title": "Configuración"
+      "permissions": {
+        "title": "Permisos"
       }
-    
+    },
+    "inventory": {
+      "title": "Inventario"
+    },
+    "sales": {
+      "title": "Ventas"
+    },
+    "accounting": {
+      "title": "Contabilidad"
+    },
+    "service desk": {
+      "title": "Incidencias"
+    },
+    "audit": {
+      "title": "Auditoría"
+    },
+    "settings": {
+      "title": "Configuración"
+    }
   },
   "navbar": {
     "welcome": "Bienvenido",
@@ -61,26 +58,26 @@
   },
   "dashboard": {
     "title": "Dashboard",
-    "totalClients": "Total de Clientes", 
+    "totalClients": "Total de Clientes",
     "totalUsers": "Total de Usuarios",
     "activeContracts": "Contratos Activos",
     "pendingPayments": "Pagos Pendientes",
     "salesOverview": "Resumen de Ventas",
     "lotsSold": "Lotes Vendidos",
     "recentActivities": "Actividades Recientes",
-    "upcomingEvents": "Próximos Eventos"    
+    "upcomingEvents": "Próximos Eventos"
   },
-  "users":{
+  "users": {
     "title": "Usuarios",
-    "create":"crear usuario",
-    "edit":"editar",
-    "name":"Nombre",
-    "email":"Correo Electrónico",
-    "status":"Estado",
-    "active":"Activo",
-    "blocked":"Bloqueado",
+    "create": "crear usuario",
+    "edit": "editar",
+    "name": "Nombre",
+    "email": "Correo Electrónico",
+    "status": "Estado",
+    "active": "Activo",
+    "blocked": "Bloqueado",
     "roles": "Roles",
-    "searchPlaceholder":"Buscar Usuario",
+    "searchPlaceholder": "Buscar Usuario",
     "allUsers": "Todos los Usuarios",
     "actions": "Acciones",
     "createUser": {
@@ -95,8 +92,89 @@
       "lastName": "Apellido",
       "birthDate": "Fecha de Nacimiento",
       "profilePicture": "Foto de Perfil"
-      
+    }
+  },
+  "common": {
+    "new": "Nuevo",
+    "create": "Crear",
+    "update": "Actualizar",
+    "edit": "Editar",
+    "cancel": "Cancelar",
+    "back": "Volver",
+    "delete": "Eliminar",
+    "saved": "Guardado correctamente",
+    "deleted": "Eliminado correctamente",
+    "errorLoad": "No se pudieron cargar los datos.",
+    "errorSave": "No se pudieron guardar los cambios.",
+    "records": "registros",
+    "created": "Creado el",
+    "step": "Paso",
+    "of": "de",
+    "noData": "No hay registros",
+    "next":"Siguiente"
+  },
+  "security": {
+    "access": "Acceso al Sistema",
+    "permissions": {
+      "title": "Permisos",
+      "codName": "Permisos",
+      "name":"Nombre",
+      "view": "Ver Permisos",
+      "store": "Crear Permisos",
+      "update": "Editar Permisos",
+      "destroy": "Eliminar Permisos"
+    },
+    "roles": {
+      "general": "General",
+      "title": "Roles",
+      "singular": "Rol",
+      "name": "Nombre",
+      "description": "Descripción",
+      "permissions": "Permisos",
+      "basic": "Datos básicos",
+      "view": "Ver Roles",
+      "store": "Crear Roles",
+      "update": "Editar Roles",
+      "destroy": "Eliminar Roles",
+      "editTitle": "Editar Rol",
+       "createTitle": "Crear Rol"
+    },
+    "users": {
+      "title": "Usuarios",
+      "index": "Ver Lista de Usuarios",
+      "view": "Ver Usuario",
+      "store": "Crear Usuario",
+      "update": "Editar Usuario",
+      "destroy": "Eliminar Usuario",
+      "change-password": "Cambiar Contraseña",
+      "toggle-status": "Activar/Desactivar Usuario"
+    }
+  },
+  "crm": {
+    "access": "Acceso a CRM",
+    "addresses": {
+      "view": "Ver Direcciones",
+      "store": "Crear Dirección",
+      "update": "Editar Dirección",
+      "destroy": "Eliminar Dirección"
+    },
+    "clients": {
+      "view": "Ver Clientes",
+      "store": "Crear Cliente",
+      "update": "Editar Cliente",
+      "delete": "Eliminar Cliente",
+      "export": "Exportar Clientes",
+      "spouses": {
+        "view": "Ver Cónyuges",
+        "create": "Agregar Cónyuge",
+        "delete": "Eliminar Cónyuge"
+      }
+    },
+    "interactions": {
+      "view": "Ver Interacciones",
+      "create": "Registrar Interacción",
+      "update": "Actualizar Interaccion",
+      "delete": "Eliminar Interaccion"
     }
   }
-  
 }
