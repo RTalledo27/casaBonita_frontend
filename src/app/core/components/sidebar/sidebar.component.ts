@@ -11,23 +11,26 @@ import { LucideAngularModule, Home, User, ShieldCheck, Package, Layers, DollarSi
     RouterModule,
     RouterLink,
     LucideAngularModule,
-    TranslateModule
-   
+    TranslateModule,
   ],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss',
-  standalone: true,  // <--- Componente standalone
-
+  standalone: true, // <--- Componente standalone
 })
 export class SidebarComponent {
   navItems = [
     { label: 'dashboard', icon: Home, route: '/dashboard' },
     { label: 'crm', icon: User, route: '/crm' },
-    { label: 'security', icon: ShieldCheck, expanded:false, children: [
-      { label: 'users', route: '/security/users' },
-      { label: 'roles', route: '/security/roles' },
-      { label: 'permissions', route: '/security/permissions' },
-    ] },
+    {
+      label: 'security',
+      icon: ShieldCheck,
+      expanded: false,
+      children: [
+        { label: 'users', route: '/security/users' },
+        { label: 'roles', route: '/security/roles' },
+        { label: 'permissions', route: '/security/permissions' },
+      ],
+    },
     { label: 'inventory', icon: Package, route: '/inventory' },
     { label: 'sales', icon: Layers, route: '/sales' },
     { label: 'accounting', icon: DollarSign, route: '/accounting' },
@@ -36,11 +39,11 @@ export class SidebarComponent {
     { label: 'settings', icon: Settings, route: '/settings' },
   ];
 
-  chevronDown = [
-    { label: 'Chevron Down', icon: ChevronDown,  },
-  ]
+  chevronDown = [{ label: 'Chevron Down', icon: ChevronDown }];
 
-   toggle(item: any) {
+  chevronUp = [{ label: 'Chevron Down', icon: ChevronDown }];
+
+  toggle(item: any) {
     item.expanded = !item.expanded;
   }
 }

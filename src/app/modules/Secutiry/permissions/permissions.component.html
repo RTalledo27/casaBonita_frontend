@@ -8,13 +8,16 @@
         </p>
     </div>
 
-    <ng-template #dateTpl let-row >
-        {{ row.created_at | date:'yyyy/dd/MM HH:mm' }}
-    </ng-template>
     
 
-    <app-shared-table [columns]="columns" [data]="(permissions$ | async)??[]" [templates]="{ date: dateTpl }" [componentName]="''">
-
-    </app-shared-table>
-
 </div>
+
+<ng-template #dateTpl let-row>
+    {{ row.created_at | date:'yyyy/dd/MM HH:mm' }}
+</ng-template>
+
+
+<app-shared-table [columns]="columns" [data]="(permissions$ | async)??[]" [templates]="{ date: dateTpl }"
+    [componentName]="''">
+
+</app-shared-table>

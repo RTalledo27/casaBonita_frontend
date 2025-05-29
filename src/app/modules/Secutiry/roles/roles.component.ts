@@ -9,8 +9,9 @@ import { LucideAngularModule, Plus } from 'lucide-angular';
 import { ActivatedRoute, Route, Router, RouterOutlet } from '@angular/router';
 import { Permission } from '../users/models/permission';
 import { CommonModule, DatePipe } from '@angular/common';
-import { catchError, Observable, of } from 'rxjs';
+import { catchError, Observable, of, take } from 'rxjs';
 import { RoleFormComponent } from './role-form/role-form.component';
+import { SharedDeleteComponent } from '../../../shared/components/shared-delete/shared-delete.component';
 
 
 
@@ -23,6 +24,7 @@ import { RoleFormComponent } from './role-form/role-form.component';
     CommonModule,
     DatePipe,
     RouterOutlet,
+    SharedDeleteComponent
   ],
   templateUrl: './roles.component.html',
   styleUrl: './roles.component.scss',
@@ -42,8 +44,12 @@ export class RolesComponent {
   ];
   permission: Permission[] = [];
   isModalOpen = false;
+  showDeleteModal = false;
 
   plus = Plus;
+
+  selectedItemId: number | null = null;
+  selectedItemName: string = '';
 
   /** Datos del backend */
   roles$: Observable<Role[]> = of([]);
@@ -76,14 +82,18 @@ export class RolesComponent {
   }
 
   delete(id: number): void {
-    if (!confirm('¿Eliminar rol?')) return;
+    this.onAskDelete(id);
+    this.showDeleteModal = true;
+    
+    /*if (!confirm('¿Eliminar rol?')) return;
     this.roleService.delete(id).subscribe({
       next: () => {
         this.toast.show('common.deleted', 'success');
         this.getRoles();
       },
       error: () => this.toast.show('common.errorSave', 'error'),
-    });
+    });*/
+
   }
 
   canCreate(): boolean {
@@ -94,26 +104,22 @@ export class RolesComponent {
     return this.authService.hasPermission('security.roles.update');
   }
 
-
   onCreate() {
     this.isModalOpen = true;
-    this.router.navigate([{outlets:{modal:'create'}}], {
+    this.router.navigate([{ outlets: { modal: 'create' } }], {
       relativeTo: this.route,
-    })
+    });
   }
-  onEdit(id:number) {
+  onEdit(id: number) {
     this.isModalOpen = true;
-    this.router.navigate(
-      [{ outlets: { modal: [id.toString(), 'edit'] } }],
-      { relativeTo: this.route }
-    );
+    this.router.navigate([{ outlets: { modal: [id.toString(), 'edit'] } }], {
+      relativeTo: this.route,
+    });
   }
 
   onViewDetails(id: number) {
-    this.router.navigate(['/security/roles',id]);
-    
+    this.router.navigate(['/security/roles', id]);
   }
-
 
   //ABRIR RUTA COMO MODAL:
   onModalActivate(component: any) {
@@ -133,5 +139,27 @@ export class RolesComponent {
       });
     }
   }
+
+ 
+
+ onAskDelete(id: number) {
+    this.roles$.pipe(take(1)).subscribe((roles) => {
+      const item = roles.find((r) => r.role_id === id);
+      this.selectedItemId = id;
+      this.selectedItemName = item?.name || 'este registro';
+      this.showDeleteModal = true;
+    });
+  }
+
+  deleteConfirmed() {
+    if (this.selectedItemId !== null) {
+      this.roleService.delete(this.selectedItemId).subscribe(() => {
+        this.getRoles(); // Recarga la lista
+       this.toast.show(`Se ha elimando el elemento seleccionado.`,"info")
+        this.showDeleteModal = false;
+      });
+    }
+  }
+
 }
 

@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { Database, Edit, Eye, LucideAngularModule, Trash2 } from 'lucide-angular';
 import { AuthService } from '../../../core/services/auth.service';
+import { SharedDeleteComponent } from "../shared-delete/shared-delete.component";
 
 
 
@@ -35,10 +36,7 @@ export class SharedTableComponent {
   @Input({ required: true }) columns: ColumnDef[] = [];
   @Input({ required: true }) data: any[] = [];
 
-
-  constructor(private authService: AuthService) {
-    
-  }
+  constructor(private authService: AuthService) {}
 
   //ICONOS LUCIDE:
   eye = Eye;
@@ -48,8 +46,7 @@ export class SharedTableComponent {
   /** Rutas con :id como placeholder (opcional).  Ej.: '../:id' */
   @Input() viewRoute = '';
   @Input() editRoute = '';
-
-
+  showDeleteModal=false;
 
   /** Emite el id del registro a eliminar */
   @Output() delete = new EventEmitter<number>();
@@ -61,7 +58,7 @@ export class SharedTableComponent {
   /** Plantillas de celdas personalizadas */
   @Input() templates: Record<string, TemplateRef<any>> = {};
 
-  @Input() componentName: string='';
+  @Input() componentName: string = '';
 
   //----------------------------------
 
@@ -71,7 +68,7 @@ export class SharedTableComponent {
 
   /** Devuelve el value de la celda (evita error de TS en template) */
   cell(row: any, col: ColumnDef) {
-    console.log(col,row);
+    console.log(col, row);
     return row[col.field];
   }
 
@@ -86,12 +83,26 @@ export class SharedTableComponent {
   onViewClick(id: number) {
     this.onViewDetails.emit(id);
   }
+  
+  onDelete(id: number) {
+    this.delete.emit(id);
+  }
 
   canEdit() {
-    return this.authService.hasPermission(`security.${this.componentName}.update`);
+    return this.authService.hasPermission(
+      `security.${this.componentName}.update`
+    );
   }
 
   canViewDetails() {
-    return this.authService.hasPermission(`security.${this.componentName}.view`);
+    return this.authService.hasPermission(
+      `security.${this.componentName}.view`
+    );
+  }
+
+  canDelete() {
+    return this.authService.hasPermission(
+      `security.${this.componentName}.destroy`
+    );
   }
 }

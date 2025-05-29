@@ -27,6 +27,11 @@
     [componentName]="'roles'">
 </app-shared-table>
 
+<!-- Modal eliminar -->
+<app-shared-delete [visible]="showDeleteModal" [itemName]="selectedItemName" (confirm)="deleteConfirmed()"
+    (cancel)="showDeleteModal = false">
+</app-shared-delete>
+
 
 <!-- modal create/edit se abre si hay ?new o ?edit=id (lógica en RolesComponent) -->
 <!-- Modal Container -->
@@ -35,3 +40,5 @@
         <router-outlet name="modal" (activate)="onModalActivate($event)"></router-outlet>
     </div>
     </div>
+
+  

@@ -50,8 +50,8 @@
                         <lucide-icon [name]="edit" class="w-[18px] h-[18px] text-gray-400"></lucide-icon>
                     </button>
             
-                    <button type="button" class="p-1.5 hover:bg-red-500/15 rounded-md transition-colors"
-                        (click)="delete.emit(getId(row))" title="Eliminar">
+                    <button type="button" *ngIf="canDelete()" class="p-1.5 hover:bg-red-500/15 rounded-md transition-colors"
+                        (click)="onDelete(getId(row))" title="Eliminar">
                         <lucide-icon [name]="trash" class="w-[18px] h-[18px] text-red-400"></lucide-icon>
                     </button>
                 </div>
@@ -71,3 +71,5 @@
         </tbody>
         </table>
         </div>
+
+       

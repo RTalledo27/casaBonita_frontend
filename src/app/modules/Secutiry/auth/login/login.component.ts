@@ -8,9 +8,14 @@ import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-login',
-  imports: [CommonModule, ReactiveFormsModule, LangSwitcherComponent, TranslateModule],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    LangSwitcherComponent,
+    TranslateModule,
+  ],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.scss'
+  styleUrl: './login.component.scss',
 })
 export class LoginComponent {
   loginForm: FormGroup;
@@ -18,7 +23,7 @@ export class LoginComponent {
   errorMsg: string | null = null;
   returnUrl: string;
   showPassword = false;
-
+  currentYear = new Date().getFullYear();
 
   constructor(
     private fb: FormBuilder,
@@ -29,10 +34,10 @@ export class LoginComponent {
     this.loginForm = this.fb.group({
       username: ['', Validators.required],
       password: ['', Validators.required],
-      remember: [false]
-
+      remember: [false],
     });
-    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
+    this.returnUrl =
+      this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
   }
 
   onSubmit(): void {
@@ -44,11 +49,10 @@ export class LoginComponent {
         // aquí podrías usar `remember` para storage
         this.router.navigateByUrl(this.returnUrl || '/dashboard');
       },
-      error: err => {
+      error: (err) => {
         this.errorMsg = err.error?.message || 'Error de autenticación';
         this.loading = false;
-      }
+      },
     });
   }
-
 }
