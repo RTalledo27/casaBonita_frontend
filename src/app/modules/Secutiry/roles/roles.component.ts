@@ -9,9 +9,11 @@ import { LucideAngularModule, Plus } from 'lucide-angular';
 import { ActivatedRoute, Route, Router, RouterOutlet } from '@angular/router';
 import { Permission } from '../users/models/permission';
 import { CommonModule, DatePipe } from '@angular/common';
-import { catchError, Observable, of, take } from 'rxjs';
+import { BehaviorSubject, catchError, Observable, of, Subject, take } from 'rxjs';
 import { RoleFormComponent } from './role-form/role-form.component';
 import { SharedDeleteComponent } from '../../../shared/components/shared-delete/shared-delete.component';
+import { PusherService } from '../../../core/services/pusher.service';
+import { Subscription } from 'rxjs';
 
 
 
@@ -24,7 +26,7 @@ import { SharedDeleteComponent } from '../../../shared/components/shared-delete/
     CommonModule,
     DatePipe,
     RouterOutlet,
-    SharedDeleteComponent
+    SharedDeleteComponent,
   ],
   templateUrl: './roles.component.html',
   styleUrl: './roles.component.scss',
@@ -45,6 +47,7 @@ export class RolesComponent {
   permission: Permission[] = [];
   isModalOpen = false;
   showDeleteModal = false;
+  private pusherSubscriptions = new Subscription();
 
   plus = Plus;
 
@@ -52,18 +55,30 @@ export class RolesComponent {
   selectedItemName: string = '';
 
   /** Datos del backend */
-  roles$: Observable<Role[]> = of([]);
+  private destroy$ = new Subject<void>();
+  private rolesSubject = new BehaviorSubject<Role[]>([]);
+  private pusherListenersInitialized = false; // ⚠️ para evitar duplicación
+
+  roles$: Observable<Role[]> = this.rolesSubject.asObservable();
 
   constructor(
     public router: Router,
     private roleService: RolesService,
     private toast: ToastService,
     private route: ActivatedRoute,
+    private pusherService: PusherService,
     public authService: AuthService // plantillas acceden a auth.has()
   ) {}
 
   ngOnInit(): void {
+    this.roles$ = this.rolesSubject.asObservable(); // Ahora sí, roles$ reacciona a los cambios
     this.getRoles();
+
+    // 🔁 Forzar resuscripción siempre
+    this.pusherService.resubscribe('role-channel');
+
+    this.setupPusherListeners();
+
     this.route.params.subscribe((params) => {
       if (params['id']) {
         this.isModalOpen = true;
@@ -72,19 +87,23 @@ export class RolesComponent {
   }
 
   getRoles(): void {
-    this.roles$ = this.roleService.getAllRoles().pipe(
-      //CATH ERROR
-      catchError(() => {
-        this.toast.show('common.errorLoad', 'error');
-        return of([]);
-      })
-    );
+    this.roleService
+      .getAllRoles()
+      .pipe(
+        catchError(() => {
+          this.toast.show('common.errorLoad', 'error');
+          return of([]);
+        })
+      )
+      .subscribe((roles) => {
+        this.rolesSubject.next(roles);
+      });
   }
 
   delete(id: number): void {
     this.onAskDelete(id);
     this.showDeleteModal = true;
-    
+
     /*if (!confirm('¿Eliminar rol?')) return;
     this.roleService.delete(id).subscribe({
       next: () => {
@@ -93,7 +112,6 @@ export class RolesComponent {
       },
       error: () => this.toast.show('common.errorSave', 'error'),
     });*/
-
   }
 
   canCreate(): boolean {
@@ -126,8 +144,6 @@ export class RolesComponent {
     console.log('oa');
     if (component instanceof RoleFormComponent) {
       component.modalClosed.subscribe((isOpen: boolean) => {
-        this.getRoles(); // Vuelve a cargar la lista completa
-
         this.isModalOpen = isOpen; // Actualiza el estado
         console.log(this.isModalOpen);
         this.router.navigate(['security/roles']); // Opcional: Navega
@@ -140,9 +156,12 @@ export class RolesComponent {
     }
   }
 
- 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
- onAskDelete(id: number) {
+  onAskDelete(id: number) {
     this.roles$.pipe(take(1)).subscribe((roles) => {
       const item = roles.find((r) => r.role_id === id);
       this.selectedItemId = id;
@@ -151,15 +170,49 @@ export class RolesComponent {
     });
   }
 
+  private setupPusherListeners(): void {
+    if (this.pusherListenersInitialized) return; // ✅ evitar duplicación
+    this.pusherListenersInitialized = true;
+
+    this.pusherSubscriptions.add(
+      this.pusherService.roleCreated$.subscribe((data) => {
+        const currentRoles = this.rolesSubject.value;
+        this.rolesSubject.next([data.role, ...currentRoles]);
+        this.toast.show('Se ha creado un nuevo rol', 'info');
+      })
+    );
+
+    this.pusherSubscriptions.add(
+      this.pusherService.roleUpdated$.subscribe((data) => {
+        const updatedRole = data.role;
+        const currentRoles = this.rolesSubject.value.map((role) =>
+          role.role_id === updatedRole.role_id ? updatedRole : role
+        );
+        this.rolesSubject.next(currentRoles);
+        this.toast.show('Rol actualizado', 'info');
+      })
+    );
+
+    this.pusherSubscriptions.add(
+      this.pusherService.roleDeleted$.subscribe((data) => {
+        const deletedRoleId = data.role.role_id;
+        const currentRoles = this.rolesSubject.value.filter(
+          (role) => role.role_id !== deletedRoleId
+        );
+        this.rolesSubject.next(currentRoles);
+        this.toast.show('Rol eliminado', 'info');
+      })
+    );
+  }
+
   deleteConfirmed() {
     if (this.selectedItemId !== null) {
       this.roleService.delete(this.selectedItemId).subscribe(() => {
         this.getRoles(); // Recarga la lista
-       this.toast.show(`Se ha elimando el elemento seleccionado.`,"info")
+        this.toast.show(`Se ha elimando el elemento seleccionado.`, 'info');
         this.showDeleteModal = false;
       });
     }
   }
-
 }
 
