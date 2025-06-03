@@ -14,6 +14,7 @@ import { RoleFormComponent } from './role-form/role-form.component';
 import { SharedDeleteComponent } from '../../../shared/components/shared-delete/shared-delete.component';
 import { PusherService } from '../../../core/services/pusher.service';
 import { Subscription } from 'rxjs';
+import { PusherListenerService } from '../../../core/services/pusher-listener.service';
 
 
 
@@ -58,6 +59,8 @@ export class RolesComponent {
   private destroy$ = new Subject<void>();
   private rolesSubject = new BehaviorSubject<Role[]>([]);
   private pusherListenersInitialized = false; // ⚠️ para evitar duplicación
+  events = ['created', 'updated', 'deleted'];
+  idField = 'role_id'; // El campo que se usa para identificar un "Role" en pusher listener
 
   roles$: Observable<Role[]> = this.rolesSubject.asObservable();
 
@@ -67,6 +70,7 @@ export class RolesComponent {
     private toast: ToastService,
     private route: ActivatedRoute,
     private pusherService: PusherService,
+    private pusherListenerService: PusherListenerService,
     public authService: AuthService // plantillas acceden a auth.has()
   ) {}
 
@@ -74,9 +78,8 @@ export class RolesComponent {
     this.roles$ = this.rolesSubject.asObservable(); // Ahora sí, roles$ reacciona a los cambios
     this.getRoles();
 
-    // 🔁 Forzar resuscripción siempre
-    this.pusherService.resubscribe('role-channel');
-
+    this.pusherService.resubscribe('role', this.events);
+    this.pusherService.subscribeToChannel('role', this.events);
     this.setupPusherListeners();
 
     this.route.params.subscribe((params) => {
@@ -170,7 +173,23 @@ export class RolesComponent {
     });
   }
 
+  // Método para configurar los listeners de Pusher
   private setupPusherListeners(): void {
+    if (this.pusherListenersInitialized) return; // ✅ evitar duplicación
+    this.pusherListenersInitialized = true;
+
+    // Configuramos los listeners para eventos genericos (created, updated, deleted)
+    this.pusherListenerService.setupPusherListeners(
+      'role',
+      this.events,
+      this.idField,
+      this.rolesSubject,
+      this.rolesSubject, // Actualizamos roles tanto en 'created' como en 'updated'
+      this.rolesSubject // Eliminamos roles en 'deleted'
+    );
+  }
+
+  /* private setupPusherListeners(): void {
     if (this.pusherListenersInitialized) return; // ✅ evitar duplicación
     this.pusherListenersInitialized = true;
 
@@ -203,7 +222,7 @@ export class RolesComponent {
         this.toast.show('Rol eliminado', 'info');
       })
     );
-  }
+  }*/
 
   deleteConfirmed() {
     if (this.selectedItemId !== null) {

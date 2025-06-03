@@ -35,40 +35,43 @@
 
     <!-- Tabla real -->
     <ng-template #tableBlock>
-        <table class="min-w-full text-sm text-left text-white">
-            <thead>
-                <tr class="bg-gray-700">
-                    <th class="px-4 py-2">{{'users.name'|translate}}</th>
-                    <th class="px-4 py-2">{{'users.email'|translate}}</th>
-                    <th class="px-4 py-2">{{'users.status'|translate}}</th>
-                    <th class="px-4 py-2">{{'users.roles'|translate}}</th>
-                    <th class="px-4 py-2 text-right">{{'users.actions'|translate}}</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr *ngFor="let user of users | userFilter: filter : status"
-                    class="border-b border-gray-600 hover:bg-gray-800 cursor-pointer"
-                    [routerLink]="['/security/users', user.id]">
-                     <td class="px-4 py-2">{{ user.name }}</td>
-                    <td class="px-4 py-2">{{ user.email }}</td>
-                    <td class="px-4 py-2">
-                        <span class="px-2 py-1 rounded text-xs font-semibold" [ngClass]="{
-                      'bg-green-600 text-white': user.status === 'active',
-                      'bg-gray-600 text-white': user.status === 'blocked'
-                    }">
-                            {{ 'users.'+user.status |translate | titlecase }}
-                        </span>
-                    </td>
-                    <td class="px-4 py-2">{{ user.roles.join(', ') }}</td>
-                    <td class="px-4 py-2 text-right">
-                        <button (click)="onEdit(user); $event.stopPropagation()" class="text-blue-400 hover:underline">
-                            {{'users.edit'| translate}}
-                        </button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+        <ng-container *ngIf="users$ | async as users">
+            <table class="min-w-full text-sm text-left text-white">
+                <thead>
+                    <tr class="bg-gray-700">
+                        <th class="px-4 py-2">{{ 'users.name' | translate }}</th>
+                        <th class="px-4 py-2">{{ 'users.email' | translate }}</th>
+                        <th class="px-4 py-2">{{ 'users.status' | translate }}</th>
+                        <th class="px-4 py-2">{{ 'users.roles' | translate }}</th>
+                        <th class="px-4 py-2 text-right">{{ 'users.actions' | translate }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let user of users | userFilter: filter : status"
+                        class="border-b border-gray-600 hover:bg-gray-800 cursor-pointer"
+                        [routerLink]="['/security/users', user.id]">
+                        <td class="px-4 py-2">{{ user.name || (user.first_name + ' ' + user.last_name) }}</td>
+                        <td class="px-4 py-2">{{ user.email || user.username }}</td>
+                        <td class="px-4 py-2">
+                            <span class="px-2 py-1 rounded text-xs font-semibold" [ngClass]="{
+                        'bg-green-600 text-white': user.status === 'active',
+                        'bg-gray-600 text-white': user.status === 'blocked'
+                      }">
+                                {{ 'users.' + (user.status || 'active') | translate | titlecase }}
+                            </span>
+                        </td>
+                        <td class="px-4 py-2">{{ user.roles.join(', ') || '-' }}</td>
+                        <td class="px-4 py-2 text-right">
+                            <button (click)="onEdit(user); $event.stopPropagation()" class="text-blue-400 hover:underline">
+                                {{ 'users.edit' | translate }}
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </ng-container>
     </ng-template>
+      
 
 </div>
   

@@ -10,8 +10,10 @@ import { Role } from './models/role';
 import {  ToastService } from '../../../core/services/toast.service';
 import { ToastContainerComponent } from '../../../shared/components/toast-container/toast-container/toast-container.component';
 import { ActivatedRoute, Router, RouterLink, RouterOutlet } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
+import { PusherListenerService } from '../../../core/services/pusher-listener.service';
+import { PusherService } from '../../../core/services/pusher.service';
 @Component({
   selector: 'app-users',
   standalone: true,
@@ -35,6 +37,12 @@ export class UsersComponent {
   editingUser: any = null;
   isModalOpen = false;
 
+  //pusher
+  private usersSubject = new BehaviorSubject<User[]>([]);
+  users$ = this.usersSubject.asObservable();
+  events = ['created', 'updated', 'deleted'];
+  idField = 'id';
+  pusherListenersInitialized = false;
   private modalSub?: Subscription;
   @ViewChild('modalOutlet', { read: RouterOutlet })
   modalOutlet!: RouterOutlet; // Usa el estado nativo del RouterOutlet
@@ -42,14 +50,18 @@ export class UsersComponent {
     private userService: UsersService,
     private toast: ToastService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private pusherService: PusherService,
+    private pusherListenerService: PusherListenerService
   ) {}
 
   ngOnInit(): void {
     this.getUsers();
+   this.pusherService.resubscribe('user', this.events);
+    this.pusherService.subscribeToChannel('user', this.events);
+    this.setupPusherListeners();
     document.addEventListener('keydown', this.handleKeydown.bind(this));
   }
-  
 
   ngOnDestroy(): void {
     document.removeEventListener('keydown', this.handleKeydown.bind(this));
@@ -61,13 +73,12 @@ export class UsersComponent {
     }
   }
 
-  
-
   getUsers(): void {
     this.loading = true;
     this.userService.list().subscribe({
       next: (res: any) => {
-        this.users = res.data;
+        console.log('[UsersComponent] Usuarios recibidos:', res.data);
+        this.usersSubject.next(res.data);
         this.loading = false;
       },
       error: () => {
@@ -100,12 +111,8 @@ export class UsersComponent {
   reloadUsers(component: any) {
     if (component instanceof UserFormComponent) {
       // Escuchar el evento de submit exitoso
-     
     }
   }
-  
-
- 
 
   onModalActivate(component: any) {
     console.log('oa');
@@ -121,15 +128,30 @@ export class UsersComponent {
       component.submitForm.subscribe(({ data, isEdit }) => {
         this.isModalOpen = false; // Cierra el modal
         console.log(this.isModalOpen);
-        this.getUsers();
+        //this.getUsers();
       });
     }
   }
 
-  
   onModalDeactivate() {
     this.isModalOpen = false;
     console.log(this.isModalOpen);
+  }
+
+  // Método para configurar los listeners de Pusher
+  private setupPusherListeners(): void {
+    if (this.pusherListenersInitialized) return; // ✅ evitar duplicación
+    this.pusherListenersInitialized = true;
+
+    // Configuramos los listeners para eventos genericos (created, updated, deleted)
+    this.pusherListenerService.setupPusherListeners(
+      'user',
+      this.events,
+      this.idField,
+      this.usersSubject,
+      this.usersSubject, // Actualizamos roles tanto en 'created' como en 'updated'
+      this.usersSubject // Eliminamos roles en 'deleted'
+    );
   }
 
   /*onFormSubmit(payload: { data: any; isEdit: boolean }) {

@@ -9,10 +9,10 @@ import { ReplaySubject } from 'rxjs';
 export class PusherService {
   private pusher: Pusher;
   private channels: Map<string, Channel> = new Map();
-  // Add subjects for role events
-  public roleCreated$ = new ReplaySubject<any>(1);
-  public roleUpdated$ = new ReplaySubject<any>(1);
-  public roleDeleted$ = new ReplaySubject<any>(1);
+  private events: {
+    [entity: string]: { [event: string]: ReplaySubject<any> };
+  } = {};
+
   constructor() {
     this.pusher = new Pusher(environment.pusher.key, {
       cluster: environment.pusher.cluster,
@@ -24,38 +24,89 @@ export class PusherService {
       },
     });
 
-    this.initChannel('role-channel');
+    this.pusher.connection.bind('connected', () => {
+      console.log(
+        '[PusherService] Conectado con ID:',
+        this.pusher.connection.socket_id
+      );
+    });
 
-    // 🔌 Detecta desconexión y reconecta
+    // Reintenta conexión si se pierde
     this.pusher.connection.bind('disconnected', () => {
-      console.warn('[Pusher] desconectado. Reconectando...');
+      console.warn('[PUSHER] Socket desconectado, reconectando...');
       this.pusher.connect();
     });
   }
 
-  private initChannel(channelName: string): Channel {
-    if (!this.channels.has(channelName)) {
-      const channel = this.pusher.subscribe(channelName);
-      this.channels.set(channelName, channel);
+  private initChannel(entity: string, events: string[]): void {
+    const channelName = `${entity}-channel`;
+    console.log(`[PusherService] Intentando inicializar canal: ${channelName}`);
 
-      // Bind events to subjects
-      // Bind events
-      channel.bind('role-created', (data: any) => this.roleCreated$.next(data));
-      channel.bind('role-updated', (data: any) => this.roleUpdated$.next(data));
-      channel.bind('role-deleted', (data: any) => this.roleDeleted$.next(data));
-    
+    // Nos aseguramos de suscribirnos solo una vez
+    const channel = this.channels.has(channelName)
+      ? this.channels.get(channelName)!
+      : this.pusher.subscribe(channelName);
+
+    if (!this.channels.has(channelName)) {
+      this.channels.set(channelName, channel);
     }
-    return this.channels.get(channelName)!;
+
+    // Crear eventos por entidad
+    if (!this.events[entity]) this.events[entity] = {};
+    console.log(`[PusherService] Canal ${channelName} suscrito`);
+
+    events.forEach((event) => {
+      console.log(
+        `[PusherService] Bind evento "${event}" para entidad "${entity}"`
+      );
+
+      this.events[entity][event] = new ReplaySubject<any>(1);
+
+      channel.bind(event, (data: any) => {
+        console.log(`[PusherService][RECEIVED] ${entity}-${event}`, data);
+        this.events[entity][event].next(data);
+      });
+    });
   }
 
-  resubscribe(channelName: string): void {
+  subscribeToChannel(entity: string, events: string[]): void {
+    console.log(
+      `[PusherService] subscribeToChannel → entity: ${entity}, events: ${events}`
+    );
+    this.initChannel(entity, events);
+  }
+
+  resubscribe(entity: string, events: string[]): void {
+    const channelName = `${entity}-channel`;
+    console.log(`[PusherService] resubscribe → ${channelName}`);
+
     if (this.channels.has(channelName)) {
       this.pusher.unsubscribe(channelName);
       this.channels.delete(channelName);
+      console.log(`[PusherService] Canal ${channelName} eliminado`);
     }
 
-    this.initChannel(channelName);
+    if (this.events[entity]) {
+      events.forEach((event) => {
+        delete this.events[entity][event];
+        console.log(`[PusherService] ReplaySubject ${event} eliminado`);
+      });
+    }
+
+    this.initChannel(entity, events);
   }
+
+  getEventObservable(entity: string, event: string): ReplaySubject<any> {
+    console.log(`[PusherService] getEventObservable → entity: ${entity}, event: ${event}`);
+    return this.events[entity]?.[event];
+  }
+
+  disconnect(): void {
+    console.log('[PusherService] Desconectando Pusher...');
+    this.pusher.disconnect();
+    this.channels.clear();
+  }
+
 
   /* unsubscribe(channelName: string): void {
     if (this.channels.has(channelName)) {
