@@ -16,7 +16,10 @@
       "title": "Dashboard"
     },
     "crm": {
-      "title": "CRM"
+      "title": "CRM",
+      "clients":{
+        "title": "Clientes"
+      }
     },
     "security": {
       "title": "Seguridad",

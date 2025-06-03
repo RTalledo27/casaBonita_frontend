@@ -3,6 +3,7 @@ import { Component } from '@angular/core';
 import { RouterLink, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { LucideAngularModule, Home, User, ShieldCheck, Package, Layers, DollarSign, HelpCircle, Settings, ChevronDown } from 'lucide-angular';
+import { expand } from 'rxjs';
 
 @Component({
   selector: 'app-sidebar',
@@ -20,7 +21,12 @@ import { LucideAngularModule, Home, User, ShieldCheck, Package, Layers, DollarSi
 export class SidebarComponent {
   navItems = [
     { label: 'dashboard', icon: Home, route: '/dashboard' },
-    { label: 'crm', icon: User, route: '/crm' },
+    {
+      label: 'crm', icon: User, route: '/crm', expanded: false,
+      children: [
+        { label: 'clients', route: 'crm/clients' },
+      ]
+    },
     {
       label: 'security',
       icon: ShieldCheck,

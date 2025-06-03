@@ -1,0 +1,37 @@
+<!-- clients.component.html -->
+<div class="p-6 space-y-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+        <h2 class="text-2xl font-bold text-white">{{ 'crm.clients.title' | translate }}</h2>
+        <button class="btn-primary" (click)="onCreate()">
+            <lucide-icon [name]="plus" class="w-4 h-4"></lucide-icon>
+            {{ 'common.new' | translate }}
+        </button>
+    </div>
+
+    <!-- Filtros -->
+    <div class="flex items-center gap-4">
+        <input type="text" [(ngModel)]="filter" placeholder="{{ 'crm.clients.search' | translate }}"
+            class="input-text" />
+        <select [(ngModel)]="type" class="input-select">
+            <option value="">{{ 'common.all' | translate }}</option>
+            <option value="lead">{{ 'crm.clients.types.lead' | translate }}</option>
+            <option value="client">{{ 'crm.clients.types.client' | translate }}</option>
+        </select>
+    </div>
+
+    <!-- Tabla -->
+    <app-shared-table [columns]="columns"   [data]="clients.length ? (clients | crmFilter: filter : type) : []"
+    [templates]="templates"
+        [componentName]="'clients'" (onEdit)="onEdit($event)" (onViewDetails)="onView($event)"
+        (delete)="onDelete($event)">
+    </app-shared-table>
+</div>
+
+<!-- Modal superpuesto -->
+<div *ngIf="isModalOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+    <div class="bg-gray-900 rounded-2xl p-6 max-h-[90vh] overflow-y-auto">
+        <router-outlet name="modal" (activate)="onModalActivate($event)"></router-outlet>
+    </div>
+</div>
+  
