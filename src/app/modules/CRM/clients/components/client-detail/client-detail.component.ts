@@ -28,7 +28,7 @@ export class ClientDetailComponent {
   constructor(
     private route: ActivatedRoute,
     private clientsService: ClientsService,
-    private router: Router
+    private router: Router,
   ) {
     this.client$ = this.route.paramMap.pipe(
       switchMap((p) => this.clientsService.get(+p.get('id')!))
@@ -58,4 +58,5 @@ export class ClientDetailComponent {
       this.router.navigate(['/crm/clients']);
     });
   }
+
 }

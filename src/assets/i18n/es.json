@@ -165,12 +165,13 @@
       "view": "Ver Clientes",
       "store": "Crear Cliente",
       "update": "Editar Cliente",
-      "delete": "Eliminar Cliente",
-      "export": "Exportar Clientes",
-      "spouses": {
-        "view": "Ver Cónyuges",
-        "create": "Agregar Cónyuge",
-        "delete": "Eliminar Cónyuge"
+    "delete": "Eliminar Cliente",
+    "export": "Exportar Clientes",
+    "doc_type": "Tipo Doc.",
+    "spouses": {
+      "view": "Ver Cónyuges",
+      "create": "Agregar Cónyuge",
+      "delete": "Eliminar Cónyuge"
       }
     },
     "interactions": {

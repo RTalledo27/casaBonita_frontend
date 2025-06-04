@@ -21,7 +21,7 @@ export interface Client {
 
   // Relaciones
   spouses?: Client[]; // many-to-many self-reference
-  address?: Address[];
+  addresses?: Address[];
   interactions?: CrmInteraction[];
   //reservations?: Reservation[];
 }

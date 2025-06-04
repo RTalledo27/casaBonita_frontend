@@ -42,8 +42,10 @@ export class ClientsComponent {
   columns: ColumnDef[] = [
     { field: 'first_name', header: 'crm.clients.first_name' },
     { field: 'last_name', header: 'crm.clients.last_name' },
+    { field: 'doc_type', header: 'crm.clients.doc_type' },
     { field: 'doc_number', header: 'crm.clients.doc_number' },
     { field: 'email', header: 'crm.clients.email' },
+    { field: 'primary_phone', header: 'crm.clients.primary_phone' },
     { field: 'type', header: 'crm.clients.type', translateContent: true },
   ];
 
@@ -98,23 +100,23 @@ export class ClientsComponent {
   }
 
   onModalActivate(component: any) {
-      console.log('oa');
-      if (component instanceof ClientFormComponent) {
-        component.modalClosed.subscribe((isOpen: boolean) => {
-          //this.getUsers(); // Vuelve a cargar la lista completa
-  
-          this.isModalOpen = isOpen; // Actualiza el estado
-          console.log(this.isModalOpen);
-          this.router.navigate(['security/users']); // Opcional: Navega
-        });
-  
-        component.submitForm.subscribe(({ data, isEdit }) => {
-          this.isModalOpen = false; // Cierra el modal
-          console.log(this.isModalOpen);
-          //this.getUsers();
-        });
-      }
+    console.log('oa');
+    if (component instanceof ClientFormComponent) {
+      component.modalClosed.subscribe((isOpen: boolean) => {
+        //this.getUsers(); // Vuelve a cargar la lista completa
+
+        this.isModalOpen = isOpen; // Actualiza el estado
+        console.log(this.isModalOpen);
+        this.router.navigate(['security/users']); // Opcional: Navega
+      });
+
+      component.submitForm.subscribe(({ data, isEdit }) => {
+        this.isModalOpen = false; // Cierra el modal
+        console.log(this.isModalOpen);
+        //this.getUsers();
+      });
     }
+  }
 
   onModalDeactivate() {
     this.isModalOpen = false;

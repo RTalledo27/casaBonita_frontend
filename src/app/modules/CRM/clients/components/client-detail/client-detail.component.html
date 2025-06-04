@@ -19,8 +19,8 @@
                     <dd>{{ c.first_name }} {{ c.last_name }}</dd>
                 </div>
                 <div class="bg-gray-800 p-4 rounded-lg">
-                    <dt class="font-semibold mb-1">Document</dt>
-                    <dd>{{ c.doc_number }}</dd>
+                    <dt class="font-semibold mb-1">Document</dt>␊
+                    <dd>{{ c.doc_type }} - {{ c.doc_number }}</dd>
                 </div>
                 <div class="bg-gray-800 p-4 rounded-lg">
                     <dt class="font-semibold mb-1">Marital Status</dt>
@@ -38,9 +38,37 @@
                     <dt class="font-semibold mb-1">Phone</dt>
                     <dd>{{ c.primary_phone || '-' }}</dd>
                 </div>
+                <div class="bg-gray-800 p-4 rounded-lg">
+                    <dt class="font-semibold mb-1">Alt. Phone</dt>
+                    <dd>{{ c.secondary_phone || '-' }}</dd>
+                </div>
+                <div class="bg-gray-800 p-4 rounded-lg">
+                    <dt class="font-semibold mb-1">Type</dt>
+                    <dd>{{ c.type }}</dd>
+                </div>
+                <div class="bg-gray-800 p-4 rounded-lg">
+                    <dt class="font-semibold mb-1">Date</dt>
+                    <dd>{{ c.date | date:'short' }}</dd>
+                </div>
+                <div class="bg-gray-800 p-4 rounded-lg">
+                    <dt class="font-semibold mb-1">Occupation</dt>
+                    <dd>{{ c.occupation || '-' }}</dd>
+                </div>
+                <div class="bg-gray-800 p-4 rounded-lg">
+                    <dt class="font-semibold mb-1">Salary</dt>
+                    <dd>{{ c.salary || '-' }}</dd>
+                </div>
                 <div class="sm:col-span-2 bg-gray-800 p-4 rounded-lg">
                     <dt class="font-semibold mb-1">Address</dt>
-                    <dd>{{ c.address || '-' }}</dd>
+                    <dd>{{ c.addresses?.[0]?.line1 || '-' }}</dd>
+                </div>
+                <div class="bg-gray-800 p-4 rounded-lg">
+                    <dt class="font-semibold mb-1">Created</dt>
+                    <dd>{{ c.created_at | date:'short' }}</dd>
+                </div>
+                <div class="bg-gray-800 p-4 rounded-lg">
+                    <dt class="font-semibold mb-1">Updated</dt>
+                    <dd>{{ c.updated_at | date:'short' }}</dd>
                 </div>
             </div>
         </div>

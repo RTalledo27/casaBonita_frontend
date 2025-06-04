@@ -52,10 +52,12 @@ export class ClientFormComponent {
   editingId?: number;
 
   maritalStatuses = ['soltero', 'casado', 'divorciado', 'viudo'];
-
+  docTypes = ['DNI', 'CE', 'RUC', 'PAS'];
+  clientTypes = ['lead', 'client', 'provider'];
   sections = [
     { title: 'general', icon: User, key: 'general', expanded: true },
-    { title: 'address', icon: Home, key: 'address', expanded: false },
+    { title: 'contact', icon: Mail, key: 'contact', expanded: false },
+    { title: 'other', icon: Landmark, key: 'other', expanded: false },
   ];
 
   ChevronUp = ChevronUp;
@@ -72,11 +74,17 @@ export class ClientFormComponent {
     this.form = this.fb.group({
       first_name: ['', Validators.required],
       last_name: ['', Validators.required],
-      document_number: ['', [Validators.required, Validators.minLength(8)]],
-      phone: [''],
+      doc_type: ['', Validators.required],
+      doc_number: ['', [Validators.required, Validators.minLength(8)]],
+      marital_status: ['', Validators.required],
+      type: ['', Validators.required],
+      primary_phone: [''],
+      secondary_phone: [''],
       email: [''],
       address: [''],
-      marital_status: ['', Validators.required],
+      date: [''],
+      occupation: [''],
+      salary: [''],
       family_group: [''],
     });
   }
@@ -87,7 +95,22 @@ export class ClientFormComponent {
       this.isEditMode = true;
       this.editingId = +id;
       this.clientsService.get(+id).subscribe((client) => {
-        this.form.patchValue(client);
+        this.form.patchValue({
+          first_name: client.first_name,
+          last_name: client.last_name,
+          doc_type: client.doc_type,
+          doc_number: client.doc_number,
+          marital_status: client.marital_status,
+          type: client.type,
+          family_group: client.family_group,
+          primary_phone: client.primary_phone,
+          secondary_phone: client.secondary_phone,
+          email: client.email,
+          address: client.addresses?.[0]?.line1 || '',
+          date: client.date ? client.date.substring(0, 10) : '',
+          occupation: client.occupation,
+          salary: client.salary,
+        });
       });
     }
   }
@@ -100,8 +123,8 @@ export class ClientFormComponent {
     const idx = this.sections.findIndex((s) => s.expanded);
     if (!this.isSectionValid(this.sections[idx].key)) return;
     if (idx + 1 < this.sections.length) {
-      this.sections[idx].expanded = true;
-      this.sections[idx - 1].expanded = false;
+      this.sections[idx].expanded = false;
+      this.sections[idx + 1].expanded = true;
     }
   }
 
@@ -117,17 +140,21 @@ export class ClientFormComponent {
         return [
           'first_name',
           'last_name',
-          'document_number',
+          'doc_type',
+          'doc_number',
           'marital_status',
-          'family_group',
+          'type',
         ];
-      case 'address':
-        return ['phone', 'email', 'address'];
+      case 'contact':
+        return ['primary_phone', 'secondary_phone', 'email', 'address'];
+      case 'other':
+        return ['family_group', 'date', 'occupation', 'salary'];
       default:
         return [];
     }
   }
 
+  
   fc(name: string) {
     return this.form.get(name)!;
   }

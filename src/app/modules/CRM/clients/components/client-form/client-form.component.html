@@ -46,9 +46,16 @@
                             <label class="label">Last Name</label>
                             <input class="input" formControlName="last_name" />
                         </div>
-                        <div class="field sm:col-span-2">
-                            <label class="label">Document Number</label>
-                            <input class="input" formControlName="document_number" />
+                        <div class="field">
+                            <label class="label">Doc Type</label>
+                            <select class="input" formControlName="doc_type">
+                                <option value="" disabled>Select...</option>
+                                <option *ngFor="let d of docTypes" [value]="d">{{ d }}</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label class="label">Doc Number</label>
+                            <input class="input" formControlName="doc_number" />
                         </div>
                         <div class="field">
                             <label class="label">Marital Status</label>
@@ -58,17 +65,24 @@
                             </select>
                         </div>
                         <div class="field">
-                            <label class="label">Children</label>
-                            <input type="number" min="0" class="input" formControlName="family_group" />
+                            <label class="label">Type</label>
+                            <select class="input" formControlName="type">
+                                <option value="" disabled>Select...</option>
+                                <option *ngFor="let t of clientTypes" [value]="t">{{ t }}</option>
+                            </select>
                         </div>
                     </div>
                 </ng-container>
 
-                <ng-container *ngIf="s.key === 'address'">
+                <ng-container *ngIf="s.key === 'contact'">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         <div class="field">
                             <label class="label">Phone</label>
-                            <input class="input" formControlName="phone" />
+                            <input class="input" formControlName="primary_phone" />
+                        </div>
+                        <div class="field">
+                            <label class="label">Alt. Phone</label>
+                            <input class="input" formControlName="secondary_phone" />
                         </div>
                         <div class="field">
                             <label class="label">Email</label>
@@ -77,6 +91,27 @@
                         <div class="field sm:col-span-2">
                             <label class="label">Address</label>
                             <input class="input" formControlName="address" />
+                        </div>
+                    </div>
+                </ng-container>
+
+                <ng-container *ngIf="s.key === 'other'">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <div class="field">
+                            <label class="label">Children</label>
+                            <input type="number" min="0" class="input" formControlName="family_group" />
+                        </div>
+                        <div class="field">
+                            <label class="label">Date</label>
+                            <input type="date" class="input" formControlName="date" />
+                        </div>
+                        <div class="field">
+                            <label class="label">Occupation</label>
+                            <input class="input" formControlName="occupation" />
+                        </div>
+                        <div class="field">
+                            <label class="label">Salary</label>
+                            <input type="number" class="input" formControlName="salary" />
                         </div>
                     </div>
                 </ng-container>

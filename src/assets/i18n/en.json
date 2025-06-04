@@ -177,6 +177,7 @@
     "update": "Edit Client",
     "delete": "Delete Client",
     "export": "Export Clients",
+    "doc_type": "Doc Type",
     "spouses": {
       "view": "View Spouses",
       "create": "Add Spouse",
