@@ -12,7 +12,7 @@ import { LucideAngularModule, Plus } from 'lucide-angular';
 import { FormsModule } from '@angular/forms';
 import { CrmFilterPipe } from '../crm-filter.pipe';
 import { ColumnDef, SharedTableComponent } from '../../../shared/components/shared-table/shared-table.component';
-import { ClientFormComponent } from './client-form/client-form.component';
+import { ClientFormComponent } from './components/client-form/client-form.component';
 
 @Component({
   selector: 'app-clients',

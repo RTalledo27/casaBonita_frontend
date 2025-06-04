@@ -1,15 +1,44 @@
-import { ChangeDetectorRef, Component, EventEmitter, Input, Output } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+} from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { Client } from '../../models/client';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ClientsService } from '../../services/clients.service';
-import { ToastService } from '../../../../core/services/toast.service';
+import { Client } from '../../../models/client';
+import {
+  FormBuilder,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+import { ClientsService } from '../../../services/clients.service';
+import { ToastService } from '../../../../../core/services/toast.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ChevronDown, ChevronUp, Home, Landmark, Mail, User, X } from 'lucide-angular';
+import {
+  ChevronDown,
+  ChevronUp,
+  Home,
+  Landmark,
+  LucideAngularModule,
+  Mail,
+  User,
+  X,
+} from 'lucide-angular';
+import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-client-form',
-  imports: [],
+  imports: [
+    LucideAngularModule,
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    TranslateModule,
+  ],
   templateUrl: './client-form.component.html',
   styleUrl: './client-form.component.scss',
 })
@@ -21,6 +50,8 @@ export class ClientFormComponent {
   form: FormGroup;
   isEditMode = false;
   editingId?: number;
+
+  maritalStatuses = ['soltero', 'casado', 'divorciado', 'viudo'];
 
   sections = [
     { title: 'general', icon: User, key: 'general', expanded: true },
@@ -45,6 +76,8 @@ export class ClientFormComponent {
       phone: [''],
       email: [''],
       address: [''],
+      marital_status: ['', Validators.required],
+      family_group: [''],
     });
   }
 
@@ -81,7 +114,13 @@ export class ClientFormComponent {
   private controlsFor(key: string): string[] {
     switch (key) {
       case 'general':
-        return ['first_name', 'last_name', 'document_number'];
+        return [
+          'first_name',
+          'last_name',
+          'document_number',
+          'marital_status',
+          'family_group',
+        ];
       case 'address':
         return ['phone', 'email', 'address'];
       default:
