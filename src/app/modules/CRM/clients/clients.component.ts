@@ -1,6 +1,6 @@
-import { Component, TemplateRef, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, TemplateRef, ViewChild } from '@angular/core';
 import { Client } from '../models/client';
-import { BehaviorSubject, catchError, Observable, of, Subject, Subscription } from 'rxjs';
+import { BehaviorSubject, catchError, Observable, of, startWith, Subject, Subscription, switchMap } from 'rxjs';
 import { ActivatedRoute, Router, RouterLink, RouterLinkActive, RouterModule, RouterOutlet } from '@angular/router';
 import { ToastService } from '../../../core/services/toast.service';
 import { PusherService } from '../../../core/services/pusher.service';
@@ -13,9 +13,11 @@ import { FormsModule } from '@angular/forms';
 import { CrmFilterPipe } from '../crm-filter.pipe';
 import { ColumnDef, SharedTableComponent } from '../../../shared/components/shared-table/shared-table.component';
 import { ClientFormComponent } from './components/client-form/client-form.component';
+import { ModalService } from '../../../core/services/modal.service';
 
 @Component({
   selector: 'app-clients',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterOutlet,
     CommonModule,
@@ -24,7 +26,7 @@ import { ClientFormComponent } from './components/client-form/client-form.compon
     RouterModule,
     FormsModule,
     SharedTableComponent,
-    CrmFilterPipe
+    CrmFilterPipe,
   ],
   templateUrl: './clients.component.html',
   styleUrl: './clients.component.scss',
@@ -32,6 +34,8 @@ import { ClientFormComponent } from './components/client-form/client-form.compon
 export class ClientsComponent {
   private clientsSubject = new BehaviorSubject<Client[]>([]);
   clients$ = this.clientsSubject.asObservable();
+
+  
   filter: string = '';
   type: string = '';
   isModalOpen = false;
@@ -64,7 +68,8 @@ export class ClientsComponent {
     private toast: ToastService,
     private route: ActivatedRoute,
     private pusherService: PusherService,
-    private pusherListenerService: PusherListenerService
+    private pusherListenerService: PusherListenerService,
+    private modalService: ModalService
   ) {}
 
   ngOnInit(): void {
@@ -76,25 +81,17 @@ export class ClientsComponent {
 
   loadClients(): void {
     this.clientsService.list().subscribe({
-      next: (res) => {
-        this.clientsSubject.next(res);
-      },
-      error: () => this.toast.show('Error al cargar clientes', 'error'),
-    });
-  }
+      next: (list) => this.clientsSubject.next(list),
+            error: () => this.toast.show('Error al cargar clientes', 'error'),
+    });  }
 
- 
   onCreate(): void {
-    this.router.navigate([{ outlets: { modal: 'create' } }], {
-      relativeTo: this.route,
-    });
+    this.modalService.open(['create'], this.route); 
     this.isModalOpen = true;
   }
 
   onEdit(id: number): void {
-    this.router.navigate([{ outlets: { modal: [id.toString(), 'edit'] } }], {
-      relativeTo: this.route,
-    });
+    this.modalService.open([id.toString(), 'edit'], this.route);
     this.isModalOpen = true;
   }
 
@@ -135,13 +132,12 @@ export class ClientsComponent {
 
   onModalDeactivate() {
     this.isModalOpen = false;
-    console.log(this.isModalOpen);
+    this.modalService.close(this.route); 
   }
 
   private setupPusherListeners(): void {
     if (this.pusherListenersInitialized) return;
     this.pusherListenersInitialized = true;
-
     this.pusherListenerService.setupPusherListeners(
       'client',
       this.events,

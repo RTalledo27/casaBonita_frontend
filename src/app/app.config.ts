@@ -7,6 +7,8 @@ import { provideAnimations }      from '@angular/platform-browser/animations';
 import { tokenInterceptor } from './core/interceptors/token.interceptor';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { errorInterceptor } from './core/interceptors/error.interceptor';
+
 //import {traslate}
 
 
@@ -20,13 +22,13 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideCharts(withDefaultRegisterables()),
-    provideHttpClient(withInterceptors([tokenInterceptor])),
+    provideHttpClient(withInterceptors([tokenInterceptor, errorInterceptor])),
     provideAnimations(),
     importProvidersFrom(
       TranslateModule.forRoot({
         defaultLanguage: 'es',
         loader: {
-          provide: TranslateLoader, 
+          provide: TranslateLoader,
           useFactory: httpLoaderFactory, //
           deps: [HttpClient],
           /* useFactory: () => {

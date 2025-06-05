@@ -46,7 +46,8 @@ export const routes: Routes = [
           },
           {
             path: 'crm',
-            children: [...clientRoutes],
+            loadChildren: () =>
+              import('./modules/CRM/routes/crm.routes').then((m) => m.CRM_ROUTES),
             canActivateChild: [permissionGuard],
           },
           {

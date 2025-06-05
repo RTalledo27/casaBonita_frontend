@@ -30,6 +30,9 @@ import {
 } from 'lucide-angular';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
+import { ModalService } from '../../../../../core/services/modal.service';
+import { clientValidators } from '../../../validators/client.validators';
+import { ClientType, DocType, MaritalStatus } from '../../../models/enum';
 
 @Component({
   selector: 'app-client-form',
@@ -52,9 +55,9 @@ export class ClientFormComponent {
   isEditMode = false;
   editingId?: number;
 
-  maritalStatuses = ['soltero', 'casado', 'divorciado', 'viudo'];
-  docTypes = ['DNI', 'CE', 'RUC', 'PAS'];
-  clientTypes = ['lead', 'client', 'provider'];
+  maritalStatuses = Object.values(MaritalStatus);
+  docTypes = Object.values(DocType);
+  clientTypes = Object.values(ClientType);
   sections = [
     { title: 'general', icon: User, key: 'general', expanded: true },
     { title: 'contact', icon: Mail, key: 'contact', expanded: false },
@@ -70,23 +73,23 @@ export class ClientFormComponent {
     private fb: FormBuilder,
     private toast: ToastService,
     private clientsService: ClientsService,
-    private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private modalService: ModalService
   ) {
     this.form = this.fb.group({
-      first_name: ['', Validators.required],
-      last_name: ['', Validators.required],
-      doc_type: ['', Validators.required],
-      doc_number: ['', [Validators.required, Validators.minLength(8)]],
-      marital_status: ['', Validators.required],
-      type: ['', Validators.required],
-      primary_phone: [''],
-      secondary_phone: [''],
-      email: [''],
-      address: [''],
-      date: [''],
-      occupation: [''],
-      salary: [''],
+      first_name: ['', clientValidators.first_name],
+      last_name: ['', clientValidators.last_name],
+      doc_type: ['', clientValidators.doc_type],
+      doc_number: ['', clientValidators.doc_number],
+      marital_status: ['', clientValidators.marital_status],
+      type: ['', clientValidators.type],
+      primary_phone: ['', clientValidators.primary_phone],
+      secondary_phone: ['', clientValidators.secondary_phone],
+      email: ['', clientValidators.email],
+      address: ['', clientValidators.address],
+      date: ['', clientValidators.date],
+      occupation: ['', clientValidators.occupation],
+      salary: ['', clientValidators.salary],
       family_group: this.fb.array([]),
     });
   }
@@ -238,9 +241,8 @@ export class ClientFormComponent {
   }
 
   private closeModal() {
-    this.router.navigate([{ outlets: { modal: null } }], {
-      relativeTo: this.route.parent,
-    });
+    this.modalService.close(this.route);
+
   }
 
   get currentStep(): number {
