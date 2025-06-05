@@ -27,13 +27,27 @@
                     <dd>{{ c.marital_status || '-' }}</dd>
                 </div>
                 <div class="bg-gray-800 p-4 rounded-lg">
-                    <dt class="font-semibold mb-1">Children</dt>
-                    <dd>{{ c.family_group || '0' }}</dd>
+                    <dt class="font-semibold mb-1">Family Group</dt>
+                    <dd>
+                        <a [routerLink]="['/crm/clients', c.client_id, 'family']" class="text-blue-400 hover:underline">
+                            View ({{ c.family_members?.length || 0 }})
+                        </a>
+                    </dd>
+                </div>
+                <div class="bg-gray-800 p-4 rounded-lg">
+                    <dt class="font-semibold mb-1">Interactions</dt>
+                    <dd>
+                        <a [routerLink]="['/crm/clients', c.client_id, 'interactions']" class="text-blue-400 hover:underline">
+                            View ({{ c.interactions?.length || 0 }})
+                        </a>
+                    </dd>
                 </div>
                 <div class="bg-gray-800 p-4 rounded-lg">
                     <dt class="font-semibold mb-1">Email</dt>
                     <dd>{{ c.email || '-' }}</dd>
                 </div>
+
+                
                 <div class="bg-gray-800 p-4 rounded-lg">
                     <dt class="font-semibold mb-1">Phone</dt>
                     <dd>{{ c.primary_phone || '-' }}</dd>

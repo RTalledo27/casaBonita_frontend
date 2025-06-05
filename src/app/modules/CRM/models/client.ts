@@ -1,5 +1,6 @@
 import { Address } from "./address";
 import { CrmInteraction } from "./crm-interaction";
+import { FamilyMember } from "./family-member";
 
 export interface Client {
   client_id: number;
@@ -15,7 +16,7 @@ export interface Client {
   date: string | null; // ISO string (ej. '2025-06-03')
   occupation: string | null;
   salary: number | null;
-  family_group: string | null;
+  family_members?: FamilyMember[];
   created_at?: string;
   updated_at?: string;
 

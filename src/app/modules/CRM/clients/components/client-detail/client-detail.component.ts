@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { Observable, switchMap } from 'rxjs';
 import { Client } from '../../../models/client';
 import { LucideAngularModule, UserIcon } from 'lucide-angular';
-import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
+import { ActivatedRoute, Router, RouterLinkActive, RouterModule, RouterOutlet } from '@angular/router';
 import { ClientsService } from '../../../services/clients.service';
 import { ClientFormComponent } from '../client-form/client-form.component';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -15,6 +15,7 @@ import { CommonModule } from '@angular/common';
     ReactiveFormsModule,
     LucideAngularModule,
     CommonModule,
+    RouterModule
   ],
   templateUrl: './client-detail.component.html',
   styleUrl: './client-detail.component.scss',

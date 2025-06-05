@@ -11,39 +11,34 @@ interface ApiResponse<T> {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ClientsService {
-
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   private base = API_ROUTES.CRM.CLIENTS;
 
-  list(): Observable<Client[]>{
-    return this.http.get<Client[]>(this.base);
-  }
-
-
-  get(id: number): Observable<Client>{
-    return this.http.get<ApiResponse<Client>>(`${this.base}/${id}`)
+  list(): Observable<Client[]> {
+    return this.http
+      .get<{ data: Client[] }>(`${this.base}`)
       .pipe(map((res) => res.data));
   }
 
-
-  create(fd: FormData): Observable<Client>{
-    return this.http.post<Client>(this.base, fd)
+  get(id: number): Observable<Client> {
+    return this.http
+      .get<ApiResponse<Client>>(`${this.base}/${id}`)
+      .pipe(map((res) => res.data));
   }
 
-  update(id: number, fd: FormData): Observable<Client>{
+  create(fd: FormData): Observable<Client> {
+    return this.http.post<Client>(this.base, fd);
+  }
+
+  update(id: number, fd: FormData): Observable<Client> {
     return this.http.post<Client>(`${this.base}/${id}`, fd);
   }
 
-  delete(id: number):Observable<void> {
-    return this.http.delete<void>(`${this.base}/${id}`);    
+  delete(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.base}/${id}`);
   }
-
-
-
-
-
 }

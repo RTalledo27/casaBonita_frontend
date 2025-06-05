@@ -17,7 +17,7 @@
     },
     "crm": {
       "title": "CRM",
-      "clients":{
+      "clients": {
         "title": "Clients"
       }
     },
@@ -112,14 +112,14 @@
     "step": "Step",
     "of": "of",
     "noData": "No records found",
-    "next":"next"
+    "next": "next"
   },
   "security": {
     "access": "System Access",
     "permissions": {
       "title": "Permissions",
       "codName": "Permission",
-      "name":"name",
+      "name": "name",
       "view": "View Permissions",
       "store": "Create Permissions",
       "update": "Edit Permissions",
@@ -135,10 +135,9 @@
       "view": "View Roles",
       "store": "Create Roles",
       "update": "Edit Roles",
-      "destroy": "Delete Roles"
-      ,
-       "editTitle": "Role Edit",
-        "createTitle": "Role Create"
+      "destroy": "Delete Roles",
+      "editTitle": "Role Edit",
+      "createTitle": "Role Create"
     },
     "users": {
       "title": "Users",
@@ -163,32 +162,48 @@
       }
     }
   },
- "crm": {
-  "access": "CRM Access",
-  "addresses": {
-    "view": "View Addresses",
-    "store": "Create Address",
-    "update": "Edit Address",
-    "destroy": "Delete Address"
-  },
-  "clients": {
-    "view": "View Clients",
-    "store": "Create Client",
-    "update": "Edit Client",
-    "delete": "Delete Client",
-    "export": "Export Clients",
-    "doc_type": "Doc Type",
-    "spouses": {
-      "view": "View Spouses",
-      "create": "Add Spouse",
-      "delete": "Delete Spouse"
+  "crm": {
+    "access": "CRM Access",
+    "addresses": {
+      "view": "View Addresses",
+      "store": "Create Address",
+      "update": "Edit Address",
+      "destroy": "Delete Address"
+    },
+    "clients": {
+      "view": "View Clients",
+      "store": "Create Client",
+      "update": "Edit Client",
+      "delete": "Delete Client",
+      "export": "Export Clients",
+      "doc_type": "Doc Type",
+      "spouses": {
+        "view": "View Spouses",
+        "create": "Add Spouse",
+        "delete": "Delete Spouse"
+      },
+      "first_name": "First Name",
+      "last_name": "Last Name",
+      "doc_number": "Doc Number",
+      "email": "Email",
+      "type": "Type",
+      "search": "Search",
+      "types": {
+        "lead": "Lead",
+        "client": "Client"
+      }
+    },
+    "interactions": {
+      "view": "View Interactions",
+      "create": "Log Interaction",
+      "update": "Update Interaction",
+      "delete": "Delete Interaction"
+    },
+    "family_members": {
+      "view": "View Family Members",
+      "create": "Add Member",
+      "update": "Update Member",
+      "delete": "Delete Member"
     }
-  },
-  "interactions": {
-    "view": "View Interactions",
-    "create": "Log Interaction"
   }
-  
-
-}
 }

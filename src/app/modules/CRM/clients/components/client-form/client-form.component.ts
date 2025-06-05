@@ -10,6 +10,7 @@ import { Client } from '../../../models/client';
 import {
   FormBuilder,
   FormGroup,
+  FormArray,
   FormsModule,
   ReactiveFormsModule,
   Validators,
@@ -57,6 +58,7 @@ export class ClientFormComponent {
   sections = [
     { title: 'general', icon: User, key: 'general', expanded: true },
     { title: 'contact', icon: Mail, key: 'contact', expanded: false },
+    { title: 'family', icon: Home, key: 'family', expanded: false },
     { title: 'other', icon: Landmark, key: 'other', expanded: false },
   ];
 
@@ -85,7 +87,7 @@ export class ClientFormComponent {
       date: [''],
       occupation: [''],
       salary: [''],
-      family_group: [''],
+      family_group: this.fb.array([]),
     });
   }
 
@@ -102,7 +104,6 @@ export class ClientFormComponent {
           doc_number: client.doc_number,
           marital_status: client.marital_status,
           type: client.type,
-          family_group: client.family_group,
           primary_phone: client.primary_phone,
           secondary_phone: client.secondary_phone,
           email: client.email,
@@ -111,7 +112,17 @@ export class ClientFormComponent {
           occupation: client.occupation,
           salary: client.salary,
         });
+        client.family_members?.forEach((m) =>
+          this.addFamilyMember({
+            first_name: m.first_name,
+            last_name: m.last_name,
+            doc_number: m.doc_number,
+            relationship: m.relationship,
+          })
+        );
       });
+    } else {
+      this.addFamilyMember();
     }
   }
 
@@ -147,16 +158,36 @@ export class ClientFormComponent {
         ];
       case 'contact':
         return ['primary_phone', 'secondary_phone', 'email', 'address'];
+      case 'family':
+        return [];
       case 'other':
-        return ['family_group', 'date', 'occupation', 'salary'];
+        return ['date', 'occupation', 'salary'];
       default:
         return [];
     }
   }
 
-  
   fc(name: string) {
     return this.form.get(name)!;
+  }
+
+  get familyGroup(): FormArray {
+    return this.form.get('family_group') as FormArray;
+  }
+
+  addFamilyMember(member?: any) {
+    this.familyGroup.push(
+      this.fb.group({
+        first_name: [member?.first_name || '', Validators.required],
+        last_name: [member?.last_name || '', Validators.required],
+        dni: [member?.doc_number || '', Validators.required],
+        relation: [member?.relationship || '', Validators.required],
+      })
+    );
+  }
+
+  removeFamilyMember(idx: number) {
+    this.familyGroup.removeAt(idx);
   }
 
   submit() {
@@ -167,7 +198,10 @@ export class ClientFormComponent {
 
     const formData = new FormData();
     Object.entries(this.form.getRawValue()).forEach(([key, value]) => {
-      if (value !== null && value !== undefined) {
+      if (value === null || value === undefined) return;
+      if (key === 'family_group') {
+        formData.append(key, JSON.stringify(value));
+      } else {
         formData.append(key, String(value));
       }
     });

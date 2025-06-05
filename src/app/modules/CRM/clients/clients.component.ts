@@ -1,6 +1,6 @@
 import { Component, TemplateRef, ViewChild } from '@angular/core';
 import { Client } from '../models/client';
-import { BehaviorSubject, Subscription } from 'rxjs';
+import { BehaviorSubject, catchError, Observable, of, Subject, Subscription } from 'rxjs';
 import { ActivatedRoute, Router, RouterLink, RouterLinkActive, RouterModule, RouterOutlet } from '@angular/router';
 import { ToastService } from '../../../core/services/toast.service';
 import { PusherService } from '../../../core/services/pusher.service';
@@ -24,7 +24,7 @@ import { ClientFormComponent } from './components/client-form/client-form.compon
     RouterModule,
     FormsModule,
     SharedTableComponent,
-    CrmFilterPipe,
+    
   ],
   templateUrl: './clients.component.html',
   styleUrl: './clients.component.scss',
@@ -35,9 +35,17 @@ export class ClientsComponent {
   type: string = '';
   isModalOpen = false;
   plus = Plus;
+  events = ['created', 'updated', 'deleted'];
+  idField = 'client_id'; // Asegúrate que este sea el ID único del modelo Client
 
   @ViewChild('nameTpl') nameTpl!: TemplateRef<any>;
   @ViewChild('emailTpl') emailTpl!: TemplateRef<any>;
+
+  /** Datos reactivos */
+  private destroy$ = new Subject<void>();
+  private clientsSubject = new BehaviorSubject<Client[]>([]);
+  clients$: Observable<Client[]> = this.clientsSubject.asObservable();
+  private pusherListenersInitialized = false;
 
   columns: ColumnDef[] = [
     { field: 'first_name', header: 'crm.clients.first_name' },
@@ -55,20 +63,39 @@ export class ClientsComponent {
     private clientsService: ClientsService,
     private router: Router,
     private toast: ToastService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private pusherService: PusherService,
+    private pusherListenerService: PusherListenerService
   ) {}
 
   ngOnInit(): void {
+    this.clients$ = this.clientsSubject.asObservable();
     this.loadClients();
+
+    this.pusherService.resubscribe('client', this.events);
+    this.pusherService.subscribeToChannel('client', this.events);
+
+    this.setupPusherListeners();
+
+    console.log(this.clients$)
+    this.route.params.subscribe((params) => {
+      if (params['id']) {
+        this.isModalOpen = true;
+      }
+    });
   }
 
   loadClients(): void {
-    this.clientsService.list().subscribe({
-      next: (res) => {
-        this.clients = res;
-      },
-      error: () => this.toast.show('Error al cargar clientes', 'error'),
-    });
+    this.clientsService.list()
+      .pipe(
+        catchError(() => {
+          this.toast.show('common.errorLoad', 'error');
+          return of([]);
+        })
+    )
+      .subscribe((clients) => {
+        this.clientsSubject.next(clients); 
+      });
   }
 
   onCreate(): void {
@@ -93,27 +120,29 @@ export class ClientsComponent {
     this.clientsService.delete(id).subscribe({
       next: () => {
         this.toast.show('Cliente eliminado', 'success');
-        this.loadClients();
+        //this.loadClients();
       },
       error: () => this.toast.show('Error al eliminar', 'error'),
     });
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   onModalActivate(component: any) {
-    console.log('oa');
     if (component instanceof ClientFormComponent) {
       component.modalClosed.subscribe((isOpen: boolean) => {
-        //this.getUsers(); // Vuelve a cargar la lista completa
-
-        this.isModalOpen = isOpen; // Actualiza el estado
-        console.log(this.isModalOpen);
-        this.router.navigate(['security/users']); // Opcional: Navega
+        this.isModalOpen = isOpen;
+        this.router.navigate(['crm/clients']);
+        this.loadClients();
       });
 
-      component.submitForm.subscribe(({ data, isEdit }) => {
-        this.isModalOpen = false; // Cierra el modal
-        console.log(this.isModalOpen);
-        //this.getUsers();
+      component.submitForm.subscribe(() => {
+        this.isModalOpen = false;
+        this.router.navigate(['crm/clients']);
+        this.loadClients();
       });
     }
   }
@@ -121,5 +150,19 @@ export class ClientsComponent {
   onModalDeactivate() {
     this.isModalOpen = false;
     console.log(this.isModalOpen);
+  }
+
+  private setupPusherListeners(): void {
+    if (this.pusherListenersInitialized) return;
+    this.pusherListenersInitialized = true;
+
+    this.pusherListenerService.setupPusherListeners(
+      'client',
+      this.events,
+      this.idField,
+      this.clientsSubject,
+      this.clientsSubject,
+      this.clientsSubject
+    );
   }
 }

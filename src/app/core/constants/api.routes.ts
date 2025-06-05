@@ -19,7 +19,8 @@ export const API_ROUTES = {
     CLIENTS: `${BASE}/crm/clients`,
     SPOUSES: `${BASE}/crm/clients/spouses`,
     ADDRESSES: `${BASE}/crm/clients/addresses`,
-    INTERACTIONS: `${BASE}/crm/interactions`
+    INTERACTIONS: `${BASE}/crm/interactions`,
+    FAMILY_MEMBERS: `${BASE}/crm/family-members`,
   },
 
   INVENTORY: {

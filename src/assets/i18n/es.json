@@ -17,7 +17,7 @@
     },
     "crm": {
       "title": "CRM",
-      "clients":{
+      "clients": {
         "title": "Clientes"
       }
     },
@@ -28,7 +28,6 @@
       },
       "roles": {
         "title": "Roles"
-       
       },
       "permissions": {
         "title": "Permisos"
@@ -114,14 +113,14 @@
     "step": "Paso",
     "of": "de",
     "noData": "No hay registros",
-    "next":"Siguiente"
+    "next": "Siguiente"
   },
   "security": {
     "access": "Acceso al Sistema",
     "permissions": {
       "title": "Permisos",
       "codName": "Permisos",
-      "name":"Nombre",
+      "name": "Nombre",
       "view": "Ver Permisos",
       "store": "Crear Permisos",
       "update": "Editar Permisos",
@@ -140,7 +139,7 @@
       "update": "Editar Roles",
       "destroy": "Eliminar Roles",
       "editTitle": "Editar Rol",
-       "createTitle": "Crear Rol"
+      "createTitle": "Crear Rol"
     },
     "users": {
       "title": "Usuarios",
@@ -165,20 +164,37 @@
       "view": "Ver Clientes",
       "store": "Crear Cliente",
       "update": "Editar Cliente",
-    "delete": "Eliminar Cliente",
-    "export": "Exportar Clientes",
-    "doc_type": "Tipo Doc.",
-    "spouses": {
-      "view": "Ver Cónyuges",
-      "create": "Agregar Cónyuge",
-      "delete": "Eliminar Cónyuge"
+      "delete": "Eliminar Cliente",
+      "export": "Exportar Clientes",
+      "doc_type": "Tipo Doc.",
+      "spouses": {
+        "view": "Ver Cónyuges",
+        "create": "Agregar Cónyuge",
+        "delete": "Eliminar Cónyuge"
+      },
+      "first_name": "Nombre",
+      "last_name": "Apellido",
+      "doc_number": "N° Doc.",
+      "email": "Correo",
+      "type": "Tipo",
+      "search": "Buscar",
+      "types": {
+        "lead": "Prospecto",
+        "client": "Cliente"
       }
     },
     "interactions": {
-      "view": "Ver Interacciones",
-      "create": "Registrar Interacción",
-      "update": "Actualizar Interaccion",
-      "delete": "Eliminar Interaccion"
-    }
+  "view": "Ver Interacciones",
+  "create": "Registrar Interacción",
+  "update": "Actualizar Interacción",
+  "delete": "Eliminar Interacción"
+},
+"family_members": {
+  "view": "Ver Familiares",
+  "create": "Agregar Familiar",
+  "update": "Actualizar Familiar",
+  "delete": "Eliminar Familiar"
+}
+
   }
 }

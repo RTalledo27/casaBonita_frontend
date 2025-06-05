@@ -21,11 +21,10 @@
     </div>
 
     <!-- Tabla -->
-    <app-shared-table [columns]="columns"   [data]="clients.length ? (clients | crmFilter: filter : type) : []"
-    [templates]="templates"
-        [componentName]="'clients'" (onEdit)="onEdit($event)" (onViewDetails)="onView($event)"
-        (delete)="onDelete($event)">
+    <app-shared-table [columns]="columns" [data]="(clients$ | async) || []" [templates]="templates"
+        [componentName]="'clients'" (onEdit)="onEdit($event)" (onViewDetails)="onView($event)" (delete)="onDelete($event)">
     </app-shared-table>
+  
 </div>
 
 <!-- Modal superpuesto -->
