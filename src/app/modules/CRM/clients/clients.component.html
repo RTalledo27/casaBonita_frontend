@@ -21,11 +21,13 @@
     </div>
 
     <!-- Tabla -->
-    <app-shared-table [columns]="columns" [data]="(clients$ | async) || []" [templates]="templates"
-        [componentName]="'clients'" (onEdit)="onEdit($event)" (onViewDetails)="onView($event)" (delete)="onDelete($event)">
-    </app-shared-table>
-  
-</div>
+    <ng-container *ngIf="clients$ | async as clients">
+        <app-shared-table [columns]="columns" [data]="clients | crmFilter: filter : type" [templates]="templates"
+            [componentName]="'clients'" (onEdit)="onEdit($event)" (onViewDetails)="onView($event)"
+            (delete)="onDelete($event)">
+        </app-shared-table>
+    </ng-container>
+    </div>
 
 <!-- Modal superpuesto -->
 <div *ngIf="isModalOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">

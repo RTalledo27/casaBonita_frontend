@@ -24,28 +24,27 @@ import { ClientFormComponent } from './components/client-form/client-form.compon
     RouterModule,
     FormsModule,
     SharedTableComponent,
-    
+    CrmFilterPipe
   ],
   templateUrl: './clients.component.html',
   styleUrl: './clients.component.scss',
 })
 export class ClientsComponent {
-  clients: Client[] = [];
+  private clientsSubject = new BehaviorSubject<Client[]>([]);
+  clients$ = this.clientsSubject.asObservable();
   filter: string = '';
   type: string = '';
   isModalOpen = false;
   plus = Plus;
-  events = ['created', 'updated', 'deleted'];
-  idField = 'client_id'; // Asegúrate que este sea el ID único del modelo Client
 
+  private pusherListenersInitialized = false;
+  events = ['created', 'updated', 'deleted'];
+  idField = 'client_id';
   @ViewChild('nameTpl') nameTpl!: TemplateRef<any>;
   @ViewChild('emailTpl') emailTpl!: TemplateRef<any>;
 
   /** Datos reactivos */
   private destroy$ = new Subject<void>();
-  private clientsSubject = new BehaviorSubject<Client[]>([]);
-  clients$: Observable<Client[]> = this.clientsSubject.asObservable();
-  private pusherListenersInitialized = false;
 
   columns: ColumnDef[] = [
     { field: 'first_name', header: 'crm.clients.first_name' },
@@ -69,35 +68,22 @@ export class ClientsComponent {
   ) {}
 
   ngOnInit(): void {
-    this.clients$ = this.clientsSubject.asObservable();
     this.loadClients();
-
     this.pusherService.resubscribe('client', this.events);
     this.pusherService.subscribeToChannel('client', this.events);
-
     this.setupPusherListeners();
-
-    console.log(this.clients$)
-    this.route.params.subscribe((params) => {
-      if (params['id']) {
-        this.isModalOpen = true;
-      }
-    });
   }
 
   loadClients(): void {
-    this.clientsService.list()
-      .pipe(
-        catchError(() => {
-          this.toast.show('common.errorLoad', 'error');
-          return of([]);
-        })
-    )
-      .subscribe((clients) => {
-        this.clientsSubject.next(clients); 
-      });
+    this.clientsService.list().subscribe({
+      next: (res) => {
+        this.clientsSubject.next(res);
+      },
+      error: () => this.toast.show('Error al cargar clientes', 'error'),
+    });
   }
 
+ 
   onCreate(): void {
     this.router.navigate([{ outlets: { modal: 'create' } }], {
       relativeTo: this.route,

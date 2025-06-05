@@ -4,7 +4,11 @@ import { API_ROUTES } from '../../../core/constants/api.routes';
 import { map, Observable } from 'rxjs';
 import { Client } from '../models/client';
 
-
+interface Paginated<T> {
+  data: T[];
+  meta: any;
+  links: any;
+}
 
 interface ApiResponse<T> {
   data: T;
@@ -19,9 +23,9 @@ export class ClientsService {
   private base = API_ROUTES.CRM.CLIENTS;
 
   list(): Observable<Client[]> {
-    return this.http
-      .get<{ data: Client[] }>(`${this.base}`)
-      .pipe(map((res) => res.data));
+    return this.http.get<Paginated<Client>>(this.base).pipe(
+      map((resp) => resp.data)
+    );
   }
 
   get(id: number): Observable<Client> {
