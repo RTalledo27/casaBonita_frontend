@@ -228,11 +228,9 @@ export class ClientFormComponent {
       },
       error: (err) => {
         this.serverErrors = err.error?.errors || {};
-        Object.values(this.serverErrors)
-          .flat()
-          .forEach((msg) => this.toast.show(msg, 'error', 5000));
-      },
-    });
+       
+      }
+    })
   }
 
   onCancel() {

@@ -177,6 +177,7 @@
       "delete": "Delete Client",
       "export": "Export Clients",
       "doc_type": "Doc Type",
+      "primary_phone": "Telephone",
       "spouses": {
         "view": "View Spouses",
         "create": "Add Spouse",

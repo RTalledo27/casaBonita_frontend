@@ -167,6 +167,7 @@
       "delete": "Eliminar Cliente",
       "export": "Exportar Clientes",
       "doc_type": "Tipo Doc.",
+      "primary_phone": "Telefono",
       "spouses": {
         "view": "Ver Cónyuges",
         "create": "Agregar Cónyuge",
