@@ -1,14 +1,14 @@
 
-<nav class="flex items-center justify-between h-full text-blue-100">
+<nav class="flex items-center justify-between h-full text-gray-800 dark:text-blue-100">
     <div class="flex items-center">
-        <span class="text-sm text-blue-100 font-medium">{{'navbar.welcome'|translate}}, {{ user?.name || 'Usuario'
+        <span class="text-sm font-medium">{{'navbar.welcome'|translate}}, {{ user?.name || 'Usuario'
             }}</span>
     </div>
 
     <div class="relative flex items-center gap-6">
         <!-- Notificaciones -->
-        <button aria-label="Notificaciones"
-            class="text-blue-200 hover:text-white focus:outline-none relative transition-colors">
+        <button aria-label="Notificaciones" 
+            class="text-gray-500 hover:text-gray-700 dark:text-blue-200 dark:hover:text-white focus:outline-none relative transition-colors">
             <div class="relative">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path
@@ -23,7 +23,8 @@
 
         <!-- Cambio de idioma -->
         <app-lang-switcher></app-lang-switcher>
-
+        <app-theme-switcher></app-theme-switcher>
+        
         <!-- Perfil / Logout -->
         <div class="relative">
             <button (click)="toggleMenu()" aria-label="Perfil"
@@ -41,16 +42,16 @@
                 </svg>
             </button>
 
-            <div *ngIf="menuOpen"
-                class="absolute right-0 mt-2 bg-white rounded-lg shadow-2xl py-2 w-48 z-50 border border-gray-200">
-                <div class="px-4 py-3 border-b border-gray-100">
-                    <p class="text-sm font-medium text-gray-900 truncate">{{ user?.name || 'Usuario' }}</p>
-                    <p class="text-xs text-gray-500 truncate">{{ user?.email || 'usuario@ejemplo.com' }}</p>
+            <div *ngIf="menuOpen" 
+                class="absolute right-0 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-2xl py-2 w-48 z-50 border border-gray-200 dark:border-gray-700">
+                <div class="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
+                    <p class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{{ user?.name || 'Usuario' }}</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ user?.email || 'usuario@ejemplo.com' }}</p>
                 </div>
                 <ul>
                     <li>
-                        <button (click)="logout()"
-                            class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 transition flex items-center">
+                        <button (click)="logout()" 
+                            class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 transition flex items-center">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-gray-500"
                                 viewBox="0 0 20 20" fill="currentColor">
                                 <path fill-rule="evenodd"
