@@ -12,6 +12,8 @@ import { TranslateService } from '@ngx-translate/core';
 export class LangSwitcherComponent {
   langs = ['es', 'en'];
 
+  
+
   constructor(private translate: TranslateService) {
     translate.addLangs(this.langs);
    // translate.use('es'); // idioma inicial

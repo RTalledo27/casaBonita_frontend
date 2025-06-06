@@ -97,6 +97,7 @@
     }
   },
   "common": {
+    "all":"Todos",
     "new": "Nuevo",
     "create": "Crear",
     "update": "Actualizar",
@@ -161,6 +162,7 @@
       "destroy": "Eliminar Dirección"
     },
     "clients": {
+      "title":"Clientes",
       "view": "Ver Clientes",
       "store": "Crear Cliente",
       "update": "Editar Cliente",

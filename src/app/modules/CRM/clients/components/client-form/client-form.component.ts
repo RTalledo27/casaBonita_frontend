@@ -217,15 +217,14 @@ export class ClientFormComponent {
       ? this.clientsService.update(this.editingId!, formData)
       : this.clientsService.create(formData);
 
-    request$.subscribe({
-      next: (res) => {
-        this.toast.show(
-          `Client ${this.isEditMode ? 'updated' : 'created'} successfully`,
-          'success'
-        );
-        this.submitForm.emit({ data: res, isEdit: this.isEditMode });
-        this.closeModal();
-      },
+      request$.subscribe({
+        next: (res) => {
+          if (this.isEditMode) {
+            this.toast.show('Client updated successfully', 'success');
+          }
+          this.submitForm.emit({ data: res, isEdit: this.isEditMode });
+          this.closeModal();
+        },
       error: (err) => {
         this.serverErrors = err.error?.errors || {};
        

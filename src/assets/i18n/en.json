@@ -96,6 +96,7 @@
     }
   },
   "common": {
+    "title":"Todos",
     "new": "New",
     "create": "Create",
     "update": "Update",
@@ -171,6 +172,7 @@
       "destroy": "Delete Address"
     },
     "clients": {
+      "title":"Clients",
       "view": "View Clients",
       "store": "Create Client",
       "update": "Edit Client",

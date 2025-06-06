@@ -46,7 +46,7 @@ export class SharedTableComponent {
   /** Rutas con :id como placeholder (opcional).  Ej.: '../:id' */
   @Input() viewRoute = '';
   @Input() editRoute = '';
-  showDeleteModal=false;
+  showDeleteModal = false;
 
   /** Emite el id del registro a eliminar */
   @Output() delete = new EventEmitter<number>();
@@ -60,11 +60,19 @@ export class SharedTableComponent {
 
   @Input() componentName: string = '';
 
+  @Input() permissionPrefix = 'security';
+  /** Field that contains the id for each row */
+  @Input() idField?: string;
+
   //----------------------------------
 
   getId(row: any): number {
+    if (this.idField) {
+      return row[this.idField];
+    }
     return row.id ?? row.role_id;
   }
+
 
   /** Devuelve el value de la celda (evita error de TS en template) */
   cell(row: any, col: ColumnDef) {
@@ -83,26 +91,26 @@ export class SharedTableComponent {
   onViewClick(id: number) {
     this.onViewDetails.emit(id);
   }
-  
+
   onDelete(id: number) {
     this.delete.emit(id);
   }
 
   canEdit() {
     return this.authService.hasPermission(
-      `security.${this.componentName}.update`
+      `${this.permissionPrefix}.${this.componentName}.update`
     );
   }
 
   canViewDetails() {
     return this.authService.hasPermission(
-      `security.${this.componentName}.view`
+      `${this.permissionPrefix}.${this.componentName}.view`
     );
   }
 
   canDelete() {
     return this.authService.hasPermission(
-      `security.${this.componentName}.destroy`
+      `${this.permissionPrefix}.${this.componentName}.destroy`
     );
   }
 }

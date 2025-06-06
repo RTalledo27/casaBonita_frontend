@@ -19,8 +19,9 @@ export class FamilyMembersService {
   constructor(private http: HttpClient) {}
 
   list(clientId: number): Observable<FamilyMember[]> {
-    return this.http.get<FamilyMember[]>(`${this.base}?client_id=${clientId}`)
-      ;
+    return this.http
+      .get<{ data: FamilyMember[] }>(`${this.base}?client_id=${clientId}`)
+      .pipe(map((res) => res.data));
   }
 
   get(id: number): Observable<FamilyMember> {

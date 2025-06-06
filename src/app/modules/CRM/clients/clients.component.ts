@@ -14,6 +14,7 @@ import { CrmFilterPipe } from '../crm-filter.pipe';
 import { ColumnDef, SharedTableComponent } from '../../../shared/components/shared-table/shared-table.component';
 import { ClientFormComponent } from './components/client-form/client-form.component';
 import { ModalService } from '../../../core/services/modal.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-clients',
@@ -57,7 +58,7 @@ export class ClientsComponent {
     { field: 'doc_number', header: 'crm.clients.doc_number' },
     { field: 'email', header: 'crm.clients.email' },
     { field: 'primary_phone', header: 'crm.clients.primary_phone' },
-    { field: 'type', header: 'crm.clients.type', translateContent: true },
+    { field: 'type', header: 'crm.clients.type' },
   ];
 
   templates: Record<string, TemplateRef<any>> = {};
@@ -69,7 +70,8 @@ export class ClientsComponent {
     private route: ActivatedRoute,
     private pusherService: PusherService,
     private pusherListenerService: PusherListenerService,
-    private modalService: ModalService
+    private modalService: ModalService,
+        public authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -90,13 +92,22 @@ export class ClientsComponent {
     this.isModalOpen = true;
   }
 
+  canCreate() {
+    return this.authService.hasPermission('crm.clients.store');
+  }
+
   onEdit(id: number): void {
     this.modalService.open([id.toString(), 'edit'], this.route);
     this.isModalOpen = true;
   }
 
+  canEdit() {
+    return this.authService.hasPermission('crm.clients.update');
+  }
+
   onView(id: number): void {
     this.router.navigate(['crm/clients', id]);
+
   }
 
   onDelete(id: number): void {

@@ -84,3 +84,27 @@ app-user-form {
 .icon-btn {
     @apply inline-flex items-center justify-center w-8 h-8 rounded hover:bg-gray-800 transition;
 }
+
+:host {
+    .toast {
+        @apply flex items-center max-w-xs w-full rounded-2xl overflow-hidden shadow-lg text-white;
+    }
+
+    .toast-success {
+        background: linear-gradient(to right, #16a34a, #059669);
+    }
+
+    .toast-error {
+        background: linear-gradient(to right, #dc2626, #b91c1c);
+    }
+
+    .toast-info {
+        background: linear-gradient(to right, #2563eb, #1d4ed8);
+    }
+
+    /* Dark mode support */
+    .dark & {
+        .toast {
+            background-color: #1f2937;
+        }
+    } }

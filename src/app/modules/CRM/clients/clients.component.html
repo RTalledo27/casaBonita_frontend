@@ -2,8 +2,15 @@
 <div class="p-6 space-y-6">
     <!-- Header -->
     <div class="flex justify-between items-center">
-        <h2 class="text-2xl font-bold text-white">{{ 'crm.clients.title' | translate }}</h2>
-        <button class="btn-primary" (click)="onCreate()">
+        <h2 class="text-2xl font-bold text-white">
+            {{ 'crm.clients.title' | translate }}
+        </h2>
+        <p class="text-xs text-gray-400">
+            {{ (clients$ | async)?.length || 0 }} {{ 'common.records' | translate }}
+        </p>
+
+        <!-- botón crear solo si el usuario tiene permiso -->
+        <button *ngIf="canCreate()" (click)="onCreate()" class="btn-primary flex items-center gap-1">
             <lucide-icon [name]="plus" class="w-4 h-4"></lucide-icon>
             {{ 'common.new' | translate }}
         </button>
@@ -22,9 +29,9 @@
 
     <!-- Tabla -->
     <ng-container *ngIf="clients$ | async as clients">
-        <app-shared-table [columns]="columns" [data]="clients | crmFilter: filter : type" [templates]="templates"
-            [componentName]="'clients'" (onEdit)="onEdit($event)" (onViewDetails)="onView($event)"
-            (delete)="onDelete($event)">
+        <app-shared-table [columns]="columns" [data]="clients | crmFilter: filter : type" [templates]="templates" 
+            [componentName]="'clients'" [permissionPrefix]="'crm'" [idField]="idField" (onEdit)="onEdit($event)"
+            (onViewDetails)="onView($event)" (delete)="onDelete($event)">
         </app-shared-table>
     </ng-container>
     </div>
