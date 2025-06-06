@@ -5,13 +5,20 @@ import { ToastContainerComponent } from './shared/components/toast-container/toa
 import { CommonModule } from '@angular/common';
 import { LangSwitcherComponent } from "./shared/components/lang-switcher/lang-switcher.component";
 import { PusherTestComponent } from "./core/services/pusher-test/pusher-test.component";
+import { ThemeService } from './core/services/theme.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, ToastContainerComponent, CommonModule, PusherTestComponent],
+  imports: [
+    RouterOutlet,
+    ToastContainerComponent,
+    CommonModule,
+    PusherTestComponent,
+  ],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.scss'
+  styleUrl: './app.component.scss',
 })
 export class AppComponent {
   title = 'casaBonita_frontend';
+  constructor(private theme: ThemeService) {}
 }

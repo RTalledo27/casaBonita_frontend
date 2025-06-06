@@ -2,7 +2,7 @@ import { ApplicationConfig, importProvidersFrom, provideZoneChangeDetection } fr
 import { provideRouter } from '@angular/router';
 import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common/http';
 import { routes } from './app.routes';
-import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
+import { provideCharts, ThemeService, withDefaultRegisterables } from 'ng2-charts';
 import { provideAnimations }      from '@angular/platform-browser/animations';
 import { tokenInterceptor } from './core/interceptors/token.interceptor';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
@@ -24,7 +24,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideCharts(withDefaultRegisterables()),
     provideHttpClient(withInterceptors([tokenInterceptor, errorInterceptor])),
-    importProvidersFrom(LucideAngularModule.pick({ Sun, Moon })),
+    importProvidersFrom(LucideAngularModule.pick({ Sun, Moon }),),
     provideAnimations(),
     importProvidersFrom(
       TranslateModule.forRoot({

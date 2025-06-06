@@ -73,7 +73,6 @@ export class SharedTableComponent {
     return row.id ?? row.role_id;
   }
 
-
   /** Devuelve el value de la celda (evita error de TS en template) */
   cell(row: any, col: ColumnDef) {
     console.log(col, row);
@@ -108,9 +107,11 @@ export class SharedTableComponent {
     );
   }
 
-  canDelete() {
-    return this.authService.hasPermission(
-      `${this.permissionPrefix}.${this.componentName}.destroy`
+  canDelete(): boolean {
+    const base = `${this.permissionPrefix}.${this.componentName}`;
+    return (
+      this.authService.hasPermission(`${base}.destroy`) ||
+      this.authService.hasPermission(`${base}.delete`)
     );
   }
 }

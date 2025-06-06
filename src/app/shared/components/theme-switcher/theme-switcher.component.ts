@@ -5,14 +5,12 @@ import { ThemeService } from '../../../core/services/theme.service';
 
 @Component({
   selector: 'app-theme-switcher',
-  imports: [CommonModule, LucideAngularModule,],
+  imports: [CommonModule, LucideAngularModule],
   templateUrl: './theme-switcher.component.html',
   styleUrl: './theme-switcher.component.scss',
 })
 export class ThemeSwitcherComponent {
   constructor(public theme: ThemeService) {}
-
-
 
   toggle(): void {
     this.theme.toggle();

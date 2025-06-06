@@ -1,13 +1,11 @@
 import { Injectable } from '@angular/core';
-import { Moon, Sun } from 'lucide-angular';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ThemeService {
   private _isDark = false;
-  Sun = Sun;
-  Moon = Moon;
+
   constructor() {
     const stored = localStorage.getItem('theme');
     this._isDark = stored === 'dark';
