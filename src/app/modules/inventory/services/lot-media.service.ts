@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { API_ROUTES } from '../../../core/constants/api.routes';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { forkJoin, Observable } from 'rxjs';
 import { LotMedia } from '../models/lot-media';
 
 @Injectable({
@@ -10,12 +10,16 @@ import { LotMedia } from '../models/lot-media';
 export class LotMediaService {
   private base = API_ROUTES.INVENTORY.LOT_MEDIA;
 
-
-
   constructor(private http: HttpClient) {}
 
-  uploadMedia(fd: FormData): Observable<LotMedia> {
-    return this.http.post<LotMedia>(this.base, fd);
+  uploadMedia(lotId: number, files: File[]): Observable<LotMedia[]> {
+    const requests = files.map((file) => {
+      const fd = new FormData();
+      fd.append('file', file);
+      fd.append('lot_id', lotId.toString());
+      return this.http.post<LotMedia>(this.base, fd);
+    });
+    return forkJoin(requests);
   }
 
   deleteMedia(id: number): Observable<void> {

@@ -1,6 +1,7 @@
 import { Route } from "@angular/router";
 import { LotsComponent } from "../lots/lots.component";
 import { LotFormComponent } from "../lots/lot-form/lot-form.component";
+import { LotDetailComponent } from "../lots/lot-detail/lot-detail.component";
 
 export const INVENTORY_ROUTES: Route[] = [
   { path: '', redirectTo: 'lots', pathMatch: 'full' },
@@ -18,5 +19,10 @@ export const INVENTORY_ROUTES: Route[] = [
     path: 'lots/:id/edit',
     component: LotFormComponent,
     data: { permission: 'inventory.lots.update' },
+  },
+  {
+    path: 'lots/:id',
+    component: LotDetailComponent,
+    data: { permission: 'inventory.lots.view' },
   },
 ];

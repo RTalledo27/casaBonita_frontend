@@ -1,16 +1,37 @@
-<div class="p-6 space-y-6">
+<div class="p-6 space-y-4">
     <div class="flex justify-between items-center">
         <h2 class="text-2xl font-bold">{{ 'inventory.lots.title' | translate }}</h2>
-        <button *ngIf="canCreate()" class="btn-primary flex items-center gap-1" (click)="onCreate()">
+        <button *ngIf="true" (click)="onCreate()" class="btn-primary flex items-center gap-1">
             <lucide-icon [name]="plus" class="w-4 h-4"></lucide-icon>
             {{ 'common.new' | translate }}
         </button>
     </div>
 
-    <ng-container *ngIf="lots$ | async as lots">
+    <!-- Filtros -->
+    <div class="flex gap-4 mb-4">
+        <input type="text" [(ngModel)]="filterText" placeholder="{{ 'inventory.lots.search' | translate }}"
+            class="input" />
+        <select [(ngModel)]="statusFilter" class="input">
+            <option value="">{{ 'common.all' | translate }}</option>
+            <option value="disponible">{{ 'inventory.lots.status.disponible' | translate }}</option>
+            <option value="reservado">{{ 'inventory.lots.status.reservado' | translate }}</option>
+            <option value="vendido">{{ 'inventory.lots.status.vendido' | translate }}</option>
+        </select>
+        <input type="number" [(ngModel)]="manzanaFilter" placeholder="{{ 'inventory.lots.filterManzana' | translate }}"
+            class="input w-32" />
+    </div>
 
-        <app-shared-table [columns]="columns" [data]="lots" [componentName]="'lots'" [permissionPrefix]="'inventory'"
-            [idField]="idField" (onEdit)="onEdit($event)" (delete)="onDelete($event)"></app-shared-table>
+
+    
+    <ng-container *ngIf="lots$ | async as lots" >
+
+        <app-shared-table [columns]="columns" [data]="lots | inventoryFilter:filterText:statusFilter:manzanaFilter"
+            [idField]="idField"  [componentName]="'lots'" (onViewDetails)="onView($event)" (onEdit)="onEdit($event)"
+            [permissionPrefix]="'inventory'"
+            (delete)="onDelete($event)"></app-shared-table>
 
     </ng-container>
-    </div>
+    
+  
+</div>
+  

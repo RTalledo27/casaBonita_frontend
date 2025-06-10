@@ -9,7 +9,8 @@ import { SharedDeleteComponent } from "../shared-delete/shared-delete.component"
 
 
 export interface ColumnDef {
-  field: string; // clave del dato
+  field?: string; // clave del dato
+  value?: (row: any) => any;
   header: string; // texto o i18n key
   width?: string;
   align?: 'left' | 'center' | 'right';
@@ -75,8 +76,7 @@ export class SharedTableComponent {
 
   /** Devuelve el value de la celda (evita error de TS en template) */
   cell(row: any, col: ColumnDef) {
-    console.log(col, row);
-    return row[col.field];
+    return col.value ? col.value(row) : row[col.field!];
   }
 
   track = (_: number, row: any) => this.getId(row);

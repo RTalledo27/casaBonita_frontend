@@ -1,0 +1,47 @@
+<div class="p-6 space-y-4" *ngIf="lot">
+    <button (click)="back()" class="btn-secondary">{{ 'common.back' | translate }}</button>
+
+    <h2 class="text-2xl font-bold">{{ 'inventory.lots.detailTitle' | translate }}</h2>
+
+    <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+            <dt>{{ 'inventory.lots.manzana' | translate }}</dt>
+            <dd>{{ lot.manzana?.name }}</dd>
+        </div>
+        <div>
+            <dt>{{ 'inventory.lots.streetType' | translate }}</dt>
+            <dd>{{ lot.street_type?.name }}</dd>
+        </div>
+        <div>
+            <dt>{{ 'inventory.lots.numLot' | translate }}</dt>
+            <dd>{{ lot.num_lot }}</dd>
+        </div>
+        <div>
+            <dt>{{ 'inventory.lots.areaM2' | translate }}</dt>
+            <dd>{{ lot.area_m2 }}</dd>
+        </div>
+        <div>
+            <dt>{{ 'inventory.lots.areaConstructionM2' | translate }}</dt>
+            <dd>{{ lot.area_construction_m2 }}</dd>
+        </div>
+        <div>
+            <dt>{{ 'inventory.lots.totalPrice' | translate }}</dt>
+            <dd>S/. {{ lot.total_price }}</dd>
+        </div>
+        <div>
+            <dt>{{ 'inventory.lots.status' | translate }}</dt>
+            <dd>{{ lot.status }}</dd>
+        </div>
+    </dl>
+
+    <h3 class="text-xl font-semibold">{{ 'inventory.lots.media' | translate }}</h3>
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <ng-container *ngFor="let m of lot.media">
+            <div class="border p-2">
+                <img *ngIf="m.type!=='doc'" [src]="m.url" class="w-full h-32 object-cover" />
+                <a *ngIf="m.type==='doc'" [href]="m.url" target="_blank">{{ m.url.split('/')[m.url.split('/').length - 1] }}</a>
+            </div>
+        </ng-container>
+    </div>
+</div>
+  

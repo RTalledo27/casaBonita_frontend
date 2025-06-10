@@ -60,10 +60,19 @@
     <!-- Sección 3: Subsidios -->
     <div class="section">
         <h4 class="section-title">Subsidios</h4>
-        <div class="flex gap-4">
-            <label><input type="checkbox" formControlName="funding" /> Financiamiento</label>
-            <label><input type="checkbox" formControlName="BPP" /> BPP</label>
-            <label><input type="checkbox" formControlName="BFH" /> BFH</label>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="field">
+                <label class="label">Financiamiento</label>
+                <input class="input" type="number" formControlName="funding" />
+            </div>
+            <div class="field">
+                <label class="label">BPP</label>
+                <input class="input" type="number" formControlName="BPP" />
+            </div>
+            <div class="field">
+                <label class="label">BFH</label>
+                <input class="input" type="number" formControlName="BFH" />
+            </div>
         </div>
     </div>
 

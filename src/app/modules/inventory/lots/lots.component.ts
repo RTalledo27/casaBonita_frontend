@@ -2,14 +2,15 @@ import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastService } from '../../../core/services/toast.service';
 import { ColumnDef, SharedTableComponent } from '../../../shared/components/shared-table/shared-table.component';
-import { LucideAngularModule, Plus } from 'lucide-angular';
+import { Edit, Eye, LucideAngularModule, Plus, Trash2 } from 'lucide-angular';
 import { BehaviorSubject } from 'rxjs';
 import { Lot } from '../models/lot';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth.service';
 import { LotService } from '../services/lot.service';
+import { InventoryFilterPipe } from '../pipe/inventory-filter.pipe';
 
 @Component({
   selector: 'app-lots',
@@ -19,6 +20,8 @@ import { LotService } from '../services/lot.service';
     ReactiveFormsModule,
     TranslateModule,
     LucideAngularModule,
+    FormsModule,
+    InventoryFilterPipe,
   ],
   templateUrl: './lots.component.html',
   styleUrl: './lots.component.scss',
@@ -27,19 +30,39 @@ export class LotsComponent {
   private lotsSubject = new BehaviorSubject<Lot[]>([]);
   lots$ = this.lotsSubject.asObservable();
 
-  plus = Plus;
-  idField = 'lot_id';
-
+  lots: Lot[] = [];
+  filterText = '';
+  statusFilter = '';
+  manzanaFilter?: number;
+  idField = 'lot_id'
   columns: ColumnDef[] = [
-    { field: 'name', header: 'inventory.lots.name' },
+    /*
+      "street_type": {
+                "street_type_id": 1,
+                "name": "Av."
+            },
+  */
+    { value: (r) => r.manzana?.name, header: 'inventory.lots.manzana' },
+    { value: (r) => r.street_type?.name, header: 'inventory.lots.streetType' },
+    { field: 'num_lot', header: 'inventory.lots.numLot' },
+    { field: 'area_m2', header: 'inventory.lots.areaM2', align: 'right' },
+    {
+      field: 'total_price',
+      header: 'inventory.lots.totalPrice',
+      align: 'right',
+    },
     { field: 'status', header: 'inventory.lots.status' },
   ];
+  plus = Plus;
+  eye = Eye;
+  edit = Edit;
+  trash = Trash2;
 
   constructor(
     private lotService: LotService,
     private router: Router,
     private route: ActivatedRoute,
-    private toast: ToastService, 
+    private toast: ToastService,
     private authService: AuthService
   ) {}
 
@@ -47,9 +70,15 @@ export class LotsComponent {
     this.loadLots();
   }
 
+
+  canEdit() {
+    return this.authService.hasPermission('inventory.lots.update');
+  }
+
+
   loadLots(): void {
     this.lotService.list().subscribe({
-      next: (list: any) => this.lotsSubject.next(list),
+      next: (list) => this.lotsSubject.next(list),
       error: () => this.toast.show('Error al cargar clientes', 'error'),
     });
   }
@@ -62,13 +91,17 @@ export class LotsComponent {
     this.router.navigate([id, 'edit'], { relativeTo: this.route });
   }
 
+  onView(id: number): void {
+    this.router.navigate(['inventory/lots', id]);
+  }
+
   onDelete(id: number) {
     if (!confirm('Delete?')) return;
     this.lotService.delete(id).subscribe(() => {
       this.toast.show('common.deleted', 'success');
       this.lotService
         .list()
-        .subscribe((list:any) => this.lotsSubject.next(list));
+        .subscribe((list: any) => this.lotsSubject.next(list));
     });
   }
 
