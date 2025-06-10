@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { Inject, Injectable } from '@angular/core';
 
 @Injectable({
   providedIn: 'root',
@@ -6,10 +7,11 @@ import { Injectable } from '@angular/core';
 export class ThemeService {
   private _isDark = false;
 
-  constructor() {
+  constructor(@Inject(DOCUMENT) private doc: Document) {
     const stored = localStorage.getItem('theme');
     this._isDark = stored === 'dark';
-    this.applyClass();
+    // ensure DOM is ready before modifying classes
+    queueMicrotask(() => this.applyClass());
   }
 
   toggle(): void {
@@ -23,12 +25,11 @@ export class ThemeService {
   }
 
   private applyClass(): void {
-    const html = document.documentElement;
+    const html = this.doc.documentElement;
     if (this._isDark) {
-      html.classList.add('dark');
+      html.setAttribute('data-theme', 'dark');
     } else {
-      html.classList.remove('dark');
+      html.removeAttribute('data-theme');
     }
   }
-
 }

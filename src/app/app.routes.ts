@@ -47,7 +47,25 @@ export const routes: Routes = [
           {
             path: 'crm',
             loadChildren: () =>
-              import('./modules/CRM/routes/crm.routes').then((m) => m.CRM_ROUTES),
+              import('./modules/CRM/routes/crm.routes').then(
+                (m) => m.CRM_ROUTES
+              ),
+            canActivateChild: [permissionGuard],
+          },
+          {
+            path: 'inventory',
+            loadChildren: () =>
+              import('./modules/inventory/routes/inventory.routes').then(
+                (m) => m.INVENTORY_ROUTES
+              ),
+            canActivateChild: [permissionGuard],
+          },
+          {
+            path: 'sales',
+            loadChildren: () =>
+              import('./modules/sales/routes/sales.routes').then(
+                (m) => m.SALES_ROUTES
+              ),
             canActivateChild: [permissionGuard],
           },
           {

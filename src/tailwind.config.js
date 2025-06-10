@@ -1,9 +1,10 @@
-/** @type {import('tailwindcss').Config} */
+// tailwind.config.js
 module.exports = {
-  darkMode: 'class',
-  content: ['./src/**/*.{html,ts}'],
-  theme: {
-    extend: {},
-  },
-  plugins: [],
-};
+  
+    content: ['./src/**/*.{html,ts,scss}'],   // ← asegúrate que incluye .scss
+  plugins: [require('@tailwindcss/forms')],
+    theme: {
+      extend: {},
+    },
+   
+  }

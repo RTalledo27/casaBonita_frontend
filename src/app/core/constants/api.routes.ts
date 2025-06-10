@@ -24,9 +24,11 @@ export const API_ROUTES = {
   },
 
   INVENTORY: {
-    LOTS: `${BASE}/inventory/lots`,
-    PROJECTS: `${BASE}/inventory/projects`,
-    MEDIA: `${BASE}/inventory/lot-media`,
+      LOTS: `${BASE}/inventory/lots`,
+      //MEDIA: `${BASE}/inventory/lot-media`,
+      MANZANAS: `${BASE}/inventory/manzanas`,
+      STREET_TYPES: `${BASE}/inventory/street-types`,
+      LOT_MEDIA: `${BASE}/inventory/lot-media`,
   },
 
   SALES: {

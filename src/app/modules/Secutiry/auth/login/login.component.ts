@@ -6,6 +6,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { LangSwitcherComponent } from "../../../../shared/components/lang-switcher/lang-switcher.component";
 import { TranslateModule } from '@ngx-translate/core';
 import { ThemeSwitcherComponent } from '../../../../shared/components/theme-switcher/theme-switcher.component';
+import { ThemeService } from '../../../../core/services/theme.service';
 
 @Component({
   selector: 'app-login',
@@ -26,13 +27,14 @@ export class LoginComponent {
   returnUrl: string;
   showPassword = false;
   currentYear = new Date().getFullYear();
-
   constructor(
     private fb: FormBuilder,
     private auth: AuthService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    public theme: ThemeService
   ) {
+    
     this.loginForm = this.fb.group({
       username: ['', Validators.required],
       password: ['', Validators.required],

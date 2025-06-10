@@ -1,0 +1,16 @@
+<div class="p-6 space-y-6">
+    <div class="flex justify-between items-center">
+        <h2 class="text-2xl font-bold">{{ 'inventory.lots.title' | translate }}</h2>
+        <button *ngIf="canCreate()" class="btn-primary flex items-center gap-1" (click)="onCreate()">
+            <lucide-icon [name]="plus" class="w-4 h-4"></lucide-icon>
+            {{ 'common.new' | translate }}
+        </button>
+    </div>
+
+    <ng-container *ngIf="lots$ | async as lots">
+
+        <app-shared-table [columns]="columns" [data]="lots" [componentName]="'lots'" [permissionPrefix]="'inventory'"
+            [idField]="idField" (onEdit)="onEdit($event)" (delete)="onDelete($event)"></app-shared-table>
+
+    </ng-container>
+    </div>

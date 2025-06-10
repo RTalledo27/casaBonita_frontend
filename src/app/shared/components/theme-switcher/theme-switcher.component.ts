@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { LucideAngularModule, Sun, Moon } from 'lucide-angular';
+import { LucideAngularModule } from 'lucide-angular';
 import { ThemeService } from '../../../core/services/theme.service';
 
 @Component({
