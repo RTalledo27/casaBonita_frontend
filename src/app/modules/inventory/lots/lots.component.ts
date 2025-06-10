@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastService } from '../../../core/services/toast.service';
-import { InventoryService } from '../inventory.service';
 import { ColumnDef, SharedTableComponent } from '../../../shared/components/shared-table/shared-table.component';
 import { LucideAngularModule, Plus } from 'lucide-angular';
 import { BehaviorSubject } from 'rxjs';
@@ -10,6 +9,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth.service';
+import { LotService } from '../services/lot.service';
 
 @Component({
   selector: 'app-lots',
@@ -36,7 +36,7 @@ export class LotsComponent {
   ];
 
   constructor(
-    private inventoryService: InventoryService,
+    private lotService: LotService,
     private router: Router,
     private route: ActivatedRoute,
     private toast: ToastService, 
@@ -48,8 +48,8 @@ export class LotsComponent {
   }
 
   loadLots(): void {
-    this.inventoryService.listLots().subscribe({
-      next: (list) => this.lotsSubject.next(list),
+    this.lotService.list().subscribe({
+      next: (list: any) => this.lotsSubject.next(list),
       error: () => this.toast.show('Error al cargar clientes', 'error'),
     });
   }
@@ -64,11 +64,11 @@ export class LotsComponent {
 
   onDelete(id: number) {
     if (!confirm('Delete?')) return;
-    this.inventoryService.deleteLot(id).subscribe(() => {
+    this.lotService.delete(id).subscribe(() => {
       this.toast.show('common.deleted', 'success');
-      this.inventoryService
-        .listLots()
-        .subscribe((list) => this.lotsSubject.next(list));
+      this.lotService
+        .list()
+        .subscribe((list:any) => this.lotsSubject.next(list));
     });
   }
 
