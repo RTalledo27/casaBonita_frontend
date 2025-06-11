@@ -12,10 +12,14 @@ export class LotMediaService {
 
   constructor(private http: HttpClient) {}
 
-  uploadMedia(lotId: number, files: File[]): Observable<LotMedia[]> {
-    const requests = files.map((file) => {
+  uploadMedia(
+    lotId: number,
+    items: { file: File; type: string }[]
+  ): Observable<LotMedia[]> {
+    const requests = items.map((item) => {
       const fd = new FormData();
-      fd.append('file', file);
+      fd.append('file', item.file);
+      fd.append('type', item.type);
       fd.append('lot_id', lotId.toString());
       return this.http.post<LotMedia>(this.base, fd);
     });

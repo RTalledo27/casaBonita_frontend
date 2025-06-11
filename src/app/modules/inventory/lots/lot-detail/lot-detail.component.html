@@ -29,7 +29,7 @@
             <dd>S/. {{ lot.total_price }}</dd>
         </div>
         <div>
-            <dt>{{ 'inventory.lots.status' | translate }}</dt>
+            <dt>{{ 'inventory.lots.status.label' | translate }}</dt>
             <dd>{{ lot.status }}</dd>
         </div>
     </dl>
@@ -39,7 +39,7 @@
         <ng-container *ngFor="let m of lot.media">
             <div class="border p-2">
                 <img *ngIf="m.type!=='doc'" [src]="m.url" class="w-full h-32 object-cover" />
-                <a *ngIf="m.type==='doc'" [href]="m.url" target="_blank">{{ m.url.split('/')[m.url.split('/').length - 1] }}</a>
+                <a *ngIf="m.type==='doc'" [href]="m.url" target="_blank">{{ getFileName(m.url) }}</a>
             </div>
         </ng-container>
     </div>

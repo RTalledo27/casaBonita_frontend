@@ -24,6 +24,10 @@ export class LotDetailComponent {
     this.lotService.get(id).subscribe((l) => (this.lot = l));
   }
 
+  getFileName(url: string): string {
+    return url.split('/').pop() ?? url;
+  }
+
   back() {
     this.router.navigate(['../'], { relativeTo: this.route });
   }

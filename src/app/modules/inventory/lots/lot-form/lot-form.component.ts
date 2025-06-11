@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { LotService } from '../../services/lot.service';
 import { Manzana } from '../../models/manzana';
 import { StreetType } from '../../models/street-type';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ToastService } from '../../../../core/services/toast.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { StreetTypeService } from '../../services/street-type.service';
@@ -13,7 +13,8 @@ import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-lot-form',
-  imports: [CommonModule, ReactiveFormsModule, TranslateModule],
+  standalone: true, // ← Esta línea
+  imports: [CommonModule, ReactiveFormsModule, TranslateModule, FormsModule],
   templateUrl: './lot-form.component.html',
   styleUrl: './lot-form.component.scss',
 })
@@ -25,8 +26,9 @@ export class LotFormComponent {
   manzanas: Manzana[] = [];
   streetTypes: StreetType[] = [];
 
-  selectedFiles: File[] = [];
+  //selectedFiles: File[] = [];
   mediaPreviews: File[] = [];
+  selectedMedia: { file: File; type: string }[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -78,11 +80,22 @@ export class LotFormComponent {
       .subscribe((data) => (this.streetTypes = data));
   }
 
-  onMediaSelected(event: Event) {
+  /*onMediaSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     if (input.files) {
       this.selectedFiles = Array.from(input.files);
       this.mediaPreviews = this.selectedFiles;
+    }
+  }*/
+
+  onMediaSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files) {
+      //this.mediaPreviews = this.selectedFiles;
+      this.selectedMedia = Array.from(input.files).map((f) => ({
+        file: f,
+        type: 'foto',
+      }));
     }
   }
 
@@ -105,8 +118,9 @@ export class LotFormComponent {
         : this.lotService.create(fd);
 
     request$.subscribe({
-      next: (lot) => {
-        this.uploadMedia(lot.lot_id, this.selectedFiles);
+      next: (lot:any) => {
+        console.log(lot.data);
+        this.uploadMedia(lot.data.lot_id, this.selectedMedia);
         this.toast.show('common.saved', 'success');
         this.router.navigate(['../'], { relativeTo: this.route });
       },
@@ -114,11 +128,11 @@ export class LotFormComponent {
     });
   }
 
-  private uploadMedia(lotId: number, files: File[]) {
-    if (!files.length) return;
-    this.lotMediaService.uploadMedia(lotId, files).subscribe({
-      next: () => this.toast.show('Media subida', 'success'),
-      error: () => this.toast.show('Error subiendo media', 'error'),
+  private uploadMedia(lotId: number, media: { file: File; type: string }[]) {
+    if (!media.length) return;
+    this.lotMediaService.uploadMedia(lotId, media).subscribe({
+      next: () => this.toast.show('common.saved', 'success'),
+      error: () => this.toast.show('common.errorSave', 'error'),
     });
   }
 }

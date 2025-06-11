@@ -123,23 +123,34 @@
   </div>
 
   <!-- Sección 5: Multimedia -->
-  <div class="section">
-    <h4 class="section-title">{{ "inventory.lots.media" | translate }}</h4>
+<div class="section">
+    <h4 class="section-title">
+        {{ "inventory.lots.media" | translate }}
+    </h4>
     <div class="space-y-2">
-      <input
-        type="file"
-        (change)="onMediaSelected($event)"
-        multiple
-        class="input"
-        accept="image/*,application/pdf,video/*"
-      />
-      <div class="flex flex-wrap gap-2">
-        <div *ngFor="let file of mediaPreviews" class="text-sm text-gray-300">
-          {{ file.name }}
+        <input type="file" (change)="onMediaSelected($event)" multiple class="input"
+            accept="image/*,application/pdf,video/*" />
+        <div class="flex flex-wrap gap-2">
+            <div *ngFor="let item of selectedMedia" class="flex items-center gap-2 text-sm text-gray-300">
+                {{ item.file.name }}
+                <select [(ngModel)]="item.type" [ngModelOptions]="{ standalone: true }" class="input">
+                    <option value="foto">
+                        {{ "inventory.lots.media.type.foto" | translate }}
+                    </option>
+                    <option value="plano">
+                        {{ "inventory.lots.media.type.plano" | translate }}
+                    </option>
+                    <option value="video">
+                        {{ "inventory.lots.media.type.video" | translate }}
+                    </option>
+                    <option value="doc">
+                        {{ "inventory.lots.media.type.doc" | translate }}
+                    </option>
+                </select>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
+</div>
 
   <!-- Botón guardar -->
   <div class="text-right pt-4">
