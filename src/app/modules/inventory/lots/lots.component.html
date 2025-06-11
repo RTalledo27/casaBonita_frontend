@@ -30,6 +30,10 @@
             [permissionPrefix]="'inventory'"
             (delete)="onDelete($event)"></app-shared-table>
 
+            <app-shared-delete [visible]="showDeleteModal" [itemName]="selectedItemName" (confirm)="deleteConfirmed()"
+                (cancel)="showDeleteModal = false"></app-shared-delete>
+
+
     </ng-container>
     
   

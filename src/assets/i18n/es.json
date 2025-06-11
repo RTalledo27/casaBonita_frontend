@@ -97,7 +97,7 @@
     }
   },
   "common": {
-    "all":"Todos",
+    "all": "Todos",
     "new": "Nuevo",
     "create": "Crear",
     "update": "Actualizar",
@@ -162,7 +162,7 @@
       "destroy": "Eliminar Dirección"
     },
     "clients": {
-      "title":"Clientes",
+      "title": "Clientes",
       "view": "Ver Clientes",
       "store": "Crear Cliente",
       "update": "Editar Cliente",
@@ -187,17 +187,45 @@
       }
     },
     "interactions": {
-  "view": "Ver Interacciones",
-  "create": "Registrar Interacción",
-  "update": "Actualizar Interacción",
-  "delete": "Eliminar Interacción"
-},
-"family_members": {
-  "view": "Ver Familiares",
-  "create": "Agregar Familiar",
-  "update": "Actualizar Familiar",
-  "delete": "Eliminar Familiar"
-}
-
+      "view": "Ver Interacciones",
+      "create": "Registrar Interacción",
+      "update": "Actualizar Interacción",
+      "delete": "Eliminar Interacción"
+    },
+    "family_members": {
+      "view": "Ver Familiares",
+      "create": "Agregar Familiar",
+      "update": "Actualizar Familiar",
+      "delete": "Eliminar Familiar"
+    }
+  },
+  "inventory": {
+    "lots": {
+      "title": "Lotes",
+      "search": "Buscar lotes",
+      "status": {
+        "label": "Estado",
+        "disponible": "Disponible",
+        "reservado": "Reservado",
+        "vendido": "Vendido"
+      },
+      "filterManzana": "N° Manzana",
+      "detailTitle": "Detalle del Lote",
+      "manzana": "Manzana",
+      "streetType": "Tipo de Calle",
+      "numLot": "Número de Lote",
+      "areaM2": "Área (m²)",
+      "areaConstructionM2": "Área de Construcción (m²)",
+      "totalPrice": "Precio Total",
+      "initialQuota": "Cuota Inicial",
+      "currency": "Moneda",
+      "funding": "Financiamiento",
+      "BPP": "BPP",
+      "BFH": "BFH",
+      "media": "Multimedia",
+      "generalTitle": "Datos Generales",
+      "financesTitle": "Finanzas",
+      "subsidiesTitle": "Subsidios"
+    }
   }
 }

@@ -64,7 +64,7 @@
     "totalUsers": "Total Users",
     "activeContracts": "Active Contracts",
     "pendingPayments": "Pending Payments",
-    "salesOvewrview": "Sales Overview",
+    "salesOverview": "Sales Overview",
     "lotsSold": "Lots Sold",
     "recentActivities": "Recent Activities",
     "upcomingEvents": "Upcoming Events"
@@ -75,15 +75,16 @@
     "edit": "Edit",
     "name": "Name",
     "email": "Email",
-    "role": "Roles",
+    "roles": "Roles",
     "status": "Status",
     "active": "Active",
     "blocked": "Blocked",
     "searchPlaceholder": "Search User",
     "allUsers": "All Users",
     "actions": "Actions",
-    "createUser": {
-      "title": "Create User",
+   "createUser": {
+        "titleEdit": "Edit User",
+        "titleCreate": "Create User",
       "personalInfo": "Personal Information",
       "contactInfo": "Contact Information",
       "workInfo": "Work Information",
@@ -96,7 +97,8 @@
     }
   },
   "common": {
-    "title":"Todos",
+    "title": "Todos",
+    "all": "All",
     "new": "New",
     "create": "Create",
     "update": "Update",
@@ -172,7 +174,7 @@
       "destroy": "Delete Address"
     },
     "clients": {
-      "title":"Clients",
+      "title": "Clients",
       "view": "View Clients",
       "store": "Create Client",
       "update": "Edit Client",
@@ -207,6 +209,35 @@
       "create": "Add Member",
       "update": "Update Member",
       "delete": "Delete Member"
+    }
+  },
+  "inventory": {
+    "lots": {
+      "title": "Lots",
+      "search": "Search lots",
+      "status": {
+        "label": "Status",
+        "disponible": "Available",
+        "reservado": "Reserved",
+        "vendido": "Sold"
+      },
+      "filterManzana": "Block #",
+      "detailTitle": "Lot Details",
+      "manzana": "Block",
+      "streetType": "Street Type",
+      "numLot": "Lot Number",
+      "areaM2": "Area (m²)",
+      "areaConstructionM2": "Construction Area (m²)",
+      "totalPrice": "Total Price",
+      "initialQuota": "Initial Quota",
+      "currency": "Currency",
+      "funding": "Funding",
+      "BPP": "BPP",
+      "BFH": "BFH",
+      "media": "Media",
+      "generalTitle": "General Info",
+      "financesTitle": "Finances",
+      "subsidiesTitle": "Subsidies"
     }
   }
 }

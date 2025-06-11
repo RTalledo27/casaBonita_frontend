@@ -13,10 +13,7 @@ import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-lot-form',
-  imports: [CommonModule,
-    ReactiveFormsModule,
-    TranslateModule,
-  ],
+  imports: [CommonModule, ReactiveFormsModule, TranslateModule],
   templateUrl: './lot-form.component.html',
   styleUrl: './lot-form.component.scss',
 })
@@ -40,7 +37,6 @@ export class LotFormComponent {
     private route: ActivatedRoute,
     private router: Router,
     private toast: ToastService
-
   ) {}
 
   ngOnInit() {
@@ -110,7 +106,7 @@ export class LotFormComponent {
 
     request$.subscribe({
       next: (lot) => {
-        this.uploadMedia(lot.lot_id);
+        this.uploadMedia(lot.lot_id, this.selectedFiles);
         this.toast.show('common.saved', 'success');
         this.router.navigate(['../'], { relativeTo: this.route });
       },
@@ -118,8 +114,11 @@ export class LotFormComponent {
     });
   }
 
-  private uploadMedia(lotId: number) {
-    if (!this.selectedFiles.length) return;
-    this.lotMediaService.uploadMedia(lotId, this.selectedFiles).subscribe();
+  private uploadMedia(lotId: number, files: File[]) {
+    if (!files.length) return;
+    this.lotMediaService.uploadMedia(lotId, files).subscribe({
+      next: () => this.toast.show('Media subida', 'success'),
+      error: () => this.toast.show('Error subiendo media', 'error'),
+    });
   }
 }

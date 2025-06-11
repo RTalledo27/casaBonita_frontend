@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ToastService } from '../../../core/services/toast.service';
 import { ColumnDef, SharedTableComponent } from '../../../shared/components/shared-table/shared-table.component';
 import { Edit, Eye, LucideAngularModule, Plus, Trash2 } from 'lucide-angular';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, take } from 'rxjs';
 import { Lot } from '../models/lot';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -11,6 +11,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth.service';
 import { LotService } from '../services/lot.service';
 import { InventoryFilterPipe } from '../pipe/inventory-filter.pipe';
+import { SharedDeleteComponent } from '../../../shared/components/shared-delete/shared-delete.component';
 
 @Component({
   selector: 'app-lots',
@@ -22,6 +23,7 @@ import { InventoryFilterPipe } from '../pipe/inventory-filter.pipe';
     LucideAngularModule,
     FormsModule,
     InventoryFilterPipe,
+    SharedDeleteComponent,
   ],
   templateUrl: './lots.component.html',
   styleUrl: './lots.component.scss',
@@ -34,7 +36,12 @@ export class LotsComponent {
   filterText = '';
   statusFilter = '';
   manzanaFilter?: number;
-  idField = 'lot_id'
+  idField = 'lot_id';
+
+  showDeleteModal = false;
+  selectedItemId: number | null = null;
+  selectedItemName = '';
+
   columns: ColumnDef[] = [
     /*
       "street_type": {
@@ -51,7 +58,7 @@ export class LotsComponent {
       header: 'inventory.lots.totalPrice',
       align: 'right',
     },
-    { field: 'status', header: 'inventory.lots.status' },
+    { field: 'status', header: 'inventory.lots.status.label' },
   ];
   plus = Plus;
   eye = Eye;
@@ -70,11 +77,9 @@ export class LotsComponent {
     this.loadLots();
   }
 
-
   canEdit() {
     return this.authService.hasPermission('inventory.lots.update');
   }
-
 
   loadLots(): void {
     this.lotService.list().subscribe({
@@ -95,7 +100,7 @@ export class LotsComponent {
     this.router.navigate(['inventory/lots', id]);
   }
 
-  onDelete(id: number) {
+  /* onDelete(id: number) {
     if (!confirm('Delete?')) return;
     this.lotService.delete(id).subscribe(() => {
       this.toast.show('common.deleted', 'success');
@@ -103,6 +108,29 @@ export class LotsComponent {
         .list()
         .subscribe((list: any) => this.lotsSubject.next(list));
     });
+  }*/
+
+  onDelete(id: number) {
+    this.onAskDelete(id);
+  }
+
+  onAskDelete(id: number) {
+    this.lots$.pipe(take(1)).subscribe((lots) => {
+      const item = lots.find((l) => l.lot_id === id);
+      this.selectedItemId = id;
+      this.selectedItemName = item ? `Lote ${item.num_lot}` : 'este registro';
+      this.showDeleteModal = true;
+    });
+  }
+
+  deleteConfirmed() {
+    if (this.selectedItemId !== null) {
+      this.lotService.delete(this.selectedItemId).subscribe(() => {
+        this.toast.show('common.deleted', 'success');
+        this.loadLots();
+        this.showDeleteModal = false;
+      });
+    }
   }
 
   canCreate() {

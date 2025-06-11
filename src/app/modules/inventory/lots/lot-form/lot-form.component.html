@@ -1,108 +1,154 @@
-<form [formGroup]="form" (ngSubmit)="submit()" enctype="multipart/form-data" class="space-y-4">
-
-    <!-- Sección 1: Información general -->
-    <div class="section">
-        <h4 class="section-title">Datos Generales</h4>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div class="field">
-                <label class="label">Manzana</label>
-                <select formControlName="manzana_id" class="input">
-                    <option *ngFor="let m of manzanas" [value]="m.manzana_id">{{ m.name }}</option>
-                </select>
-            </div>
-
-            <div class="field">
-                <label class="label">Tipo de Calle</label>
-                <select formControlName="street_type_id" class="input">
-                    <option *ngFor="let s of streetTypes" [value]="s.street_type_id">{{ s.name }}</option>
-                </select>
-            </div>
-
-            <div class="field">
-                <label class="label">Número de Lote</label>
-                <input class="input" formControlName="num_lot" />
-            </div>
-
-            <div class="field">
-                <label class="label">Área (m²)</label>
-                <input class="input" type="number" formControlName="area_m2" />
-            </div>
-
-            <div class="field">
-                <label class="label">Área Construcción (m²)</label>
-                <input class="input" type="number" formControlName="area_construction_m2" />
-            </div>
-        </div>
-    </div>
-
-    <!-- Sección 2: Precio -->
-    <div class="section">
-        <h4 class="section-title">Finanzas</h4>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div class="field">
-                <label class="label">Precio Total</label>
-                <input class="input" type="number" formControlName="total_price" />
-            </div>
-            <div class="field">
-                <label class="label">Cuota Inicial</label>
-                <input class="input" type="number" formControlName="initial_quota" />
-            </div>
-            <div class="field">
-                <label class="label">Moneda</label>
-                <select formControlName="currency" class="input">
-                    <option value="PEN">S/ PEN</option>
-                    <option value="USD">$ USD</option>
-                </select>
-            </div>
-        </div>
-    </div>
-
-    <!-- Sección 3: Subsidios -->
-    <div class="section">
-        <h4 class="section-title">Subsidios</h4>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div class="field">
-                <label class="label">Financiamiento</label>
-                <input class="input" type="number" formControlName="funding" />
-            </div>
-            <div class="field">
-                <label class="label">BPP</label>
-                <input class="input" type="number" formControlName="BPP" />
-            </div>
-            <div class="field">
-                <label class="label">BFH</label>
-                <input class="input" type="number" formControlName="BFH" />
-            </div>
-        </div>
-    </div>
-
-    <!-- Sección 4: Estado -->
-    <div class="section">
-        <h4 class="section-title">Estado</h4>
-        <select formControlName="status" class="input">
-            <option value="disponible">Disponible</option>
-            <option value="reservado">Reservado</option>
-            <option value="vendido">Vendido</option>
+<form
+  [formGroup]="form"
+  (ngSubmit)="submit()"
+  enctype="multipart/form-data"
+  class="space-y-4"
+>
+  <!-- Sección 1: Información general -->
+  <div class="section">
+    <h4 class="section-title">
+      {{ "inventory.lots.generalTitle" | translate }}
+    </h4>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div class="field">
+        <label class="label">{{ "inventory.lots.manzana" | translate }}</label>
+        <select formControlName="manzana_id" class="input">
+          <option *ngFor="let m of manzanas" [value]="m.manzana_id">
+            {{ m.name }}
+          </option>
         </select>
-    </div>
+      </div>
 
-    <!-- Sección 5: Multimedia -->
-    <div class="section">
-        <h4 class="section-title">Multimedia</h4>
-        <div class="space-y-2">
-            <input type="file" (change)="onMediaSelected($event)" multiple class="input"
-                accept="image/*,application/pdf,video/*" />
-            <div class="flex flex-wrap gap-2">
-                <div *ngFor="let file of mediaPreviews" class="text-sm text-gray-300">{{ file.name }}</div>
-            </div>
+      <div class="field">
+        <label class="label">{{
+          "inventory.lots.streetType" | translate
+        }}</label>
+        <select formControlName="street_type_id" class="input">
+          <option *ngFor="let s of streetTypes" [value]="s.street_type_id">
+            {{ s.name }}
+          </option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label class="label">{{ "inventory.lots.numLot" | translate }}</label>
+        <input class="input" formControlName="num_lot" />
+      </div>
+
+      <div class="field">
+        <label class="label">{{ "inventory.lots.areaM2" | translate }}</label>
+        <input class="input" type="number" formControlName="area_m2" />
+      </div>
+
+      <div class="field">
+        <label class="label">{{
+          "inventory.lots.areaConstructionM2" | translate
+        }}</label>
+        <input
+          class="input"
+          type="number"
+          formControlName="area_construction_m2"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- Sección 2: Precio -->
+  <div class="section">
+    <h4 class="section-title">
+      {{ "inventory.lots.financesTitle" | translate }}
+    </h4>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      
+      <div class="field">
+        <label class="label">{{
+          "inventory.lots.totalPrice" | translate
+        }}</label>
+        <input class="input" type="number" formControlName="total_price" />
+      </div>
+      <div class="field">
+        <label class="label">{{
+          "inventory.lots.initialQuota" | translate
+        }}</label>
+        <input class="input" type="number" formControlName="initial_quota" />
+      </div>
+      <div class="field">
+        <label class="label">{{ "inventory.lots.currency" | translate }}</label>
+        <select formControlName="currency" class="input">
+          <option value="PEN">S/ PEN</option>
+          <option value="USD">$ USD</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sección 3: Subsidios -->
+  <div class="section">
+    <h4 class="section-title">
+      {{ "inventory.lots.subsidiesTitle" | translate }}
+    </h4>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div class="field">
+        <label class="label">{{ "inventory.lots.funding" | translate }}</label>
+        <input class="input" type="number" formControlName="funding" />
+      </div>
+      <div class="field">
+        <label class="label">{{ "inventory.lots.BPP" | translate }}</label>
+        <input class="input" type="number" formControlName="BPP" />
+      </div>
+      
+      <div class="field">
+        <label class="label">{{ "inventory.lots.BFH" | translate }}</label>
+        <input class="input" type="number" formControlName="BFH" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Sección 4: Estado -->
+  <div class="section">
+    <h4 class="section-title">
+      {{ "inventory.lots.status.label" | translate }}
+    </h4>
+    <select formControlName="status" class="input">
+      <option value="disponible">
+        {{ "inventory.lots.status.disponible" | translate }}
+      </option>
+      <option value="reservado">
+        {{ "inventory.lots.status.reservado" | translate }}
+      </option>
+      <option value="vendido">
+        {{ "inventory.lots.status.vendido" | translate }}
+      </option>
+    </select>
+  </div>
+
+  <!-- Sección 5: Multimedia -->
+  <div class="section">
+    <h4 class="section-title">{{ "inventory.lots.media" | translate }}</h4>
+    <div class="space-y-2">
+      <input
+        type="file"
+        (change)="onMediaSelected($event)"
+        multiple
+        class="input"
+        accept="image/*,application/pdf,video/*"
+      />
+      <div class="flex flex-wrap gap-2">
+        <div *ngFor="let file of mediaPreviews" class="text-sm text-gray-300">
+          {{ file.name }}
         </div>
+      </div>
     </div>
+  </div>
 
-    <!-- Botón guardar -->
-    <div class="text-right pt-4">
-        <button type="submit" class="btn-primary">
-            {{ isEditMode ? 'Actualizar' : 'Crear' }}
-        </button>
-    </div>
+  <!-- Botón guardar -->
+  <div class="text-right pt-4">
+    <button type="submit" class="btn-primary">
+      {{
+        isEditMode
+          ? ("common.update" | translate)
+          : ("common.create" | translate)
+      }}
+    </button>
+  </div>
 </form>
-  

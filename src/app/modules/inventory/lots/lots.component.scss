@@ -1,0 +1,7 @@
+.mb-4.flex {
+    @apply flex-wrap gap-4 p-4 bg-gray-900 border border-gray-700 rounded-lg;
+}
+
+:host ::ng-deep app-shared-table>div {
+    @apply bg-gray-900;
+}
