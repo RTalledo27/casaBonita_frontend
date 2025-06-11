@@ -38,7 +38,7 @@
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <ng-container *ngFor="let m of lot.media">
             <div class="border p-2">
-                <img *ngIf="m.type!=='doc'" [src]="m.url" class="w-full h-32 object-cover" />
+                <img *ngIf="m.type!=='doc'" [src]="'http://127.0.0.1:8000'+m.url" class="w-full h-32 object-cover" />
                 <a *ngIf="m.type==='doc'" [href]="m.url" target="_blank">{{ getFileName(m.url) }}</a>
             </div>
         </ng-container>

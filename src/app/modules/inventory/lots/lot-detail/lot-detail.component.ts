@@ -17,7 +17,9 @@ export class LotDetailComponent {
     private lotService: LotService,
     private route: ActivatedRoute,
     private router: Router
-  ) {}
+  ) {
+
+  }
 
   ngOnInit() {
     const id = Number(this.route.snapshot.paramMap.get('id'));
@@ -25,6 +27,7 @@ export class LotDetailComponent {
   }
 
   getFileName(url: string): string {
+    console.log(url);
     return url.split('/').pop() ?? url;
   }
 
