@@ -9,11 +9,11 @@ import { ThemeService } from './core/services/theme.service';
 
 @Component({
   selector: 'app-root',
+  standalone: true,
   imports: [
     RouterOutlet,
     ToastContainerComponent,
     CommonModule,
-    PusherTestComponent,
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',

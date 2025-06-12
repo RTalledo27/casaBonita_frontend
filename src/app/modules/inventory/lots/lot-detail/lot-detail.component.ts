@@ -31,6 +31,20 @@ export class LotDetailComponent {
     return url.split('/').pop() ?? url;
   }
 
+  getLotValue(key: string): any {
+    if (!this.lot) return '';
+    switch (key) {
+      case 'funding':
+        return this.lot.funding;
+      case 'BPP':
+        return this.lot.BPP;
+      case 'BFH':
+        return this.lot.BFH;
+      default:
+        return '';
+    }
+  }
+
   back() {
     this.router.navigate(['../'], { relativeTo: this.route });
   }

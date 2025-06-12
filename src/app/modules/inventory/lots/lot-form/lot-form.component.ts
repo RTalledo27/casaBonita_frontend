@@ -112,6 +112,11 @@ export class LotFormComponent {
       }
     });
 
+    if (this.isEditMode) {
+      fd.append('_method', 'PATCH');
+    }
+
+
     const request$ =
       this.isEditMode && this.editingId
         ? this.lotService.update(this.editingId, fd)
