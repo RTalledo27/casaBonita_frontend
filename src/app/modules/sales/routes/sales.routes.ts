@@ -3,6 +3,8 @@ import { ReservationsComponent } from "../reservations/reservations.component";
 import { ReservationFormComponent } from "../reservations/components/reservation-form/reservation-form.component";
 import { ContractsComponent } from "../contracts/contracts.component";
 import { ContractFormComponent } from "../contracts/components/contract-form/contract-form.component";
+import { PaymentsComponent } from "../payments/payments.component";
+import { PaymentFormComponent } from "../payments/payment-form/payment-form.component";
 
 export const SALES_ROUTES: Route[] = [
   { path: '', redirectTo: 'reservations', pathMatch: 'full' },
@@ -35,5 +37,22 @@ export const SALES_ROUTES: Route[] = [
     path: 'contracts/:id/edit',
     component: ContractFormComponent,
     data: { permission: 'sales.contracts.update' },
+  },
+  {
+    path: 'payments',
+    component: PaymentsComponent,
+    data: { permission: 'sales.payments.view' },
+  },
+  {
+    path: 'payments/create',
+    component: PaymentFormComponent,
+    outlet: 'modal',
+    data: { permission: 'sales.payments.store' },
+  },
+  {
+    path: 'payments/:id/edit',
+    component: PaymentFormComponent,
+    outlet: 'modal',
+    data: { permission: 'sales.payments.update' },
   },
 ];

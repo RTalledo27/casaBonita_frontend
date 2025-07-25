@@ -1,5 +1,7 @@
+<!-- lot-form.component.html -->
 <form [formGroup]="form" (ngSubmit)="submit()" enctype="multipart/form-data"
   class="w-full min-h-screen p-6 space-y-6 bg-gray-50 dark:bg-slate-900 transition-colors">
+
   <!-- Row 1: Datos Generales + Finanzas -->
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
     <!-- Datos Generales -->
@@ -206,18 +208,22 @@
     <div class="p-5 space-y-4">
       <!-- Upload zone -->
       <div class="relative">
-        <input type="file" (change)="onMediaSelected($event)" multiple accept="image/*,application/pdf,video/*"
-          class="hidden" />
-        <label class="cursor-pointer block">
+        <input id="mediaInput" type="file" (change)="onMediaSelected($event)" multiple
+          accept="image/*,application/pdf,video/*" class="hidden" />
+
+        <label for="mediaInput" class="cursor-pointer block">
           <div
-            class="upload-area bg-gray-50 dark:bg-slate-700 border-2 border-dashed border-gray-300 dark:border-slate-600 rounded-lg p-8 text-center">
+            class="upload-area bg-gray-50 dark:bg-slate-700 border-2 border-dashed border-gray-300 dark:border-slate-600 rounded-lg p-8 text-center"
+            (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)"
+            [class.border-indigo-500]="isDragOver" [class.bg-indigo-50]="isDragOver">
             <div class="text-3xl text-gray-400 dark:text-slate-400 mb-2">📁</div>
             <p class="text-gray-800 dark:text-slate-200 font-medium">Elegir archivos</p>
             <p class="text-gray-500 dark:text-slate-400 text-sm">o arrastra y suelta archivos aquí</p>
           </div>
         </label>
       </div>
-      <!-- Selected files list… -->
+
+      <!-- Selected files list -->
       <div *ngIf="selectedMedia.length; else noFiles" class="grid gap-3">
         <div *ngFor="let item of selectedMedia"
           class="file-item flex items-center justify-between bg-gray-50 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg p-4 transition">

@@ -16,5 +16,6 @@ export interface User {
   hire_date?: string; // ISO date string
   birth_date?: string; // ISO date string
   photo_url?: string | null; // URL de la foto de perfil
+  cv_url?: string | null;
   created_by?: number;
 }

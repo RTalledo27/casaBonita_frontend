@@ -38,8 +38,8 @@ export class FamilyMemberFormComponent {
     this.form = this.fb.group({
       first_name: ['', Validators.required],
       last_name: ['', Validators.required],
-      doc_number: ['', Validators.required],
-      relationship: ['', Validators.required],
+      dni: ['', Validators.required],
+      relation: ['', Validators.required],
     });
     if (memberId) {
       this.isEditMode = true;

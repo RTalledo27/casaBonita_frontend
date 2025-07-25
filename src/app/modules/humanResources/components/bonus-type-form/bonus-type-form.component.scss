@@ -1,0 +1,100 @@
+// bonus-type-form.scss
+.bonus-type-form {
+    .header {
+        .btn-icon {
+            transition: all 0.2s ease;
+
+            &:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            }
+        }
+    }
+
+    .error-message {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .form-section {
+        transition: all 0.2s ease;
+
+        &:hover {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-header {
+            border-bottom: 1px solid theme('colors.gray.100');
+        }
+    }
+
+    .form-input {
+        transition: all 0.2s ease;
+
+        &:focus {
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
+        }
+
+        &.border-red-500 {
+            &:focus {
+                box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.25);
+            }
+        }
+    }
+
+    .checkbox-card {
+        transition: all 0.2s ease;
+        cursor: pointer;
+
+        &:hover {
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transform: translateY(-1px);
+            border-color: theme('colors.blue.200');
+        }
+
+        input[type="checkbox"] {
+            &:checked {
+                background-color: theme('colors.blue.600');
+                border-color: theme('colors.blue.600');
+            }
+
+            &:focus {
+                box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
+            }
+        }
+
+        label {
+            &:hover {
+                .form-checkbox:not(:checked) {
+                    border-color: theme('colors.blue.400');
+                }
+            }
+        }
+    }
+
+    .btn-secondary {
+        &:hover {
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+    }
+
+    .btn-primary {
+        &:hover:not(:disabled) {
+            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.25);
+        }
+    }
+
+    .loading-spinner {
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        from {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(360deg);
+        }
+    } }

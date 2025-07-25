@@ -1,4 +1,5 @@
 /*! tailwindcss v4.1.7 | MIT License | https://tailwindcss.com */
+@import "./app/shared/styles/select-improvements.css";
 @layer properties;
 @layer theme, base, components, utilities;
 @layer theme {
@@ -169,7 +170,7 @@
     max-width: 100%;
     height: auto;
   }
-  button, input, select, optgroup, textarea, ::file-selector-button {
+  button, input, optgroup, textarea, ::file-selector-button {
     font: inherit;
     font-feature-settings: inherit;
     font-variation-settings: inherit;
@@ -179,11 +180,61 @@
     background-color: transparent;
     opacity: 1;
   }
+  
+  select {
+    font: inherit;
+    font-feature-settings: inherit;
+    font-variation-settings: inherit;
+    letter-spacing: inherit;
+    border-radius: 0;
+    opacity: 1;
+    background-color: white;
+    color: #374151;
+    border: 1px solid #d1d5db;
+  }
   :where(select:is([multiple], [size])) optgroup {
     font-weight: bolder;
   }
   :where(select:is([multiple], [size])) optgroup option {
     padding-inline-start: 20px;
+  }
+  
+  /* Estilos mejorados para options */
+  select option {
+    background-color: white;
+    color: #374151;
+    padding: 8px 12px;
+    font-size: 14px;
+    line-height: 1.5;
+    border: none;
+  }
+  
+  select option:hover {
+    background-color: #f3f4f6;
+  }
+  
+  select option:checked,
+  select option:selected {
+    background-color: #3b82f6;
+    color: white;
+  }
+  
+  /* Estilos específicos para modo oscuro */
+  @media (prefers-color-scheme: dark) {
+    select {
+      background-color: #374151;
+      color: #f9fafb;
+      border-color: #4b5563;
+    }
+    
+    select option {
+      background-color: #374151;
+      color: #f9fafb;
+    }
+    
+    select option:hover {
+      background-color: #4b5563;
+    }
   }
   ::file-selector-button {
     margin-inline-end: 4px;
@@ -1600,22 +1651,7 @@ app-user-form {
     transform: translateY(0);
   }
 }
-.icon-btn {
-  display: inline-flex;
-  height: calc(var(--spacing) * 8);
-  width: calc(var(--spacing) * 8);
-  align-items: center;
-  justify-content: center;
-  border-radius: 0.25rem;
-  transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to, opacity, box-shadow, transform, translate, scale, rotate, filter, -webkit-backdrop-filter, backdrop-filter, display, visibility, content-visibility, overlay, pointer-events;
-  transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
-  transition-duration: var(--tw-duration, var(--default-transition-duration));
-  &:hover {
-    @media (hover: hover) {
-      background-color: var(--color-gray-800);
-    }
-  }
-}
+/* .icon-btn definition moved to tailwind.css to avoid conflicts */
 @property --tw-rotate-x {
   syntax: "*";
   inherits: false;

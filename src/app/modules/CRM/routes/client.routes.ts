@@ -21,7 +21,7 @@ export const clientRoutes: Route[] = [
         data: { permission: 'crm.clients.store' },
       },
       {
-        path: ':id/edit',
+        path: 'edit/:id',
         component: ClientFormComponent,
         outlet: 'modal',
         data: { permission: 'crm.clients.update' },

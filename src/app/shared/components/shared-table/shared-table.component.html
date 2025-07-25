@@ -1,11 +1,11 @@
-<div class="overflow-x-auto rounded-lg border border-gray-700 shadow-sm">
-    <table class="min-w-full text-[0.9375rem] divide-y divide-gray-700">
+<div class="overflow-x-auto rounded-lg border border-black">
+    <table class="min-w-full text-[0.9375rem] divide-y divide-black">
         <!-- Cabecera -->
         <thead class="bg-gray-800">
             <tr>
                 <th *ngFor="let c of columns" [style.width]="c.width" [class.text-right]="c.align === 'right'"
                     [class.text-center]="c.align === 'center'"
-                    class="px-5 py-3.5 font-semibold text-gray-300 text-left border-b border-gray-650">
+                    class="px-5 py-3.5 font-semibold text-white text-left border-b border-gray-650">
                     {{ c.header | translate }}
                 </th>
                 <th class="px-5 py-3.5 w-[120px] text-right border-b border-gray-650"></th>
@@ -26,7 +26,7 @@
                 </ng-container>
 
                 <ng-template #plain>
-                    <span class="text-gray-300">
+                    <span class="text-black dark:text-white">
                         <ng-container *ngIf="c.translateContent; else rawContent">
                             {{ cell(row, c) | translate }} <!-- Con traducción -->
                         </ng-container>
@@ -40,10 +40,10 @@
 
             <!-- Acciones -->
             <td class="px-5 py-3.5">
-                <div class="flex justify-end gap-2 opacity-80 group-hover:opacity-100 transition-opacity">
+                <div class="flex justify-end gap-2 opacity-80  group-hover:opacity-100 transition-opacity">
                     <button *ngIf="canViewDetails()" (click)="onViewClick(getId(row))"
                         class="p-1.5 hover:bg-gray-700/30 rounded-md transition-colors" title="Ver detalle">
-                        <lucide-icon [name]="eye" class="w-[18px] h-[18px] text-gray-400"></lucide-icon>
+                        <lucide-icon [name]="eye" class="w-[18px] h-[18px] text-blue"></lucide-icon>
                     </button>
             
                     <button *ngIf="canEdit()" (click)="onEditClick(getId(row))" class="p-1.5 hover:bg-gray-700/30 rounded-md transition-colors" title="Editar">
@@ -62,9 +62,9 @@
         <!-- Sin datos -->
         <tr *ngIf="!data?.length">
             <td [attr.colspan]="columns.length + 1" class="px-5 py-8 text-center">
-                <div class="flex flex-col items-center gap-3 text-gray-400">
-                    <lucide-icon [name]="database" class="w-8 h-8 text-gray-600"></lucide-icon>
-                    <span class="italic text-sm">{{ "common.noData" | translate }}</span>
+                <div class="flex flex-col items-center gap-3 text-black">
+                    <lucide-icon [name]="database" class="w-8 h-8 text-black dark:text-white" ></lucide-icon>
+                    <span class="italic text-sm dark:text-white">{{ "common.noData" | translate }}</span>
                 </div>
             </td>
         </tr>

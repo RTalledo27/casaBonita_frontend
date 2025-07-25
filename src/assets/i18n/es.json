@@ -50,6 +50,39 @@
     },
     "settings": {
       "title": "Configuración"
+    },
+    "hr": {
+      "title": "Recursos Humanos",
+      "adminDashboard": {
+        "title": "Panel Administrativo"
+      },
+      "dashboard": {
+        "title": "Dashboard"
+      },
+      "employees": {
+        "title": "Empleados"
+      },
+      "teams": {
+        "title": "Equipos"
+      },
+      "bonuses": {
+        "title": "Bonos"
+      },
+      "bonus-types": {
+        "title": "Tipos de Bonos"
+      },
+      "bonus-goals": {
+        "title": "Metas de Bonos"
+      },
+      "commissions": {
+        "title": "Comisiones"
+      },
+      "payroll": {
+        "title": "Nómina"
+      },
+      "attendance": {
+        "title": "Asistencia"
+      }
     }
   },
   "navbar": {

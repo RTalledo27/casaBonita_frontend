@@ -1,0 +1,295 @@
+/* Estilos específicos para el componente de detalle de empleado */
+
+.employee-detail-container {
+  @apply min-h-screen bg-gray-50 dark:bg-gray-900;
+}
+
+.detail-card {
+  @apply bg-white dark:bg-gray-800 shadow-sm rounded-lg border dark:border-gray-700;
+}
+
+.employee-header {
+  @apply p-6;
+}
+
+.employee-avatar {
+  @apply h-20 w-20 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center;
+}
+
+.employee-initials {
+  @apply text-2xl font-bold text-blue-600 dark:text-blue-400;
+}
+
+.employee-name {
+  @apply text-2xl font-bold text-gray-900 dark:text-gray-100;
+}
+
+.employee-code {
+  @apply text-gray-600 dark:text-gray-400 text-lg;
+}
+
+.badge-container {
+  @apply flex items-center space-x-4 mt-2;
+}
+
+.status-badge {
+  @apply inline-flex px-3 py-1 text-sm font-semibold rounded-full;
+}
+
+.type-badge {
+  @apply inline-flex px-3 py-1 text-sm font-semibold rounded-full;
+}
+
+.years-service {
+  @apply text-right;
+}
+
+.years-service-label {
+  @apply text-sm text-gray-500 dark:text-gray-400;
+}
+
+.years-service-value {
+  @apply text-3xl font-bold text-blue-600 dark:text-blue-400;
+}
+
+.section-header {
+  @apply border-b border-gray-200 dark:border-gray-600 pb-4 mb-6;
+}
+
+.section-title {
+  @apply text-lg font-medium text-gray-900 dark:text-gray-100 flex items-center gap-2;
+}
+
+.info-item {
+  @apply flex items-center space-x-3;
+}
+
+.info-icon {
+  @apply text-gray-400 dark:text-gray-500;
+}
+
+.info-content {
+  @apply flex-1;
+}
+
+.info-label {
+  @apply text-sm text-gray-500 dark:text-gray-400;
+}
+
+.info-value {
+  @apply text-gray-900 dark:text-gray-100;
+}
+
+.info-secondary {
+  @apply text-sm text-gray-600 dark:text-gray-400;
+}
+
+.performance-grid {
+  @apply grid grid-cols-1 md:grid-cols-3 gap-6;
+}
+
+.performance-card {
+  @apply text-center p-4 rounded-lg;
+}
+
+.performance-card.blue {
+  @apply bg-blue-50 dark:bg-blue-900/20;
+}
+
+.performance-card.green {
+  @apply bg-green-50 dark:bg-green-900/20;
+}
+
+.performance-card.purple {
+  @apply bg-purple-50 dark:bg-purple-900/20;
+}
+
+.performance-label {
+  @apply text-sm font-medium;
+}
+
+.performance-label.blue {
+  @apply text-blue-600 dark:text-blue-400;
+}
+
+.performance-label.green {
+  @apply text-green-600 dark:text-green-400;
+}
+
+.performance-label.purple {
+  @apply text-purple-600 dark:text-purple-400;
+}
+
+.performance-value {
+  @apply text-2xl font-bold;
+}
+
+.performance-value.blue {
+  @apply text-blue-900 dark:text-blue-100;
+}
+
+.performance-value.green {
+  @apply text-green-900 dark:text-green-100;
+}
+
+.performance-value.purple {
+  @apply text-purple-900 dark:text-purple-100;
+}
+
+.performance-value.large {
+  @apply text-lg;
+}
+
+.action-buttons {
+  @apply flex space-x-3;
+}
+
+.btn-dashboard {
+  @apply bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.btn-edit {
+  @apply bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.btn-delete {
+  @apply bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg flex items-center gap-2;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.btn-back {
+  @apply p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-view-dashboard {
+  @apply bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg inline-flex items-center gap-2;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.loading-spinner {
+  @apply animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600;
+}
+
+.error-alert {
+  @apply bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-6;
+}
+
+.error-content {
+  @apply flex;
+}
+
+.error-icon {
+  @apply text-red-400 mt-0.5;
+}
+
+.error-title {
+  @apply text-sm font-medium text-red-800 dark:text-red-200;
+}
+
+.error-message {
+  @apply mt-2 text-sm text-red-700 dark:text-red-300;
+}
+
+.notes-section {
+  @apply prose max-w-none;
+}
+
+.notes-content {
+  @apply text-gray-700 dark:text-gray-300 whitespace-pre-wrap;
+}
+
+.info-grid {
+  @apply grid grid-cols-1 lg:grid-cols-2 gap-6;
+}
+
+.info-section {
+  @apply space-y-4;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .info-grid {
+    @apply grid-cols-1;
+  }
+  
+  .performance-grid {
+    @apply grid-cols-1;
+  }
+}
+
+@media (max-width: 768px) {
+  .employee-header {
+    @apply p-4;
+  }
+  
+  .employee-header .flex {
+    @apply flex-col space-y-4;
+  }
+  
+  .years-service {
+    @apply text-left;
+  }
+  
+  .action-buttons {
+    @apply flex-col space-x-0 space-y-2;
+  }
+  
+  .btn-dashboard,
+  .btn-edit,
+  .btn-delete {
+    @apply w-full justify-center;
+  }
+}
+
+@media (max-width: 640px) {
+  .badge-container {
+    @apply flex-col items-start space-x-0 space-y-2;
+  }
+  
+  .info-item {
+    @apply flex-col items-start space-x-0 space-y-1;
+  }
+  
+  .info-icon {
+    @apply self-start;
+  }
+}
+
+/* Hover effects */
+.detail-card:hover {
+  @apply shadow-md;
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.info-item:hover {
+  @apply bg-gray-50 dark:bg-gray-700 rounded-lg p-2 -m-2;
+  transition: background-color 0.2s ease-in-out;
+}
+
+/* Focus states for accessibility */
+.btn-back:focus,
+.btn-dashboard:focus,
+.btn-edit:focus,
+.btn-delete:focus,
+.btn-view-dashboard:focus {
+  @apply outline-none ring-2 ring-offset-2 ring-blue-500;
+}
+
+/* Animation for loading state */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.detail-card {
+  animation: fadeIn 0.3s ease-in-out;
+}

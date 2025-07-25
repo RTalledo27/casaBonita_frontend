@@ -6,7 +6,8 @@ import { CrmInteraction } from '../../models/crm-interaction';
 import { InteractionsService } from '../../services/interactions.service';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { map } from 'rxjs';
+import { BehaviorSubject, catchError, map, of } from 'rxjs';
+import { ToastService } from '../../../../core/services/toast.service';
 
 @Component({
   selector: 'app-client-interactions',
@@ -21,7 +22,12 @@ import { map } from 'rxjs';
   styleUrl: './client-interactions.component.scss',
 })
 export class ClientInteractionsComponent {
-  interactions: CrmInteraction[] = [];
+
+
+  interactionSubject = new BehaviorSubject<CrmInteraction[]>([]);
+  interactions$ = this.interactionSubject.asObservable();
+
+
   columns: ColumnDef[] = [
     { field: 'date', header: 'common.date' },
     { field: 'channel', header: 'Channel' },
@@ -34,6 +40,7 @@ export class ClientInteractionsComponent {
   constructor(
     private route: ActivatedRoute,
     private interactionsService: InteractionsService,
+    private toast: ToastService,
     private router: Router
   ) {
     this.clientId = +this.route.snapshot.paramMap.get('id')!;
@@ -45,8 +52,16 @@ export class ClientInteractionsComponent {
 
   loadInteractions() {
     this.interactionsService
-      .list(this.clientId).pipe(
-        map((res:any) => res.data)) // Asegúrate que lo que se emite sea un array
+      .list(this.clientId)
+      .pipe(
+        catchError((error) => {
+          this.toast.show('common.errorLoad', 'error');
+          console.error('Error loading interactions:', error);
+          return of([]);
+        })
+    ).subscribe((interactions:any) => {
+      this.interactionSubject.next(interactions.data);
+    });
   }
 
   onCreate() {

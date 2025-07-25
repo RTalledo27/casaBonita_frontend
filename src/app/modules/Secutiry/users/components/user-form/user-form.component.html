@@ -212,7 +212,7 @@
             <div class="field">
               <label class="label">Hire Date</label>
               <input type="date" class="input" formControlName="hire_date" />
-              <div *ngIf="fc('hire_date').touched && fc('hire_date').invalid" class="error-msg">
+                <div *ngIf="fc('hire_date').touched && fc('hire_date').invalid" class="error-msg">
                 <span *ngIf="fc('hire_date').errors?.['pattern']">
                   Invalid date.
                 </span>
@@ -220,9 +220,24 @@
               <div *ngIf="serverErrors['hire_date']" class="error-msg">
                 {{ serverErrors['hire_date'][0] }}
               </div>
-            </div>
-          </div>
-        </ng-container>
+              </div>
+              <div class="field sm:col-span-2">
+                <label class="label">{{'users.createUser.cvFile'|translate}}</label>
+                <div class="flex items-center gap-2">
+                  <button type="button" class="px-2 py-1 bg-gray-800 hover:bg-gray-700 rounded text-sm" (click)="cvInput.click()">{{
+                    'common.select' | translate }}</button>
+                  <span class="text-sm" *ngIf="cvName">{{ cvName }}</span>
+                  <a *ngIf="!cvName && cvUrl" [href]="cvUrl" target="_blank" class="text-blue-400 underline text-sm">{{
+                    'common.download' | translate }}</a>
+                </div>
+                <input #cvInput type="file" (change)="onCvChange($event)" class="hidden" />
+                <div *ngIf="serverErrors['cv_file']" class="error-msg">
+                  {{ serverErrors['cv_file'][0] }}
+                </div>
+              </div>
+              </div>
+              </ng-container>
+
 
         <!-- ACCESS -->
         <ng-container *ngIf="s.key === 'access'">

@@ -20,5 +20,8 @@ import { ThemeService } from './core/services/theme.service';
 })
 export class AppComponent {
   title = 'casaBonita_frontend';
-  constructor(private theme: ThemeService) {}
+  constructor(private theme: ThemeService) {
+    // Forzar la inicialización del tema
+    console.log('ThemeService initialized, current theme:', this.theme.isDark ? 'dark' : 'light');
+  }
 }

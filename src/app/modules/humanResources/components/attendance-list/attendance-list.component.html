@@ -1,0 +1,330 @@
+<div class="container mx-auto px-4 py-6">
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Asistencias</h1>
+      <p class="text-gray-600 mt-1">Gestión de registros de asistencia de empleados</p>
+    </div>
+    <button
+      (click)="onNew()"
+      class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+    >
+      Nuevo Registro
+    </button>
+  </div>
+
+  <!-- Filters -->
+  <div class="bg-white p-4 rounded-lg shadow-sm mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+      <!-- Search -->
+      <div>
+        <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Buscar</label>
+        <input
+          type="text"
+          id="search"
+          [(ngModel)]="searchTerm"
+          (input)="onSearchChange()"
+          placeholder="Buscar empleado..."
+          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+        />
+      </div>
+
+      <!-- Employee Filter -->
+      <div>
+        <label for="employee" class="block text-sm font-medium text-gray-700 mb-1">Empleado</label>
+        <select
+          id="employee"
+          [(ngModel)]="selectedEmployee"
+          (change)="onEmployeeChange()"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+        >
+          <option value="">Todos los empleados</option>
+          <option *ngFor="let employee of employees" [value]="employee.employee_id">
+            {{ employee.user?.first_name }} {{ employee.user?.last_name }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Date Filter -->
+      <div>
+        <label for="date" class="block text-sm font-medium text-gray-700 mb-1">Fecha</label>
+        <input
+          type="date"
+          id="date"
+          [(ngModel)]="selectedDate"
+          (change)="onDateChange()"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+        />
+      </div>
+
+      <!-- Month Filter -->
+      <div>
+        <label for="month" class="block text-sm font-medium text-gray-700 mb-1">Mes</label>
+        <input
+          type="month"
+          id="month"
+          [(ngModel)]="selectedMonth"
+          (change)="onMonthChange()"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+        />
+      </div>
+
+      <!-- Status Filter -->
+      <div>
+        <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+        <select
+          id="status"
+          [(ngModel)]="statusFilter"
+          (change)="onStatusFilterChange()"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+        >
+          <option *ngFor="let option of statusOptions" [value]="option.value">
+            {{ option.label }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Clear Filters -->
+      <div class="flex items-end">
+        <button
+          (click)="clearFilters()"
+          class="w-full px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+        >
+          Limpiar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="error" class="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
+    <div class="flex">
+      <div class="flex-shrink-0">
+        <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+        </svg>
+      </div>
+      <div class="ml-3">
+        <p class="text-sm">{{ error }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="flex justify-center items-center py-12">
+    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+    <span class="ml-2 text-gray-600">Cargando asistencias...</span>
+  </div>
+
+  <!-- Attendance Table -->
+  <div *ngIf="!isLoading" class="bg-white shadow-sm rounded-lg overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Empleado
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Fecha
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Entrada
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Salida
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Horas
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Estado
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Acciones
+            </th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <tr *ngFor="let attendance of paginatedAttendances" class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm font-medium text-gray-900">
+                {{ getEmployeeName(attendance.employee_id) }}
+              </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+              {{ formatDate(attendance.attendance_date) }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+              {{ attendance.check_in_time ? formatTime(attendance.check_in_time) : '-' }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+              {{ attendance.check_out_time ? formatTime(attendance.check_out_time) : '-' }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+              {{ calculateWorkedHours(attendance) }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full {{ getStatusClass(attendance.status) }}">
+                {{ getStatusLabel(attendance.status) }}
+              </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+              <div class="flex space-x-2">
+                <!-- Check In -->
+                <button
+                  *ngIf="!attendance.check_in_time"
+                  (click)="onCheckIn(attendance.attendance_id)"
+                  class="text-green-600 hover:text-green-900 text-xs px-2 py-1 border border-green-300 rounded hover:bg-green-50"
+                  title="Registrar entrada"
+                >
+                  Entrada
+                </button>
+
+                <!-- Check Out -->
+                <button
+                  *ngIf="attendance.check_in_time && !attendance.check_out_time"
+                  (click)="onCheckOut(attendance.attendance_id)"
+                  class="text-red-600 hover:text-red-900 text-xs px-2 py-1 border border-red-300 rounded hover:bg-red-50"
+                  title="Registrar salida"
+                >
+                  Salida
+                </button>
+
+                <!-- Start Break -->
+                <button
+                  *ngIf="attendance.check_in_time && !attendance.check_out_time && !attendance.break_start_time"
+                  (click)="onStartBreak(attendance.attendance_id)"
+                  class="text-blue-600 hover:text-blue-900 text-xs px-2 py-1 border border-blue-300 rounded hover:bg-blue-50"
+                  title="Iniciar descanso"
+                >
+                  Descanso
+                </button>
+
+                <!-- End Break -->
+                <button
+                  *ngIf="attendance.break_start_time && !attendance.break_end_time"
+                  (click)="onEndBreak(attendance.attendance_id)"
+                  class="text-purple-600 hover:text-purple-900 text-xs px-2 py-1 border border-purple-300 rounded hover:bg-purple-50"
+                  title="Finalizar descanso"
+                >
+                  Fin Descanso
+                </button>
+
+                <!-- Approve -->
+                <button
+                  *ngIf="!attendance.approved_at"
+                  (click)="onApprove(attendance.attendance_id)"
+                  class="text-green-600 hover:text-green-900 text-xs px-2 py-1 border border-green-300 rounded hover:bg-green-50"
+                  title="Aprobar"
+                >
+                  Aprobar
+                </button>
+
+                <!-- Edit -->
+                <button
+                  (click)="onEdit(attendance.attendance_id)"
+                  class="text-indigo-600 hover:text-indigo-900 text-xs px-2 py-1 border border-indigo-300 rounded hover:bg-indigo-50"
+                  title="Editar"
+                >
+                  Editar
+                </button>
+
+                <!-- Delete -->
+                <button
+                  (click)="onDelete(attendance.attendance_id)"
+                  class="text-red-600 hover:text-red-900 text-xs px-2 py-1 border border-red-300 rounded hover:bg-red-50"
+                  title="Eliminar"
+                >
+                  Eliminar
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="filteredAttendances.length === 0" class="text-center py-12">
+      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+      </svg>
+      <h3 class="mt-2 text-sm font-medium text-gray-900">No hay registros de asistencia</h3>
+      <p class="mt-1 text-sm text-gray-500">Comienza creando un nuevo registro de asistencia.</p>
+      <div class="mt-6">
+        <button
+          (click)="onNew()"
+          class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
+          Nuevo Registro
+        </button>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="filteredAttendances.length > 0" class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+      <div class="flex-1 flex justify-between sm:hidden">
+        <button
+          (click)="onPageChange(currentPage - 1)"
+          [disabled]="currentPage === 1"
+          class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Anterior
+        </button>
+        <button
+          (click)="onPageChange(currentPage + 1)"
+          [disabled]="currentPage === totalPages"
+          class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Siguiente
+        </button>
+      </div>
+      <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+        <div>
+          <p class="text-sm text-gray-700">
+            Mostrando
+            <span class="font-medium">{{ (currentPage - 1) * itemsPerPage + 1 }}</span>
+            a
+            <span class="font-medium">{{ Math.min(currentPage * itemsPerPage, totalItems) }}</span>
+            de
+            <span class="font-medium">{{ totalItems }}</span>
+            resultados
+          </p>
+        </div>
+        <div>
+          <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+            <button
+              (click)="onPageChange(currentPage - 1)"
+              [disabled]="currentPage === 1"
+              class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <span class="sr-only">Anterior</span>
+              <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+              </svg>
+            </button>
+            <button
+              *ngFor="let page of [].constructor(totalPages); let i = index"
+              (click)="onPageChange(i + 1)"
+              [class]="(i + 1) === currentPage ? 'bg-blue-50 border-blue-500 text-blue-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'"
+              class="relative inline-flex items-center px-4 py-2 border text-sm font-medium"
+            >
+              {{ i + 1 }}
+            </button>
+            <button
+              (click)="onPageChange(currentPage + 1)"
+              [disabled]="currentPage === totalPages"
+              class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <span class="sr-only">Siguiente</span>
+              <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+              </svg>
+            </button>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -2,13 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Toast, ToastService } from '../../../../core/services/toast.service';
 import { CommonModule } from '@angular/common';
 import { animate, keyframes, style, transition, trigger } from '@angular/animations';
-import {
-  LucideAngularModule,
-  CheckCircle,
-  XCircle,
-  Info,
-  X,
-} from 'lucide-angular';
+import { CheckCircle, Info, LucideAngularModule, X, XCircle } from 'lucide-angular';
+
 
 @Component({
   selector: 'app-toast-container',

@@ -50,6 +50,39 @@
     },
     "settings": {
       "title": "Settings"
+    },
+    "hr": {
+      "title": "Human Resources",
+      "adminDashboard": {
+        "title": "Admin Dashboard"
+      },
+      "dashboard": {
+        "title": "Dashboard"
+      },
+      "employees": {
+        "title": "Employees"
+      },
+      "teams": {
+        "title": "Teams"
+      },
+      "bonuses": {
+        "title": "Bonuses"
+      },
+      "bonus-types": {
+        "title": "Bonus Types"
+      },
+      "bonus-goals": {
+        "title": "Bonus Goals"
+      },
+      "commissions": {
+        "title": "Commissions"
+      },
+      "payroll": {
+        "title": "Payroll"
+      },
+      "attendance": {
+        "title": "Attendance"
+      }
     }
   },
   "navbar": {

@@ -14,6 +14,7 @@ import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { PusherListenerService } from '../../../core/services/pusher-listener.service';
 import { PusherService } from '../../../core/services/pusher.service';
+import { ColumnDef, SharedTableComponent } from '../../../shared/components/shared-table/shared-table.component';
 @Component({
   selector: 'app-users',
   standalone: true,
@@ -24,6 +25,7 @@ import { PusherService } from '../../../core/services/pusher.service';
     RouterLink,
     RouterOutlet,
     TranslateModule,
+    SharedTableComponent,
   ],
   templateUrl: './users.component.html',
   styleUrl: './users.component.scss',
@@ -36,6 +38,16 @@ export class UsersComponent {
   showForm = false;
   editingUser: any = null;
   isModalOpen = false;
+
+  columns: ColumnDef[] = [
+    { field: 'first_name', header: 'crm.clients.first_name' },
+    { field: 'last_name', header: 'crm.clients.last_name' },
+    { field: 'doc_type', header: 'crm.clients.doc_type' },
+    { field: 'doc_number', header: 'crm.clients.doc_number' },
+    { field: 'email', header: 'crm.clients.email' },
+    { field: 'primary_phone', header: 'crm.clients.primary_phone' },
+    { field: 'type', header: 'crm.clients.type' },
+  ];
 
   //pusher
   private usersSubject = new BehaviorSubject<User[]>([]);
@@ -57,7 +69,7 @@ export class UsersComponent {
 
   ngOnInit(): void {
     this.getUsers();
-   this.pusherService.resubscribe('user', this.events);
+    this.pusherService.resubscribe('user', this.events);
     this.pusherService.subscribeToChannel('user', this.events);
     this.setupPusherListeners();
     document.addEventListener('keydown', this.handleKeydown.bind(this));
@@ -77,7 +89,6 @@ export class UsersComponent {
     this.loading = true;
     this.userService.list().subscribe({
       next: (res: any) => {
-        console.log('[UsersComponent] Usuarios recibidos:', res.data);
         this.usersSubject.next(res.data);
         this.loading = false;
       },
@@ -97,12 +108,19 @@ export class UsersComponent {
     });
   }
 
-  onEdit(user: User) {
+  onImport(): void {
+    this.router.navigate([{ outlets: { modal: 'import' } }], {
+      relativeTo: this.route,
+    });
     this.isModalOpen = true;
+  }
+
+  onEdit(event: any) {
+    /* this.isModalOpen = true;
     this.router.navigate(
       [{ outlets: { modal: [user.id.toString(), 'edit'] } }],
       { relativeTo: this.route }
-    );
+    ); */
   }
 
   //MOSTRAR Y SUPERPONER DIV CONTENEDOR DE FORM(EDIT-CREATE)
@@ -217,4 +235,18 @@ export class UsersComponent {
       });
     }
   }*/
+
+  onView(id: number): void {
+    this.router.navigate(['security/users', id]);
+  }
+
+  onDelete(id: number): void {
+    /*this.clientsService.delete(id).subscribe({
+      next: () => {
+        this.toast.show('Cliente eliminado', 'success');
+        //this.loadClients();
+      },
+      error: () => this.toast.show('Error al eliminar', 'error'),
+    });*/
+  }
 }

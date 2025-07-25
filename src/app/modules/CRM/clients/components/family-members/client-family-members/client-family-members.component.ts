@@ -24,8 +24,8 @@ export class ClientFamilyMembersComponent {
   columns: ColumnDef[] = [
     { field: 'first_name', header: 'First Name' },
     { field: 'last_name', header: 'Last Name' },
-    { field: 'doc_number', header: 'DNI' },
-    { field: 'relationship', header: 'Relation' },
+    { field: 'dni', header: 'DNI' },
+    { field: 'relation', header: 'Relation' },
   ];
   isModalOpen = false;
   plus = Plus;

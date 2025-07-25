@@ -2,6 +2,7 @@ import { Route } from "@angular/router";
 import { UsersComponent } from "../users.component";
 import { UserFormComponent } from "../components/user-form/user-form.component";
 import { UserDetailComponent } from "../components/user-detail/user-detail.component";
+// import { UserImportComponent } from "../components/user-import/user-import.component";
 import { permissionGuard } from "../guards/permission.guard";
 import { Permission } from '../models/permission';
 
@@ -24,6 +25,12 @@ export const userRoutes: Route[] = [
         outlet: 'modal',
         data: { permission: 'security.users.update' },
       },
+      // {
+      //   path: 'import',
+      //   component: UserImportComponent,
+      //   outlet: 'modal',
+      //   data: { permission: 'security.users.store' },
+      // },
     ],
   },
   {

@@ -6,9 +6,9 @@
         <!-- Cabecera con logo y título -->
         <div class="text-center mb-8">
             <img [src]="theme.isDark  ? 'assets/img/casaBonitaTransparente.png' : 'assets/img/casaBonitaTransparenteN.png'"
-                alt="Casa Bonita Residencial" class="mx-auto w-40 mb-4"        />            <h1 class="text-3xl font-bold text-gray-800 tracking-tight">CASA BONITA</h1>
-            <p class="text-sm text-gray-600 uppercase tracking-wider mt-1">R E S I D E N C I A L</p>
-            <h2 class="text-xl font-medium text-gray-700 mt-4">
+                alt="Casa Bonita Residencial" class="mx-auto w-40 mb-4"        />            <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-100 tracking-tight">CASA BONITA</h1>
+            <p class="text-sm text-gray-600 dark:text-gray-300 uppercase tracking-wider mt-1">R E S I D E N C I A L</p>
+            <h2 class="text-xl font-medium text-gray-700 dark:text-gray-200 mt-4">
                 {{ 'login.h2WelcomeTo' | translate }}
             </h2>
         </div>
@@ -22,14 +22,14 @@
         <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-5">
             <!-- Campo de Usuario -->
             <div>
-                <label for="username" class="block text-gray-700 font-medium mb-2">
+                <label for="username" class="block text-gray-700 dark:text-gray-200 font-medium mb-2">
                     {{'login.username' | translate }}
                 </label>
                 <div class="relative">
                     <input id="username" formControlName="username" type="text"  placeholder="{{'login.placeHolderUser' | translate }}" 
                         class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 transition pl-12 dark:bg-gray-800 dark:text-gray-100" />
                     <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none"
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 dark:text-gray-400" fill="none"
                             viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -49,21 +49,21 @@
 
             <!-- Campo de Contraseña -->
             <div>
-                <label for="password" class="block text-gray-700 font-medium mb-2">
+                <label for="password" class="block text-gray-700 dark:text-gray-200 font-medium mb-2">
                     {{'login.password' | translate }}
                 </label>
                 <div class="relative">
                     <input id="password" formControlName="password" [type]="showPassword ? 'text' : 'password'"  placeholder="••••••••" 
                         class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 transition pl-12 dark:bg-gray-800 dark:text-gray-100" />
                     <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none"
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 dark:text-gray-400" fill="none"
                             viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                         </svg>
                     </div>
                     <button type="button" (click)="showPassword = !showPassword"
-                        class="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-500 hover:text-gray-700">
+                        class="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
                         <svg *ngIf="!showPassword" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
                             viewBox="0 0 24 24" stroke="currentColor">
                             <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -92,7 +92,7 @@
             <div class="flex items-center justify-between">
                 <div class="flex items-center">
                     <input type="checkbox" formControlName="remember" id="remember"
-                        class="h-4 w-4 text-yellow-500 focus:ring-yellow-400 border-gray-300 rounded" />
+                        class="h-4 w-4 text-yellow-500 focus:ring-yellow-400 border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded" />
                         <label for="remember" class="ml-2 text-gray-600 dark:text-gray-300 text-sm">{{'login.remember'| translate}}</label>
                     </div>
 

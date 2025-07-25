@@ -10,7 +10,8 @@ export class ThemeService {
   constructor(@Inject(DOCUMENT) private doc: Document) {
     const stored = localStorage.getItem('theme');
     this._isDark = stored === 'dark';
-    // ensure DOM is ready before modifying classes
+    // Apply theme immediately and also ensure DOM is ready
+    this.applyClass();
     queueMicrotask(() => this.applyClass());
   }
 
@@ -27,9 +28,9 @@ export class ThemeService {
   private applyClass(): void {
     const html = this.doc.documentElement;
     if (this._isDark) {
-      html.setAttribute('data-theme', 'dark');
+      html.classList.add('dark');
     } else {
-      html.removeAttribute('data-theme');
+      html.classList.remove('dark');
     }
   }
 }

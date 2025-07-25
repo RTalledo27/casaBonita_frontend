@@ -4,5 +4,7 @@ export interface FamilyMember {
   first_name: string;
   last_name: string;
   doc_number: string;
+  dni: string;
+  relation: string; // 'padre', 'madre', 'hermano', etc.
   relationship: string;
 }

@@ -1,0 +1,270 @@
+<div class="p-6 bg-gray-50 min-h-screen">
+  <!-- Header -->
+  <div class="mb-6">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">Incentivos</h1>
+        <p class="text-gray-600">Gestiona los incentivos y reconocimientos para empleados</p>
+      </div>
+      <button
+        (click)="onNewIncentive()"
+        class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+      >
+        <lucide-icon [img]="Plus" size="20"></lucide-icon>
+        Nuevo Incentivo
+      </button>
+    </div>
+
+    <!-- Filters -->
+    <div class="flex flex-col sm:flex-row gap-4">
+      <!-- Search -->
+      <div class="relative flex-1">
+        <lucide-icon [img]="Search" size="20" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></lucide-icon>
+        <input
+          type="text"
+          placeholder="Buscar por empleado, código o descripción..."
+          [value]="searchTerm()"
+          (input)="onSearchChange($any($event.target).value || '')"
+          class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        />
+      </div>
+
+      <!-- Status Filter -->
+      <div class="relative">
+        <select
+          [value]="statusFilter()"
+          (change)="onStatusFilterChange($any($event.target).value)"
+          class="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        >
+          <option value="all">Todos los estados</option>
+          <option value="activo">Pendientes</option>
+          <option value="completado">Completados</option>
+          <option value="pagado">Pagados</option>
+          <option value="cancelado">Cancelados</option>
+        </select>
+        <lucide-icon [img]="Filter" size="16" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></lucide-icon>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error Message -->
+  @if (error()) {
+    <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+      <p class="text-red-800">{{ error() }}</p>
+    </div>
+  }
+
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="flex justify-center items-center py-12">
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+    </div>
+  } @else {
+    <!-- Incentives Table -->
+    @if (filteredIncentives().length === 0) {
+      <div class="text-center py-12">
+        <lucide-icon [img]="Gift" size="48" class="mx-auto text-gray-400 mb-4"></lucide-icon>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">No hay incentivos</h3>
+        <p class="text-gray-600 mb-4">
+          @if (searchTerm() || statusFilter() !== 'all') {
+            No se encontraron incentivos que coincidan con los filtros aplicados.
+          } @else {
+            Comienza creando tu primer incentivo.
+          }
+        </p>
+        @if (!searchTerm() && statusFilter() === 'all') {
+          <button
+            (click)="onNewIncentive()"
+            class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            <lucide-icon [img]="Plus" size="20"></lucide-icon>
+            Crear Primer Incentivo
+          </button>
+        }
+      </div>
+    } @else {
+      <div class="bg-white rounded-lg shadow-sm border overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Empleado
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Descripción
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Monto
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Fecha
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Estado
+                </th>
+                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Acciones
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              @for (incentive of filteredIncentives(); track incentive.incentive_id) {
+                <tr class="hover:bg-gray-50">
+                  <!-- Employee -->
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                      <div class="flex-shrink-0 h-10 w-10">
+                        <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                          <lucide-icon [img]="User" size="20" class="text-blue-600"></lucide-icon>
+                        </div>
+                      </div>
+                      <div class="ml-4">
+                        <div class="text-sm font-medium text-gray-900">
+                          {{ getEmployeeFullName(incentive) }}
+                        </div>
+                        @if (incentive.employee?.employee_code) {
+                          <div class="text-sm text-gray-500">
+                            {{ incentive.employee?.employee_code }}
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  </td>
+
+                  <!-- Description -->
+                  <td class="px-6 py-4">
+                    <div class="text-sm text-gray-900">
+                      {{ incentive.description || 'Sin descripción' }}
+                    </div>
+                  </td>
+
+                  <!-- Amount -->
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                      <lucide-icon [img]="DollarSign" size="16" class="text-green-600 mr-1"></lucide-icon>
+                      <span class="text-sm font-medium text-gray-900">
+                        {{ formatCurrency(incentive.amount) }}
+                      </span>
+                    </div>
+                  </td>
+
+                  <!-- Date -->
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center text-sm text-gray-900">
+                      <lucide-icon [img]="Calendar" size="16" class="text-gray-400 mr-2"></lucide-icon>
+                      {{ formatDate(incentive.created_at) }}
+                    </div>
+                  </td>
+
+                  <!-- Status -->
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span [class]="getStatusBadgeClass(incentive.status)" class="inline-flex px-2 py-1 text-xs font-semibold rounded-full">
+                      {{ getStatusLabel(incentive.status) }}
+                    </span>
+                  </td>
+
+                  <!-- Actions -->
+                  <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <div class="flex items-center justify-end gap-2">
+                      @if (canEdit(incentive)) {
+                        <button
+                          (click)="onEditIncentive(incentive)"
+                          class="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 transition-colors"
+                          title="Editar"
+                        >
+                          <lucide-icon [img]="Edit" size="16"></lucide-icon>
+                        </button>
+                      }
+
+                      @if (canMarkAsCompleted(incentive)) {
+                        <button
+                          (click)="onMarkAsCompleted(incentive)"
+                          class="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50 transition-colors"
+                          title="Marcar como completado"
+                        >
+                          <lucide-icon [img]="CheckCircle" size="16"></lucide-icon>
+                        </button>
+                      }
+
+                      @if (canMarkAsPaid(incentive)) {
+                        <button
+                          (click)="onMarkAsPaid(incentive)"
+                          class="text-purple-600 hover:text-purple-900 p-1 rounded hover:bg-purple-50 transition-colors"
+                          title="Marcar como pagado"
+                        >
+                          <lucide-icon [img]="DollarSign" size="16"></lucide-icon>
+                        </button>
+                      }
+
+                      @if (canDelete(incentive)) {
+                        <button
+                          (click)="onDeleteIncentive(incentive)"
+                          class="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors"
+                          title="Eliminar"
+                        >
+                          <lucide-icon [img]="Trash2" size="16"></lucide-icon>
+                        </button>
+                      }
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Summary Cards -->
+      <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-white p-4 rounded-lg shadow-sm border">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <div class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
+                <lucide-icon [img]="Gift" size="16" class="text-yellow-600"></lucide-icon>
+              </div>
+            </div>
+            <div class="ml-3">
+              <p class="text-sm font-medium text-gray-500">Pendientes</p>
+              <p class="text-lg font-semibold text-gray-900">
+                {{ getPendingCount() }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white p-4 rounded-lg shadow-sm border">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                <lucide-icon [img]="CheckCircle" size="16" class="text-blue-600"></lucide-icon>
+              </div>
+            </div>
+            <div class="ml-3">
+              <p class="text-sm font-medium text-gray-500">Completados</p>
+              <p class="text-lg font-semibold text-gray-900">
+                {{ getCompletedCount() }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white p-4 rounded-lg shadow-sm border">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                <lucide-icon [img]="DollarSign" size="16" class="text-green-600"></lucide-icon>
+              </div>
+            </div>
+            <div class="ml-3">
+              <p class="text-sm font-medium text-gray-500">Pagados</p>
+              <p class="text-lg font-semibold text-gray-900">
+                {{ getPaidCount() }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  }
+</div>

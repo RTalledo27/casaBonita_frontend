@@ -12,7 +12,7 @@ import { ThemeService } from '../../../core/services/theme.service';
 export class ThemeSwitcherComponent {
   constructor(public theme: ThemeService) {}
 
-  toggle(): void {
+  toggleTheme() {
     this.theme.toggle();
   }
 }

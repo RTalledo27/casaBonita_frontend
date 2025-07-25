@@ -14,9 +14,9 @@
             <h1>{{ 'inventory.lots.detailTitle' | translate }}</h1>
             <div class="status-badge">
                 <span class="dot"></span>
-                {{ 'BEST SPECIAL' }}
+                {{ ('inventory.lots.status.' + lot.status) | translate }}
             </div>
-        </div>
+            </div>
     </div>
 
     <!-- Grid principal -->
@@ -143,7 +143,7 @@
                     <ng-container *ngFor="let m of lot.media">
                         <div class="media-item">
                             <div class="media-content">
-                                <img *ngIf="m.type !== 'doc'" [src]="'http://127.0.0.1:8000'+m.url" class="media-image"
+                                <img *ngIf="m.type !== 'doc'" [src]="backendBaseUrl+m.url" class="media-image"
                                     alt="Media" />
 
                                 <a *ngIf="m.type === 'doc'" [href]="m.url" target="_blank" class="doc-link">

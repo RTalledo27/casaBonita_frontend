@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, ViewChild, viewChild } from '@angular/core';
 import { LotService } from '../../services/lot.service';
 import { Manzana } from '../../models/manzana';
 import { StreetType } from '../../models/street-type';
@@ -29,6 +29,9 @@ export class LotFormComponent {
   //selectedFiles: File[] = [];
   mediaPreviews: File[] = [];
   selectedMedia: { file: File; type: string }[] = [];
+
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
+  isDragOver = false;
 
   constructor(
     private fb: FormBuilder,
@@ -90,13 +93,31 @@ export class LotFormComponent {
 
   onMediaSelected(event: Event) {
     const input = event.target as HTMLInputElement;
-    if (input.files) {
-      //this.mediaPreviews = this.selectedFiles;
-      this.selectedMedia = Array.from(input.files).map((f) => ({
-        file: f,
-        type: 'foto',
-      }));
-    }
+    if (!input.files) return;
+    Array.from(input.files).forEach((file) => {
+      this.selectedMedia.push({ file, type: 'foto' });
+    });
+    // limpia el input para poder volver a subir mismos archivos si quieres
+    input.value = '';
+  }
+
+  onDragOver(event: DragEvent) {
+    event.preventDefault();
+    this.isDragOver = true;
+  }
+
+  onDragLeave(event: DragEvent) {
+    event.preventDefault();
+    this.isDragOver = false;
+  }
+
+  onDrop(event: DragEvent) {
+    event.preventDefault();
+    this.isDragOver = false;
+    if (!event.dataTransfer) return;
+    Array.from(event.dataTransfer.files).forEach((file) => {
+      this.selectedMedia.push({ file, type: 'foto' });
+    });
   }
 
   submit() {
@@ -116,14 +137,13 @@ export class LotFormComponent {
       fd.append('_method', 'PATCH');
     }
 
-
     const request$ =
       this.isEditMode && this.editingId
         ? this.lotService.update(this.editingId, fd)
         : this.lotService.create(fd);
 
     request$.subscribe({
-      next: (lot:any) => {
+      next: (lot: any) => {
         console.log(lot.data);
         this.uploadMedia(lot.data.lot_id, this.selectedMedia);
         this.toast.show('common.saved', 'success');

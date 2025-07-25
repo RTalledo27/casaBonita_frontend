@@ -10,7 +10,7 @@
         <!-- FOTO -->
         <div class="flex-shrink-0">
             <div class="w-32 h-32 rounded-full border-2 border-blue-600 overflow-hidden mb-4">
-                <img *ngIf="u.photo_url; else placeholder" [src]="u.photo_url" class="w-full h-full object-cover" />
+                <img *ngIf=" u.photo_url; else placeholder" [src]="backendBaseUrl + u.photo_url" class="w-full h-full object-cover" />
                 <ng-template #placeholder>
                     <div class="w-full h-full bg-gray-800 flex items-center justify-center text-gray-500 text-4xl">
                         <lucide-icon [name]="User" />
@@ -32,6 +32,7 @@
           { label: 'Department',    value: u.department || '-' },
           { label: 'Birth Date',    template: birthTpl },
           { label: 'Hire Date',     template: hireTpl },
+          { label: 'CV',           template: cvTpl },
         ]">
                 <div class="bg-gray-800 p-4 rounded-lg">
                     <dt class="font-semibold mb-1">{{ field.label }}:</dt>
@@ -72,6 +73,14 @@
 
     <ng-template #hireTpl>
         <dd>{{ u.hire_date ? (u.hire_date | date:'longDate') : '-' }}</dd>
+    </ng-template>
+    
+    <ng-template #cvTpl>
+        <ng-container *ngIf="u.cv_url; else noCv">
+            <a [href]=" backendBaseUrl+u.cv_url" target="_blank" class="text-blue-400 underline text-sm">{{ 'common.download' | translate
+                }}</a>
+        </ng-container>
+        <ng-template #noCv>-</ng-template>
     </ng-template>
 
     <!-- BOTONES -->

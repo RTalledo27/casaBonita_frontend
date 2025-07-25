@@ -61,10 +61,25 @@ export const routes: Routes = [
             canActivateChild: [permissionGuard],
           },
           {
+            path: 'hr',
+            loadChildren: () =>
+              import('./modules/humanResources/routes/hr.routes').then(
+                (m) => m.HR_ROUTES
+              )
+          },
+          {
             path: 'sales',
             loadChildren: () =>
               import('./modules/sales/routes/sales.routes').then(
                 (m) => m.SALES_ROUTES
+              ),
+            canActivateChild: [permissionGuard],
+          },
+          {
+            path: 'service-desk',
+            loadChildren: () =>
+              import('./modules/serviceDesk/routes/service-desk.routes').then(
+                (m) => m.serviceDeskRoutes
               ),
             canActivateChild: [permissionGuard],
           },
@@ -74,6 +89,13 @@ export const routes: Routes = [
               import(
                 './core/components/unauthorized/unauthorized/unauthorized.component'
               ).then((m) => m.UnauthorizedComponent),
+          },
+          {
+            path: 'theme-test',
+            loadComponent: () =>
+              import('./shared/components/theme-test/theme-test.component').then(
+                (m) => m.ThemeTestComponent
+              ),
           },
 
           { path: '', redirectTo: 'dashboard', pathMatch: 'full' },

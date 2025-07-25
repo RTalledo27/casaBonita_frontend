@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
 import { AuthService, UserResource } from '../../services/auth.service';
 import { Router } from '@angular/router';
+import { NotificationService } from '../../services/notification.service';
 import { CommonModule } from '@angular/common';
-import { LangSwitcherComponent } from "../../../shared/components/lang-switcher/lang-switcher.component";
+import { LangSwitcherComponent } from '../../../shared/components/lang-switcher/lang-switcher.component';
 import { TranslateModule } from '@ngx-translate/core';
-import { ThemeSwitcherComponent } from "../../../shared/components/theme-switcher/theme-switcher.component";
+import { ThemeSwitcherComponent } from '../../../shared/components/theme-switcher/theme-switcher.component';
 
 @Component({
   selector: 'app-navbar',
@@ -22,11 +23,16 @@ export class NavbarComponent {
   unreadCount = 0;
   menuOpen = false;
 
-  constructor(private auth: AuthService, private router: Router) {}
+  constructor(
+    private auth: AuthService,
+    private router: Router,
+    private notifications: NotificationService
+  ) {}
 
   ngOnInit(): void {
     this.auth.user$.subscribe((u) => (this.user = u));
-    // TODO: suscripción real a notificaciones
+    this.notifications.unreadCount$.subscribe((c) => (this.unreadCount = c));
+    this.notifications.init();
   }
 
   toggleMenu(): void {
@@ -36,5 +42,9 @@ export class NavbarComponent {
   logout(): void {
     this.auth.logout();
     this.router.navigate(['/auth/login']);
+  }
+
+  toggleNotifications() {
+    
   }
 }

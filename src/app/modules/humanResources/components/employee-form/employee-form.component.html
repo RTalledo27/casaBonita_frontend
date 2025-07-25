@@ -1,0 +1,343 @@
+<div class="p-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
+  <!-- Header -->
+  <div class="mb-6">
+    <div class="flex items-center gap-4 mb-4">
+      <button
+        (click)="onCancel()"
+        class="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+      >
+        <lucide-angular [img]="ArrowLeft" size="24"></lucide-angular>
+      </button>
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">
+          {{ isEditMode() ? 'Editar Empleado' : 'Nuevo Empleado' }}
+        </h1>
+        <p class="text-gray-600 dark:text-gray-400 mt-1">
+          {{ isEditMode() ? 'Modifica la información del empleado' : 'Completa la información para crear un nuevo empleado' }}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading()" class="flex justify-center items-center py-12">
+    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error()" class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-6">
+    <div class="flex">
+      <div class="ml-3">
+        <h3 class="text-sm font-medium text-red-800 dark:text-red-400">Error</h3>
+        <div class="mt-2 text-sm text-red-700 dark:text-red-300">
+          <p>{{ error() }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form -->
+  <div *ngIf="!loading()" class="bg-white dark:bg-gray-800 shadow-sm rounded-lg border dark:border-gray-700">
+    <form [formGroup]="employeeForm" (ngSubmit)="onSubmit()" class="p-6">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <!-- Información Básica -->
+        <div class="space-y-6">
+          <div class="border-b border-gray-200 dark:border-gray-700 pb-4">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 flex items-center gap-2">
+              <lucide-angular [img]="User" size="20"></lucide-angular>
+              Información Básica
+            </h3>
+          </div>
+
+          <!-- Usuario -->
+          <div>
+            <label for="user_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Usuario *
+            </label>
+            <select
+              id="user_id"
+              formControlName="user_id"
+              (change)="onUserChange()"
+              class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              [class.border-red-500]="isFieldInvalid('user_id')"
+            >
+              <option value="">Seleccionar usuario</option>
+              <option *ngFor="let user of getAvailableUsers()" [value]="user.id">
+                {{ user.first_name }} {{ user.last_name }} ({{ user.email }})
+              </option>
+            </select>
+            <p *ngIf="isFieldInvalid('user_id')" class="mt-1 text-sm text-red-600">
+              {{ getFieldError('user_id') }}
+            </p>
+          </div>
+
+          <!-- Código de Empleado -->
+          <div>
+            <label for="employee_code" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Código de Empleado *
+            </label>
+            <input
+              type="text"
+              id="employee_code"
+              formControlName="employee_code"
+              placeholder="Ej: EMP001"
+              class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              [class.border-red-500]="isFieldInvalid('employee_code')"
+            />
+            <p *ngIf="isFieldInvalid('employee_code')" class="mt-1 text-sm text-red-600">
+              {{ getFieldError('employee_code') }}
+            </p>
+          </div>
+
+          <!-- Tipo de Empleado -->
+          <div>
+            <label for="employee_type" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Tipo de Empleado *
+            </label>
+            <select
+              id="employee_type"
+              formControlName="employee_type"
+              class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              [class.border-red-500]="isFieldInvalid('employee_type')"
+            >
+              <option value="">Seleccionar tipo</option>
+              <option *ngFor="let type of employeeTypes" [value]="type.value">
+                {{ type.label }}
+              </option>
+            </select>
+            <p *ngIf="isFieldInvalid('employee_type')" class="mt-1 text-sm text-red-600">
+              {{ getFieldError('employee_type') }}
+            </p>
+          </div>
+
+          <!-- Estado de Empleo -->
+          <div>
+            <label for="employment_status" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Estado de Empleo *
+            </label>
+            <select
+              id="employment_status"
+              formControlName="employment_status"
+              class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              [class.border-red-500]="isFieldInvalid('employment_status')"
+            >
+              <option *ngFor="let status of employmentStatuses" [value]="status.value">
+                {{ status.label }}
+              </option>
+            </select>
+            <p *ngIf="isFieldInvalid('employment_status')" class="mt-1 text-sm text-red-600">
+              {{ getFieldError('employment_status') }}
+            </p>
+          </div>
+
+          <!-- Fecha de Contratación -->
+          <div>
+            <label for="hire_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Fecha de Contratación *
+            </label>
+            <input
+              type="date"
+              id="hire_date"
+              formControlName="hire_date"
+              class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              [class.border-red-500]="isFieldInvalid('hire_date')"
+            />
+            <p *ngIf="isFieldInvalid('hire_date')" class="mt-1 text-sm text-red-600">
+              {{ getFieldError('hire_date') }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Información Laboral -->
+        <div class="space-y-6">
+          <div class="border-b border-gray-200 dark:border-gray-700 pb-4">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 flex items-center gap-2">
+              <lucide-angular [img]="Building" size="20"></lucide-angular>
+              Información Laboral
+            </h3>
+          </div>
+
+          <!-- Salario Base -->
+          <div>
+            <label for="base_salary" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Salario Base *
+            </label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <lucide-angular [img]="DollarSign" size="20" class="text-gray-400 dark:text-gray-500"></lucide-angular>
+              </div>
+              <input
+                type="number"
+                id="base_salary"
+                formControlName="base_salary"
+                placeholder="0"
+                min="0"
+                step="1000"
+                class="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                [class.border-red-500]="isFieldInvalid('base_salary')"
+              />
+            </div>
+            <p *ngIf="isFieldInvalid('base_salary')" class="mt-1 text-sm text-red-600">
+              {{ getFieldError('base_salary') }}
+            </p>
+          </div>
+
+          <!-- Porcentaje de Comisión -->
+          <div>
+            <label for="commission_percentage" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Porcentaje de Comisión (%)
+            </label>
+            <input
+              type="number"
+              id="commission_percentage"
+              formControlName="commission_percentage"
+              placeholder="0"
+              min="0"
+              max="100"
+              step="0.1"
+              class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              [class.border-red-500]="isFieldInvalid('commission_percentage')"
+            />
+            <p *ngIf="isFieldInvalid('commission_percentage')" class="mt-1 text-sm text-red-600">
+              {{ getFieldError('commission_percentage') }}
+            </p>
+          </div>
+
+          <!-- Equipo -->
+          <div>
+            <label for="team_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Equipo
+            </label>
+            <select
+              id="team_id"
+              formControlName="team_id"
+              class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="">Sin equipo asignado</option>
+              <option *ngFor="let team of teams()" [value]="team.team_id">
+                {{ team.team_name }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Cuenta Bancaria -->
+          <div>
+            <label for="bank_account" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Cuenta Bancaria
+            </label>
+            <input
+              type="text"
+              id="bank_account"
+              formControlName="bank_account"
+              placeholder="Número de cuenta"
+              class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+
+          <!-- Banco -->
+          <div>
+            <label for="bank_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Banco
+            </label>
+            <input
+              type="text"
+              id="bank_name"
+              formControlName="bank_name"
+              placeholder="Nombre del banco"
+              class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Información de Contacto -->
+      <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+        <div class="border-b border-gray-200 dark:border-gray-700 pb-4 mb-6">
+          <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 flex items-center gap-2">
+            <lucide-angular [img]="Phone" size="20"></lucide-angular>
+            Información de Contacto
+          </h3>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Nombre del Contacto de Emergencia -->
+          <div>
+            <label for="emergency_contact_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Nombre del Contacto de Emergencia
+            </label>
+            <input
+              type="text"
+              id="emergency_contact_name"
+              formControlName="emergency_contact_name"
+              placeholder="Nombre completo del contacto"
+              class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+
+          <!-- Teléfono de Emergencia -->
+          <div>
+            <label for="emergency_contact_phone" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Teléfono de Emergencia
+            </label>
+            <input
+              type="tel"
+              id="emergency_contact_phone"
+              formControlName="emergency_contact_phone"
+              placeholder="Ej: +51 300 123 4567"
+              class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+
+          <!-- Relación del Contacto de Emergencia -->
+          <div>
+            <label for="emergency_contact_relationship" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Relación del Contacto
+            </label>
+            <input
+              type="text"
+              id="emergency_contact_relationship"
+              formControlName="emergency_contact_relationship"
+              placeholder="Ej: Madre, Esposo/a, Hermano/a"
+              class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+        </div>
+
+        <!-- Notas -->
+        <div class="mt-6">
+          <label for="notes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Notas
+            </label>
+          <textarea
+            id="notes"
+            formControlName="notes"
+            rows="3"
+            placeholder="Notas adicionales sobre el empleado..."
+            class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          ></textarea>
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-4">
+        <button
+          type="button"
+          (click)="onCancel()"
+          class="px-6 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+        >
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          [disabled]="saving() || employeeForm.invalid"
+          class="px-6 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded-md hover:bg-blue-700 dark:hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-colors"
+        >
+          <lucide-angular [img]="Save" size="20"></lucide-angular>
+          <span *ngIf="!saving()">{{ isEditMode() ? 'Actualizar' : 'Crear' }} Empleado</span>
+          <span *ngIf="saving()">Guardando...</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

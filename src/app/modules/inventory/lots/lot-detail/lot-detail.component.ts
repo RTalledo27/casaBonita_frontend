@@ -4,6 +4,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { LotService } from '../../services/lot.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Lot } from '../../models/lot';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-lot-detail',
@@ -13,13 +14,14 @@ import { Lot } from '../../models/lot';
 })
 export class LotDetailComponent {
   lot?: Lot;
+
+  backendBaseUrl = environment.BACKEND_BASE_URL;
+
   constructor(
     private lotService: LotService,
     private route: ActivatedRoute,
     private router: Router
-  ) {
-
-  }
+  ) {}
 
   ngOnInit() {
     const id = Number(this.route.snapshot.paramMap.get('id'));

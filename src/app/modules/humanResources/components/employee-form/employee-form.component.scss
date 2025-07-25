@@ -1,0 +1,189 @@
+/* Estilos específicos para el formulario de empleado */
+
+.employee-form-container {
+  @apply min-h-screen bg-gray-50;
+}
+
+.form-section {
+  @apply bg-white shadow-sm rounded-lg border;
+}
+
+.section-header {
+  @apply border-b border-gray-200 pb-4 mb-6;
+}
+
+.section-title {
+  @apply text-lg font-medium text-gray-900 flex items-center gap-2;
+}
+
+.form-field {
+  @apply space-y-2;
+}
+
+.form-label {
+  @apply block text-sm font-medium text-gray-700;
+}
+
+.form-input {
+  @apply block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm;
+  @apply focus:outline-none focus:ring-blue-500 focus:border-blue-500;
+  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.form-input:focus {
+  @apply ring-1 ring-blue-500 border-blue-500;
+}
+
+.form-input.error {
+  @apply border-red-500;
+}
+
+.form-input.error:focus {
+  @apply ring-red-500 border-red-500;
+}
+
+.form-select {
+  @apply block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white;
+  @apply focus:outline-none focus:ring-blue-500 focus:border-blue-500;
+  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.form-select:focus {
+  @apply ring-1 ring-blue-500 border-blue-500;
+}
+
+.form-select.error {
+  @apply border-red-500;
+}
+
+.form-select.error:focus {
+  @apply ring-red-500 border-red-500;
+}
+
+.form-textarea {
+  @apply block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm;
+  @apply focus:outline-none focus:ring-blue-500 focus:border-blue-500;
+  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  resize: vertical;
+}
+
+.form-textarea:focus {
+  @apply ring-1 ring-blue-500 border-blue-500;
+}
+
+.error-message {
+  @apply mt-1 text-sm text-red-600;
+}
+
+.form-actions {
+  @apply mt-8 pt-6 border-t border-gray-200 flex justify-end space-x-4;
+}
+
+.btn-cancel {
+  @apply px-6 py-2 border border-gray-300 rounded-md text-gray-700 bg-white;
+  @apply hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.btn-submit {
+  @apply px-6 py-2 bg-blue-600 text-white rounded-md;
+  @apply hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500;
+  @apply disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.input-with-icon {
+  @apply relative;
+}
+
+.input-icon {
+  @apply absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none;
+}
+
+.input-with-icon input {
+  @apply pl-10;
+}
+
+.loading-spinner {
+  @apply animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600;
+}
+
+.error-alert {
+  @apply bg-red-50 border border-red-200 rounded-lg p-4 mb-6;
+}
+
+.error-alert-content {
+  @apply flex;
+}
+
+.error-alert-title {
+  @apply text-sm font-medium text-red-800;
+}
+
+.error-alert-message {
+  @apply mt-2 text-sm text-red-700;
+}
+
+.back-button {
+  @apply p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg;
+  transition: all 0.2s ease-in-out;
+}
+
+.form-grid {
+  @apply grid grid-cols-1 lg:grid-cols-2 gap-6;
+}
+
+.form-grid-full {
+  @apply grid grid-cols-1 gap-6;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .form-grid {
+    @apply grid-cols-1;
+  }
+}
+
+@media (max-width: 768px) {
+  .form-actions {
+    @apply flex-col space-x-0 space-y-3;
+  }
+  
+  .btn-cancel,
+  .btn-submit {
+    @apply w-full justify-center;
+  }
+}
+
+/* Custom styles for specific form elements */
+.salary-input {
+  @apply text-right;
+}
+
+.commission-input {
+  @apply text-center;
+}
+
+/* Focus states for better accessibility */
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+  @apply outline-none ring-2 ring-blue-500 ring-opacity-50;
+}
+
+/* Validation states */
+.form-field.valid .form-input,
+.form-field.valid .form-select {
+  @apply border-green-500;
+}
+
+.form-field.valid .form-input:focus,
+.form-field.valid .form-select:focus {
+  @apply ring-green-500 border-green-500;
+}
+
+/* Required field indicator */
+.form-label.required::after {
+  content: ' *';
+  @apply text-red-500;
+}

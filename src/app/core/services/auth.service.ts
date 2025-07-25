@@ -9,6 +9,7 @@ export interface UserResource {
   name: string;
   email: string;
   permissions: string[];
+  roles?: string[];
   //POR EL MOMENTO ESOS DATOS
 }
 
@@ -19,7 +20,7 @@ export interface LoginResponse {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private userSubject = new BehaviorSubject<UserResource | null>(null);
+  userSubject = new BehaviorSubject<UserResource | null>(null);
   user$ = this.userSubject.asObservable();
 
   constructor(private http: HttpClient) {
@@ -56,5 +57,14 @@ export class AuthService {
   hasPermission(perm: string): boolean {
     const user = this.userSubject.value;
     return !!user && Array.isArray(user.permissions) && user.permissions.includes(perm);
+  }
+
+  hasRole(role: string): boolean {
+    const user = this.userSubject.value;
+    return !!user && Array.isArray(user.roles) && user.roles.includes(role);
+  }
+
+  isAdmin(): boolean {
+    return this.hasRole('admin');
   }
 }

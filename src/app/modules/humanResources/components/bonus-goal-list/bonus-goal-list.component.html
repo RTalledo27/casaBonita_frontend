@@ -1,0 +1,186 @@
+<div class="p-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
+  <!-- Header -->
+  <div class="mb-6">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Metas de Bonos</h1>
+        <p class="text-gray-600 dark:text-gray-400">Gestiona las metas y objetivos para el cálculo de bonos</p>
+      </div>
+      <button
+        (click)="onNewBonusGoal()"
+        class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+      >
+        <lucide-icon [img]="Plus" size="20"></lucide-icon>
+        Nueva Meta
+      </button>
+    </div>
+
+    <!-- Filters -->
+    <div class="flex flex-col sm:flex-row gap-4">
+      <!-- Search -->
+      <div class="relative flex-1">
+        <lucide-icon [img]="Search" size="20" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500"></lucide-icon>
+        <input
+          type="text"
+          placeholder="Buscar por nombre, descripción, tipo de bono o equipo..."
+          [value]="searchTerm()"
+          (input)="onSearchChange($any($event.target).value || '')"
+          class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+        />
+      </div>
+
+      <!-- Status Filter -->
+      <div class="relative">
+        <select
+          [value]="statusFilter()"
+          (change)="onStatusFilterChange($any($event.target).value)"
+          class="appearance-none bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 pr-8 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-gray-100"
+        >
+          <option value="all">Todos los estados</option>
+          <option value="active">Activos</option>
+          <option value="inactive">Inactivos</option>
+        </select>
+        <lucide-icon [img]="Filter" size="16" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 pointer-events-none"></lucide-icon>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error Message -->
+  @if (error()) {
+    <div class="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+      <p class="text-red-800 dark:text-red-400">{{ error() }}</p>
+    </div>
+  }
+
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="flex justify-center items-center py-12">
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+    </div>
+  } @else {
+    <!-- Goals Grid -->
+    @if (filteredBonusGoals().length === 0) {
+      <div class="text-center py-12">
+        <lucide-icon [img]="Target" size="48" class="mx-auto text-gray-400 dark:text-gray-500 mb-4"></lucide-icon>
+        <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No hay metas de bonos</h3>
+        <p class="text-gray-600 dark:text-gray-400 mb-4">
+          @if (searchTerm() || statusFilter() !== 'all') {
+            No se encontraron metas que coincidan con los filtros aplicados.
+          } @else {
+            Comienza creando tu primera meta de bono.
+          }
+        </p>
+        @if (!searchTerm() && statusFilter() === 'all') {
+          <button
+            (click)="onNewBonusGoal()"
+            class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            <lucide-icon [img]="Plus" size="20"></lucide-icon>
+            Crear Primera Meta
+          </button>
+        }
+      </div>
+    } @else {
+      <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+        @for (goal of filteredBonusGoals(); track goal.bonus_goal_id) {
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow">
+            <!-- Card Header -->
+            <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+              <div class="flex items-start justify-between mb-3">
+                <div class="flex items-center gap-2">
+                  <lucide-icon [img]="Target" size="20" class="text-blue-600"></lucide-icon>
+                  <h3 class="font-semibold text-gray-900 dark:text-gray-100">{{ goal.goal_name }}</h3>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span [class]="getStatusBadgeClass(goal)" class="px-2 py-1 text-xs font-medium rounded-full">
+                    {{ goal.is_active ? 'Activo' : 'Inactivo' }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Goal Details -->
+              <div class="space-y-2">
+                @if (goal.bonus_type) {
+                  <div class="flex items-center gap-2 text-sm">
+                    <lucide-icon [img]="TrendingUp" size="16" class="text-gray-400 dark:text-gray-500"></lucide-icon>
+                    <span class="text-gray-600 dark:text-gray-400">Tipo:</span>
+                    <span class="font-medium text-gray-900 dark:text-gray-100">{{ goal.bonus_type.type_name }}</span>
+                  </div>
+                }
+
+                @if (goal.team) {
+                  <div class="flex items-center gap-2 text-sm">
+                    <lucide-icon [img]="Users" size="16" class="text-gray-400 dark:text-gray-500"></lucide-icon>
+                    <span class="text-gray-600 dark:text-gray-400">Equipo:</span>
+                    <span class="font-medium text-gray-900 dark:text-gray-100">{{ goal.team.team_name }}</span>
+                  </div>
+                }
+
+                <div class="flex items-center gap-2 text-sm">
+                  <lucide-icon [img]="Calendar" size="16" class="text-gray-400 dark:text-gray-500"></lucide-icon>
+                  <span class="text-gray-600 dark:text-gray-400">Período:</span>
+                  <span class="font-medium text-gray-900 dark:text-gray-100">{{ formatDate(goal.valid_from) }} - {{ goal.valid_until ? formatDate(goal.valid_until) : 'Sin fecha límite' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Progress Section -->
+            <div class="p-6">
+              <!-- Values -->
+              <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Bono</p>
+                  <p class="font-semibold text-gray-900 dark:text-gray-100">
+                    @if (goal.bonus_amount) {
+                      {{ formatCurrency(goal.bonus_amount) }}
+                    } @else if (goal.bonus_percentage) {
+                      {{ goal.bonus_percentage }}%
+                    } @else {
+                      N/A
+                    }
+                  </p>
+                </div>
+                <div>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Tipo Empleado</p>
+                  <p class="font-semibold text-gray-900 dark:text-gray-100">{{ goal.employee_type || 'Todos' }}</p>
+                </div>
+              </div>
+
+              <!-- Achievement Range -->
+              <div class="text-xs text-gray-600 dark:text-gray-400 mb-4">
+                <span>Mínimo: {{ goal.min_achievement }}%</span>
+                @if (goal.max_achievement) {
+                  <span class="ml-2">Máximo: {{ goal.max_achievement }}%</span>
+                }
+              </div>
+
+              <!-- Actions -->
+              <div class="flex items-center gap-2">
+                <button
+                  (click)="onEditBonusGoal(goal)"
+                  class="flex items-center gap-1 px-3 py-1.5 text-sm text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                >
+                  <lucide-icon [img]="Edit" size="14"></lucide-icon>
+                  Editar
+                </button>
+                <button
+                  (click)="onToggleStatus(goal)"
+                  class="flex items-center gap-1 px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                >
+                  {{ goal.is_active ? 'Desactivar' : 'Activar' }}
+                </button>
+                <button
+                  (click)="onDeleteBonusGoal(goal)"
+                  class="flex items-center gap-1 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors ml-auto"
+                >
+                  <lucide-icon [img]="Trash2" size="14"></lucide-icon>
+                  Eliminar
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  }
+</div>

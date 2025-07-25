@@ -52,7 +52,12 @@ interface PassRule {
 
 @Component({
   selector: 'app-user-form',
-  imports: [ReactiveFormsModule, CommonModule, LucideAngularModule, TranslateModule],
+  imports: [
+    ReactiveFormsModule,
+    CommonModule,
+    LucideAngularModule,
+    TranslateModule,
+  ],
   templateUrl: './user-form.component.html', // ← CORRECTO
   animations: [
     // vieja animación de acordeón
@@ -169,6 +174,8 @@ export class UserFormComponent {
   }
 
   photoPreview: string | null = null;
+  cvName: string | null = null;
+  cvUrl: string | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -202,7 +209,7 @@ export class UserFormComponent {
         position: ['', [Validators.required, Validators.maxLength(60)]],
         department: ['', [Validators.required, Validators.maxLength(60)]],
         hire_date: ['', Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)],
-
+        cv_file: [null],
         // ACCESS
         username: ['', [Validators.required, Validators.maxLength(60)]],
         email: ['', [Validators.required, Validators.email]],
@@ -244,6 +251,8 @@ export class UserFormComponent {
         this.form.patchValue(u);
         this.selectedRolesSubject.next(u.roles);
         this.photoPreview = u.photo_url || null;
+        this.cvUrl = u.cv_url || null;
+        this.cvName = u.cv_url ? u.cv_url.split('/').pop() ?? null : null;
       });
 
     // 4) Validación en vivo de contraseñas
@@ -351,6 +360,12 @@ export class UserFormComponent {
     this.photoPreview = file ? URL.createObjectURL(file) : null;
   }
 
+  onCvChange(e: Event): void {
+    const file = (e.target as HTMLInputElement).files?.[0] ?? null;
+    this.fc('cv_file').setValue(file);
+    this.cvName = file ? file.name : null;
+  }
+
   ngOnDestroy() {
     if (this.photoPreview) URL.revokeObjectURL(this.photoPreview);
   }
@@ -433,7 +448,7 @@ export class UserFormComponent {
       case 'contact':
         return ['dni', 'phone', 'address'];
       case 'work':
-        return ['position', 'department', 'hire_date'];
+        return ['position', 'department', 'hire_date', 'cv_file'];
       case 'access':
         return [
           'username',
@@ -460,6 +475,6 @@ export class UserFormComponent {
     this.router.navigate([{ outlets: { modal: null } }], {
       relativeTo: this.route.parent, // Mantén la ruta base (security/users)
       skipLocationChange: true,
-    }); 
+    });
   }
 }

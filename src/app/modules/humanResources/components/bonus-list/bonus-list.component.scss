@@ -1,0 +1,80 @@
+/* Clases personalizadas para los estados de los badges */
+.status-badge.status-pending {
+  @apply bg-yellow-100 text-yellow-800;
+}
+
+.status-badge.status-paid {
+  @apply bg-green-100 text-green-800;
+}
+
+.status-badge.status-cancelled {
+  @apply bg-red-100 text-red-800;
+}
+
+.status-badge.status-processing {
+  @apply bg-blue-100 text-blue-800;
+}
+
+/* Animación personalizada para el spinner */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+/* Mejoras adicionales para hover effects */
+.stat-card:hover {
+  transform: translateY(-2px);
+}
+
+.btn-icon:hover {
+  transform: scale(1.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .table-wrapper {
+    overflow-x: scroll;
+  }
+
+  .table {
+    min-width: 800px;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .header-actions {
+    width: 100%;
+  }
+
+  .header-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Animación sutil para las filas de la tabla */
+.table tbody tr:hover {
+  transform: translateX(2px);
+}
+
+/* Mejora visual para códigos de empleado */
+.employee-code {
+  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+}
+
+/* Estilo especial para montos de comisión */
+.commission-amount {
+  font-variant-numeric: tabular-nums;
+}

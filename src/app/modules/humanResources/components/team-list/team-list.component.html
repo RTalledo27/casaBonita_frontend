@@ -1,0 +1,159 @@
+<div class="p-6">
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Gestión de Equipos</h1>
+      <p class="text-gray-600 mt-1">Administra los equipos de trabajo de la organización</p>
+    </div>
+    <a 
+      routerLink="/hr/teams/create" 
+      class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+    >
+      <lucide-angular [img]="Plus" class="w-4 h-4 mr-2"></lucide-angular>
+      Nuevo Equipo
+    </a>
+  </div>
+
+  <!-- Filters -->
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
+    <div class="flex flex-col sm:flex-row gap-4">
+      <!-- Search -->
+      <div class="flex-1">
+        <div class="relative">
+          <lucide-angular [img]="Search" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4"></lucide-angular>
+          <input
+            type="text"
+            placeholder="Buscar equipos..."
+            class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            [value]="searchTerm()"
+            (input)="onSearchChange($any($event.target).value || '')"
+          />
+        </div>
+      </div>
+
+      <!-- Status Filter -->
+      <div class="sm:w-48">
+        <select
+          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          [value]="statusFilter()"
+          (change)="onStatusFilterChange($any($event.target).value)"
+        >
+          <option value="all">Todos los estados</option>
+          <option value="active">Activos</option>
+          <option value="inactive">Inactivos</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading()" class="flex justify-center items-center py-12">
+    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+    <span class="ml-2 text-gray-600">Cargando equipos...</span>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error()" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+    <div class="flex items-center">
+      <div class="text-red-600">
+        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+        </svg>
+      </div>
+      <div class="ml-3">
+        <p class="text-red-800">{{ error() }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Teams Grid -->
+  <div *ngIf="!loading() && !error()" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div 
+      *ngFor="let team of filteredTeams()" 
+      class="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
+    >
+      <!-- Team Header -->
+      <div class="p-6 border-b border-gray-100">
+        <div class="flex items-start justify-between">
+          <div class="flex-1">
+            <h3 class="text-lg font-semibold text-gray-900 mb-1">{{ team.team_name }}</h3>
+            <div class="flex items-center space-x-4 text-sm text-gray-600">
+              <span [class]="getStatusClass(team.status)" class="font-medium">
+                {{ getStatusLabel(team.status) }}
+              </span>
+              <span class="flex items-center">
+                <lucide-angular [img]="Users" class="w-4 h-4 mr-1"></lucide-angular>
+                <span *ngIf="dataLoaded(); else loadingCount">{{ getTeamMemberCount(team.team_id) }} miembros</span>
+                <ng-template #loadingCount>
+                  <span class="text-gray-400">Cargando...</span>
+                </ng-template>
+              </span>
+            </div>
+          </div>
+          
+          <!-- Status Toggle -->
+          <button
+            (click)="toggleStatus(team)"
+            class="p-1 rounded-full hover:bg-gray-100 transition-colors"
+            [title]="team.status === 'active' ? 'Desactivar equipo' : 'Activar equipo'"
+          >
+            <lucide-angular 
+              [img]="team.status === 'active' ? ToggleRight : ToggleLeft" 
+              [class]="team.status === 'active' ? 'text-green-600' : 'text-gray-400'"
+              class="w-5 h-5"
+            ></lucide-angular>
+          </button>
+        </div>
+      </div>
+
+      <!-- Team Info -->
+      <div class="p-6">
+        <!-- Leader Info -->
+        <div class="flex items-center mb-4">
+          <lucide-angular [img]="Crown" class="w-4 h-4 text-yellow-500 mr-2"></lucide-angular>
+          <span class="text-sm text-gray-600">Líder:</span>
+          <span class="text-sm font-medium text-gray-900 ml-1">{{ getLeaderName(team.team_leader_id) }}</span>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex space-x-2">
+          <a
+            [routerLink]="['/hr/teams/view', team.team_id]"
+            class="flex-1 inline-flex items-center justify-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+          >
+            Ver Detalles
+          </a>
+          <a
+            [routerLink]="['/hr/teams/edit', team.team_id]"
+            class="inline-flex items-center px-3 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors"
+          >
+            <lucide-angular [img]="Edit" class="w-4 h-4 mr-1"></lucide-angular>
+            Editar
+          </a>
+          <button
+            (click)="deleteTeam(team)"
+            class="inline-flex items-center px-3 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700 transition-colors"
+          >
+            <lucide-angular [img]="Trash2" class="w-4 h-4"></lucide-angular>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading() && !error() && filteredTeams().length === 0" class="text-center py-12">
+    <lucide-angular [img]="Users" class="w-12 h-12 text-gray-400 mx-auto mb-4"></lucide-angular>
+    <h3 class="text-lg font-medium text-gray-900 mb-2">No se encontraron equipos</h3>
+    <p class="text-gray-600 mb-4">
+      {{ searchTerm() || statusFilter() !== 'all' ? 'No hay equipos que coincidan con los filtros aplicados.' : 'Aún no hay equipos registrados.' }}
+    </p>
+    <a 
+      routerLink="/hr/teams/create" 
+      class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+    >
+      <lucide-angular [img]="Plus" class="w-4 h-4 mr-2"></lucide-angular>
+      Crear Primer Equipo
+    </a>
+  </div>
+</div>

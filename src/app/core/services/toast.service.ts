@@ -35,6 +35,18 @@ get toasts$(): Observable<Toast[]> {
     setTimeout(() => this.dismiss(id), duration);
   }
 
+  success(message: string, duration = 3000) {
+    this.show(message, 'success', duration);
+  }
+
+  error(message: string, duration = 5000) {
+    this.show(message, 'error', duration);
+  }
+
+  info(message: string, duration = 3000) {
+    this.show(message, 'info', duration);
+  }
+
   dismiss(id: number) {
     this.toasts = this.toasts.filter(t => t.id !== id);
     this.changes.next(this.toasts);

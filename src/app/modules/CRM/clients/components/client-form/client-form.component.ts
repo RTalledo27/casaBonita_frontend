@@ -90,7 +90,7 @@ export class ClientFormComponent {
       date: ['', clientValidators.date],
       occupation: ['', clientValidators.occupation],
       salary: ['', clientValidators.salary],
-      family_group: this.fb.array([]),
+      family_members: this.fb.array([]),
     });
   }
 
@@ -119,8 +119,8 @@ export class ClientFormComponent {
           this.addFamilyMember({
             first_name: m.first_name,
             last_name: m.last_name,
-            doc_number: m.doc_number,
-            relationship: m.relationship,
+            dni: m.dni,
+            relation: m.relation,
           })
         );
       });
@@ -162,7 +162,7 @@ export class ClientFormComponent {
       case 'contact':
         return ['primary_phone', 'secondary_phone', 'email', 'address'];
       case 'family':
-        return [];
+        return ['family_members']; // o simplemente deja []
       case 'other':
         return ['date', 'occupation', 'salary'];
       default:
@@ -174,23 +174,26 @@ export class ClientFormComponent {
     return this.form.get(name)!;
   }
 
-  get familyGroup(): FormArray {
-    return this.form.get('family_group') as FormArray;
+  /* Getter correcto */
+  get familyMembers(): FormArray {
+    return this.form.get('family_members') as FormArray;
   }
 
+  /* Usar el getter donde corresponda */
   addFamilyMember(member?: any) {
-    this.familyGroup.push(
+    console.log('Adding family member:', member);
+    this.familyMembers.push(
       this.fb.group({
         first_name: [member?.first_name || '', Validators.required],
         last_name: [member?.last_name || '', Validators.required],
-        dni: [member?.doc_number || '', Validators.required],
-        relation: [member?.relationship || '', Validators.required],
+        dni: [member?.dni || '', Validators.required], // ✅
+        relation: [member?.relation || '', Validators.required], // ✅
       })
     );
   }
 
   removeFamilyMember(idx: number) {
-    this.familyGroup.removeAt(idx);
+    this.familyMembers.removeAt(idx);
   }
 
   submit() {
@@ -202,13 +205,17 @@ export class ClientFormComponent {
     const formData = new FormData();
     Object.entries(this.form.getRawValue()).forEach(([key, value]) => {
       if (value === null || value === undefined) return;
-      if (key === 'family_group') {
-        formData.append(key, JSON.stringify(value));
+
+      if (key === 'family_members') {
+        (value as any[]).forEach((member, idx) => {
+          Object.entries(member).forEach(([k, v]) => {
+            formData.append(`family_members[${idx}][${k}]`, String(v));
+          });
+        });
       } else {
         formData.append(key, String(value));
       }
     });
-
     if (this.isEditMode) {
       formData.append('_method', 'PATCH');
     }
@@ -217,19 +224,18 @@ export class ClientFormComponent {
       ? this.clientsService.update(this.editingId!, formData)
       : this.clientsService.create(formData);
 
-      request$.subscribe({
-        next: (res) => {
-          if (this.isEditMode) {
-            this.toast.show('Client updated successfully', 'success');
-          }
-          this.submitForm.emit({ data: res, isEdit: this.isEditMode });
-          this.closeModal();
-        },
+    request$.subscribe({
+      next: (res) => {
+        if (this.isEditMode) {
+          this.toast.show('Client updated successfully', 'success');
+        }
+        this.submitForm.emit({ data: res, isEdit: this.isEditMode });
+        this.closeModal();
+      },
       error: (err) => {
         this.serverErrors = err.error?.errors || {};
-       
-      }
-    })
+      },
+    });
   }
 
   onCancel() {
@@ -239,7 +245,6 @@ export class ClientFormComponent {
 
   private closeModal() {
     this.modalService.close(this.route);
-
   }
 
   get currentStep(): number {

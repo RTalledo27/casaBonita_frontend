@@ -7,7 +7,7 @@
         </button>
     </div>
 
-    <app-shared-table [columns]="columns" [data]="interactions"></app-shared-table>
+    <app-shared-table [columns]="columns" [data]="(interactions$|async)||[]"></app-shared-table>
 </div>
 
 <div *ngIf="isModalOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">

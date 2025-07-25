@@ -6,6 +6,9 @@ import { Observable, switchMap } from 'rxjs';
 import { LucideAngularModule, User as userIcon } from 'lucide-angular';
 import { User } from '../../models/user';
 import { UserFormComponent } from '../user-form/user-form.component';
+import { environment } from '../../../../../../environments/environment';
+import { TranslateModule } from '@ngx-translate/core';
+import { ToastService } from '../../../../../core/services/toast.service';
 
 
 
@@ -17,6 +20,7 @@ import { UserFormComponent } from '../user-form/user-form.component';
     DatePipe,
     LucideAngularModule,
     RouterOutlet,
+    TranslateModule,
   ],
   templateUrl: './user-detail.component.html',
   styleUrl: './user-detail.component.scss',
@@ -25,18 +29,20 @@ export class UserDetailComponent {
   isModalOpen = false;
   user$: Observable<any>;
 
+  backendBaseUrl = environment.BACKEND_BASE_URL;
+
   User = userIcon;
 
   constructor(
     private route: ActivatedRoute,
     private usersService: UsersService,
-    private router: Router
+    private router: Router,
+    private toast: ToastService
   ) {
     this.user$ = this.route.paramMap.pipe(
       switchMap((p) => this.usersService.get(+p.get('id')!))
     );
   }
-
 
   onEdit(user: User) {
     this.isModalOpen = true;
@@ -47,7 +53,6 @@ export class UserDetailComponent {
   }
 
   onModalActivate(component: any) {
-    console.log('oa');
     if (component instanceof UserFormComponent) {
       component.modalClosed.subscribe((isOpen: boolean) => {
         this.isModalOpen = isOpen; // Actualiza el estado
@@ -56,12 +61,11 @@ export class UserDetailComponent {
     }
   }
 
-  
-
   onDelete(id: number) {
     if (!confirm('¿Eliminar usuario?')) return;
     this.usersService.delete(id).subscribe(() => {
-      // TODO: redirigir a listado
+      this.toast.show('Usuario eliminado', 'success');
+      this.router.navigate(['/security/users']);
     });
   }
 }

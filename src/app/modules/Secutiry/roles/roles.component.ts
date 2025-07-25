@@ -78,8 +78,8 @@ export class RolesComponent {
     this.roles$ = this.rolesSubject.asObservable(); // Ahora sí, roles$ reacciona a los cambios
     this.getRoles();
 
-   this.pusherService.resubscribe('role', this.events);
-  this.pusherService.subscribeToChannel('role', this.events);
+    this.pusherService.resubscribe('role', this.events);
+    this.pusherService.subscribeToChannel('role', this.events);
     this.setupPusherListeners();
 
     this.route.params.subscribe((params) => {
@@ -144,11 +144,9 @@ export class RolesComponent {
 
   //ABRIR RUTA COMO MODAL:
   onModalActivate(component: any) {
-    console.log('oa');
     if (component instanceof RoleFormComponent) {
       component.modalClosed.subscribe((isOpen: boolean) => {
         this.isModalOpen = isOpen; // Actualiza el estado
-        console.log(this.isModalOpen);
         this.router.navigate(['security/roles']); // Opcional: Navega
       });
 

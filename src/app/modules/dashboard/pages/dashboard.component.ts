@@ -1,81 +1,55 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { ChartConfiguration } from 'chart.js';
-import { LucideAngularModule } from 'lucide-angular';
-import {User, UserCheck,FileWarning} from 'lucide-angular';
-import { BaseChartDirective } from 'ng2-charts';
+  import { DollarSign, FileText, Home, LucideAngularModule, Package, TrendingUp, Users } from 'lucide-angular';
+import { AuthService } from '../../../core/services/auth.service';
+import { FinanceWidgetComponent } from '../components/finance-widget/finance-widget.component';
+import { DashboardCardComponent } from '../../../shared/components/dashboard-card/dashboard-card.component';
 
 @Component({
   selector: 'app-dashboard',
-  standalone: true,  // <--- Componente standalone
-  imports: [LucideAngularModule,    BaseChartDirective,CommonModule,TranslateModule  ],
+  standalone: true, // <--- Componente standalone
+  imports: [
+    LucideAngularModule,
+    CommonModule,
+    TranslateModule,
+    FinanceWidgetComponent,
+    DashboardCardComponent
+  ],
   templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.scss'
+  styleUrl: './dashboard.component.scss',
 })
 export class DashboardComponent {
-  // KPI DATA
-  kpis = [
-    { label: 'totalClients', value: 120, icon: User },
-    { label: 'totalUsers', value: 8, icon: UserCheck },
-    { label: 'activeContracts', value: 45, icon: FileWarning },
-    { label: 'pendingPayments', value: 20, icon: UserCheck },
-  ];
+  user: any;
 
-  // CHART DATA
-  salesChartData: ChartConfiguration<'line'>['data'] = {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
-    datasets: [
-      {
-        data: [10, 25, 18, 40, 30, 50, 45],
-        label: 'Sales',
-        borderColor: '#3b82f6',
-        backgroundColor: '#3b82f6',
-        fill: false,
-        tension: 0.3,
-      },
-    ]
+  // Icons
+  users = Users;
+  fileText = FileText;
+  dollarSign = DollarSign;
+  trendingUp = TrendingUp;
+  package = Package;
+  home = Home;
+
+  // Mock data - En producción esto vendría de servicios
+  dashboardData = {
+    totalClients: 120,
+    totalUsers: 8,
+    activeContracts: 45,
+    pendingPayments: 20,
+    totalLots: 150,
+    availableLots: 85,
   };
 
-  salesChartOptions: ChartConfiguration<'line'>['options'] = {
-    responsive: true,
-    plugins: {
-      legend: {
-        labels: { color: 'rgba(255,255,255,0.7)' },
-      }
-    },
-    scales: {
-      x: {
-        ticks: { color: 'rgba(255,255,255,0.6)' },
-        grid: { color: 'rgba(255,255,255,0.05)' }
-      },
-      y: {
-        ticks: { color: 'rgba(255,255,255,0.6)' },
-        grid: { color: 'rgba(255,255,255,0.05)' }
-      }
-    }
-  };
+  constructor(private authService: AuthService) {}
 
-  lotsChartData: ChartConfiguration<'bar'>['data'] = {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
-    datasets: [
-      {
-        label: 'Lots Sold',
-        data: [2, 3, 2, 4, 5, 3, 4, 2, 5],
-        backgroundColor: '#3b82f6',
-      }
-    ]
-  };
+  ngOnInit() {
+    this.user = this.authService.user$;
+  }
 
-  activity = [
-    { label: 'GitHub Integration setup', icon: '✅' },
-    { label: 'Payment recorded by Admin', icon: '💰' },
-    { label: 'Role assigned to Cardi White', icon: '🔐' },
-  ];
-
-  events = [
-    { label: 'Marketing Meeting', date: 'April 20', icon: '📅' },
-    { label: 'System Maintenance', date: 'April 28', icon: '⚙️' },
-    { label: 'Financial Report', date: 'May 3', icon: '📊' },
-  ];
+  getUserGreeting(): string {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Buenos días';
+    if (hour < 18) return 'Buenas tardes';
+    return 'Buenas noches';
+  }
 }

@@ -18,8 +18,11 @@
     <!-- Filtros -->
     <div class="flex items-center gap-4">
         <input type="text" [(ngModel)]="filter" placeholder="{{ 'crm.clients.search' | translate }}"
-            class="input-text" />
-        <select [(ngModel)]="type" class="input-select">
+            class="input-text border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-indigo-500
+                         placeholder:text-white dark:border-slate-600 dark:bg-slate-800 dark:placeholder:text-indigo-400" />
+
+        <select [(ngModel)]="type" class="input-select border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-indigo-500
+                         dark:border-slate-600 dark:bg-slate-800">
             <option value="">{{ 'common.all' | translate }}</option>
             <option value="lead">{{ 'crm.clients.types.lead' | translate }}</option>
             <option value="client">{{ 'crm.clients.types.client' | translate }}</option>

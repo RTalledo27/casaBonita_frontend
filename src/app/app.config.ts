@@ -40,6 +40,6 @@ export const appConfig: ApplicationConfig = {
           }*/
         },
       })
-    ),
+    ), provideCharts(withDefaultRegisterables()), provideCharts(withDefaultRegisterables()),
   ],
 };

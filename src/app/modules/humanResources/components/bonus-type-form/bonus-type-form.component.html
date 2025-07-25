@@ -1,0 +1,247 @@
+<div class="bonus-type-form max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <!-- Header -->
+    <div class="header bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 mb-8">
+      <div class="flex items-center gap-4">
+        <button
+          (click)="onCancel()"
+          class="btn-icon w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 transition-all duration-200 flex items-center justify-center hover:shadow-md hover:-translate-y-0.5"
+        >
+          <lucide-icon [img]="ArrowLeft" size="20"></lucide-icon>
+        </button>
+        <div>
+          <h1 class="text-3xl font-extrabold text-gray-900 dark:text-gray-100">
+            {{ isEditMode() ? 'Editar Tipo de Bono' : 'Nuevo Tipo de Bono' }}
+          </h1>
+          <p class="text-lg text-gray-500 dark:text-gray-400">
+            {{ isEditMode() ? 'Modifica la información del tipo de bono' : 'Crea un nuevo tipo de bono para el sistema' }}
+          </p>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Error Message -->
+    @if (error()) {
+      <div class="error-message bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4 mb-6 flex items-center gap-2 text-red-800 dark:text-red-200">
+        <lucide-icon [img]="AlertCircle" size="20"></lucide-icon>
+        <p>{{ error() }}</p>
+      </div>
+    }
+  
+    <!-- Loading State -->
+    @if (loading()) {
+      <div class="loading-state bg-white dark:bg-gray-800 p-12 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col items-center justify-center">
+        <div class="loading-spinner w-10 h-10 border-4 border-gray-200 dark:border-gray-600 border-t-blue-600 rounded-full animate-spin mb-4"></div>
+        <p class="text-gray-600 dark:text-gray-300">Cargando datos...</p>
+      </div>
+    } @else {
+      <!-- Form -->
+      <form [formGroup]="bonusTypeForm" (ngSubmit)="onSubmit()" class="space-y-6">
+        <!-- Basic Information -->
+        <div class="form-section bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-300">
+          <div class="section-header flex items-center gap-4 mb-6 pb-4 border-b border-gray-200 dark:border-gray-600">
+            <div class="icon-container bg-blue-100 text-blue-600 w-10 h-10 rounded-lg flex items-center justify-center">
+              <lucide-icon [img]="Settings" size="20"></lucide-icon>
+            </div>
+            <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200">Información Básica</h2>
+          </div>
+  
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Type Code -->
+            <div class="form-group">
+              <label for="type_code" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Código del Tipo *
+              </label>
+              <input
+                id="type_code"
+                type="text"
+                formControlName="type_code"
+                placeholder="Ej: BONUS_SALES"
+                class="form-input w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
+                [class.border-red-500]="isFieldInvalid('type_code')"
+              />
+              @if (isFieldInvalid('type_code')) {
+                <p class="mt-1 text-sm text-red-600">{{ getFieldError('type_code') }}</p>
+              }
+            </div>
+  
+            <!-- Type Name -->
+            <div class="form-group">
+              <label for="type_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Nombre del Tipo *
+              </label>
+              <input
+                id="type_name"
+                type="text"
+                formControlName="type_name"
+                placeholder="Ej: Bono por Ventas"
+                class="form-input w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
+                [class.border-red-500]="isFieldInvalid('type_name')"
+              />
+              @if (isFieldInvalid('type_name')) {
+                <p class="mt-1 text-sm text-red-600">{{ getFieldError('type_name') }}</p>
+              }
+            </div>
+  
+            <!-- Description -->
+            <div class="form-group md:col-span-2">
+              <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Descripción
+              </label>
+              <textarea
+                id="description"
+                formControlName="description"
+                rows="3"
+                placeholder="Descripción detallada del tipo de bono..."
+                class="form-input w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
+              ></textarea>
+            </div>
+          </div>
+        </div>
+  
+        <!-- Calculation Configuration -->
+        <div class="form-section bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg hover:border-purple-300 dark:hover:border-purple-600 transition-all duration-300">
+          <div class="section-header flex items-center gap-4 mb-6 pb-4 border-b border-gray-200 dark:border-gray-600">
+            <div class="icon-container bg-purple-100 text-purple-600 w-10 h-10 rounded-lg flex items-center justify-center">
+              <lucide-icon [img]="Calendar" size="20"></lucide-icon>
+            </div>
+            <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200">Configuración de Cálculo</h2>
+          </div>
+  
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Calculation Method -->
+            <div class="form-group">
+              <label for="calculation_method" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Método de Cálculo *
+              </label>
+              <select
+                id="calculation_method"
+                formControlName="calculation_method"
+                class="form-input w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
+                [class.border-red-500]="isFieldInvalid('calculation_method')"
+              >
+                <option value="">Seleccionar método</option>
+                @for (method of calculationMethods; track method.value) {
+                  <option [value]="method.value">{{ method.label }}</option>
+                }
+              </select>
+              @if (isFieldInvalid('calculation_method')) {
+                <p class="mt-1 text-sm text-red-600">{{ getFieldError('calculation_method') }}</p>
+              }
+            </div>
+  
+            <!-- Frequency -->
+            <div class="form-group">
+              <label for="frequency" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Frecuencia *
+              </label>
+              <select
+                id="frequency"
+                formControlName="frequency"
+                class="form-input w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
+                [class.border-red-500]="isFieldInvalid('frequency')"
+              >
+                <option value="">Seleccionar frecuencia</option>
+                @for (freq of frequencies; track freq.value) {
+                  <option [value]="freq.value">{{ freq.label }}</option>
+                }
+              </select>
+              @if (isFieldInvalid('frequency')) {
+                <p class="mt-1 text-sm text-red-600">{{ getFieldError('frequency') }}</p>
+              }
+            </div>
+          </div>
+  
+          <!-- Configuration Options - Checkboxes Mejorados -->
+          <div class="mt-8 space-y-3">
+            <div class="checkbox-card p-4 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
+              <label class="flex items-center space-x-3 cursor-pointer">
+                <input
+                  id="is_automatic"
+                  type="checkbox"
+                  formControlName="is_automatic"
+                  class="form-checkbox h-5 w-5 text-blue-600 rounded border-gray-300 dark:border-gray-600 focus:ring-blue-500 transition-colors duration-200"
+                />
+                <span class="text-gray-900 dark:text-gray-100 font-medium">Cálculo automático</span>
+              </label>
+            </div>
+  
+            <div class="checkbox-card p-4 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
+              <label class="flex items-center space-x-3 cursor-pointer">
+                <input
+                  id="requires_approval"
+                  type="checkbox"
+                  formControlName="requires_approval"
+                  class="form-checkbox h-5 w-5 text-blue-600 rounded border-gray-300 dark:border-gray-600 focus:ring-blue-500 transition-colors duration-200"
+                />
+                <span class="text-gray-900 dark:text-gray-100 font-medium">Requiere aprobación</span>
+              </label>
+            </div>
+  
+            <div class="checkbox-card p-4 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
+              <label class="flex items-center space-x-3 cursor-pointer">
+                <input
+                  id="is_active"
+                  type="checkbox"
+                  formControlName="is_active"
+                  class="form-checkbox h-5 w-5 text-blue-600 rounded border-gray-300 dark:border-gray-600 focus:ring-blue-500 transition-colors duration-200"
+                />
+                <span class="text-gray-900 dark:text-gray-100 font-medium">Activo</span>
+              </label>
+            </div>
+          </div>
+        </div>
+  
+        <!-- Employee Types - Checkboxes Mejorados -->
+        <div class="form-section bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg hover:border-green-300 dark:hover:border-green-600 transition-all duration-300">
+          <div class="section-header flex items-center gap-4 mb-6 pb-4 border-b border-gray-200 dark:border-gray-600">
+            <div class="icon-container bg-green-100 text-green-600 w-10 h-10 rounded-lg flex items-center justify-center">
+              <lucide-icon [img]="Users" size="20"></lucide-icon>
+            </div>
+            <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200">Tipos de Empleados Aplicables</h2>
+          </div>
+  
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            @for (empType of employeeTypes; track empType.value) {
+              <div class="checkbox-card p-4 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
+                <label class="flex items-center space-x-3 cursor-pointer">
+                  <input
+                    [id]="'emp_type_' + empType.value"
+                    type="checkbox"
+                    [checked]="isEmployeeTypeSelected(empType.value)"
+                    (change)="onEmployeeTypeChange(empType.value, $any($event.target).checked)"
+                    class="form-checkbox h-5 w-5 text-blue-600 rounded border-gray-300 dark:border-gray-600 focus:ring-blue-500 transition-colors duration-200"
+                  />
+                  <span class="text-gray-900 dark:text-gray-100 font-medium">{{ empType.label }}</span>
+                </label>
+              </div>
+            }
+          </div>
+        </div>
+  
+        <!-- Form Actions -->
+        <div class="form-actions mt-8 pt-6 border-t border-gray-200 dark:border-gray-600">
+          <div class="flex justify-end gap-4">
+            <button
+              type="button"
+              (click)="onCancel()"
+              class="btn btn-secondary bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 text-gray-800 dark:text-gray-200 px-8 py-3 rounded-lg font-semibold transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              [disabled]="saving() || bonusTypeForm.invalid"
+              class="btn btn-primary bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-200 flex items-center gap-2 hover:shadow-xl hover:shadow-blue-500/30 hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:shadow-none"
+            >
+              @if (saving()) {
+                <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+              } @else {
+                <lucide-icon [img]="Save" size="16"></lucide-icon>
+              }
+              {{ isEditMode() ? 'Actualizar' : 'Crear' }} Tipo de Bono
+            </button>
+          </div>
+        </div>
+      </form>
+    }
+  </div>

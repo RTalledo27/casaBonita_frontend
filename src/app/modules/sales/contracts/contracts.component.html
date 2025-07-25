@@ -1,1 +1,11 @@
-<p>contracts works!</p>
+<div class="flex justify-between items-center mb-4">
+    <h2>{{ 'sales.contracts.title' | translate }}</h2>
+    <button *ngIf="authService.hasPermission('sales.contracts.store')" (click)="onCreate()"
+        class="btn btn-primary flex items-center gap-1">
+        <lucide-icon [name]="plus"></lucide-icon>
+        {{ 'common.create' | translate }}
+    </button>
+</div>
+<app-shared-table [columns]="columns" [data]="(contracts$ | async) || []" [idField]="idField" (onEdit)="onEdit($event)"
+    [permissionPrefix]="'sales'" componentName="contracts"></app-shared-table>
+<router-outlet name="modal" (activate)="onModalActivate($event)" (deactivate)="onModalDeactivate()"></router-outlet>
