@@ -2,15 +2,17 @@ import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { LucideAngularModule, Plus, Search, Filter, Edit, Trash2, Eye, Users, UserCheck, UserX } from 'lucide-angular';
+import { LucideAngularModule, Plus, Search, Filter, Edit, Trash2, Eye, Users, UserCheck, UserX, Upload, UserPlus } from 'lucide-angular';
 import { EmployeeService, EmployeeFilters } from '../../services/employee.service';
 import { Employee } from '../../models/employee';
 import { ToastService } from '../../../../core/services/toast.service';
+import { GenerateUserModalComponent } from '../generate-user-modal/generate-user-modal.component';
+import { EmployeeImportModalComponent } from '../employee-import-modal/employee-import-modal.component';
 
 @Component({
   selector: 'app-employee-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule],
+  imports: [CommonModule, FormsModule, LucideAngularModule, GenerateUserModalComponent, EmployeeImportModalComponent],
   templateUrl: './employee-list.component.html',
   styleUrls: ['./employee-list.component.scss']
 })
@@ -40,6 +42,13 @@ export class EmployeeListComponent implements OnInit {
   Users = Users;
   UserCheck = UserCheck;
   UserX = UserX;
+  Upload = Upload;
+  UserPlus = UserPlus;
+
+  // Estado para el modal de generar usuario
+  showGenerateUserModal = signal<boolean>(false);
+  selectedEmployeeForUser = signal<Employee | null>(null);
+  showImportModal = signal<boolean>(false);
 
   // Opciones para filtros
   statusOptions = [
@@ -240,5 +249,38 @@ export class EmployeeListComponent implements OnInit {
 
   trackByEmployeeId(index: number, employee: Employee): number {
     return employee.employee_id;
+  }
+
+  // Métodos para importación
+  importEmployees() {
+    this.showImportModal.set(true);
+  }
+
+  closeImportModal() {
+    this.showImportModal.set(false);
+  }
+
+  onImportSuccess() {
+    this.loadEmployees(); // Recargar la lista de empleados
+    this.showImportModal.set(false);
+  }
+
+  // Métodos para generación de usuarios
+  openGenerateUserModal(employee: Employee) {
+    this.selectedEmployeeForUser.set(employee);
+    this.showGenerateUserModal.set(true);
+  }
+
+  closeGenerateUserModal() {
+    this.showGenerateUserModal.set(false);
+    this.selectedEmployeeForUser.set(null);
+  }
+
+  onUserGenerated() {
+    this.loadEmployees(); // Recargar la lista para mostrar el usuario generado
+  }
+
+  hasUser(employee: Employee): boolean {
+    return !!employee.user_id;
   }
 }

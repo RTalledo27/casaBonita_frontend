@@ -17,6 +17,13 @@ export const routes: Routes = [
             (m) => m.LoginComponent
           ),
       },
+      {
+        path: 'change-password',
+        loadComponent: () =>
+          import('./modules/Secutiry/auth/change-password/change-password.component').then(
+            (m) => m.ChangePasswordComponent
+          ),
+      },
       { path: '', redirectTo: 'login', pathMatch: 'full' },
     ],
   },

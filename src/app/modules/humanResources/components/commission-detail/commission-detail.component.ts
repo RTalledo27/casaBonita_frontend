@@ -119,14 +119,16 @@ export class CommissionDetailComponent implements OnInit {
 
   getStatusClass(status: string): string {
     switch (status) {
-      case 'pagado':
-        return 'bg-green-100 text-green-800 border-green-200';
-      case 'pendiente':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'cancelado':
-        return 'bg-red-100 text-red-800 border-red-200';
+      case 'generated':
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
+      case 'partially_paid':
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
+      case 'fully_paid':
+        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+      case 'cancelled':
+        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
     }
   }
 
@@ -145,21 +147,44 @@ export class CommissionDetailComponent implements OnInit {
 
   getStatusLabel(status: string): string {
     switch (status) {
-      case 'pagado':
-        return 'Pagado';
-      case 'pendiente':
-        return 'Pendiente';
-      case 'cancelado':
-        return 'Cancelado';
+      case 'generated':
+        return 'Generada';
+      case 'partially_paid':
+        return 'Parcialmente Pagada';
+      case 'fully_paid':
+        return 'Completamente Pagada';
+      case 'cancelled':
+        return 'Cancelada';
       default:
         return status;
     }
   }
 
+  hasPaymentSplitInfo(): boolean {
+    const commission = this.commission();
+    if (!commission) return false;
+    
+    return !!(commission.commission_period || 
+             commission.payment_period || 
+             commission.payment_percentage || 
+             commission.payment_part || 
+             commission.status);
+  }
+
+  hasRelatedCommissions(): boolean {
+    const commission = this.commission();
+    if (!commission) return false;
+    
+    return !!(commission.parent_commission || 
+             (commission.child_commissions && commission.child_commissions.length > 0));
+  }
+
   formatCurrency(amount: number): string {
-    return new Intl.NumberFormat('es-PE', {
+    return new Intl.NumberFormat('es-CO', {
       style: 'currency',
-      currency: 'PEN'
+      currency: 'COP',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
     }).format(amount);
   }
 
@@ -175,6 +200,46 @@ export class CommissionDetailComponent implements OnInit {
     return this.monthOptions[month - 1] || 'Mes inválido';
   }
 
+  getPaymentStatusClass(status: string): string {
+    switch (status) {
+      case 'pagado':
+        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+      case 'pendiente':
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
+      case 'cancelado':
+        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+      default:
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
+    }
+  }
+
+  getPaymentStatusLabel(status: string): string {
+    switch (status) {
+      case 'pagado':
+        return 'Pagado';
+      case 'pendiente':
+        return 'Pendiente';
+      case 'cancelado':
+        return 'Cancelado';
+      default:
+        return status;
+    }
+  }
+
+  // Nuevos métodos para los campos adicionales
+  getPaymentTypeLabel(paymentType: string): string {
+    switch (paymentType) {
+      case 'first_payment':
+        return 'Primer Pago';
+      case 'second_payment':
+        return 'Segundo Pago';
+      case 'full_payment':
+        return 'Pago Completo';
+      default:
+        return paymentType;
+    }
+  }
+
   canPayCommission(): boolean {
     const commission = this.commission();
     return commission?.payment_status === 'pendiente';
@@ -188,5 +253,22 @@ export class CommissionDetailComponent implements OnInit {
   canDeleteCommission(): boolean {
     const commission = this.commission();
     return commission?.payment_status === 'pendiente';
+  }
+
+  getEmployeeName(): string {
+    const commission = this.commission();
+    if (!commission?.employee?.user) {
+      return 'N/A';
+    }
+    
+    const user = commission.employee.user;
+    const firstName = user.first_name;
+    const lastName = user.last_name;
+    
+    if (firstName && lastName) {
+      return `${firstName} ${lastName}`;
+    }
+    
+    return firstName || lastName || 'N/A';
   }
 }

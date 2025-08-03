@@ -49,9 +49,13 @@ export class LoginComponent {
     this.loading = true;
     const { username, password, remember } = this.loginForm.value;
     this.auth.login(username, password).subscribe({
-      next: (_res: LoginResponse) => {
+      next: (res: LoginResponse) => {
         // aquí podrías usar `remember` para storage
-        this.router.navigateByUrl(this.returnUrl || '/dashboard');
+        if (res.must_change_password) {
+          this.router.navigate(['/change-password']);
+        } else {
+          this.router.navigateByUrl(this.returnUrl || '/dashboard');
+        }
       },
       error: (err) => {
         this.errorMsg = err.error?.message || 'Error de autenticación';

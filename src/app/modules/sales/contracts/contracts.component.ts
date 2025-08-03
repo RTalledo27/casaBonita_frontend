@@ -4,9 +4,10 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
 import { ColumnDef, SharedTableComponent } from '../../../shared/components/shared-table/shared-table.component';
 import { TranslateModule } from '@ngx-translate/core';
-import { LucideAngularModule, Plus } from 'lucide-angular';
+import { LucideAngularModule, Plus, Upload } from 'lucide-angular';
 import { FormsModule } from '@angular/forms';
 import { ContractFormComponent } from './components/contract-form/contract-form.component';
+import { ContractImportComponent } from './components/contract-import/contract-import.component';
 import { AuthService } from '../../../core/services/auth.service';
 import { ModalService } from '../../../core/services/modal.service';
 import { BehaviorSubject } from 'rxjs';
@@ -21,6 +22,7 @@ import { Contract } from '../models/contract';
     TranslateModule,
     LucideAngularModule,
     FormsModule,
+    ContractImportComponent,
   ],
   templateUrl: './contracts.component.html',
   styleUrl: './contracts.component.scss',
@@ -38,12 +40,34 @@ export class ContractsComponent {
       header: 'sales.contracts.totalPrice',
       align: 'right',
     },
+    {
+      field: 'down_payment',
+      header: 'sales.contracts.downPayment',
+      align: 'right',
+    },
+    {
+      field: 'financing_amount',
+      header: 'sales.contracts.financingAmount',
+      align: 'right',
+    },
+    {
+      field: 'bpp',
+      header: 'sales.contracts.bpp',
+      align: 'right',
+    },
+    {
+      field: 'bfh',
+      header: 'sales.contracts.bfh',
+      align: 'right',
+    },
     { field: 'currency', header: 'sales.contracts.currency' },
     { field: 'status', header: 'sales.contracts.status' },
   ];
   idField = 'contract_id';
   plus = Plus;
+  upload = Upload;
   isModalOpen = false;
+  isImportModalOpen = false;
 
   constructor(
     private contractService: ContractsService,
@@ -91,5 +115,18 @@ export class ContractsComponent {
   onModalDeactivate() {
     this.isModalOpen = false;
     this.modalService.close(this.route);
+  }
+
+  onImport() {
+    this.isImportModalOpen = true;
+  }
+
+  onImportModalClose() {
+    this.isImportModalOpen = false;
+  }
+
+  onImportCompleted() {
+    this.loadContracts();
+    this.isImportModalOpen = false;
   }
 }

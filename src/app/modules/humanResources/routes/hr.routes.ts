@@ -28,6 +28,14 @@ export const HR_ROUTES: Routes = [
           {
             path: 'sales-detail',
             loadComponent: () => import('../components/sales-detail/sales-detail.component').then(m => m.SalesDetailComponent)
+          },
+          {
+            path: 'advisor-commissions',
+            loadComponent: () => import('../components/advisor-commissions/advisor-commissions.component').then(m => m.AdvisorCommissionsComponent)
+          },
+          {
+            path: 'split-payment/:id',
+            loadComponent: () => import('../components/commission-split-payment/commission-split-payment.component').then(m => m.CommissionSplitPaymentComponent)
           }
         ]
       },

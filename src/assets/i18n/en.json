@@ -139,6 +139,7 @@
     "cancel": "Cancel",
     "back": "Back",
     "delete": "Delete",
+    "close": "Close",
     "saved": "Saved successfully",
     "deleted": "Deleted successfully",
     "errorLoad": "Unable to load data.",
@@ -271,6 +272,43 @@
       "generalTitle": "General Info",
       "financesTitle": "Finances",
       "subsidiesTitle": "Subsidies"
+    }
+  },
+  "sales": {
+    "contracts": {
+      "title": "Contracts",
+      "create": "Create Contract",
+      "contractNumber": "Contract #",
+      "reservation": "Reservation",
+      "signDate": "Sign Date",
+      "totalPrice": "Total Price",
+      "currency": "Currency",
+      "status": "Status",
+      "import": {
+        "button": "Import Contracts",
+        "title": "Import Contracts from Excel",
+        "template": {
+          "title": "Import Template",
+          "description": "Download the sample template to know the required format",
+          "download": "Download Template"
+        },
+        "selectFile": "Select File",
+        "dragDrop": "Drag and drop your file here, or click to select",
+        "supportedFormats": "Supported formats: .xlsx, .xls, .csv",
+        "validating": "Validating file structure...",
+        "processing": "Processing import...",
+        "importSync": "Import Now",
+        "importAsync": "Import in Background",
+        "importHelp": "Import Now: Immediate process (recommended for small files). Background: Asynchronous process (recommended for large files)",
+        "processed": "Records processed",
+        "showHistory": "Show Import History",
+        "hideHistory": "Hide History",
+        "history": "Import History",
+        "noHistory": "No previous imports",
+        "totalRows": "Total rows",
+        "processedRows": "Processed",
+        "errorRows": "With errors"
+      }
     }
   }
 }

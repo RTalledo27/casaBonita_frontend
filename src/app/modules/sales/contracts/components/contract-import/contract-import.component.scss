@@ -1,0 +1,67 @@
+.drag-over {
+  @apply border-blue-400 bg-blue-50;
+}
+
+.file-upload-area {
+  transition: all 0.2s ease-in-out;
+}
+
+.file-upload-area:hover {
+  @apply border-gray-400;
+}
+
+.import-status {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.history-item {
+  transition: all 0.2s ease-in-out;
+}
+
+.history-item:hover {
+  @apply shadow-sm;
+}
+
+.modal-backdrop {
+  backdrop-filter: blur(2px);
+}
+
+.status-badge {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.status-completed {
+  @apply bg-green-100 text-green-800;
+}
+
+.status-processing {
+  @apply bg-yellow-100 text-yellow-800;
+}
+
+.status-failed {
+  @apply bg-red-100 text-red-800;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

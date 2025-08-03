@@ -19,7 +19,7 @@ import { LucideAngularModule, Home, User, ShieldCheck, Package, Layers, DollarSi
 })
 export class SidebarComponent {
   navItems = [
-    { label: 'dashboard', icon: 'home', route: '/dashboard' },
+    { label: 'dashboard', icon: Home, route: '/dashboard' },
     {
       label: 'crm',
       icon: User,

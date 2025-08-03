@@ -1,6 +1,6 @@
 
 
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Employee } from '../models/employee';
 import { map, Observable } from 'rxjs';
@@ -8,8 +8,6 @@ import { API_ROUTES } from '../../../core/constants/api.routes';
 import { User } from '../../Secutiry/users/models/user';
 import { Team } from '../models/team';
 import { AdvisorDashboard } from '../components/advisor-dashboard/advisor-dashboard.component';
-import { AuthService } from '../../../core/services/auth.service';
-import { tokenInterceptor } from '../../../core/interceptors/token.interceptor';
 
 export interface EmployeeFilters {
   search?: string;
@@ -56,7 +54,7 @@ export interface TopPerformer {
   providedIn: 'root',
 })
 export class EmployeeService {
-  constructor(private http: HttpClient,private authService: AuthService) {}
+  constructor(private http: HttpClient) {}
 
 
   
@@ -197,5 +195,50 @@ export class EmployeeService {
         { params }
       )
       .pipe(map((response) => response.data));
+  }
+
+  // Métodos para importación de empleados
+  validateImport(formData: FormData): Promise<any> {
+    // El token interceptor se encarga de agregar automáticamente el header de autorización
+    return this.http.post<any>(`${API_ROUTES.HR.EMPLOYEES.replace('/employees', '/employee-import')}/validate`, formData).toPromise();
+  }
+
+  importEmployees(formData: FormData): Promise<any> {
+    // El token interceptor se encarga de agregar automáticamente el header de autorización
+    return this.http.post<any>(`${API_ROUTES.HR.EMPLOYEES.replace('/employees', '/employee-import')}/import`, formData).toPromise();
+  }
+
+  downloadTemplate(): void {
+    const url = `${API_ROUTES.HR.EMPLOYEES.replace('/employees', '/employee-import')}/template`;
+    
+    // El token interceptor se encarga de agregar automáticamente el header de autorización
+    this.http.get(url, {
+      responseType: 'blob'
+    }).subscribe({
+      next: (blob) => {
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = 'plantilla_empleados.xlsx';
+        link.click();
+        window.URL.revokeObjectURL(downloadUrl);
+      },
+      error: (error) => {
+        console.error('Error al descargar plantilla:', error);
+      }
+    });
+  }
+
+
+
+  // Métodos para generación de usuarios
+  getEmployeesWithoutUser(): Observable<Employee[]> {
+    return this.http
+      .get<ApiResponse<Employee[]>>(`${API_ROUTES.HR.EMPLOYEES}/without-user`)
+      .pipe(map((response) => response.data));
+  }
+
+  generateUser(employeeId: number, userData: any): Promise<any> {
+    return this.http.post<any>(`${API_ROUTES.HR.EMPLOYEES}/${employeeId}/generate-user`, userData).toPromise();
   }
 }

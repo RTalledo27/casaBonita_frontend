@@ -7,6 +7,7 @@ export const API_ROUTES = {
     LOGIN: `${BASE}/v1/security/login`,
     LOGOUT: `${BASE}/v1/security/logout`,
     PROFILE: `${BASE}/v1/security/me`,
+    CHANGE_PASSWORD: `${BASE}/v1/security/change-password`,
   },
 
   SECURITY: {
@@ -35,6 +36,7 @@ export const API_ROUTES = {
   SALES: {
     RESERVATIONS: `${BASE}/v1/sales/reservations`,
     CONTRACTS: `${BASE}/v1/sales/contracts`,
+    CONTRACT_IMPORT: `${BASE}/v1/sales/import/contracts`,
   },
   FINANCE: {
     BUDGETS: `${BASE}/v1/finance/budgets`,

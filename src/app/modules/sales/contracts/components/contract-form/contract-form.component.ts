@@ -1,12 +1,13 @@
 import { Component, EventEmitter, Output } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ContractsService } from '../../../services/contracts.service';
 import { ActivatedRoute } from '@angular/router';
 import { ModalService } from '../../../../../core/services/modal.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-contract-form',
-  imports: [],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './contract-form.component.html',
   styleUrl: './contract-form.component.scss',
 })
@@ -29,6 +30,21 @@ export class ContractFormComponent {
       sign_date: ['', Validators.required],
       total_price: ['', Validators.required],
       status: ['active'],
+      
+      // Campos financieros migrados desde Lot
+      funding: [0],
+      bpp: [0],
+      bfh: [0],
+      initial_quota: [0],
+      
+      // Campos financieros existentes
+      down_payment: [0],
+      financing_amount: [0],
+      interest_rate: [0],
+      term_months: [0],
+      monthly_payment: [0],
+      balloon_payment: [0],
+      currency: ['S/'],
     });
   }
 

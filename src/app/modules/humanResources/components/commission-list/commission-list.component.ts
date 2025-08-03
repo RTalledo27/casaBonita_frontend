@@ -2,10 +2,24 @@ import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { LucideAngularModule, DollarSign, Calendar, Filter, Search, Eye, CheckCircle, XCircle, Clock, TrendingUp, Plus, Edit, Trash2, FileText } from 'lucide-angular';
+import { LucideAngularModule, DollarSign, Calendar, Filter, Search, Eye, CheckCircle, XCircle, Clock, TrendingUp, Plus, Edit, Trash2, FileText, ChevronRight, Users } from 'lucide-angular';
 import { CommissionService } from '../../services/commission.service';
 import { Commission } from '../../models/commission';
 import { ToastService } from '../../../../core/services/toast.service';
+import { Employee } from '../../models/employee';
+
+// Interface para agrupar comisiones por asesor
+interface AdvisorCommissionGroup {
+  employee: Employee;
+  commissions: Commission[];
+  totalAmount: number;
+  paidAmount: number;
+  pendingAmount: number;
+  paidCount: number;
+  pendingCount: number;
+  overallStatus: 'all_paid' | 'partial_paid' | 'all_pending';
+  paymentPercentage: number;
+}
 
 @Component({
   selector: 'app-commission-list',
@@ -46,13 +60,16 @@ export class CommissionListComponent implements OnInit {
   Edit = Edit;
   Trash2 = Trash2;
   FileText = FileText;
+  ChevronRight = ChevronRight;
+  Users = Users;
 
   // Opciones para filtros
   statusOptions = [
     { value: '', label: 'Todos los estados' },
-    { value: 'pendiente', label: 'Pendiente' },
-    { value: 'pagado', label: 'Pagada' },
-    { value: 'cancelado', label: 'Cancelada' }
+    { value: 'generated', label: 'Generada' },
+    { value: 'partially_paid', label: 'Parcialmente Pagada' },
+    { value: 'fully_paid', label: 'Completamente Pagada' },
+    { value: 'cancelled', label: 'Cancelada' }
   ];
 
   monthOptions = [
@@ -87,9 +104,73 @@ export class CommissionListComponent implements OnInit {
         commission.employee?.user?.last_name?.toLowerCase().includes(search) ||
         commission.employee?.employee_code?.toLowerCase().includes(search);
 
-      const matchesStatus = !status || commission.payment_status === status;
+      const matchesStatus = !status || commission.status === status;
 
       return matchesSearch && matchesStatus;
+    });
+  });
+
+  // Computed para comisiones agrupadas por asesor
+  groupedCommissions = computed(() => {
+    const commissions = this.filteredCommissions();
+    const grouped = new Map<number, AdvisorCommissionGroup>();
+    
+    commissions.forEach((commission) => {
+      console.log("ESTRUCTURA DE COMISION:",commission);
+      const employeeId = commission.employee.employee_id;
+      console.log("IDE DE EMPLEADO:",employeeId);
+      if (!grouped.has(employeeId)) {
+        grouped.set(employeeId, {
+          employee: commission.employee,
+          commissions: [],
+          totalAmount: 0,
+          paidAmount: 0,
+          pendingAmount: 0,
+          paidCount: 0,
+          pendingCount: 0,
+          overallStatus: 'all_pending',
+          paymentPercentage: 0
+        });
+      }
+
+      const group = grouped.get(employeeId)!;
+      group.commissions.push(commission);
+      
+      const amount = this.parseAmount(commission.commission_amount);
+      group.totalAmount += amount;
+      
+      if (commission.status === 'fully_paid') {
+        group.paidAmount += amount;
+        group.paidCount++;
+      } else if (commission.status === 'generated' || commission.status === 'partially_paid') {
+        group.pendingAmount += amount;
+        group.pendingCount++;
+      }
+    });
+
+    // Calcular estado general y porcentaje de pago
+    grouped.forEach(group => {
+      if (group.paidCount === group.commissions.length) {
+        group.overallStatus = 'all_paid';
+        group.paymentPercentage = 100;
+      } else if (group.paidCount > 0) {
+        group.overallStatus = 'partial_paid';
+        group.paymentPercentage = Math.round((group.paidCount / group.commissions.length) * 100);
+      } else {
+        group.overallStatus = 'all_pending';
+        group.paymentPercentage = 0;
+      }
+    });
+
+    return Array.from(grouped.values()).sort((a, b) => {
+      // Ordenar por estado (pendientes primero) y luego por nombre
+      if (a.overallStatus !== b.overallStatus) {
+        const statusOrder = { 'all_pending': 0, 'partial_paid': 1, 'all_paid': 2 };
+        return statusOrder[a.overallStatus] - statusOrder[b.overallStatus];
+      }
+      const nameA = `${a.employee?.user?.first_name} ${a.employee?.user?.last_name}`.toLowerCase();
+      const nameB = `${b.employee?.user?.first_name} ${b.employee?.user?.last_name}`.toLowerCase();
+      return nameA.localeCompare(nameB);
     });
   });
 
@@ -100,13 +181,13 @@ export class CommissionListComponent implements OnInit {
 
   paidAmount = computed(() => {
     return this.filteredCommissions()
-      .filter(c => c.payment_status === 'pagado')
+      .filter(c => c.status === 'fully_paid')
       .reduce((sum, commission) => sum + (commission.commission_amount || 0), 0);
   });
 
   pendingAmount = computed(() => {
     const filtered = this.filteredCommissions();
-    const pending = filtered.filter(c => c.payment_status === 'pendiente');
+    const pending = filtered.filter(c => c.status === 'generated' || c.status === 'partially_paid');
     
     return pending.reduce((sum, commission) => {
       const amount = commission.commission_amount;
@@ -130,33 +211,18 @@ export class CommissionListComponent implements OnInit {
     this.error.set(null);
 
     try {
+      // Crear el período de comisión en formato YYYY-MM
+      const commissionPeriod = `${this.selectedYear()}-${this.selectedMonth().toString().padStart(2, '0')}`;
+      
       const response = await this.commissionService.getCommissions({
-        period_month: this.selectedMonth(),
-        period_year: this.selectedYear(),
-        payment_status: this.selectedStatus(),
+        commission_period: commissionPeriod,
+        status: this.selectedStatus(),
         search: this.searchTerm(),
         page: this.currentPage(),
         per_page: 20
       }).toPromise();
       
       if (response) {
-        console.log('=== COMMISSION DATA FROM API ===');
-        console.log('Total commissions received:', response.data.length);
-        
-        // Check pending commissions specifically
-        const pendingFromAPI = response.data.filter(c => c.payment_status === 'pendiente');
-        console.log('Pending commissions from API:', pendingFromAPI.length);
-        
-        let apiPendingTotal = 0;
-        pendingFromAPI.forEach(c => {
-          const amount = typeof c.commission_amount === 'string' ? parseFloat(c.commission_amount) : (c.commission_amount || 0);
-          apiPendingTotal += amount;
-          console.log(`API Commission ${c.commission_id}: ${c.commission_amount} (${typeof c.commission_amount}) -> ${amount}`);
-        });
-        
-        console.log('API Pending Total:', apiPendingTotal);
-        console.log('=== END API DATA ===');
-        
         this.commissions.set(response.data);
         this.totalPages.set(response.meta?.last_page || 1);
         this.totalCommissions.set(response.meta?.total || 0);
@@ -223,9 +289,11 @@ export class CommissionListComponent implements OnInit {
 
     this.processing.set(true);
     try {
+      // Crear el período de comisión en formato YYYY-MM
+      const commissionPeriod = `${this.selectedYear()}-${this.selectedMonth().toString().padStart(2, '0')}`;
+      
       await this.commissionService.processCommissionsForPeriod(
-        this.selectedYear(),
-        this.selectedMonth()
+        commissionPeriod
       ).toPromise();
       
       this.toastService.success('Comisiones procesadas exitosamente');
@@ -239,24 +307,28 @@ export class CommissionListComponent implements OnInit {
   }
 
   canPayCommission(commission: Commission): boolean {
-    return commission.payment_status === 'pendiente';
+    return commission.status === 'generated' || commission.status === 'partially_paid';
   }
 
   canEditCommission(commission: Commission): boolean {
-    return commission.payment_status !== 'pagado';
+    return commission.status !== 'fully_paid';
   }
 
   canDeleteCommission(commission: Commission): boolean {
-    return commission.payment_status !== 'pagado';
+    return commission.status !== 'fully_paid';
+  }
+
+  canCreateSplitPayment(commission: Commission): boolean {
+    return commission.status === 'generated' || commission.status === 'partially_paid';
   }
 
   async payCommission(commission: Commission) {
-    if (!confirm(`¿Confirmar el pago de la comisión de ${commission.employee?.user?.first_name} ${commission.employee?.user?.last_name}?`)) {
+    if (!confirm(`¿Confirmar el pago completo de la comisión de ${commission.employee?.user?.first_name} ${commission.employee?.user?.last_name}?`)) {
       return;
     }
 
     try {
-      await this.commissionService.payCommissions([commission.commission_id]).toPromise();
+      await this.commissionService.markMultipleAsPaid([commission.commission_id]).toPromise();
       this.toastService.success('Comisión pagada exitosamente');
       this.loadCommissions();
     } catch (error) {
@@ -265,13 +337,19 @@ export class CommissionListComponent implements OnInit {
     }
   }
 
+  createSplitPayment(commission: Commission) {
+    this.router.navigate(['/hr/commissions/split-payment', commission.commission_id]);
+  }
+
   getStatusClass(status: string): string {
     switch (status) {
-      case 'pagado':
+      case 'fully_paid':
         return 'bg-green-100 text-green-800';
-      case 'pendiente':
+      case 'partially_paid':
+        return 'bg-blue-100 text-blue-800';
+      case 'generated':
         return 'bg-yellow-100 text-yellow-800';
-      case 'cancelado':
+      case 'cancelled':
         return 'bg-red-100 text-red-800';
       default:
         return 'bg-gray-100 text-gray-800';
@@ -280,12 +358,14 @@ export class CommissionListComponent implements OnInit {
 
   getStatusLabel(status: string): string {
     switch (status) {
-      case 'pagado':
-        return 'Pagado';
-      case 'pendiente':
-        return 'Pendiente';
-      case 'cancelado':
-        return 'Cancelado';
+      case 'fully_paid':
+        return 'Completamente Pagada';
+      case 'partially_paid':
+        return 'Parcialmente Pagada';
+      case 'generated':
+        return 'Generada';
+      case 'cancelled':
+        return 'Cancelada';
       default:
         return status;
     }
@@ -293,11 +373,13 @@ export class CommissionListComponent implements OnInit {
 
   getStatusIcon(status: string) {
     switch (status) {
-      case 'pagado':
+      case 'fully_paid':
         return CheckCircle;
-      case 'pendiente':
+      case 'partially_paid':
         return Clock;
-      case 'cancelado':
+      case 'generated':
+        return Clock;
+      case 'cancelled':
         return XCircle;
       default:
         return Clock;
@@ -350,5 +432,73 @@ export class CommissionListComponent implements OnInit {
 
   trackByCommissionId(index: number, commission: Commission): number {
     return commission.commission_id;
+  }
+
+  trackByAdvisorId(index: number, advisorGroup: AdvisorCommissionGroup): number {
+    return advisorGroup.employee.employee_id || index;
+  }
+
+  // Función auxiliar para parsear montos
+  parseAmount(amount: number | string): number {
+    if (typeof amount === 'string') {
+      const cleanAmount = amount.toString().replace(/[^\d.-]/g, '');
+      const firstNumber = cleanAmount.split('.')[0] + '.' + (cleanAmount.split('.')[1] || '0');
+      return parseFloat(firstNumber) || 0;
+    }
+    return amount || 0;
+  }
+
+  // Funciones para el estado general del asesor
+  getOverallStatusClass(status: string): string {
+    switch (status) {
+      case 'all_paid':
+        return 'bg-green-100 text-green-800 border-green-200';
+      case 'partial_paid':
+        return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'all_pending':
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  }
+
+  getOverallStatusLabel(status: string): string {
+    switch (status) {
+      case 'all_paid':
+        return 'Completamente Pagado';
+      case 'partial_paid':
+        return 'Parcialmente Pagado';
+      case 'all_pending':
+        return 'Pendiente de Pago';
+      default:
+        return 'Estado Desconocido';
+    }
+  }
+
+  getOverallStatusIcon(status: string) {
+    switch (status) {
+      case 'all_paid':
+        return CheckCircle;
+      case 'partial_paid':
+        return Clock;
+      case 'all_pending':
+        return Clock;
+      default:
+        return Clock;
+    }
+  }
+
+  // Navegar a la vista de comisiones del asesor
+  viewAdvisorCommissions(advisorGroup: AdvisorCommissionGroup) {
+    // Navegar a la nueva ruta de comisiones del asesor
+    console.log(advisorGroup);
+    this.router.navigate(['/hr/commissions/advisor-commissions'], {
+      queryParams: {
+        month: this.selectedMonth(),
+        year: this.selectedYear(),
+        employeeId: advisorGroup.employee.employee_id,
+        employee: advisorGroup.employee.full_name,
+      }
+    });
   }
 }

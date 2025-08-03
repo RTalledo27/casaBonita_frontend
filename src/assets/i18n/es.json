@@ -138,6 +138,7 @@
     "cancel": "Cancelar",
     "back": "Volver",
     "delete": "Eliminar",
+    "close": "Cerrar",
     "saved": "Guardado correctamente",
     "deleted": "Eliminado correctamente",
     "errorLoad": "No se pudieron cargar los datos.",
@@ -259,6 +260,43 @@
       "generalTitle": "Datos Generales",
       "financesTitle": "Finanzas",
       "subsidiesTitle": "Subsidios"
+    }
+  },
+  "sales": {
+    "contracts": {
+      "title": "Contratos",
+      "create": "Crear Contrato",
+      "contractNumber": "N° Contrato",
+      "reservation": "Reserva",
+      "signDate": "Fecha de Firma",
+      "totalPrice": "Precio Total",
+      "currency": "Moneda",
+      "status": "Estado",
+      "import": {
+        "button": "Importar Contratos",
+        "title": "Importar Contratos desde Excel",
+        "template": {
+          "title": "Plantilla de Importación",
+          "description": "Descarga la plantilla de ejemplo para conocer el formato requerido",
+          "download": "Descargar Plantilla"
+        },
+        "selectFile": "Seleccionar Archivo",
+        "dragDrop": "Arrastra y suelta tu archivo aquí, o haz clic para seleccionar",
+        "supportedFormats": "Formatos soportados: .xlsx, .xls, .csv",
+        "validating": "Validando estructura del archivo...",
+        "processing": "Procesando importación...",
+        "importSync": "Importar Ahora",
+        "importAsync": "Importar en Segundo Plano",
+        "importHelp": "Importar Ahora: Proceso inmediato (recomendado para archivos pequeños). Segundo Plano: Proceso asíncrono (recomendado para archivos grandes)",
+        "processed": "Registros procesados",
+        "showHistory": "Ver Historial de Importaciones",
+        "hideHistory": "Ocultar Historial",
+        "history": "Historial de Importaciones",
+        "noHistory": "No hay importaciones previas",
+        "totalRows": "Total filas",
+        "processedRows": "Procesadas",
+        "errorRows": "Con errores"
+      }
     }
   }
 }

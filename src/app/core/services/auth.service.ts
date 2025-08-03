@@ -10,22 +10,30 @@ export interface UserResource {
   email: string;
   permissions: string[];
   roles?: string[];
+  must_change_password?: boolean;
   //POR EL MOMENTO ESOS DATOS
 }
 
 export interface LoginResponse {
   token: string;
   user: UserResource;
+  must_change_password?: boolean;
 }
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   userSubject = new BehaviorSubject<UserResource | null>(null);
   user$ = this.userSubject.asObservable();
+  private mustChangePasswordSubject = new BehaviorSubject<boolean>(false);
+  mustChangePassword$ = this.mustChangePasswordSubject.asObservable();
 
   constructor(private http: HttpClient) {
     const stored = localStorage.getItem('user');
-    if (stored) this.userSubject.next(JSON.parse(stored));
+    const mustChangePassword = localStorage.getItem('must_change_password');
+    if (stored) {
+      this.userSubject.next(JSON.parse(stored));
+      this.mustChangePasswordSubject.next(mustChangePassword === 'true');
+    }
   }
 
   login(username: string, password: string): Observable<LoginResponse> {
@@ -35,7 +43,9 @@ export class AuthService {
         tap(res => {
           localStorage.setItem('auth_token', res.token);
           localStorage.setItem('user', JSON.stringify(res.user));
+          localStorage.setItem('must_change_password', String(!!res.must_change_password));
           this.userSubject.next(res.user);
+          this.mustChangePasswordSubject.next(!!res.must_change_password);
         })
       );
   }
@@ -43,7 +53,9 @@ export class AuthService {
   logout(): void {
     localStorage.removeItem('auth_token');
     localStorage.removeItem('user');
+    localStorage.removeItem('must_change_password');
     this.userSubject.next(null);
+    this.mustChangePasswordSubject.next(false);
   }
 
   get token(): string | null {
@@ -66,5 +78,23 @@ export class AuthService {
 
   isAdmin(): boolean {
     return this.hasRole('admin');
+  }
+
+  get mustChangePassword(): boolean {
+    return this.mustChangePasswordSubject.value;
+  }
+
+  changePassword(currentPassword: string, newPassword: string, newPasswordConfirmation: string): Observable<any> {
+    return this.http.post(API_ROUTES.AUTH.CHANGE_PASSWORD, {
+      current_password: currentPassword,
+      new_password: newPassword,
+      new_password_confirmation: newPasswordConfirmation
+    }).pipe(
+      tap(() => {
+        // Después de cambiar la contraseña exitosamente, actualizar el estado
+        localStorage.setItem('must_change_password', 'false');
+        this.mustChangePasswordSubject.next(false);
+      })
+    );
   }
 }
