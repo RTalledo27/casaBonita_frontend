@@ -75,4 +75,37 @@ export class CollectionService {
       `${API_ROUTES.COLLECTIONS.REPORTS}?start_date=${startDate}&end_date=${endDate}`
     );
   }
+
+  /**
+   * Obtiene los pagos del cliente por contrato
+   */
+  getCustomerPaymentsByContract(contractId: number): Observable<CustomerPayment[]> {
+    return this.http.get<CustomerPayment[]>(
+      `${API_ROUTES.COLLECTIONS.CUSTOMER_PAYMENTS}/by-contract/${contractId}`
+    );
+  }
+
+  /**
+   * Obtiene todos los pagos de clientes con filtros
+   */
+  getCustomerPayments(filters?: {
+    contract_id?: number;
+    client_id?: number;
+    status?: string;
+    date_from?: string;
+    date_to?: string;
+  }): Observable<CustomerPayment[]> {
+    let params = '';
+    if (filters) {
+      const queryParams = Object.entries(filters)
+        .filter(([_, value]) => value !== undefined && value !== null && value !== '')
+        .map(([key, value]) => `${key}=${encodeURIComponent(value.toString())}`)
+        .join('&');
+      params = queryParams ? `?${queryParams}` : '';
+    }
+    
+    return this.http.get<CustomerPayment[]>(
+      `${API_ROUTES.COLLECTIONS.CUSTOMER_PAYMENTS}${params}`
+    );
+  }
 }

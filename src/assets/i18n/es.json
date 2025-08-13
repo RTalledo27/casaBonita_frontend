@@ -37,7 +37,43 @@
       "title": "Inventario"
     },
     "sales": {
-      "title": "Ventas"
+      "title": "Ventas",
+      "reservations": {
+        "title": "Reservas"
+      },
+      "contracts": {
+        "title": "Contratos"
+      },
+      "invoices": {
+        "title": "Facturas"
+      },
+      "payments": {
+        "title": "Pagos"
+      }
+    },
+    "finance": {
+      "title": "Finanzas",
+      "budgets": {
+        "title": "Presupuestos"
+      },
+      "cash-flows": {
+        "title": "Flujos de Efectivo"
+      },
+      "cost-centers": {
+        "title": "Centros de Costo"
+      }
+    },
+    "collections": {
+      "title": "Cobranzas",
+      "accounts-receivable": {
+        "title": "Cuentas por Cobrar"
+      },
+      "payments": {
+        "title": "Pagos"
+      },
+      "reports": {
+        "title": "Reportes"
+      }
     },
     "accounting": {
       "title": "Contabilidad"
@@ -100,7 +136,12 @@
     "salesOverview": "Resumen de Ventas",
     "lotsSold": "Lotes Vendidos",
     "recentActivities": "Actividades Recientes",
-    "upcomingEvents": "Próximos Eventos"
+    "upcomingEvents": "Próximos Eventos",
+    "finance": {
+      "activeBudgets": "Presupuestos Activos",
+      "accountsReceivable": "Cuentas por Cobrar",
+      "overduePayments": "Pagos Vencidos"
+    }
   },
   "users": {
     "title": "Usuarios",
@@ -127,7 +168,11 @@
       "lastName": "Apellido",
       "birthDate": "Fecha de Nacimiento",
       "profilePicture": "Foto de Perfil"
-    }
+    },
+    "import": {
+      "button": "Importar Usuarios"
+    },
+    "cvFile": "Archivo CV"
   },
   "common": {
     "all": "Todos",
@@ -139,6 +184,10 @@
     "back": "Volver",
     "delete": "Eliminar",
     "close": "Cerrar",
+    "save": "Guardar",
+    "loading": "Cargando...",
+    "download": "Descargar",
+    "select": "Seleccionar",
     "saved": "Guardado correctamente",
     "deleted": "Eliminado correctamente",
     "errorLoad": "No se pudieron cargar los datos.",
@@ -256,10 +305,19 @@
       "funding": "Financiamiento",
       "BPP": "BPP",
       "BFH": "BFH",
-      "media": "Multimedia",
       "generalTitle": "Datos Generales",
       "financesTitle": "Finanzas",
-      "subsidiesTitle": "Subsidios"
+      "subsidiesTitle": "Subsidios",
+      "areasTitle": "Áreas",
+      "media": {
+        "title": "Multimedia",
+        "type": {
+          "foto": "Foto",
+          "plano": "Plano",
+          "video": "Video",
+          "doc": "Documento"
+        }
+      }
     }
   },
   "sales": {
@@ -297,6 +355,53 @@
         "processedRows": "Procesadas",
         "errorRows": "Con errores"
       }
-    }
-  }
-}
+    },
+    "reservations": {
+      "title": "Reservas",
+      "create": "Crear Reserva",
+      "client": "Cliente",
+      "lot": "Lote",
+      "date": "Fecha",
+      "status": "Estado"
+    },
+    "payments": {
+      "title": "Pagos",
+      "create": "Crear Pago",
+      "amount": "Monto",
+      "date": "Fecha",
+      "method": "Método",
+      "status": "Estado"
+    },
+    "invoices": {
+      "title": "Facturas",
+      "create": "Crear Factura",
+      "number": "Número",
+      "date": "Fecha",
+      "amount": "Monto",
+      "status": "Estado"
+     }
+   },
+   "finance": {
+     "title": "Finanzas",
+     "budgets": "Presupuestos",
+     "expenses": "Gastos",
+     "income": "Ingresos",
+     "reports": "Reportes"
+   },
+   "collections": {
+     "title": "Cobranzas",
+     "accounts": "Cuentas",
+     "receivable": "Por Cobrar",
+     "payments": "Pagos",
+     "reports": "Reportes"
+   },
+   "validation": {
+     "required": "Este campo es obligatorio",
+     "maxLength": "Máximo {{value}} caracteres",
+     "minLength": "Mínimo {{value}} caracteres",
+     "email": "Formato de email inválido",
+     "birthDate": {
+       "required": "La fecha de nacimiento es obligatoria"
+     }
+   }
+ }

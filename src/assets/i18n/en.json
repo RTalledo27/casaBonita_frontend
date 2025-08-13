@@ -37,7 +37,43 @@
       "title": "Inventory"
     },
     "sales": {
-      "title": "Sales"
+      "title": "Sales",
+      "reservations": {
+        "title": "Reservations"
+      },
+      "contracts": {
+        "title": "Contracts"
+      },
+      "invoices": {
+        "title": "Invoices"
+      },
+      "payments": {
+        "title": "Payments"
+      }
+    },
+    "finance": {
+      "title": "Finance",
+      "budgets": {
+        "title": "Budgets"
+      },
+      "cash-flows": {
+        "title": "Cash Flows"
+      },
+      "cost-centers": {
+        "title": "Cost Centers"
+      }
+    },
+    "collections": {
+      "title": "Collections",
+      "accounts-receivable": {
+        "title": "Accounts Receivable"
+      },
+      "payments": {
+        "title": "Payments"
+      },
+      "reports": {
+        "title": "Reports"
+      }
     },
     "accounting": {
       "title": "Accounting"
@@ -100,7 +136,12 @@
     "salesOverview": "Sales Overview",
     "lotsSold": "Lots Sold",
     "recentActivities": "Recent Activities",
-    "upcomingEvents": "Upcoming Events"
+    "upcomingEvents": "Upcoming Events",
+    "finance": {
+      "activeBudgets": "Active Budgets",
+      "accountsReceivable": "Accounts Receivable",
+      "overduePayments": "Overdue Payments"
+    }
   },
   "users": {
     "title": "Users",
@@ -126,11 +167,15 @@
       "firstName": "First Name",
       "lastName": "Last Name",
       "birthDate": "Birth Date",
-      "profilePicture": "Foto de Perfil"
-    }
+      "profilePicture": "Profile Picture"
+    },
+    "import": {
+      "button": "Import Users"
+    },
+    "cvFile": "CV File"
   },
   "common": {
-    "title": "Todos",
+    "title": "All",
     "all": "All",
     "new": "New",
     "create": "Create",
@@ -140,6 +185,10 @@
     "back": "Back",
     "delete": "Delete",
     "close": "Close",
+    "save": "Save",
+    "loading": "Loading...",
+    "download": "Download",
+    "select": "Select",
     "saved": "Saved successfully",
     "deleted": "Deleted successfully",
     "errorLoad": "Unable to load data.",
@@ -149,7 +198,7 @@
     "step": "Step",
     "of": "of",
     "noData": "No records found",
-    "next": "next"
+    "next": "Next"
   },
   "security": {
     "access": "System Access",
@@ -268,10 +317,19 @@
       "funding": "Funding",
       "BPP": "BPP",
       "BFH": "BFH",
-      "media": "Media",
       "generalTitle": "General Info",
       "financesTitle": "Finances",
-      "subsidiesTitle": "Subsidies"
+      "subsidiesTitle": "Subsidies",
+      "areasTitle": "Areas",
+      "media": {
+        "title": "Media",
+        "type": {
+          "foto": "Photo",
+          "plano": "Plan",
+          "video": "Video",
+          "doc": "Document"
+        }
+      }
     }
   },
   "sales": {
@@ -309,6 +367,53 @@
         "processedRows": "Processed",
         "errorRows": "With errors"
       }
-    }
-  }
-}
+    },
+    "reservations": {
+      "title": "Reservations",
+      "create": "Create Reservation",
+      "client": "Client",
+      "lot": "Lot",
+      "date": "Date",
+      "status": "Status"
+    },
+    "payments": {
+      "title": "Payments",
+      "create": "Create Payment",
+      "amount": "Amount",
+      "date": "Date",
+      "method": "Method",
+      "status": "Status"
+    },
+    "invoices": {
+      "title": "Invoices",
+      "create": "Create Invoice",
+      "number": "Number",
+      "date": "Date",
+      "amount": "Amount",
+      "status": "Status"
+     }
+   },
+   "finance": {
+     "title": "Finance",
+     "budgets": "Budgets",
+     "expenses": "Expenses",
+     "income": "Income",
+     "reports": "Reports"
+   },
+   "collections": {
+     "title": "Collections",
+     "accounts": "Accounts",
+     "receivable": "Receivable",
+     "payments": "Payments",
+     "reports": "Reports"
+   },
+   "validation": {
+     "required": "This field is required",
+     "maxLength": "Maximum {{value}} characters",
+     "minLength": "Minimum {{value}} characters",
+     "email": "Invalid email format",
+     "birthDate": {
+       "required": "Birth date is required"
+     }
+   }
+ }

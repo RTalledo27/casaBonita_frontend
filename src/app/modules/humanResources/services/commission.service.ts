@@ -52,6 +52,8 @@ export interface CommissionFilters {
   search?: string;
   page?: number;
   per_page?: number;
+  include_split_payments?: boolean;
+  only_split_payments?: boolean;
 }
 
 export interface CommissionResponse {

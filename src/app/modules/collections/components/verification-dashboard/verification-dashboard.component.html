@@ -1,0 +1,247 @@
+<div class="verification-dashboard">
+  <!-- Header -->
+  <div class="header-section mb-6">
+    <div class="flex justify-between items-center mb-4">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900">Dashboard de Verificaciones</h1>
+        <p class="text-gray-600 mt-1">Monitoreo en tiempo real del sistema de verificación de comisiones</p>
+      </div>
+      <div class="flex gap-2 items-center">
+        <!-- Indicador de conexión -->
+        <div class="connection-status flex items-center gap-2 px-3 py-2 rounded-lg" 
+             [class.bg-green-100]="isNotificationsConnected()" 
+             [class.text-green-800]="isNotificationsConnected()"
+             [class.bg-red-100]="!isNotificationsConnected()" 
+             [class.text-red-800]="!isNotificationsConnected()">
+          <mat-icon class="text-sm">{{ isNotificationsConnected() ? 'wifi' : 'wifi_off' }}</mat-icon>
+          <span class="text-sm font-medium">{{ isNotificationsConnected() ? 'Conectado' : 'Desconectado' }}</span>
+          <button *ngIf="!isNotificationsConnected()" 
+                  mat-icon-button 
+                  (click)="reconnectNotifications()" 
+                  matTooltip="Reconectar notificaciones"
+                  class="!w-6 !h-6">
+            <mat-icon class="text-sm">refresh</mat-icon>
+          </button>
+        </div>
+        
+        <button 
+          mat-icon-button 
+          (click)="refreshData()"
+          matTooltip="Actualizar datos"
+          [disabled]="loading">
+          <mat-icon [class.animate-spin]="loading">refresh</mat-icon>
+        </button>
+        <button 
+          mat-raised-button 
+          color="primary" 
+          (click)="processAutomaticVerifications()"
+          [disabled]="loading">
+          <mat-icon>autorenew</mat-icon>
+          Procesar Automáticas
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Métricas principales -->
+  <div class="metrics-grid mb-8" *ngIf="stats">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <!-- Total Pendientes -->
+      <div class="metric-card bg-yellow-50 border-yellow-200">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-yellow-800">Pendientes</p>
+            <p class="text-3xl font-bold text-yellow-900">{{ stats.total_pending }}</p>
+            <p class="text-sm text-yellow-600 mt-1">
+              {{ formatCurrency(stats.pending_amount) }}
+            </p>
+          </div>
+          <div class="p-3 bg-yellow-100 rounded-full">
+            <mat-icon class="text-yellow-600 text-2xl">pending</mat-icon>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Total Verificadas -->
+      <div class="metric-card bg-green-50 border-green-200">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-green-800">Verificadas</p>
+            <p class="text-3xl font-bold text-green-900">{{ stats.total_verified }}</p>
+            <p class="text-sm text-green-600 mt-1">
+              {{ formatCurrency(stats.verified_amount) }}
+            </p>
+          </div>
+          <div class="p-3 bg-green-100 rounded-full">
+            <mat-icon class="text-green-600 text-2xl">check_circle</mat-icon>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Total Fallidas -->
+      <div class="metric-card bg-red-50 border-red-200">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-red-800">Fallidas</p>
+            <p class="text-3xl font-bold text-red-900">{{ stats.total_failed }}</p>
+            <p class="text-sm text-red-600 mt-1">Requieren atención</p>
+          </div>
+          <div class="p-3 bg-red-100 rounded-full">
+            <mat-icon class="text-red-600 text-2xl">error</mat-icon>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Tasa de Verificación -->
+      <div class="metric-card bg-blue-50 border-blue-200">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-blue-800">Tasa de Verificación</p>
+            <p class="text-3xl font-bold text-blue-900">{{ formatPercentage(verificationRate) }}</p>
+            <div class="flex items-center mt-1">
+              <mat-icon 
+                [ngClass]="getTrendColor(verificationRate)"
+                class="text-sm mr-1">
+                {{ getTrendIcon(verificationRate) }}
+              </mat-icon>
+              <span 
+                class="text-sm"
+                [ngClass]="getTrendColor(verificationRate)">
+                {{ verificationRate > 80 ? 'Excelente' : verificationRate > 60 ? 'Bueno' : 'Necesita mejora' }}
+              </span>
+            </div>
+          </div>
+          <div class="p-3 bg-blue-100 rounded-full">
+            <mat-icon class="text-blue-600 text-2xl">assessment</mat-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Gráficos y análisis -->
+  <div class="charts-section mb-8">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- Gráfico de distribución por estado -->
+      <mat-card class="chart-card">
+        <mat-card-header>
+          <mat-card-title>Distribución por Estado</mat-card-title>
+          <mat-card-subtitle>Resumen visual de verificaciones</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="chart-container" style="height: 300px;">
+            <canvas 
+              *ngIf="statusChartData"
+              baseChart
+              [data]="statusChartData"
+              [options]="statusChartOptions"
+              type="doughnut">
+            </canvas>
+            <div *ngIf="!statusChartData" class="flex items-center justify-center h-full">
+              <mat-spinner diameter="40"></mat-spinner>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+      
+      <!-- Gráfico de montos -->
+      <mat-card class="chart-card">
+        <mat-card-header>
+          <mat-card-title>Montos por Estado</mat-card-title>
+          <mat-card-subtitle>Comparación de valores monetarios</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="chart-container" style="height: 300px;">
+            <canvas 
+              *ngIf="amountChartData"
+              baseChart
+              [data]="amountChartData"
+              [options]="amountChartOptions"
+              type="bar">
+            </canvas>
+            <div *ngIf="!amountChartData" class="flex items-center justify-center h-full">
+              <mat-spinner diameter="40"></mat-spinner>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+  
+  <!-- Verificaciones recientes -->
+  <mat-card class="recent-verifications">
+    <mat-card-header>
+      <mat-card-title>Verificaciones Recientes</mat-card-title>
+      <mat-card-subtitle>Últimas 5 comisiones que requieren atención</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <div *ngIf="recentVerifications.length > 0; else noRecentVerifications">
+        <div class="verification-list">
+          <div 
+            *ngFor="let verification of recentVerifications" 
+            class="verification-item p-4 border border-gray-200 rounded-lg mb-3 hover:bg-gray-50 transition-colors">
+            <div class="flex items-center justify-between">
+              <div class="flex-1">
+                <div class="flex items-center mb-2">
+                  <span class="font-mono text-sm text-gray-600 mr-3">
+                    #{{ verification.commission_id }}
+                  </span>
+                  <span 
+                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border"
+                    [ngClass]="getStatusClass(verification.payment_verification_status)">
+                    {{ getStatusText(verification.payment_verification_status) }}
+                  </span>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                  <div>
+                    <span class="text-gray-600">Empleado:</span>
+                    <p class="font-medium">{{ verification.employee_name }}</p>
+                  </div>
+                  <div>
+                    <span class="text-gray-600">Cliente:</span>
+                    <p class="font-medium">{{ verification.client_name }}</p>
+                  </div>
+                  <div>
+                    <span class="text-gray-600">Monto:</span>
+                    <p class="font-semibold text-green-600">
+                      {{ verification.commission_amount | currency:'USD':'symbol':'1.2-2' }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="flex items-center ml-4">
+                <span class="text-xs text-gray-500">
+                  {{ verification.created_at | date:'dd/MM/yyyy' }}
+                </span>
+                <button 
+                  mat-icon-button 
+                  color="primary"
+                  matTooltip="Ver detalles">
+                  <mat-icon>arrow_forward</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <ng-template #noRecentVerifications>
+        <div class="text-center py-8">
+          <mat-icon class="text-gray-400 text-6xl mb-4">check_circle_outline</mat-icon>
+          <p class="text-gray-500 text-lg">No hay verificaciones pendientes</p>
+          <p class="text-gray-400 text-sm">Todas las comisiones están al día</p>
+        </div>
+      </ng-template>
+    </mat-card-content>
+  </mat-card>
+  
+  <!-- Loading overlay -->
+  <div *ngIf="loading" class="loading-overlay">
+    <div class="loading-content">
+      <mat-spinner diameter="60"></mat-spinner>
+      <p class="mt-4 text-gray-600">Cargando datos del dashboard...</p>
+    </div>
+  </div>
+</div>

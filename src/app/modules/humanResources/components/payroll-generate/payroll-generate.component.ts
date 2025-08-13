@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { LucideAngularModule, Calendar, Users, DollarSign, FileText, ArrowLeft, Send, Save, Calculator } from 'lucide-angular';
+import { LucideAngularModule, Calendar, Users, DollarSign, FileText, ArrowLeft, Send, Save, Calculator, ChevronLeft, ChevronRight } from 'lucide-angular';
 import { ToastService } from '../../../../core/services/toast.service';
 import { PayrollService, PayrollGenerateRequest } from '../../services/payroll.service';
 import { EmployeeService } from '../../services/employee.service';
@@ -25,12 +25,31 @@ export class PayrollGenerateComponent implements OnInit {
   readonly Send = Send;
   readonly Save = Save;
   readonly Calculator = Calculator;
+  readonly ChevronLeft = ChevronLeft;
+  readonly ChevronRight = ChevronRight;
 
   payrollForm: FormGroup;
   employees: Employee[] = [];
   selectedEmployees: number[] = [];
+  selectedEmployeesInfo = new Map<number, { id: number; name: string; salary: number }>(); // Información de empleados seleccionados de todas las páginas
   isLoading = false;
   isGenerating = false;
+
+  // Pagination variables
+  currentPage = signal(1);
+  totalPages = signal(1);
+  totalEmployees = signal(0);
+  perPage = 12; // 12 empleados por página para mantener el grid de 3 columnas
+
+  // Computed properties for pagination
+  paginationInfo = computed(() => {
+    const current = this.currentPage();
+    const total = this.totalPages();
+    const totalEmps = this.totalEmployees();
+    const start = (current - 1) * this.perPage + 1;
+    const end = Math.min(current * this.perPage, totalEmps);
+    return { start, end, total: totalEmps };
+  });
 
   constructor(
     private fb: FormBuilder,
@@ -65,9 +84,19 @@ export class PayrollGenerateComponent implements OnInit {
 
   private loadEmployees(): void {
     this.isLoading = true;
-    this.employeeService.getEmployees({ employment_status: 'activo' }).subscribe({
+    const filters = {
+      employment_status: 'activo',
+      page: this.currentPage(),
+      per_page: this.perPage
+    };
+
+    this.employeeService.getEmployees(filters).subscribe({
       next: (response) => {
         this.employees = response.data || [];
+        if (response.meta) {
+          this.totalPages.set(response.meta.last_page);
+          this.totalEmployees.set(response.meta.total);
+        }
         this.isLoading = false;
       },
       error: (error) => {
@@ -81,18 +110,67 @@ export class PayrollGenerateComponent implements OnInit {
   toggleEmployeeSelection(employeeId: number): void {
     const index = this.selectedEmployees.indexOf(employeeId);
     if (index > -1) {
+      // Deseleccionar: remover de ambas estructuras
       this.selectedEmployees.splice(index, 1);
+      this.selectedEmployeesInfo.delete(employeeId);
     } else {
+      // Seleccionar: agregar a ambas estructuras
       this.selectedEmployees.push(employeeId);
+      const employee = this.employees.find(emp => emp.employee_id === employeeId);
+      if (employee) {
+        this.selectedEmployeesInfo.set(employeeId, {
+          id: employee.employee_id,
+          name: employee.user?.name || 'Sin nombre',
+          salary: employee.base_salary || 0
+        });
+      }
     }
   }
 
   selectAllEmployees(): void {
-    this.selectedEmployees = this.employees.map(emp => emp.employee_id);
+    // Seleccionar todos los empleados de la página actual
+    this.employees.forEach(employee => {
+      if (!this.selectedEmployees.includes(employee.employee_id)) {
+        this.selectedEmployees.push(employee.employee_id);
+        this.selectedEmployeesInfo.set(employee.employee_id, {
+          id: employee.employee_id,
+          name: employee.user?.name || 'Sin nombre',
+          salary: employee.base_salary || 0
+        });
+      }
+    });
+  }
+
+  selectAllEmployeesGlobal(): void {
+    // Cargar todos los empleados para seleccionarlos
+    this.employeeService.getAllEmployees({ employment_status: 'activo' }).subscribe({
+      next: (response) => {
+        // Limpiar selecciones previas
+        this.selectedEmployees = [];
+        this.selectedEmployeesInfo.clear();
+        
+        // Agregar todos los empleados
+        response.data?.forEach(employee => {
+          this.selectedEmployees.push(employee.employee_id);
+          this.selectedEmployeesInfo.set(employee.employee_id, {
+            id: employee.employee_id,
+            name: employee.user?.name || 'Sin nombre',
+            salary: employee.base_salary || 0
+          });
+        });
+        
+        this.toastService.success(`${this.selectedEmployees.length} empleados seleccionados`);
+      },
+      error: (error) => {
+        console.error('Error loading all employees:', error);
+        this.toastService.error('Error al cargar todos los empleados');
+      }
+    });
   }
 
   clearSelection(): void {
     this.selectedEmployees = [];
+    this.selectedEmployeesInfo.clear();
   }
 
   isEmployeeSelected(employeeId: number): boolean {
@@ -109,14 +187,51 @@ export class PayrollGenerateComponent implements OnInit {
   }
 
   getEstimatedTotal(): number {
-    return this.selectedEmployees.reduce((total, employeeId) => {
-      const employee = this.employees.find(emp => emp.employee_id === employeeId);
-      return total + (employee?.base_salary || 0);
+    return Array.from(this.selectedEmployeesInfo.values()).reduce((total, employeeInfo) => {
+      return total + employeeInfo.salary;
     }, 0);
   }
 
   onEmployeeToggle(employeeId: number): void {
     this.toggleEmployeeSelection(employeeId);
+  }
+
+  onPageChange(page: number): void {
+    if (page >= 1 && page <= this.totalPages()) {
+      this.currentPage.set(page);
+      this.loadEmployees();
+    }
+  }
+
+  getPageNumbers(): number[] {
+    const total = this.totalPages();
+    const current = this.currentPage();
+    const maxVisible = 5;
+    
+    if (total <= maxVisible) {
+      return Array.from({ length: total }, (_, i) => i + 1);
+    }
+    
+    let start = Math.max(1, current - Math.floor(maxVisible / 2));
+    let end = Math.min(total, start + maxVisible - 1);
+    
+    if (end - start + 1 < maxVisible) {
+      start = Math.max(1, end - maxVisible + 1);
+    }
+    
+    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+  }
+
+  getPaginationInfo() {
+    const start = (this.currentPage() - 1) * this.perPage + 1;
+    const end = Math.min(this.currentPage() * this.perPage, this.totalEmployees());
+    const total = this.totalEmployees();
+    
+    return {
+      start,
+      end,
+      total
+    };
   }
 
   onSubmit(): void {

@@ -114,6 +114,9 @@
               <h3 class="commission-title text-lg font-semibold text-gray-900 dark:text-gray-100">
                 Comisión #{{ commission.commission_id }}
               </h3>
+              <span [class]="'commission-type-indicator text-sm px-2 py-1 rounded-full w-fit font-medium ' + getCommissionTypeClass(commission)">
+                {{ getCommissionHierarchyLabel(commission) }}
+              </span>
               <span class="commission-type text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded-full w-fit">
                 {{ getCommissionTypeLabel(commission.commission_type) }}
               </span>

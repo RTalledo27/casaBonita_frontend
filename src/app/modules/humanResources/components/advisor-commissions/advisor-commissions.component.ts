@@ -301,6 +301,34 @@ export class AdvisorCommissionsComponent implements OnInit {
     }
   }
 
+  isParentCommission(commission: Commission): boolean {
+    return !commission.parent_commission_id;
+  }
+
+  isSplitCommission(commission: Commission): boolean {
+    return !!commission.parent_commission_id;
+  }
+
+  getCommissionHierarchyLabel(commission: Commission): string {
+    if (this.isParentCommission(commission)) {
+      return commission.child_commissions && commission.child_commissions.length > 0 
+        ? 'Comisión General (con divisiones)' 
+        : 'Comisión General';
+    } else {
+      return `División ${commission.payment_part || 'N/A'}`;
+    }
+  }
+
+  getCommissionTypeClass(commission: Commission): string {
+    if (this.isParentCommission(commission)) {
+      return commission.child_commissions && commission.child_commissions.length > 0
+        ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+        : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
+    } else {
+      return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200';
+    }
+  }
+
   formatCurrency(amount: number | string): string {
     const numericAmount = typeof amount === 'string' ? this.parseAmount(amount) : amount;
     return new Intl.NumberFormat('es-PE', {

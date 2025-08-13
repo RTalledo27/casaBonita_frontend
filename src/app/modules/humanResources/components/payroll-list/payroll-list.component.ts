@@ -2,7 +2,7 @@ import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { LucideAngularModule, FileText, Plus, Filter, Search, Eye, Download, CheckCircle, XCircle, Clock, Calculator, DollarSign, Calendar, Edit } from 'lucide-angular';
+import { LucideAngularModule, FileText, Plus, Filter, Search, Eye, Download, CheckCircle, XCircle, Clock, Calculator, DollarSign, Calendar, Edit, ChevronLeft, ChevronRight, ChevronFirst, ChevronLast } from 'lucide-angular';
 import { ToastService } from '../../../../core/services/toast.service';
 import { PayrollService } from '../../services/payroll.service';
 import { Payroll, PayrollSearchFilters } from '../../models/payroll';
@@ -31,7 +31,15 @@ export class PayrollListComponent implements OnInit {
   currentPage = signal<number>(1);
   totalPages = signal<number>(1);
   totalItems = signal<number>(0);
-  itemsPerPage = 10;
+  itemsPerPage = signal<number>(10);
+  
+  // Signals para totales globales
+  totalGrossGlobal = signal<number>(0);
+  totalNetGlobal = signal<number>(0);
+  totalDeductionsGlobal = signal<number>(0);
+  
+  // Opciones para elementos por página
+  itemsPerPageOptions = [10, 25, 50, 100];
 
   // Iconos de Lucide
   FileText = FileText;
@@ -47,6 +55,10 @@ export class PayrollListComponent implements OnInit {
   DollarSign = DollarSign;
   Calendar = Calendar;
   Edit = Edit;
+  ChevronLeft = ChevronLeft;
+  ChevronRight = ChevronRight;
+  ChevronFirst = ChevronFirst;
+  ChevronLast = ChevronLast;
 
   // Opciones para filtros
   statusOptions = [
@@ -79,34 +91,22 @@ export class PayrollListComponent implements OnInit {
     return { value: year, label: year.toString() };
   });
 
-  // Computed para nóminas filtradas
+  // Computed para nóminas (ya filtradas desde el backend)
   filteredPayrolls = computed(() => {
-    const payrolls = this.payrolls();
-    const search = this.searchTerm().toLowerCase();
-    const status = this.selectedStatus();
-
-    return payrolls.filter(payroll => {
-      const matchesSearch = !search || 
-        payroll.employee?.full_name?.toLowerCase().includes(search) ||
-        payroll.employee?.employee_code?.toLowerCase().includes(search);
-
-      const matchesStatus = !status || payroll.status === status;
-
-      return matchesSearch && matchesStatus;
-    });
+    return this.payrolls();
   });
 
-  // Computed para estadísticas
+  // Computed para estadísticas (usando totales globales)
   totalGross = computed(() => {
-    return this.filteredPayrolls().reduce((sum, payroll) => sum + (payroll.gross_salary || 0), 0);
+    return this.totalGrossGlobal();
   });
 
   totalNet = computed(() => {
-    return this.filteredPayrolls().reduce((sum, payroll) => sum + (payroll.net_salary || 0), 0);
+    return this.totalNetGlobal();
   });
 
   totalDeductions = computed(() => {
-    return this.filteredPayrolls().reduce((sum, payroll) => sum + (payroll.total_deductions || 0), 0);
+    return this.totalDeductionsGlobal();
   });
 
   ngOnInit() {
@@ -121,23 +121,35 @@ export class PayrollListComponent implements OnInit {
       status: this.selectedStatus() || undefined,
       period: this.selectedMonth() && this.selectedYear() 
         ? `${this.selectedYear()}-${this.selectedMonth().toString().padStart(2, '0')}` 
-        : undefined
+        : undefined,
+      page: this.currentPage(),
+      per_page: this.itemsPerPage(),
+      search: this.searchTerm() || undefined
     };
 
     this.payrollService.getPayrolls(filters).subscribe({
       next: (response) => {
         if (response.success && response.data) {
-          // Si la respuesta tiene paginación
-          if (Array.isArray(response.data)) {
-            this.payrolls.set(response.data);
+          // Manejar respuesta paginada
+          this.payrolls.set(response.data);
+          
+          // Configurar metadatos de paginación
+          if (response.meta) {
+            this.totalItems.set(response.meta.total || 0);
+            this.totalPages.set(response.meta.last_page || 1);
+          } else {
             this.totalItems.set(response.data.length);
             this.totalPages.set(1);
+          }
+          
+          // Usar totales globales del backend
+          if (response.totals) {
+            this.totalGrossGlobal.set(response.totals.total_gross || 0);
+            this.totalNetGlobal.set(response.totals.total_net || 0);
+            this.totalDeductionsGlobal.set(response.totals.total_deductions || 0);
           } else {
-            // Si la respuesta tiene estructura de paginación
-            const paginatedData = response.data as any;
-            this.payrolls.set(paginatedData.data || []);
-            this.totalItems.set(paginatedData.total || 0);
-            this.totalPages.set(paginatedData.last_page || 1);
+            // Fallback: calcular con datos actuales si no hay totales del backend
+            this.calculateGlobalTotals(response.data);
           }
         } else {
           throw new Error(response.message || 'Error al cargar las nóminas');
@@ -154,7 +166,8 @@ export class PayrollListComponent implements OnInit {
   }
 
   onSearch() {
-    // El filtrado se hace en tiempo real con computed
+    this.currentPage.set(1);
+    this.loadPayrolls();
   }
 
   onFilterChange() {
@@ -163,8 +176,76 @@ export class PayrollListComponent implements OnInit {
   }
 
   onPageChange(page: number) {
-    this.currentPage.set(page);
+    if (page >= 1 && page <= this.totalPages()) {
+      this.currentPage.set(page);
+      this.loadPayrolls();
+    }
+  }
+
+  onItemsPerPageChange() {
+    this.currentPage.set(1);
     this.loadPayrolls();
+  }
+
+  goToFirstPage() {
+    this.onPageChange(1);
+  }
+
+  goToLastPage() {
+    this.onPageChange(this.totalPages());
+  }
+
+  getPageNumbers(): number[] {
+    const current = this.currentPage();
+    const total = this.totalPages();
+    const pages: number[] = [];
+    
+    if (total <= 7) {
+      // Si hay 7 páginas o menos, mostrar todas
+      for (let i = 1; i <= total; i++) {
+        pages.push(i);
+      }
+    } else {
+      // Lógica para mostrar páginas con elipsis
+      if (current <= 4) {
+        // Mostrar primeras páginas
+        for (let i = 1; i <= 5; i++) {
+          pages.push(i);
+        }
+        pages.push(-1); // Elipsis
+        pages.push(total);
+      } else if (current >= total - 3) {
+        // Mostrar últimas páginas
+        pages.push(1);
+        pages.push(-1); // Elipsis
+        for (let i = total - 4; i <= total; i++) {
+          pages.push(i);
+        }
+      } else {
+        // Mostrar páginas del medio
+        pages.push(1);
+        pages.push(-1); // Elipsis
+        for (let i = current - 1; i <= current + 1; i++) {
+          pages.push(i);
+        }
+        pages.push(-1); // Elipsis
+        pages.push(total);
+      }
+    }
+    
+    return pages;
+  }
+
+  getPaginationInfo(): string {
+    const start = (this.currentPage() - 1) * this.itemsPerPage() + 1;
+    const end = Math.min(this.currentPage() * this.itemsPerPage(), this.totalItems());
+    const total = this.totalItems();
+    
+    if (total === 0) {
+      return 'No hay registros';
+    }
+    
+    return `Mostrando ${start}-${end} de ${total} registros`;
   }
 
   generatePayroll() {
@@ -370,6 +451,20 @@ export class PayrollListComponent implements OnInit {
 
   trackByPayrollId(index: number, payroll: Payroll): number {
     return payroll.payroll_id;
+  }
+
+  trackByPageNumber(index: number, page: number): number {
+    return page;
+  }
+
+  private calculateGlobalTotals(payrolls: Payroll[]) {
+    const totalGross = payrolls.reduce((sum, payroll) => sum + (payroll.gross_salary || 0), 0);
+    const totalNet = payrolls.reduce((sum, payroll) => sum + (payroll.net_salary || 0), 0);
+    const totalDeductions = payrolls.reduce((sum, payroll) => sum + (payroll.total_deductions || 0), 0);
+    
+    this.totalGrossGlobal.set(totalGross);
+    this.totalNetGlobal.set(totalNet);
+    this.totalDeductionsGlobal.set(totalDeductions);
   }
 
   // Métodos de utilidad para verificar acciones disponibles

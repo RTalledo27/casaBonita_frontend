@@ -36,6 +36,10 @@ export const HR_ROUTES: Routes = [
           {
             path: 'split-payment/:id',
             loadComponent: () => import('../components/commission-split-payment/commission-split-payment.component').then(m => m.CommissionSplitPaymentComponent)
+          },
+          {
+            path: 'verification',
+            loadComponent: () => import('../components/commission-verification/commission-verification.component').then(m => m.CommissionVerificationComponent)
           }
         ]
       },

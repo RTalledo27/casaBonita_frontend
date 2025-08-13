@@ -18,7 +18,7 @@
       <!-- Actions -->
       <div *ngIf="commission() && !loading()" class="actions flex flex-wrap items-center gap-2 sm:gap-3">
         <button 
-          *ngIf="canPayCommission()"
+          *ngIf="canPayCommission() && !isParentCommission(commission()!)"
           (click)="payCommission()"
           class="btn btn-success bg-green-600 hover:bg-green-700 text-white px-3 sm:px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 text-sm sm:text-base">
           <lucide-angular [img]="CheckCircle" size="16"></lucide-angular>

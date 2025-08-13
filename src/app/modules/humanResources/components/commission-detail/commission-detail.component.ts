@@ -59,6 +59,12 @@ export class CommissionDetailComponent implements OnInit {
       next: (response) => {
         if (response.success) {
           this.commission.set(response.data);
+          
+          // Si es una comisión padre (general), redirigir a sales-detail
+          if (this.isParentCommission(response.data)) {
+            this.redirectToSalesDetail(response.data);
+            return;
+          }
         } else {
           this.error.set('No se pudo cargar la comisión');
         }
@@ -270,5 +276,25 @@ export class CommissionDetailComponent implements OnInit {
     }
     
     return firstName || lastName || 'N/A';
+  }
+
+  // Método para detectar si es una comisión padre
+  isParentCommission(commission: Commission): boolean {
+    return !!(commission.child_commissions && commission.child_commissions.length > 0);
+  }
+
+  // Método para redirigir a sales-detail con los parámetros correctos
+  private redirectToSalesDetail(commission: Commission): void {
+    const employeeId = commission.employee_id;
+    const month = commission.period_month;
+    const year = commission.period_year;
+    
+    this.router.navigate(['/human-resources/commissions/sales-detail'], {
+      queryParams: {
+        employee_id: employeeId,
+        month: month,
+        year: year
+      }
+    });
   }
 }

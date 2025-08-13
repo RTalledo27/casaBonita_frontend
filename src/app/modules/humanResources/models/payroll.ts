@@ -70,4 +70,7 @@ export interface PayrollSearchFilters {
   status?: string;
   date_from?: string;
   date_to?: string;
+  search?: string;
+  page?: number;
+  per_page?: number;
 }

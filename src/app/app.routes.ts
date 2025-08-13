@@ -75,6 +75,22 @@ export const routes: Routes = [
               )
           },
           {
+            path: 'collections',
+            loadChildren: () =>
+              import('./modules/collections/routes/collections.routes').then(
+                (m) => m.collectionsRoutes
+              ),
+            //canActivateChild: [permissionGuard],
+          },
+          {
+            path: 'collections-simplified',
+            loadChildren: () =>
+              import('./modules/collections/collections-simplified.routes').then(
+                (m) => m.COLLECTIONS_SIMPLIFIED_ROUTES
+              ),
+            canActivateChild: [permissionGuard],
+          },
+          {
             path: 'sales',
             loadChildren: () =>
               import('./modules/sales/routes/sales.routes').then(
@@ -102,6 +118,13 @@ export const routes: Routes = [
             loadComponent: () =>
               import('./shared/components/theme-test/theme-test.component').then(
                 (m) => m.ThemeTestComponent
+              ),
+          },
+          {
+            path: 'debug-permissions',
+            loadComponent: () =>
+              import('./debug/user-permissions.component').then(
+                (m) => m.UserPermissionsComponent
               ),
           },
 

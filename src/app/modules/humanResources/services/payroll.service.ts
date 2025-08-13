@@ -35,6 +35,12 @@ export interface PayrollResponse {
     per_page: number;
     total: number;
   };
+  totals?: {
+    total_gross: number;
+    total_net: number;
+    total_deductions: number;
+    total_records: number;
+  };
   count?: number;
 }
 

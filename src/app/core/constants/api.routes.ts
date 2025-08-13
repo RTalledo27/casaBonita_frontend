@@ -27,6 +27,7 @@ export const API_ROUTES = {
 
   INVENTORY: {
     LOTS: `${BASE}/v1/inventory/lots`,
+    LOT_IMPORT: `${BASE}/v1/inventory/lot-import`,
     //MEDIA: `${BASE}/v1/inventory/lot-media`,
     MANZANAS: `${BASE}/v1/inventory/manzanas`,
     STREET_TYPES: `${BASE}/v1/inventory/street-types`,
@@ -46,9 +47,11 @@ export const API_ROUTES = {
   },
 
   COLLECTIONS: {
+    BASE: `${BASE}/v1/collections`,
     ACCOUNTS_RECEIVABLE: `${BASE}/v1/collections/accounts-receivable`,
     CUSTOMER_PAYMENTS: `${BASE}/v1/collections/customer-payments`,
     REPORTS: `${BASE}/v1/collections/reports`,
+    HR_INTEGRATION: `${BASE}/v1/hr-integration`,
   },
 
   HR: {

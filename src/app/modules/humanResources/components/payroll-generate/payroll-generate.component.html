@@ -130,11 +130,14 @@
               Selección de Empleados
             </h3>
           </div>
-          <div class="flex gap-2">
-            <button type="button" (click)="selectAllEmployees()" class="px-4 py-2 text-sm font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors">
+          <div class="flex flex-wrap gap-2">
+            <button type="button" (click)="selectAllEmployees()" class="px-3 py-2 text-sm font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors">
+              Seleccionar Página
+            </button>
+            <button type="button" (click)="selectAllEmployeesGlobal()" class="px-3 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors">
               Seleccionar Todos
             </button>
-            <button type="button" (click)="clearSelection()" class="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+            <button type="button" (click)="clearSelection()" class="px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
               Limpiar Selección
             </button>
           </div>
@@ -156,8 +159,18 @@
           </div>
         </div>
 
+        <!-- Información de Paginación -->
+        <div class="mb-4 flex justify-between items-center text-sm text-gray-600 dark:text-gray-400">
+          <span>
+            Mostrando {{ paginationInfo().start }} - {{ paginationInfo().end }} de {{ paginationInfo().total }} empleados
+          </span>
+          <span>
+            Página {{ currentPage() }} de {{ totalPages() }}
+          </span>
+        </div>
+
         <!-- Lista de Empleados -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-600">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 min-h-[400px] p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-600">
           <div
             *ngFor="let employee of employees"
             class="flex items-center gap-4 p-4 bg-white dark:bg-gray-700 rounded-lg border-2 cursor-pointer transition-all hover:shadow-md"
@@ -180,6 +193,114 @@
               <div class="flex items-center gap-1 text-sm font-medium text-green-600 dark:text-green-400 mt-1">
                 <lucide-angular [img]="DollarSign" size="14"></lucide-angular>
                 {{ formatCurrency(employee.base_salary) }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Controles de Paginación Mejorados -->
+        <div *ngIf="totalPages() > 1" class="mt-6 bg-white dark:bg-gray-800 px-4 py-3 border-t border-gray-200 dark:border-gray-700 sm:px-6 rounded-b-lg">
+          <div class="flex items-center justify-between">
+            <!-- Información de paginación en móvil -->
+            <div class="flex-1 flex justify-between sm:hidden">
+              <button
+                type="button"
+                [disabled]="currentPage() === 1"
+                (click)="onPageChange(currentPage() - 1)"
+                class="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                Anterior
+              </button>
+              <button
+                type="button"
+                [disabled]="currentPage() === totalPages()"
+                (click)="onPageChange(currentPage() + 1)"
+                class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                Siguiente
+              </button>
+            </div>
+            
+            <!-- Información de paginación en desktop -->
+            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+              <div>
+                <p class="text-sm text-gray-700 dark:text-gray-300">
+                   Mostrando
+                   <span class="font-medium">{{ getPaginationInfo().start }}</span>
+                   a
+                   <span class="font-medium">{{ getPaginationInfo().end }}</span>
+                   de
+                   <span class="font-medium">{{ getPaginationInfo().total }}</span>
+                   empleados
+                 </p>
+              </div>
+              
+              <!-- Controles de navegación -->
+              <div>
+                <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                  <!-- Botón Primera Página -->
+                  <button
+                    type="button"
+                    [disabled]="currentPage() === 1"
+                    (click)="onPageChange(1)"
+                    class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    title="Primera página"
+                  >
+                    <span class="sr-only">Primera página</span>
+                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414zm-6 0a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                    </svg>
+                  </button>
+                  
+                  <!-- Botón Anterior -->
+                  <button
+                    type="button"
+                    [disabled]="currentPage() === 1"
+                    (click)="onPageChange(currentPage() - 1)"
+                    class="relative inline-flex items-center px-2 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <span class="sr-only">Anterior</span>
+                    <lucide-angular [img]="ChevronLeft" size="20"></lucide-angular>
+                  </button>
+                  
+                  <!-- Números de página -->
+                  <button
+                    type="button"
+                    *ngFor="let page of getPageNumbers()"
+                    [class]="currentPage() === page ? 
+                      'z-10 bg-primary-50 dark:bg-primary-900/50 border-primary-500 dark:border-primary-400 text-primary-600 dark:text-primary-300' : 
+                      'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600'"
+                    (click)="onPageChange(page)"
+                    class="relative inline-flex items-center px-4 py-2 border text-sm font-medium transition-colors"
+                  >
+                    {{ page }}
+                  </button>
+                  
+                  <!-- Botón Siguiente -->
+                  <button
+                    type="button"
+                    [disabled]="currentPage() === totalPages()"
+                    (click)="onPageChange(currentPage() + 1)"
+                    class="relative inline-flex items-center px-2 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <span class="sr-only">Siguiente</span>
+                    <lucide-angular [img]="ChevronRight" size="20"></lucide-angular>
+                  </button>
+                  
+                  <!-- Botón Última Página -->
+                  <button
+                    type="button"
+                    [disabled]="currentPage() === totalPages()"
+                    (click)="onPageChange(totalPages())"
+                    class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    title="Última página"
+                  >
+                    <span class="sr-only">Última página</span>
+                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414zm6 0a1 1 0 011.414 0l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414-1.414L14.586 10l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                  </button>
+                </nav>
               </div>
             </div>
           </div>

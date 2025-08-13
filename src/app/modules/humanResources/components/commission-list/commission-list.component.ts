@@ -2,7 +2,7 @@ import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { LucideAngularModule, DollarSign, Calendar, Filter, Search, Eye, CheckCircle, XCircle, Clock, TrendingUp, Plus, Edit, Trash2, FileText, ChevronRight, Users } from 'lucide-angular';
+import { LucideAngularModule, DollarSign, Calendar, Filter, Search, Eye, CheckCircle, XCircle, Clock, TrendingUp, Plus, Edit, Trash2, FileText, ChevronRight, Users, AlertTriangle, Shield, CheckCircle2 } from 'lucide-angular';
 import { CommissionService } from '../../services/commission.service';
 import { Commission } from '../../models/commission';
 import { ToastService } from '../../../../core/services/toast.service';
@@ -45,6 +45,7 @@ export class CommissionListComponent implements OnInit {
   currentPage = signal<number>(1);
   totalPages = signal<number>(1);
   totalCommissions = signal<number>(0);
+  showSplitPayments = signal<boolean>(false);
 
   // Iconos de Lucide
   DollarSign = DollarSign;
@@ -62,6 +63,9 @@ export class CommissionListComponent implements OnInit {
   FileText = FileText;
   ChevronRight = ChevronRight;
   Users = Users;
+  AlertTriangle = AlertTriangle;
+  Shield = Shield;
+  CheckCircle2 = CheckCircle2;
 
   // Opciones para filtros
   statusOptions = [
@@ -139,10 +143,10 @@ export class CommissionListComponent implements OnInit {
       const amount = this.parseAmount(commission.commission_amount);
       group.totalAmount += amount;
       
-      if (commission.status === 'fully_paid') {
+      if (commission.payment_status === 'pagado') {
         group.paidAmount += amount;
         group.paidCount++;
-      } else if (commission.status === 'generated' || commission.status === 'partially_paid') {
+      } else if (commission.payment_status === 'pendiente') {
         group.pendingAmount += amount;
         group.pendingCount++;
       }
@@ -181,13 +185,13 @@ export class CommissionListComponent implements OnInit {
 
   paidAmount = computed(() => {
     return this.filteredCommissions()
-      .filter(c => c.status === 'fully_paid')
+      .filter(c => c.payment_status === 'pagado')
       .reduce((sum, commission) => sum + (commission.commission_amount || 0), 0);
   });
 
   pendingAmount = computed(() => {
     const filtered = this.filteredCommissions();
-    const pending = filtered.filter(c => c.status === 'generated' || c.status === 'partially_paid');
+    const pending = filtered.filter(c => c.payment_status === 'pendiente');
     
     return pending.reduce((sum, commission) => {
       const amount = commission.commission_amount;
@@ -219,7 +223,8 @@ export class CommissionListComponent implements OnInit {
         status: this.selectedStatus(),
         search: this.searchTerm(),
         page: this.currentPage(),
-        per_page: 20
+        per_page: 20,
+        include_split_payments: this.showSplitPayments()
       }).toPromise();
       
       if (response) {
@@ -242,6 +247,12 @@ export class CommissionListComponent implements OnInit {
   }
 
   onFilterChange() {
+    this.currentPage.set(1);
+    this.loadCommissions();
+  }
+
+  toggleSplitPayments() {
+    this.showSplitPayments.set(!this.showSplitPayments());
     this.currentPage.set(1);
     this.loadCommissions();
   }
@@ -307,15 +318,15 @@ export class CommissionListComponent implements OnInit {
   }
 
   canPayCommission(commission: Commission): boolean {
-    return commission.status === 'generated' || commission.status === 'partially_paid';
+    return commission.payment_status === 'pendiente';
   }
 
   canEditCommission(commission: Commission): boolean {
-    return commission.status !== 'fully_paid';
+    return commission.payment_status !== 'pagado';
   }
 
   canDeleteCommission(commission: Commission): boolean {
-    return commission.status !== 'fully_paid';
+    return commission.payment_status !== 'pagado';
   }
 
   canCreateSplitPayment(commission: Commission): boolean {
@@ -475,6 +486,34 @@ export class CommissionListComponent implements OnInit {
     }
   }
 
+  isParentCommission(commission: Commission): boolean {
+    return !commission.parent_commission_id;
+  }
+
+  isSplitCommission(commission: Commission): boolean {
+    return !!commission.parent_commission_id;
+  }
+
+  getCommissionHierarchyLabel(commission: Commission): string {
+    if (this.isParentCommission(commission)) {
+      return commission.child_commissions && commission.child_commissions.length > 0 
+        ? 'Comisión General (con divisiones)' 
+        : 'Comisión General';
+    } else {
+      return `División ${commission.payment_part || 'N/A'}`;
+    }
+  }
+
+  getCommissionTypeClass(commission: Commission): string {
+    if (this.isParentCommission(commission)) {
+      return commission.child_commissions && commission.child_commissions.length > 0
+        ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+        : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
+    } else {
+      return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200';
+    }
+  }
+
   getOverallStatusIcon(status: string) {
     switch (status) {
       case 'all_paid':
@@ -500,5 +539,99 @@ export class CommissionListComponent implements OnInit {
         employee: advisorGroup.employee.full_name,
       }
     });
+  }
+
+  // Métodos para verificación de pagos del cliente
+  requiresPaymentVerification(commission: Commission): boolean {
+    return commission.requires_client_payment_verification === true;
+  }
+
+  getVerificationStatusClass(status: string | undefined): string {
+    switch (status) {
+      case 'fully_verified':
+        return 'bg-green-100 text-green-800 border-green-200';
+      case 'first_payment_verified':
+      case 'second_payment_verified':
+        return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'pending_verification':
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'verification_failed':
+        return 'bg-red-100 text-red-800 border-red-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  }
+
+  getVerificationStatusLabel(status: string | undefined): string {
+    switch (status) {
+      case 'fully_verified':
+        return 'Completamente Verificado';
+      case 'first_payment_verified':
+        return 'Primer Pago Verificado';
+      case 'second_payment_verified':
+        return 'Segundo Pago Verificado';
+      case 'pending_verification':
+        return 'Pendiente de Verificación';
+      case 'verification_failed':
+        return 'Verificación Fallida';
+      default:
+        return 'Sin Verificación';
+    }
+  }
+
+  getVerificationStatusIcon(status: string | undefined) {
+    switch (status) {
+      case 'fully_verified':
+        return CheckCircle2;
+      case 'first_payment_verified':
+      case 'second_payment_verified':
+        return Shield;
+      case 'pending_verification':
+        return Clock;
+      case 'verification_failed':
+        return AlertTriangle;
+      default:
+        return Clock;
+    }
+  }
+
+  isEligibleForPayment(commission: Commission): boolean {
+    if (!this.requiresPaymentVerification(commission)) {
+      return true; // Si no requiere verificación, es elegible
+    }
+    return commission.is_eligible_for_payment === true;
+  }
+
+  getPaymentEligibilityClass(commission: Commission): string {
+    if (!this.requiresPaymentVerification(commission)) {
+      return 'text-gray-600';
+    }
+    return this.isEligibleForPayment(commission) 
+      ? 'text-green-600' 
+      : 'text-red-600';
+  }
+
+  getPaymentEligibilityLabel(commission: Commission): string {
+    if (!this.requiresPaymentVerification(commission)) {
+      return 'No requiere verificación';
+    }
+    return this.isEligibleForPayment(commission) 
+      ? 'Elegible para pago' 
+      : 'No elegible para pago';
+  }
+
+  formatVerificationDate(date: string | undefined): string {
+    if (!date) return 'No verificado';
+    return new Date(date).toLocaleDateString('es-CO', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  hasCommissionsRequiringVerification(commissions: Commission[]): boolean {
+    return commissions.some(commission => this.requiresPaymentVerification(commission));
   }
 }

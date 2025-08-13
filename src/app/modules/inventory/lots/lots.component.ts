@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastService } from '../../../core/services/toast.service';
 import { ColumnDef, SharedTableComponent } from '../../../shared/components/shared-table/shared-table.component';
-import { Edit, Eye, LucideAngularModule, Plus, Trash2 } from 'lucide-angular';
+import { Edit, Eye, LucideAngularModule, Plus, Trash2, Upload } from 'lucide-angular';
 import { BehaviorSubject, take } from 'rxjs';
 import { Lot } from '../models/lot';
 import { CommonModule } from '@angular/common';
@@ -12,6 +12,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { LotService } from '../services/lot.service';
 import { InventoryFilterPipe } from '../pipe/inventory-filter.pipe';
 import { SharedDeleteComponent } from '../../../shared/components/shared-delete/shared-delete.component';
+import { LotImportComponent } from '../components/lot-import/lot-import.component';
 
 @Component({
   selector: 'app-lots',
@@ -24,6 +25,7 @@ import { SharedDeleteComponent } from '../../../shared/components/shared-delete/
     FormsModule,
     InventoryFilterPipe,
     SharedDeleteComponent,
+    LotImportComponent,
   ],
   templateUrl: './lots.component.html',
   styleUrl: './lots.component.scss',
@@ -41,6 +43,9 @@ export class LotsComponent {
   showDeleteModal = false;
   selectedItemId: number | null = null;
   selectedItemName = '';
+  
+  // Import modal state
+  isImportModalOpen = false;
 
   columns: ColumnDef[] = [
     /*
@@ -64,6 +69,7 @@ export class LotsComponent {
   eye = Eye;
   edit = Edit;
   trash = Trash2;
+  upload = Upload;
 
   constructor(
     private lotService: LotService,
@@ -135,5 +141,23 @@ export class LotsComponent {
 
   canCreate() {
     return this.authService.hasPermission('inventory.lots.store');
+  }
+
+  canImport() {
+    return this.authService.hasPermission('inventory.lots.store');
+  }
+
+  openImportModal() {
+    this.isImportModalOpen = true;
+  }
+
+  closeImportModal() {
+    this.isImportModalOpen = false;
+  }
+
+  onImportCompleted() {
+    this.loadLots();
+    this.closeImportModal();
+    this.toast.show('Lotes importados exitosamente', 'success');
   }
 }

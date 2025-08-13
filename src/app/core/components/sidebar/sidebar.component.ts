@@ -68,11 +68,65 @@ export class SidebarComponent {
       expanded: false,
       children: [
         {
+          label: 'dashboard',
+          route: '/collections/dashboard',
+        },
+        {
           label: 'accounts-receivable',
           route: '/collections/accounts-receivable',
         },
-        { label: 'payments', route: '/collections/payments' },
-        { label: 'reports', route: '/collections/reports' },
+        {
+          label: 'payment-management',
+          route: '/collections/payment-management',
+        },
+        {
+          label: 'collectors',
+          route: '/collections/collectors',
+        },
+        {
+          label: 'aging-reports',
+          route: '/collections/aging-reports',
+        },
+        {
+          label: 'alerts',
+          route: '/collections/alerts',
+        },
+        {
+          label: 'verification-dashboard',
+          route: '/collections/verification-dashboard',
+        },
+        {
+          label: 'payment-verification',
+          route: '/collections/payment-verification',
+        },
+        {
+          label: 'hr-integration',
+          route: '/collections/hr-integration',
+        },
+      ],
+    },
+    {
+      label: 'collections-simplified',
+      icon: CreditCard,
+      route: '/collections-simplified',
+      expanded: false,
+      children: [
+        {
+          label: 'dashboard',
+          route: '/collections-simplified/dashboard',
+        },
+        {
+          label: 'schedule-generator',
+          route: '/collections-simplified/schedule-generator',
+        },
+        {
+          label: 'installment-management',
+          route: '/collections-simplified/installment-management',
+        },
+        {
+          label: 'reports',
+          route: '/collections-simplified/reports',
+        },
       ],
     },
     {
