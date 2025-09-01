@@ -1,0 +1,268 @@
+<div class="sales-detail-container bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+  <!-- Header -->
+  <div class="header bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+    <div class="header-left">
+      <button 
+        type="button" 
+        class="btn-back bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600"
+        (click)="goBack()"
+        title="Volver">
+        <lucide-angular [img]="ArrowLeft" size="20"></lucide-angular>
+      </button>
+      <div class="header-info">
+        <h1>Detalle de Ventas y Comisiones</h1>
+        <p class="subtitle">Desglose individual de ventas con cálculo de comisiones</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button 
+        type="button" 
+        class="btn-export"
+        (click)="exportToExcel()"
+        [disabled]="!salesDetail()"
+        title="Exportar a Excel">
+        <lucide-angular [img]="Download" size="16"></lucide-angular>
+        Exportar
+      </button>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filters-section">
+    <div class="filters-section bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+    <div class="filters-grid">
+      <div class="filter-group">
+        <label for="employee" class="text-gray-700 dark:text-gray-300">Empleado</label>
+        <div class="relative">
+          <select 
+            id="employee"
+            [(ngModel)]="selectedEmployeeId"
+            (ngModelChange)="onFilterChange()"
+            class="appearance-none block w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-600">
+            <option [value]="null">Seleccionar empleado</option>
+            <option 
+              *ngFor="let employee of employees()" 
+              [value]="employee.employee_id">
+              {{employee.user?.first_name}}  {{employee.user?.last_name}}
+            </option>
+          </select>
+          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
+            <lucide-angular [img]="ChevronDown" size="16"></lucide-angular>
+          </div>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <label for="month" class="text-gray-700 dark:text-gray-300">Mes</label>
+        <div class="relative">
+          <select 
+            id="month"
+            [(ngModel)]="selectedMonth"
+            (ngModelChange)="onFilterChange()"
+            class="appearance-none block w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-600">
+            <option 
+              *ngFor="let month of months" 
+              [value]="month.value">
+              {{ month.label }}
+            </option>
+          </select>
+          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
+            <lucide-angular [img]="ChevronDown" size="16"></lucide-angular>
+          </div>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <label for="year" class="text-gray-700 dark:text-gray-300">Año</label>
+        <div class="relative">
+          <select 
+            id="year"
+            [(ngModel)]="selectedYear"
+            (ngModelChange)="onFilterChange()"
+            class="appearance-none block w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-600">
+            <option 
+              *ngFor="let year of years" 
+              [value]="year">
+              {{ year }}
+            </option>
+          </select>
+          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
+            <lucide-angular [img]="ChevronDown" size="16"></lucide-angular>
+          </div>
+        </div>
+      </div>
+
+      <div class="filter-group" *ngIf="salesDetail()">
+        <label for="search" class="text-gray-700 dark:text-gray-300">Buscar</label>
+        <div class="search-input">
+          <lucide-angular [img]="Search" size="16" class="search-icon text-gray-400 dark:text-gray-500"></lucide-angular>
+          <input 
+            id="search"
+            type="text"
+            [(ngModel)]="searchTerm"
+            placeholder="Buscar por contrato o cliente..."
+            class="form-input bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-600">
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading()" class="loading-state bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
+    <div class="spinner"></div>
+    <p>Cargando detalle de ventas...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error() && !loading()" class="error-state bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
+    <div class="error-icon">⚠️</div>
+    <h3>Error al cargar datos</h3>
+    <p>{{ error() }}</p>
+    <button type="button" class="btn-retry bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 border border-red-300 dark:border-red-700 hover:bg-red-200 dark:hover:bg-red-800" (click)="loadSalesDetail()">Reintentar</button>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!salesDetail() && !loading() && !error()" class="empty-state bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
+    <div class="empty-icon text-gray-400 dark:text-gray-500">
+      <lucide-angular [img]="FileText" size="48"></lucide-angular>
+    </div>
+    <h3>Selecciona los filtros</h3>
+    <p>Elige un empleado, mes y año para ver el detalle de ventas y comisiones</p>
+  </div>
+
+  <!-- Sales Detail Content -->
+  <div *ngIf="salesDetail() && !loading()" class="content">
+    <!-- Summary Cards -->
+    <div class="summary-section bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+      <h2 class="text-gray-900 dark:text-gray-100">Resumen del Período</h2>
+      <div class="summary-grid">
+        <div class="summary-card bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+          <div class="card-icon sales">
+            <lucide-angular [img]="TrendingUp" size="24"></lucide-angular>
+          </div>
+          <div class="card-content">
+            <h3 class="text-gray-700 dark:text-gray-300">Total de Ventas</h3>
+            <p class="card-value text-gray-900 dark:text-gray-100">{{ salesDetail()!.data.summary.total_sales }}</p>
+          </div>
+        </div>
+
+        <div class="summary-card bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+          <div class="card-icon commission">
+            <lucide-angular [img]="DollarSign" size="24"></lucide-angular>
+          </div>
+          <div class="card-content">
+            <h3 class="text-gray-700 dark:text-gray-300">Comisión Total</h3>
+            <p class="card-value text-gray-900 dark:text-gray-100">{{ formatCurrency(salesDetail()!.data.summary.total_commission) }}</p>
+          </div>
+        </div>
+
+        <div class="summary-card bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+          <div class="card-icon percentage">
+            <lucide-angular [img]="TrendingUp" size="24"></lucide-angular>
+          </div>
+          <div class="card-content">
+            <h3 class="text-gray-700 dark:text-gray-300">Porcentaje Promedio</h3>
+            <p class="card-value text-gray-900 dark:text-gray-100">{{ formatPercentage(salesDetail()!.data.summary.average_percentage) }}</p>
+          </div>
+        </div>
+
+        <div class="summary-card bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+          <div class="card-icon split">
+            <lucide-angular [img]="Calendar" size="24"></lucide-angular>
+          </div>
+          <div class="card-content">
+            <h3 class="text-gray-700 dark:text-gray-300">Tipo de División</h3>
+            <p class="card-value text-gray-900 dark:text-gray-100">{{ getSplitTypeLabel(salesDetail()!.data.summary.split_type) }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payment Split Summary -->
+    <div class="payment-split-section bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+      <h2 class="text-gray-900 dark:text-gray-100">División de Pagos</h2>
+      <div class="payment-split-grid">
+        <div class="payment-card first-payment bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+          <h3 class="text-gray-700 dark:text-gray-300">Primer Mes</h3>
+          <p class="payment-amount text-gray-900 dark:text-gray-100">{{ formatCurrency(salesDetail()!.data.summary.first_month_total) }}</p>
+          <p class="payment-percentage text-gray-600 dark:text-gray-400">{{ salesDetail()!.data.summary.split_type === '70/30' ? '70%' : '50%' }}</p>
+        </div>
+        <div class="payment-card second-payment bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+          <h3 class="text-gray-700 dark:text-gray-300">Segundo Mes</h3>
+          <p class="payment-amount text-gray-900 dark:text-gray-100">{{ formatCurrency(salesDetail()!.data.summary.second_month_total) }}</p>
+          <p class="payment-percentage text-gray-600 dark:text-gray-400">{{ salesDetail()!.data.summary.split_type === '70/30' ? '30%' : '50%' }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Employee and Period Info -->
+    <div class="info-section">
+      <div class="info-card bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100">
+        <lucide-angular [img]="User" size="20" class="text-gray-600 dark:text-gray-400"></lucide-angular>
+        <span><strong>Empleado:</strong> {{ salesDetail()!.data.employee.user?.first_name }} {{ salesDetail()!.data.employee.user?.last_name }}</span>
+      </div>
+      <div class="info-card bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100">
+        <lucide-angular [img]="Calendar" size="20" class="text-gray-600 dark:text-gray-400"></lucide-angular>
+        <span><strong>Período:</strong> {{ months[salesDetail()!.data.period.month - 1].label }} {{ salesDetail()!.data.period.year }}</span>
+      </div>
+    </div>
+
+    <!-- Sales Detail Table -->
+    <div class="table-section bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+      <h2 class="text-gray-900 dark:text-gray-100">Detalle por Venta</h2>
+      <div class="table-container bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+        <table class="sales-table">
+          <thead class="bg-gray-50 dark:bg-gray-700">
+            <tr>
+              <th class="text-gray-700 dark:text-gray-300">Contrato</th>
+              <th class="text-gray-700 dark:text-gray-300">Cliente</th>
+              <th class="text-gray-700 dark:text-gray-300">Monto Financiado</th>
+              <th class="text-gray-700 dark:text-gray-300">Plazo</th>
+              <th class="text-gray-700 dark:text-gray-300">Porcentaje</th>
+              <th class="text-gray-700 dark:text-gray-300">Comisión</th>
+              <th class="text-gray-700 dark:text-gray-300">Primer Pago</th>
+              <th class="text-gray-700 dark:text-gray-300">Segundo Pago</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let sale of filteredSales(); trackBy: trackBySale" class="sale-row bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border-b border-gray-200 dark:border-gray-700">
+              <td class="contract-cell">
+                <span class="contract-number text-gray-900 dark:text-gray-100">{{ sale.contract_number }}</span>
+              </td>
+              <td class="client-cell">
+                <span class="client-name text-gray-900 dark:text-gray-100">{{ sale.client_name }}</span>
+              </td>
+              <td class="amount-cell">
+                <span class="amount text-gray-900 dark:text-gray-100">{{ formatCurrency(sale.financing_amount) }}</span>
+              </td>
+              <td class="term-cell">
+                <span class="term-badge text-gray-900 dark:text-gray-100" [class]="sale.term_months > 36 ? 'long-term' : 'short-term'">
+                  {{ sale.term_months }} meses
+                </span>
+                <small class="term-label text-gray-600 dark:text-gray-400">{{ getTermLabel(sale.term_months) }}</small>
+              </td>
+              <td class="percentage-cell">
+                <span class="percentage text-gray-900 dark:text-gray-100">{{ formatPercentage(sale.commission_percentage) }}</span>
+              </td>
+              <td class="commission-cell">
+                <span class="commission-amount text-gray-900 dark:text-gray-100">{{ formatCurrency(sale.commission_amount) }}</span>
+              </td>
+              <td class="payment-cell first">
+                <span class="payment-amount text-gray-900 dark:text-gray-100">{{ formatCurrency(sale.first_payment) }}</span>
+              </td>
+              <td class="payment-cell second">
+                <span class="payment-amount text-gray-900 dark:text-gray-100">{{ formatCurrency(sale.second_payment) }}</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- No results message -->
+      <div *ngIf="filteredSales().length === 0" class="no-results bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400">
+        <p>No se encontraron ventas que coincidan con la búsqueda.</p>
+      </div>
+    </div>
+  </div>
+</div>

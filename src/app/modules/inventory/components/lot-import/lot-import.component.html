@@ -1,0 +1,383 @@
+<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+    <!-- Header -->
+    <div class="flex items-center justify-between p-6 border-b">
+      <h2 class="text-xl font-semibold text-gray-900">
+        Importar Lotes desde Excel
+      </h2>
+      <button 
+        (click)="closeModal()" 
+        class="text-gray-400 hover:text-gray-600 transition-colors"
+      >
+        <lucide-angular [img]="closeIcon" class="w-6 h-6"></lucide-angular>
+      </button>
+    </div>
+
+    <!-- Content -->
+    <div class="p-6">
+      <!-- Template Download -->
+      <div class="mb-6 p-4 bg-green-50 rounded-lg border border-green-200">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-sm font-medium text-green-900">
+              Plantilla de Excel para Lotes
+            </h3>
+            <p class="text-sm text-green-700 mt-1">
+              Descarga la plantilla con las reglas de financiamiento por manzana para importar tus lotes correctamente.
+            </p>
+          </div>
+          <button 
+            (click)="downloadTemplate()"
+            class="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+          >
+            <lucide-angular [img]="downloadIcon" class="w-4 h-4"></lucide-angular>
+            Descargar Plantilla
+          </button>
+        </div>
+      </div>
+
+      <!-- File Upload Area -->
+      <div class="mb-6">
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+          Seleccionar archivo Excel de lotes
+        </label>
+        
+        <div 
+          class="border-2 border-dashed rounded-lg p-8 text-center transition-colors"
+          [class.border-green-400]="dragOver"
+          [class.bg-green-50]="dragOver"
+          [class.border-gray-300]="!dragOver"
+          (dragover)="onDragOver($event)"
+          (dragleave)="onDragLeave($event)"
+          (drop)="onDrop($event)"
+        >
+          <div class="flex flex-col items-center">
+            <lucide-angular [img]="uploadIcon" class="w-12 h-12 text-gray-400 mb-4"></lucide-angular>
+            
+            <div class="mb-4">
+              <p class="text-sm text-gray-600">
+                Arrastra y suelta tu archivo Excel aquí, o haz clic para seleccionar
+              </p>
+              <p class="text-xs text-gray-500 mt-1">
+                Formatos soportados: .xlsx, .xls
+              </p>
+            </div>
+            
+            <input 
+              type="file" 
+              id="fileInput" 
+              class="hidden" 
+              accept=".xlsx,.xls"
+              (change)="onFileSelected($event)"
+            >
+            <label 
+              for="fileInput" 
+              class="cursor-pointer px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+            >
+              Seleccionar archivo
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Selected File Info -->
+      <div *ngIf="selectedFile" class="mb-6 p-4 bg-gray-50 rounded-lg">
+        <div class="flex items-center gap-3">
+          <lucide-angular [img]="fileIcon" class="w-5 h-5 text-gray-500"></lucide-angular>
+          <div class="flex-1">
+            <p class="text-sm font-medium text-gray-900">{{ selectedFile.name }}</p>
+            <p class="text-xs text-gray-500">{{ getFileSize(selectedFile.size) }}</p>
+          </div>
+          <button 
+            (click)="resetForm()"
+            class="text-gray-400 hover:text-gray-600"
+          >
+            <lucide-angular [img]="closeIcon" class="w-4 h-4"></lucide-angular>
+          </button>
+        </div>
+      </div>
+
+      <!-- Validation Progress -->
+      <div *ngIf="isValidating" class="mb-6 p-6 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg border border-yellow-200 shadow-sm">
+        <div class="flex items-center gap-3 mb-4">
+          <lucide-angular [img]="progressIcon" class="w-6 h-6 text-yellow-600"></lucide-angular>
+          <div class="flex-1">
+            <h3 class="text-sm font-semibold text-yellow-900">Validando archivo de lotes</h3>
+            <p class="text-xs text-yellow-700">{{ validationProgress.currentStep }}</p>
+          </div>
+          <div class="text-right">
+            <span class="text-lg font-bold text-yellow-800">{{ validationProgress.percentage }}%</span>
+          </div>
+        </div>
+        
+        <!-- Progress Bar -->
+        <div class="w-full bg-yellow-200 rounded-full h-3 mb-3 overflow-hidden">
+          <div 
+            class="bg-gradient-to-r from-yellow-500 to-orange-500 h-3 rounded-full transition-all duration-500 ease-out"
+            [style.width.%]="validationProgress.percentage"
+          ></div>
+        </div>
+        
+        <!-- Steps Indicator -->
+        <div class="flex justify-between text-xs text-yellow-700">
+          <span *ngFor="let step of validationProgress.steps; let i = index" 
+                class="flex-1 text-center"
+                [class.font-semibold]="i === validationProgress.currentStepIndex - 1"
+                [class.text-yellow-900]="i < validationProgress.currentStepIndex">
+            Paso {{ i + 1 }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Validation Result -->
+      <div *ngIf="validationResult && !isValidating" class="mb-6">
+        <div 
+          class="p-4 rounded-lg border"
+          [class.bg-green-50]="validationResult.success"
+          [class.border-green-200]="validationResult.success"
+          [class.bg-red-50]="!validationResult.success"
+          [class.border-red-200]="!validationResult.success"
+        >
+          <div class="flex items-start gap-3">
+            <lucide-angular 
+              [img]="validationResult.success ? checkIcon : alertIcon" 
+              class="w-5 h-5 mt-0.5"
+              [class.text-green-600]="validationResult.success"
+              [class.text-red-600]="!validationResult.success"
+            ></lucide-angular>
+            <div class="flex-1">
+              <p 
+                class="text-sm font-medium"
+                [class.text-green-800]="validationResult.success"
+                [class.text-red-800]="!validationResult.success"
+              >
+                {{ validationResult.message }}
+              </p>
+              
+              <!-- Financing Rules Info -->
+              <div *ngIf="validationResult.success && hasFinancingRules()" class="mt-3 p-3 bg-blue-50 rounded border border-blue-200">
+                <div class="flex items-center gap-2 mb-2">
+                  <lucide-angular [img]="dollarIcon" class="w-4 h-4 text-blue-600"></lucide-angular>
+                  <span class="text-sm font-medium text-blue-900">Reglas de Financiamiento Detectadas</span>
+                </div>
+                <p class="text-xs text-blue-700">
+                  Se encontraron {{ getFinancingRulesCount() }} manzanas con reglas de financiamiento específicas.
+                </p>
+              </div>
+              
+              <!-- Column Mapping Info -->
+              <div *ngIf="validationResult.success && hasColumnMapping()" class="mt-2 p-2 bg-gray-50 rounded">
+                <p class="text-xs text-gray-600">
+                  Columnas mapeadas: {{ getColumnMappingCount() }}
+                </p>
+              </div>
+              
+              <div *ngIf="validationResult.data?.errors?.length" class="mt-2">
+                <ul class="text-xs text-red-700 space-y-1">
+                  <li *ngFor="let error of validationResult.data?.errors">• {{ error }}</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Import Actions -->
+      <div *ngIf="validationResult?.success && !isUploading" class="mb-6">
+        <div class="flex gap-3">
+          <button 
+            (click)="importFile(false)"
+            class="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+          >
+            <lucide-angular [img]="uploadIcon" class="w-4 h-4"></lucide-angular>
+            Importar Lotes (Síncrono)
+          </button>
+          <button 
+            (click)="importFile(true)"
+            class="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            <lucide-angular [img]="uploadIcon" class="w-4 h-4"></lucide-angular>
+            Importar Lotes (Asíncrono)
+          </button>
+        </div>
+        <p class="text-xs text-gray-500 mt-2 text-center">
+          Síncrono: Proceso inmediato para archivos pequeños. Asíncrono: Para archivos grandes con seguimiento de progreso.
+        </p>
+      </div>
+
+      <!-- Import Progress -->
+      <div *ngIf="isUploading" class="mb-6 p-6 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200 shadow-sm">
+        <div class="flex items-center gap-3 mb-4">
+          <lucide-angular [img]="progressIcon" class="w-6 h-6 text-green-600"></lucide-angular>
+          <div class="flex-1">
+            <h3 class="text-sm font-semibold text-green-900">Importando lotes</h3>
+            <p class="text-xs text-green-700">{{ importProgress.currentStep }}</p>
+          </div>
+          <div class="text-right">
+            <span class="text-lg font-bold text-green-800">{{ importProgress.percentage }}%</span>
+          </div>
+        </div>
+        
+        <!-- Progress Bar -->
+        <div class="w-full bg-green-200 rounded-full h-3 mb-4 overflow-hidden">
+          <div 
+            class="bg-gradient-to-r from-green-500 to-emerald-500 h-3 rounded-full transition-all duration-500 ease-out"
+            [style.width.%]="importProgress.percentage"
+          ></div>
+        </div>
+        
+        <!-- Progress Details -->
+        <div class="grid grid-cols-3 gap-4 mb-3 text-xs">
+          <div class="text-center p-2 bg-white bg-opacity-50 rounded">
+            <div class="font-semibold text-green-900">Lotes procesados</div>
+            <div class="text-green-700">{{ importProgress.processedRows }} / {{ importProgress.totalRows }}</div>
+          </div>
+          <div class="text-center p-2 bg-white bg-opacity-50 rounded">
+            <div class="font-semibold text-green-900">Tiempo restante</div>
+            <div class="text-green-700">
+              {{ importProgress.estimatedTimeRemaining > 0 ? formatTime(importProgress.estimatedTimeRemaining) : '--' }}
+            </div>
+          </div>
+          <div class="text-center p-2 bg-white bg-opacity-50 rounded">
+            <div class="font-semibold text-green-900">Velocidad</div>
+            <div class="text-green-700">
+              {{ importProgress.processedRows > 0 ? (importProgress.processedRows / Math.max(1, (6 - importProgress.currentStepIndex))) + '/min' : '--' }}
+            </div>
+          </div>
+        </div>
+        
+        <!-- Steps Indicator -->
+        <div class="flex justify-between text-xs text-green-700">
+          <span *ngFor="let step of importProgress.steps; let i = index" 
+                class="flex-1 text-center"
+                [class.font-semibold]="i === importProgress.currentStepIndex - 1"
+                [class.text-green-900]="i < importProgress.currentStepIndex">
+            Paso {{ i + 1 }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Import Result -->
+      <div *ngIf="importResult && !isUploading" class="mb-6">
+        <div 
+          class="p-4 rounded-lg border"
+          [class.bg-green-50]="importResult.success"
+          [class.border-green-200]="importResult.success"
+          [class.bg-red-50]="!importResult.success"
+          [class.border-red-200]="!importResult.success"
+        >
+          <div class="flex items-start gap-3">
+            <lucide-angular 
+              [img]="importResult.success ? checkIcon : alertIcon" 
+              class="w-5 h-5 mt-0.5"
+              [class.text-green-600]="importResult.success"
+              [class.text-red-600]="!importResult.success"
+            ></lucide-angular>
+            <div class="flex-1">
+              <p 
+                class="text-sm font-medium"
+                [class.text-green-800]="importResult.success"
+                [class.text-red-800]="!importResult.success"
+              >
+                {{ importResult.message }}
+              </p>
+              <div *ngIf="importResult.data" class="mt-2 text-xs">
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <p 
+                      [class.text-green-700]="importResult.success"
+                      [class.text-red-700]="!importResult.success"
+                    >
+                      Total procesados: {{ importResult.data.total }}
+                    </p>
+                    <p 
+                      [class.text-green-700]="importResult.success"
+                      [class.text-red-700]="!importResult.success"
+                    >
+                      Exitosos: {{ importResult.data.success }}
+                    </p>
+                  </div>
+                  <div *ngIf="hasFinancingRules()">
+                    <p class="text-blue-700">
+                      Reglas de financiamiento: {{ getFinancingRulesCount() }}
+                    </p>
+                    <p class="text-blue-700">
+                      Templates creados: {{ importResult.data.success }}
+                    </p>
+                  </div>
+                </div>
+                <div *ngIf="importResult.data.errors?.length" class="mt-2">
+                  <ul class="text-red-700 space-y-1">
+                    <li *ngFor="let error of importResult.data?.errors">• {{ error }}</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Import History Toggle -->
+      <div class="border-t pt-4">
+        <button 
+          (click)="toggleHistory()"
+          class="text-sm text-gray-600 hover:text-gray-800 transition-colors"
+        >
+          {{ showHistory ? 'Ocultar historial' : 'Ver historial de importaciones' }}
+        </button>
+      </div>
+
+      <!-- Import History -->
+      <div *ngIf="showHistory" class="mt-4">
+        <div class="bg-gray-50 rounded-lg p-4">
+          <h4 class="text-sm font-medium text-gray-900 mb-3">
+            Historial de Importaciones de Lotes
+          </h4>
+          <div *ngIf="importHistory.length === 0" class="text-sm text-gray-500 text-center py-4">
+            No hay importaciones previas
+          </div>
+          <div *ngIf="importHistory.length > 0" class="space-y-2">
+            <div 
+              *ngFor="let log of importHistory" 
+              class="bg-white rounded p-3 border text-xs"
+            >
+              <div class="flex items-center justify-between mb-1">
+                <span class="font-medium">{{ log.filename }}</span>
+                <span 
+                  class="px-2 py-1 rounded text-xs"
+                  [class.bg-green-100]="log.status === 'completed'"
+                  [class.text-green-800]="log.status === 'completed'"
+                  [class.bg-yellow-100]="log.status === 'processing'"
+                  [class.text-yellow-800]="log.status === 'processing'"
+                  [class.bg-red-100]="log.status === 'failed'"
+                  [class.text-red-800]="log.status === 'failed'"
+                >
+                  {{ log.status }}
+                </span>
+              </div>
+              <div class="text-gray-600">
+                <span>Total: {{ log.total_rows }}</span> |
+                <span>Procesados: {{ log.processed_rows }}</span> |
+                <span>Errores: {{ log.error_rows }}</span>
+                <span *ngIf="log.financing_rules"> | Reglas: {{ Object.keys(log.financing_rules).length }}</span>
+              </div>
+              <div class="text-gray-500 mt-1">
+                {{ log.created_at | date:'short' }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="flex justify-end gap-3 p-6 border-t bg-gray-50">
+      <button 
+        (click)="closeModal()"
+        class="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+      >
+        Cerrar
+      </button>
+    </div>
+  </div>
+</div>

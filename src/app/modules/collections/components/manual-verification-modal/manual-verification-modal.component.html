@@ -1,0 +1,155 @@
+<div class="manual-verification-modal">
+  <h2 mat-dialog-title class="flex items-center">
+    <mat-icon class="mr-2 text-blue-600">check_circle</mat-icon>
+    Verificación Manual de Pago
+  </h2>
+  
+  <mat-dialog-content>
+    <!-- Información de la comisión -->
+    <div class="commission-info mb-6 p-4 bg-gray-50 rounded-lg">
+      <h3 class="text-lg font-semibold mb-3 text-gray-800">Información de la Comisión</h3>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="text-sm font-medium text-gray-600">ID Comisión:</label>
+          <p class="font-mono text-sm">#{{ data.commission.commission_id }}</p>
+        </div>
+        
+        <div>
+          <label class="text-sm font-medium text-gray-600">Empleado:</label>
+          <p>{{ data.commission.employee_name }}</p>
+        </div>
+        
+        <div>
+          <label class="text-sm font-medium text-gray-600">Cliente:</label>
+          <p>{{ data.commission.client_name }}</p>
+        </div>
+        
+        <div>
+          <label class="text-sm font-medium text-gray-600">Contrato:</label>
+          <p class="font-mono text-sm">#{{ data.commission.contract_id }}</p>
+        </div>
+        
+        <div>
+          <label class="text-sm font-medium text-gray-600">Monto Comisión:</label>
+          <p class="font-semibold text-green-600">
+            {{ data.commission.commission_amount | currency:'USD':'symbol':'1.2-2' }}
+          </p>
+        </div>
+        
+        <div>
+          <label class="text-sm font-medium text-gray-600">Estado Actual:</label>
+          <span 
+            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border"
+            [ngClass]="getCurrentStatusClass()">
+            {{ getCurrentStatusText() }}
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Formulario de verificación -->
+    <form [formGroup]="verificationForm" (ngSubmit)="onSubmit()">
+      <!-- Selección de pago del cliente -->
+      <mat-form-field appearance="outline" class="w-full mb-4">
+        <mat-label>Pago del Cliente</mat-label>
+        <mat-select 
+          formControlName="customer_payment_id"
+          [disabled]="loadingPayments">
+          <mat-option *ngIf="loadingPayments" disabled>
+            <mat-spinner diameter="20"></mat-spinner>
+            Cargando pagos...
+          </mat-option>
+          
+          <mat-option 
+            *ngFor="let payment of customerPayments" 
+            [value]="payment.payment_id"
+            [disabled]="!canSelectPayment(payment)">
+            <div class="flex justify-between items-center w-full">
+              <span>{{ getPaymentDescription(payment) }}</span>
+              <mat-icon 
+                *ngIf="!canSelectPayment(payment)" 
+                class="text-gray-400 ml-2"
+                matTooltip="Pago no disponible para verificación">
+                block
+              </mat-icon>
+            </div>
+          </mat-option>
+          
+          <mat-option *ngIf="!loadingPayments && customerPayments.length === 0" disabled>
+            No se encontraron pagos para este contrato
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="hasFieldError('customer_payment_id')">
+          {{ getFieldError('customer_payment_id') }}
+        </mat-error>
+        <mat-hint>Selecciona el pago del cliente que corresponde a esta verificación</mat-hint>
+      </mat-form-field>
+      
+      <!-- Selección de cuota -->
+      <mat-form-field appearance="outline" class="w-full mb-4">
+        <mat-label>Cuota de Pago</mat-label>
+        <mat-select formControlName="payment_installment">
+          <mat-option 
+            *ngFor="let option of getAvailableInstallments()" 
+            [value]="option.value">
+            {{ option.label }}
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="hasFieldError('payment_installment')">
+          {{ getFieldError('payment_installment') }}
+        </mat-error>
+        <mat-hint>Indica qué cuota del pago está siendo verificada</mat-hint>
+      </mat-form-field>
+      
+      <!-- Notas de verificación -->
+      <mat-form-field appearance="outline" class="w-full mb-4">
+        <mat-label>Notas de Verificación (Opcional)</mat-label>
+        <textarea 
+          matInput 
+          formControlName="verification_notes"
+          rows="3"
+          placeholder="Agrega cualquier observación o detalle relevante sobre esta verificación...">
+        </textarea>
+        <mat-hint>Información adicional sobre la verificación</mat-hint>
+      </mat-form-field>
+      
+      <!-- Información adicional -->
+      <div class="info-section p-4 bg-blue-50 border border-blue-200 rounded-lg mb-4">
+        <div class="flex items-start">
+          <mat-icon class="text-blue-600 mr-2 mt-1">info</mat-icon>
+          <div>
+            <h4 class="font-semibold text-blue-800 mb-2">Información Importante</h4>
+            <ul class="text-sm text-blue-700 space-y-1">
+              <li>• La verificación manual debe corresponder a un pago real del cliente</li>
+              <li>• Solo se pueden verificar pagos que estén confirmados o completados</li>
+              <li>• Una vez verificado, el proceso no se puede deshacer fácilmente</li>
+              <li>• Las notas ayudan a mantener un registro de auditoría</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </form>
+  </mat-dialog-content>
+  
+  <mat-dialog-actions align="end" class="p-4">
+    <button 
+      mat-stroked-button 
+      type="button" 
+      (click)="onCancel()"
+      [disabled]="loading">
+      Cancelar
+    </button>
+    
+    <button 
+      mat-raised-button 
+      color="primary" 
+      type="submit"
+      (click)="onSubmit()"
+      [disabled]="loading || verificationForm.invalid">
+      <mat-spinner *ngIf="loading" diameter="20" class="mr-2"></mat-spinner>
+      <mat-icon *ngIf="!loading" class="mr-2">check</mat-icon>
+      {{ loading ? 'Procesando...' : 'Verificar Pago' }}
+    </button>
+  </mat-dialog-actions>
+</div>

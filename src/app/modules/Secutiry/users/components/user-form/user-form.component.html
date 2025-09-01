@@ -1,0 +1,365 @@
+<div class="w-full max-w-md sm:max-w-xl p-6 bg-gray-900 text-white rounded-2xl shadow-2xl overflow-y-auto">
+    <!-- header -->
+  <div class="flex justify-between items-start mb-6">
+    <div>
+      <h3 class="text-2xl font-bold">
+        {{ (isEditMode ? 'users.createUser.titleEdit' : 'users.createUser.titleCreate') | translate }}
+      </h3>
+      <!-- progress bar -->
+      <div class="mt-2 h-1 w-full bg-gray-800 rounded">
+        <div class="bg-blue-600 h-1 rounded transition-all duration-300"
+          [style.width.%]="(currentStep / sections.length) * 100"></div>
+      </div>
+      <p class="mt-1 text-xs text-gray-400">
+        Step {{ currentStep }} of {{ sections.length }}
+      </p>
+    </div>
+    <button type="button" class="flex items-center gap-1 text-sm bg-gray-800 hover:bg-gray-700 px-3 py-2 rounded shadow"
+      (click)="onCancel()">
+      <lucide-icon [name]="X" class="w-4 h-4"></lucide-icon> Cancel
+    </button>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-4">
+    <div *ngFor="let s of sections; let i = index" [ngClass]="
+        s.expanded
+          ? 'ring-2 ring-blue-600/40 shadow-2xl'
+          : 'border border-gray-700'
+      " class="rounded-lg overflow-hidden transition-colors duration-300">
+      <!-- section header -->
+      <button type="button"
+        class="w-full flex justify-between items-center px-4 py-3 bg-gradient-to-r from-gray-800 to-gray-850 hover:to-gray-800 select-none transition-colors"
+        (click)="toggleSection(i)">
+        <div class="flex items-center gap-3">
+          <span
+            class="h-5 w-5 flex items-center justify-center rounded-full text-[11px] font-semibold transition-colors duration-200"
+            [ngClass]="
+              s.expanded ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300'
+            ">
+            {{ i + 1 }}
+          </span>
+          <lucide-icon [name]="s.icon" class="w-4 h-4"
+            [ngClass]="s.expanded ? 'text-blue-400' : 'text-gray-400'"></lucide-icon>
+          <span class="font-medium text-sm">{{'users.createUser.'+s.title|translate }}</span>
+        </div>
+        <lucide-icon [name]="s.expanded ? ChevronUp : ChevronDown" class="w-4 h-4 text-gray-400"></lucide-icon>
+      </button>
+
+      <!-- section body -->
+      <div *ngIf="s.expanded" class="p-5 bg-gray-950 space-y-6" [@expandCollapse]>
+        <ng-container *ngIf="s.key === 'personal'">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 items-start">
+            <!-- Columna izquierda: Nombre, Apellidos y Fecha de nacimiento -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:col-span-2">
+              <!-- First Name -->
+              <div class="sm:col-span-2 field">
+                <label class="label">{{'users.createUser.firstName'|translate}}</label>
+                <input class="input" placeholder="John" formControlName="first_name" />
+                 <div *ngIf="fc('first_name').touched && fc('first_name').invalid" class="error-msg">
+                  <span *ngIf="fc('first_name').errors?.['required']">First name is required.</span>
+                  <span *ngIf="fc('first_name').errors?.['minlength']">Must be at least 3 characters.</span>
+                </div>
+                <div *ngIf="serverErrors['first_name']" class="error-msg">
+                  {{ serverErrors['first_name'][0] }}
+                </div>
+              </div>
+        
+              <!-- Last Name -->
+              <div class="sm:col-span-2 field">
+                <label class="label">{{'users.createUser.lastName'|translate}}</label>
+                <input class="input" placeholder="Doe" formControlName="last_name" />
+                 <div *ngIf="fc('last_name').touched && fc('last_name').invalid" class="error-msg">
+                  <span *ngIf="fc('last_name').errors?.['required']">Last name is required.</span>
+                  <span *ngIf="fc('last_name').errors?.['minlength']">Must be at least 3 characters.</span>
+                </div>
+                <div *ngIf="serverErrors['last_name']" class="error-msg">
+                  {{ serverErrors['last_name'][0] }}
+                </div>
+              </div>
+        
+              <!-- Birth Date (ocupa 2 columnas) -->
+              <div class="sm:col-span-4 field">
+                <label class="label">{{'users.createUser.birthDate'|translate}}</label>
+                <input type="date" class="input" formControlName="birth_date" />
+                 <div *ngIf="fc('birth_date').touched && fc('birth_date').invalid" class="error-msg">
+                  <span *ngIf="fc('birth_date').errors?.['required']">{{ 'validation.birthDate.required' | translate }}</span>
+                  <span *ngIf="fc('birth_date').errors?.['pattern']">Invalid date format.</span>
+                </div>
+                <div *ngIf="serverErrors['birth_date']" class="error-msg">
+                  {{ serverErrors['birth_date'][0] }}
+                </div>
+              </div>
+            </div>
+        
+            <!-- Columna derecha: Foto de perfil -->
+            <div class="field flex flex-col items-center">
+              <label class="label text-center">{{'users.createUser.profilePicture'|translate}}<br /><span class="text-xs">(optional)</span></label>
+              <div class="w-20 h-20 mb-2 rounded-full overflow-hidden border-2 border-blue-600 shadow">
+                <img *ngIf="photoPreview; else placeholder" [src]="photoPreview" class="object-cover w-full h-full" />
+                <ng-template #placeholder>
+                  <div class="flex items-center justify-center bg-gray-800 w-full h-full text-gray-500">
+                    <lucide-icon [name]="User" class="w-6 h-6" />
+                  </div>
+                </ng-template>
+              </div>
+              <button type="button" class="px-2 py-1 bg-gray-800 hover:bg-gray-700 rounded text-sm transition"
+                (click)="fileInput.click()">
+                Seleccionar
+              </button>
+              <input #fileInput type="file" accept="image/*" (change)="onPhotoChange($event)" class="hidden" />
+        
+              <!-- Client-side errors (si los tuvieras) -->
+              <div *ngIf="fc('photo_profile').touched && fc('photo_profile').invalid" class="error-msg">
+                <!-- ejemplo de validación custom -->
+                <span *ngIf="fc('photo_profile').errors?.['maxSize']">File too large (max 2 MB).</span>
+                <span *ngIf="fc('photo_profile').errors?.['image']">Must be a valid image.</span>
+              </div>
+        
+              <!-- Server-side error -->
+              <div *ngIf="serverErrors['photo_profile']" class="error-msg">
+                {{ serverErrors['photo_profile'][0] }}
+              </div>
+            </div>
+          </div>
+        </ng-container>
+        
+
+        <!-- CONTACT -->
+        <ng-container *ngIf="s.key === 'contact'">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div class="field">
+              <label class="label">DNI</label>
+              <input class="input" placeholder="01234567" formControlName="dni" />
+              <div *ngIf="fc('dni').touched && fc('dni').invalid" class="error-msg">
+                <span *ngIf="fc('dni').errors?.['required']">
+                  DNI is required.
+                </span>
+                <span *ngIf="fc('dni').errors?.['pattern']">
+                  Only 7–20 digits allowed.
+                </span>
+              </div>
+              <div *ngIf="serverErrors['dni']" class="error-msg">
+                {{ serverErrors['dni'][0] }}
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="label">Phone</label>
+              <input class="input" placeholder="+51 987-654-321" formControlName="phone" />
+              <div *ngIf="fc('phone').touched && fc('phone').invalid" class="error-msg">
+                <span *ngIf="fc('phone').errors?.['required']">
+                  Phone is required.
+                </span>
+                <span *ngIf="fc('phone').errors?.['pattern']">
+                  Invalid phone format.
+                </span>
+              </div>
+              <div *ngIf="serverErrors['phone']" class="error-msg">
+                {{ serverErrors['phone'][0] }}
+              </div>
+            </div>
+
+            <div class="field sm:col-span-2">
+              <label class="label">Address</label>
+              <input class="input" placeholder="Street 123, City" formControlName="address" />
+              <div *ngIf="fc('address').touched && fc('address').invalid" class="error-msg">
+                <span *ngIf="fc('address').errors?.['maxlength']">
+                  Max 255 characters.
+                </span>
+              </div>
+              <div *ngIf="serverErrors['address']" class="error-msg">
+                {{ serverErrors['address'][0] }}
+              </div>
+            </div>
+          </div>
+        </ng-container>
+
+        <!-- WORK -->
+        <ng-container *ngIf="s.key === 'work'">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div class="field">
+              <label class="label">Position</label>
+              <input class="input" placeholder="Developer" formControlName="position" />
+              <div *ngIf="fc('position').touched && fc('position').invalid" class="error-msg">
+                <span *ngIf="fc('position').errors?.['required']">
+                  Position is required.
+                </span>
+                <span *ngIf="fc('position').errors?.['maxlength']">
+                  Max 60 characters.
+                </span>
+              </div>
+              <div *ngIf="serverErrors['position']" class="error-msg">
+                {{ serverErrors['position'][0] }}
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="label">Department</label>
+              <input class="input" placeholder="IT" formControlName="department" />
+              <div *ngIf="fc('department').touched && fc('department').invalid" class="error-msg">
+                <span *ngIf="fc('department').errors?.['required']">
+                  Department is required.
+                </span>
+                <span *ngIf="fc('department').errors?.['maxlength']">
+                  Max 60 characters.
+                </span>
+              </div>
+              <div *ngIf="serverErrors['department']" class="error-msg">
+                {{ serverErrors['department'][0] }}
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="label">Hire Date</label>
+              <input type="date" class="input" formControlName="hire_date" />
+                <div *ngIf="fc('hire_date').touched && fc('hire_date').invalid" class="error-msg">
+                <span *ngIf="fc('hire_date').errors?.['pattern']">
+                  Invalid date.
+                </span>
+              </div>
+              <div *ngIf="serverErrors['hire_date']" class="error-msg">
+                {{ serverErrors['hire_date'][0] }}
+              </div>
+              </div>
+              <div class="field sm:col-span-2">
+                <label class="label">{{'users.createUser.cvFile'|translate}}</label>
+                <div class="flex items-center gap-2">
+                  <button type="button" class="px-2 py-1 bg-gray-800 hover:bg-gray-700 rounded text-sm" (click)="cvInput.click()">{{
+                    'common.select' | translate }}</button>
+                  <span class="text-sm" *ngIf="cvName">{{ cvName }}</span>
+                  <a *ngIf="!cvName && cvUrl" [href]="cvUrl" target="_blank" class="text-blue-400 underline text-sm">{{
+                    'common.download' | translate }}</a>
+                </div>
+                <input #cvInput type="file" (change)="onCvChange($event)" class="hidden" />
+                <div *ngIf="serverErrors['cv_file']" class="error-msg">
+                  {{ serverErrors['cv_file'][0] }}
+                </div>
+              </div>
+              </div>
+              </ng-container>
+
+
+        <!-- ACCESS -->
+        <ng-container *ngIf="s.key === 'access'">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div class="field">
+              <label class="label">Username</label>
+              <input class="input" formControlName="username" />
+              <div *ngIf="fc('username').touched && fc('username').invalid" class="error-msg">
+                <span *ngIf="fc('username').errors?.['required']">
+                  Username is required.
+                </span>
+                <span *ngIf="fc('username').errors?.['maxlength']">
+                  Max 60 characters.
+                </span>
+              </div>
+              <div *ngIf="serverErrors['username']" class="error-msg">
+                {{ serverErrors['username'][0] }}
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="label">Email</label>
+              <input class="input" type="email" formControlName="email" />
+              <div *ngIf="fc('email').touched && fc('email').invalid" class="error-msg">
+                <span *ngIf="fc('email').errors?.['required']">
+                  Email is required.
+                </span>
+                <span *ngIf="fc('email').errors?.['email']">
+                  Must be a valid email.
+                </span>
+              </div>
+              <div *ngIf="serverErrors['email']" class="error-msg">
+                {{ serverErrors['email'][0] }}
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="label">Password</label>
+              <input class="input" type="password" formControlName="password" (focus)="showPassRules = true" />
+              <div *ngIf="fc('password').touched && fc('password').invalid" class="error-msg">
+                <span *ngIf="fc('password').errors?.['required']">
+                  Password is required.
+                </span>
+                <span *ngIf="fc('password').errors?.['minlength']">
+                  At least 8 characters.
+                </span>
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="label">Confirm Password</label>
+              <input class="input" type="password" formControlName="password_confirmation" />
+              <div *ngIf="form.errors?.['mismatch']" class="error-msg">
+                Passwords must match.
+              </div>
+            </div>
+
+            <div *ngIf="showPassRules" class="sm:col-span-2 mt-2 space-y-1 text-sm">
+              <ul>
+                <li *ngFor="let rule of passRules" [ngClass]="{
+                    'text-green-400': rule.valid,
+                    'text-gray-500': !rule.valid
+                  }">
+                  • {{ rule.label }}
+                </li>
+              </ul>
+            </div>
+
+            <div class="field">
+              <label class="label">Status</label>
+              <select class="input" formControlName="status">
+                <option value="active">Active</option>
+                <option value="blocked">Blocked</option>
+              </select>
+              <div *ngIf="serverErrors['status']" class="error-msg">
+                {{ serverErrors['status'][0] }}
+              </div>
+            </div>
+          </div>
+        </ng-container>
+
+        <!-- ROLES -->
+        <ng-container *ngIf="s.key === 'roles'">
+          <label class="label">Roles</label>
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
+            <ng-container *ngIf="rolesList.length">
+              <label *ngFor="let r of rolesList" class="flex items-center gap-2">
+                <input type="checkbox" [checked]="form.value.roles.includes(r.name)"
+                  (change)="onRoleChange($event, r.name)" class="accent-blue-600 w-4 h-4 rounded" />
+                {{ r.name | titlecase }}
+              </label>
+            </ng-container>
+          </div>
+          <div *ngIf="serverErrors['roles']" class="error-msg">
+            {{ serverErrors['roles'][0] }}
+          </div>
+
+          <ng-container *ngIf="selectedPermissions$ | async as perms">
+            <label *ngIf="perms.length" class="label">Permissions</label>
+            <div class="flex flex-wrap gap-2">
+              <span *ngFor="let p of perms" class="text-xs px-2 py-1 bg-gray-800 rounded-full whitespace-nowrap">
+                {{ p | translate }}
+              </span>
+            </div>
+          </ng-container>
+        </ng-container>
+
+        <!-- buttons -->
+        <div class="pt-4 text-right">
+          <button *ngIf="i < sections.length - 1" type="button"
+            class="bg-blue-600 hover:bg-blue-500 text-sm px-5 py-2 rounded shadow-lg transition disabled:opacity-40"
+            (click)="next()" [disabled]="!isSectionValid(s.key)">
+            Next
+          </button>
+
+          <button *ngIf="i === sections.length - 1"  type="submit"  
+            class="bg-green-600 hover:bg-green-500 text-sm px-5 py-2 rounded shadow-lg transition disabled:opacity-40" 
+            [disabled]="form.invalid">
+            {{ isEditMode ? 'Update' : 'Create' }}
+             </button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

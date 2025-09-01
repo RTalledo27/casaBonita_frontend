@@ -1,0 +1,206 @@
+<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+    <!-- Header -->
+    <div class="flex items-center justify-between p-6 border-b">
+      <h2 class="text-xl font-semibold text-gray-900">
+        {{ isEditMode ? 'Editar Contrato' : 'Nuevo Contrato' }}
+      </h2>
+      <button 
+        (click)="cancel()" 
+        class="text-gray-400 hover:text-gray-600 transition-colors"
+        type="button">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Form -->
+    <form [formGroup]="form" (ngSubmit)="submit()" class="p-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- Información Básica -->
+        <div class="space-y-4">
+          <h3 class="text-lg font-medium text-gray-900 border-b pb-2">Información Básica</h3>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">ID Reservación</label>
+            <input 
+              type="number" 
+              formControlName="reservation_id"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="ID de la reservación">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Fecha de Firma</label>
+            <input 
+              type="date" 
+              formControlName="sign_date"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+            <select 
+              formControlName="status"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="active">Activo</option>
+              <option value="cancelled">Cancelado</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Moneda</label>
+            <select 
+              formControlName="currency"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="S/">Soles (S/)</option>
+              <option value="$">Dólares ($)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Información Financiera Principal -->
+        <div class="space-y-4">
+          <h3 class="text-lg font-medium text-gray-900 border-b pb-2">Información Financiera</h3>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Precio Total</label>
+            <input 
+              type="number" 
+              step="0.01"
+              formControlName="total_price"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="0.00">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Cuota Inicial</label>
+            <input 
+              type="number" 
+              step="0.01"
+              formControlName="down_payment"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="0.00">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Monto Financiado</label>
+            <input 
+              type="number" 
+              step="0.01"
+              formControlName="financing_amount"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="0.00">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Financiamiento (Funding)</label>
+            <input 
+              type="number" 
+              step="0.01"
+              formControlName="funding"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="0.00">
+          </div>
+        </div>
+
+        <!-- Campos Financieros Migrados -->
+        <div class="space-y-4">
+          <h3 class="text-lg font-medium text-gray-900 border-b pb-2">Bonos y Cuotas</h3>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">BPP (Bono por Pronto Pago)</label>
+            <input 
+              type="number" 
+              step="0.01"
+              formControlName="bpp"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="0.00">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">BFH (Bono Fondo de Habitación)</label>
+            <input 
+              type="number" 
+              step="0.01"
+              formControlName="bfh"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="0.00">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Cuota Inicial Específica</label>
+            <input 
+              type="number" 
+              step="0.01"
+              formControlName="initial_quota"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="0.00">
+          </div>
+        </div>
+
+        <!-- Detalles de Financiamiento -->
+        <div class="space-y-4">
+          <h3 class="text-lg font-medium text-gray-900 border-b pb-2">Detalles de Financiamiento</h3>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Tasa de Interés (%)</label>
+            <input 
+              type="number" 
+              step="0.01"
+              formControlName="interest_rate"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="0.00">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Plazo (meses)</label>
+            <input 
+              type="number" 
+              formControlName="term_months"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="0">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Cuota Mensual</label>
+            <input 
+              type="number" 
+              step="0.01"
+              formControlName="monthly_payment"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="0.00">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Pago Balloon</label>
+            <input 
+              type="number" 
+              step="0.01"
+              formControlName="balloon_payment"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="0.00">
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex justify-end space-x-3 mt-8 pt-6 border-t">
+        <button 
+          type="button" 
+          (click)="cancel()"
+          class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+          Cancelar
+        </button>
+        <button 
+          type="submit" 
+          [disabled]="form.invalid"
+          class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
+          {{ isEditMode ? 'Actualizar' : 'Crear' }} Contrato
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

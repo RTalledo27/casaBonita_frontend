@@ -1,0 +1,11 @@
+<div class="flex justify-between items-center mb-4">
+    <h2>{{ 'sales.reservations.title' | translate }}</h2>
+    <button *ngIf="authService.hasPermission('sales.reservations.store')" (click)="onCreate()"
+        class="btn btn-primary flex items-center gap-1">
+        <lucide-icon [name]="plus"></lucide-icon>
+        {{ 'common.create' | translate }}
+    </button>
+</div>
+<app-shared-table [columns]="columns" [data]="(reservations$ | async)|| []" [idField]="idField" (onEdit)="onEdit($event)"
+    [permissionPrefix]="'sales'" componentName="reservations"></app-shared-table>
+<router-outlet name="modal" (activate)="onModalActivate($event)" (deactivate)="onModalDeactivate()"></router-outlet>

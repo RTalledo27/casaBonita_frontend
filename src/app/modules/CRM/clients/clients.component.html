@@ -1,0 +1,47 @@
+<!-- clients.component.html -->
+<div class="p-6 space-y-6 text-gray-800 dark:text-white">    <!-- Header -->
+    <div class="flex justify-between items-center">
+        <h2 class="text-2xl font-bold">
+            {{ 'crm.clients.title' | translate }}
+        </h2>
+        <p class="text-xs text-gray-500 dark:text-gray-400">
+            {{ (clients$ | async)?.length || 0 }} {{ 'common.records' | translate }}
+        </p>
+
+        <!-- botón crear solo si el usuario tiene permiso -->
+        <button *ngIf="canCreate()" (click)="onCreate()" class="btn-primary flex items-center gap-1">
+            <lucide-icon [name]="plus" class="w-4 h-4"></lucide-icon>
+            {{ 'common.new' | translate }}
+        </button>
+    </div>
+
+    <!-- Filtros -->
+    <div class="flex items-center gap-4">
+        <input type="text" [(ngModel)]="filter" placeholder="{{ 'crm.clients.search' | translate }}"
+            class="input-text border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-indigo-500
+                         placeholder:text-white dark:border-slate-600 dark:bg-slate-800 dark:placeholder:text-indigo-400" />
+
+        <select [(ngModel)]="type" class="input-select border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-indigo-500
+                         dark:border-slate-600 dark:bg-slate-800">
+            <option value="">{{ 'common.all' | translate }}</option>
+            <option value="lead">{{ 'crm.clients.types.lead' | translate }}</option>
+            <option value="client">{{ 'crm.clients.types.client' | translate }}</option>
+        </select>
+    </div>
+
+    <!-- Tabla -->
+    <ng-container *ngIf="clients$ | async as clients">
+        <app-shared-table [columns]="columns" [data]="clients | crmFilter: filter : type" [templates]="templates" 
+            [componentName]="'clients'" [permissionPrefix]="'crm'" [idField]="idField" (onEdit)="onEdit($event)"
+            (onViewDetails)="onView($event)" (delete)="onDelete($event)">
+        </app-shared-table>
+    </ng-container>
+    </div>
+
+<!-- Modal superpuesto -->
+<div *ngIf="isModalOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+    <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 max-h-[90vh] overflow-y-auto">
+               <router-outlet name="modal" (activate)="onModalActivate($event)"></router-outlet>
+    </div>
+</div>
+  

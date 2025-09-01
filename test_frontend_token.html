@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Frontend Token</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test de Autenticación Frontend - Token Bearer</h1>
+    
+    <div class="container info">
+        <h3>Información del Test</h3>
+        <p>Este script verifica si el frontend está enviando correctamente el token Bearer en las peticiones HTTP.</p>
+        <p><strong>API Base URL:</strong> <span id="apiUrl">http://localhost:8000/api/v1</span></p>
+    </div>
+
+    <div class="container">
+        <h3>1. Verificar Token en localStorage</h3>
+        <button onclick="checkLocalStorage()">Verificar localStorage</button>
+        <div id="localStorageResult"></div>
+    </div>
+
+    <div class="container">
+        <h3>2. Test de Petición con Token</h3>
+        <button onclick="testTokenRequest()" id="testBtn">Probar Petición con Token</button>
+        <div id="requestResult"></div>
+    </div>
+
+    <div class="container">
+        <h3>3. Test de Petición sin Token</h3>
+        <button onclick="testWithoutToken()">Probar Petición sin Token</button>
+        <div id="noTokenResult"></div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:8000/api/v1';
+        
+        function checkLocalStorage() {
+            const resultDiv = document.getElementById('localStorageResult');
+            
+            try {
+                const token = localStorage.getItem('auth_token');
+                const user = localStorage.getItem('user');
+                
+                if (token) {
+                    resultDiv.innerHTML = `
+                        <div class="container success">
+                            <h4>✅ Token encontrado en localStorage</h4>
+                            <p><strong>Token:</strong> ${token.substring(0, 20)}...</p>
+                            <p><strong>Usuario:</strong> ${user ? JSON.parse(user).name || 'N/A' : 'No encontrado'}</p>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="container error">
+                            <h4>❌ No se encontró token en localStorage</h4>
+                            <p>Asegúrate de estar logueado en la aplicación.</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="container error">
+                        <h4>❌ Error al verificar localStorage</h4>
+                        <pre>${error.message}</pre>
+                    </div>
+                `;
+            }
+        }
+        
+        async function testTokenRequest() {
+            const resultDiv = document.getElementById('requestResult');
+            const testBtn = document.getElementById('testBtn');
+            
+            testBtn.disabled = true;
+            testBtn.classList.add('disabled');
+            testBtn.textContent = 'Probando...';
+            
+            try {
+                const token = localStorage.getItem('auth_token');
+                
+                if (!token) {
+                    throw new Error('No hay token en localStorage');
+                }
+                
+                // Crear headers manualmente para simular el interceptor
+                const headers = {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/json'
+                };
+                
+                resultDiv.innerHTML = `
+                    <div class="container info">
+                        <h4>📤 Enviando petición...</h4>
+                        <p><strong>URL:</strong> ${API_BASE_URL}/sales/import/contracts/validate</p>
+                        <p><strong>Headers enviados:</strong></p>
+                        <pre>${JSON.stringify(headers, null, 2)}</pre>
+                    </div>
+                `;
+                
+                // Hacer petición al endpoint de validación
+                const response = await fetch(`${API_BASE_URL}/sales/import/contracts/validate`, {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify({
+                        file: 'test.xlsx' // Archivo de prueba
+                    })
+                });
+                
+                const responseData = await response.text();
+                
+                resultDiv.innerHTML += `
+                    <div class="container ${response.ok ? 'success' : 'error'}">
+                        <h4>${response.ok ? '✅' : '❌'} Respuesta del servidor</h4>
+                        <p><strong>Status:</strong> ${response.status} ${response.statusText}</p>
+                        <p><strong>Headers de respuesta:</strong></p>
+                        <pre>${JSON.stringify(Object.fromEntries(response.headers.entries()), null, 2)}</pre>
+                        <p><strong>Respuesta:</strong></p>
+                        <pre>${responseData}</pre>
+                    </div>
+                `;
+                
+            } catch (error) {
+                resultDiv.innerHTML += `
+                    <div class="container error">
+                        <h4>❌ Error en la petición</h4>
+                        <pre>${error.message}</pre>
+                    </div>
+                `;
+            } finally {
+                testBtn.disabled = false;
+                testBtn.classList.remove('disabled');
+                testBtn.textContent = 'Probar Petición con Token';
+            }
+        }
+        
+        async function testWithoutToken() {
+            const resultDiv = document.getElementById('noTokenResult');
+            
+            try {
+                const headers = {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                    // Sin Authorization header
+                };
+                
+                resultDiv.innerHTML = `
+                    <div class="container info">
+                        <h4>📤 Enviando petición sin token...</h4>
+                        <p><strong>URL:</strong> ${API_BASE_URL}/sales/import/contracts/validate</p>
+                        <p><strong>Headers enviados:</strong></p>
+                        <pre>${JSON.stringify(headers, null, 2)}</pre>
+                    </div>
+                `;
+                
+                const response = await fetch(`${API_BASE_URL}/sales/import/contracts/validate`, {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify({
+                        file: 'test.xlsx'
+                    })
+                });
+                
+                const responseData = await response.text();
+                
+                resultDiv.innerHTML += `
+                    <div class="container ${response.status === 401 ? 'success' : 'error'}">
+                        <h4>${response.status === 401 ? '✅' : '❌'} Respuesta esperada (401 Unauthorized)</h4>
+                        <p><strong>Status:</strong> ${response.status} ${response.statusText}</p>
+                        <p><strong>Respuesta:</strong></p>
+                        <pre>${responseData}</pre>
+                    </div>
+                `;
+                
+            } catch (error) {
+                resultDiv.innerHTML += `
+                    <div class="container error">
+                        <h4>❌ Error en la petición</h4>
+                        <pre>${error.message}</pre>
+                    </div>
+                `;
+            }
+        }
+        
+        // Verificar localStorage al cargar la página
+        window.onload = function() {
+            checkLocalStorage();
+        };
+    </script>
+</body>
+</html>

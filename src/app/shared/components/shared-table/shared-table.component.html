@@ -1,0 +1,75 @@
+<div class="overflow-x-auto rounded-lg border border-black">
+    <table class="min-w-full text-[0.9375rem] divide-y divide-black">
+        <!-- Cabecera -->
+        <thead class="bg-gray-800">
+            <tr>
+                <th *ngFor="let c of columns" [style.width]="c.width" [class.text-right]="c.align === 'right'"
+                    [class.text-center]="c.align === 'center'"
+                    class="px-5 py-3.5 font-semibold text-white text-left border-b border-gray-650">
+                    {{ c.header | translate }}
+                </th>
+                <th class="px-5 py-3.5 w-[120px] text-right border-b border-gray-650"></th>
+            </tr>
+            </thead>
+
+<!-- Cuerpo -->
+<tbody class="divide-y divide-gray-700/60">
+    <tr *ngFor="let row of data; trackBy: track" class="hover:bg-gray-800/40 transition-colors group">
+
+        <ng-container *ngFor="let c of columns">
+            <td class="px-5 py-3.5 text-gray-200" [class.text-right]="c.align === 'right'"
+                [class.text-center]="c.align === 'center'">
+
+                <!-- Contenido -->
+                <ng-container *ngIf="c.tpl; else plain">
+                    <ng-container *ngTemplateOutlet="templates[c.tpl]; context: { $implicit: row }"></ng-container>
+                </ng-container>
+
+                <ng-template #plain>
+                    <span class="text-black dark:text-white">
+                        <ng-container *ngIf="c.translateContent; else rawContent">
+                            {{ cell(row, c) | translate }} <!-- Con traducción -->
+                        </ng-container>
+                        <ng-template #rawContent>
+                            {{ cell(row, c) || '——————' }} <!-- Sin traducción -->
+                        </ng-template>
+                    </span>    
+                </ng-template>
+            </td>
+        </ng-container>
+
+            <!-- Acciones -->
+            <td class="px-5 py-3.5">
+                <div class="flex justify-end gap-2 opacity-80  group-hover:opacity-100 transition-opacity">
+                    <button *ngIf="canViewDetails()" (click)="onViewClick(getId(row))"
+                        class="p-1.5 hover:bg-gray-700/30 rounded-md transition-colors" title="Ver detalle">
+                        <lucide-icon [name]="eye" class="w-[18px] h-[18px] text-blue"></lucide-icon>
+                    </button>
+            
+                    <button *ngIf="canEdit()" (click)="onEditClick(getId(row))" class="p-1.5 hover:bg-gray-700/30 rounded-md transition-colors" title="Editar">
+                        <lucide-icon [name]="edit" class="w-[18px] h-[18px] text-gray-400"></lucide-icon>
+                    </button>
+            
+                    <button type="button" *ngIf="canDelete()" class="p-1.5 hover:bg-red-500/15 rounded-md transition-colors"
+                        (click)="onDelete(getId(row))" title="Eliminar">
+                        <lucide-icon [name]="trash" class="w-[18px] h-[18px] text-red-400"></lucide-icon>
+                    </button>
+                </div>
+            </td> 
+        </tr>
+
+      <!-- sin datos -->
+        <!-- Sin datos -->
+        <tr *ngIf="!data?.length">
+            <td [attr.colspan]="columns.length + 1" class="px-5 py-8 text-center">
+                <div class="flex flex-col items-center gap-3 text-black">
+                    <lucide-icon [name]="database" class="w-8 h-8 text-black dark:text-white" ></lucide-icon>
+                    <span class="italic text-sm dark:text-white">{{ "common.noData" | translate }}</span>
+                </div>
+            </td>
+        </tr>
+        </tbody>
+        </table>
+        </div>
+
+       

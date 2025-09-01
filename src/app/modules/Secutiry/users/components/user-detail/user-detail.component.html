@@ -1,0 +1,101 @@
+<ng-container *ngIf="user$ | async as u">
+    
+
+<div class="p-6 bg-gray-900 text-white rounded-2xl shadow-lg">
+    <button routerLink="/security/users" class="text-blue-400 hover:underline mb-6 inline-flex items-center gap-1">
+        ← Back to list
+    </button>
+
+    <div class="flex flex-col md:flex-row gap-6">
+        <!-- FOTO -->
+        <div class="flex-shrink-0">
+            <div class="w-32 h-32 rounded-full border-2 border-blue-600 overflow-hidden mb-4">
+                <img *ngIf=" u.photo_url; else placeholder" [src]="backendBaseUrl + u.photo_url" class="w-full h-full object-cover" />
+                <ng-template #placeholder>
+                    <div class="w-full h-full bg-gray-800 flex items-center justify-center text-gray-500 text-4xl">
+                        <lucide-icon [name]="User" />
+                    </div>
+                </ng-template>
+            </div>
+        </div>
+
+        <!-- DATOS -->
+        <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <ng-container *ngFor="let field of [
+          { label: 'Username',      value: u.username },
+          { label: 'Name',          value: u.first_name + ' ' + u.last_name },
+          { label: 'Email',         value: u.email },
+          { label: 'Status',        template: statusTpl },
+          { label: 'DNI',           value: u.dni || '-' },
+          { label: 'Phone',         value: u.phone || '-' },
+          { label: 'Position',      value: u.position || '-' },
+          { label: 'Department',    value: u.department || '-' },
+          { label: 'Birth Date',    template: birthTpl },
+          { label: 'Hire Date',     template: hireTpl },
+          { label: 'CV',           template: cvTpl },
+        ]">
+                <div class="bg-gray-800 p-4 rounded-lg">
+                    <dt class="font-semibold mb-1">{{ field.label }}:</dt>
+                    <dd *ngIf="field.value">{{ field.value }}</dd>
+                    <ng-container *ngIf="field.template">
+                        <ng-container *ngTemplateOutlet="field.template"></ng-container>
+                    </ng-container>
+                </div>
+            </ng-container>
+
+            <!-- ROLES ocupa 100% ancho -->
+            <div class="sm:col-span-2 bg-gray-800 p-4 rounded-lg">
+                <dt class="font-semibold mb-1">Roles:</dt>
+                <dd>{{ u.roles.join(', ') }}</dd>
+            </div>
+
+            <!-- PERMISOS con scroll -->
+            <div class="sm:col-span-2 bg-gray-800 p-4 rounded-lg">
+                <dt class="font-semibold mb-1">Permissions:</dt>
+                <div class="max-h-40 overflow-auto flex flex-wrap gap-2 mt-2">
+                    <span *ngFor="let p of u.permissions" class="bg-gray-700 px-2 py-1 text-xs rounded">{{ p }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TEMPLATES AUXILIARES -->
+    <ng-template #statusTpl>
+        <span class="inline-block px-2 py-1 rounded text-sm font-medium" [ngClass]="{
+          'bg-green-600': u.status==='active',
+          'bg-red-600':   u.status==='blocked'
+        }">{{ u.status | titlecase }}</span>
+    </ng-template>
+
+    <ng-template #birthTpl>
+        <dd>{{ u.birth_date | date:'longDate' }}</dd>
+    </ng-template>
+
+    <ng-template #hireTpl>
+        <dd>{{ u.hire_date ? (u.hire_date | date:'longDate') : '-' }}</dd>
+    </ng-template>
+    
+    <ng-template #cvTpl>
+        <ng-container *ngIf="u.cv_url; else noCv">
+            <a [href]=" backendBaseUrl+u.cv_url" target="_blank" class="text-blue-400 underline text-sm">{{ 'common.download' | translate
+                }}</a>
+        </ng-container>
+        <ng-template #noCv>-</ng-template>
+    </ng-template>
+
+    <!-- BOTONES -->
+    <div class="mt-6 flex gap-3">
+        <button (click)="onEdit(u)">Edit</button>
+        <button (click)="onDelete(u.id)" class="bg-red-600 hover:bg-red-500 px-4 py-2 rounded">
+            Delete
+        </button>
+    </div>
+</div>
+
+</ng-container>
+
+<div *ngIf="isModalOpen" class="fixed inset-0 flex items-center justify-center z-50">
+    <div class="bg-gray-900 rounded-2xl shadow-2xl p-6 max-h-[80vh] overflow-y-auto">
+        <router-outlet name="modal" (activate)="onModalActivate($event)"></router-outlet>
+    </div>
+</div>

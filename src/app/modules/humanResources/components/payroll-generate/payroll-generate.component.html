@@ -1,0 +1,344 @@
+<div class="p-6 max-w-7xl mx-auto bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+  <!-- Header -->
+  <div class="flex items-center gap-4 mb-8 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 transition-colors">
+    <button (click)="onCancel()" class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+      <lucide-angular [img]="ArrowLeft" size="24"></lucide-angular>
+    </button>
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Generar Nóminas</h1>
+      <p class="text-gray-600 dark:text-gray-400 mt-1">Procesa las nóminas para el período seleccionado</p>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="flex flex-col items-center justify-center p-16 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 transition-colors">
+    <div class="w-12 h-12 border-4 border-gray-200 dark:border-gray-600 border-t-primary-500 rounded-full animate-spin mb-4"></div>
+    <p class="text-lg font-semibold text-gray-700 dark:text-gray-300">Cargando empleados...</p>
+  </div>
+
+  <!-- Form -->
+  <div *ngIf="!isLoading">
+    <form [formGroup]="payrollForm" (ngSubmit)="onSubmit()">
+      
+      <!-- Configuración del Período -->
+      <div class="mb-8 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 transition-colors">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+            <lucide-angular [img]="Calendar" size="20" class="text-blue-600 dark:text-blue-400"></lucide-angular>
+          </div>
+          <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+            Configuración del Período
+          </h3>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <!-- Mes -->
+          <div>
+            <label for="period_month" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Mes <span class="text-red-500">*</span>
+            </label>
+            <select
+              id="period_month"
+              formControlName="period_month"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+            >
+              <option *ngFor="let month of [1,2,3,4,5,6,7,8,9,10,11,12]" [value]="month">
+                {{ getMonthName(month) }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Año -->
+          <div>
+            <label for="period_year" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Año <span class="text-red-500">*</span>
+            </label>
+            <input
+              type="number"
+              id="period_year"
+              formControlName="period_year"
+              min="2020"
+              max="2030"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+            />
+          </div>
+
+          <!-- Fecha de Pago -->
+          <div>
+            <label for="pay_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Fecha de Pago <span class="text-red-500">*</span>
+            </label>
+            <input
+              type="date"
+              id="pay_date"
+              formControlName="pay_date"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Opciones de Cálculo -->
+      <div class="mb-8 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 transition-colors">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+            <lucide-angular [img]="Calculator" size="20" class="text-purple-600 dark:text-purple-400"></lucide-angular>
+          </div>
+          <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+            Opciones de Cálculo
+          </h3>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <label class="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-colors">
+            <input
+              type="checkbox"
+              formControlName="include_commissions"
+              class="w-5 h-5 text-primary-500 bg-white dark:bg-gray-600 border-gray-300 dark:border-gray-500 rounded focus:ring-primary-500 focus:ring-2"
+            />
+            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Incluir Comisiones</span>
+          </label>
+
+          <label class="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-colors">
+            <input
+              type="checkbox"
+              formControlName="include_bonuses"
+              class="w-5 h-5 text-primary-500 bg-white dark:bg-gray-600 border-gray-300 dark:border-gray-500 rounded focus:ring-primary-500 focus:ring-2"
+            />
+            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Incluir Bonificaciones</span>
+          </label>
+
+          <label class="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-colors">
+            <input
+              type="checkbox"
+              formControlName="include_overtime"
+              class="w-5 h-5 text-primary-500 bg-white dark:bg-gray-600 border-gray-300 dark:border-gray-500 rounded focus:ring-primary-500 focus:ring-2"
+            />
+            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Incluir Horas Extra</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Selección de Empleados -->
+      <div class="mb-8 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 transition-colors">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <div class="flex items-center gap-3">
+            <div class="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
+              <lucide-angular [img]="Users" size="20" class="text-green-600 dark:text-green-400"></lucide-angular>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+              Selección de Empleados
+            </h3>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button type="button" (click)="selectAllEmployees()" class="px-3 py-2 text-sm font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors">
+              Seleccionar Página
+            </button>
+            <button type="button" (click)="selectAllEmployeesGlobal()" class="px-3 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors">
+              Seleccionar Todos
+            </button>
+            <button type="button" (click)="clearSelection()" class="px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+              Limpiar Selección
+            </button>
+          </div>
+        </div>
+
+        <!-- Resumen de Selección -->
+        <div class="mb-6">
+          <div class="bg-gradient-to-r from-primary-500 to-purple-600 dark:from-primary-600 dark:to-purple-700 text-white p-6 rounded-xl">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-center">
+              <div>
+                <span class="block text-sm font-medium opacity-90 mb-1">Empleados Seleccionados</span>
+                <span class="text-2xl font-bold">{{ getTotalSelectedEmployees() }}</span>
+              </div>
+              <div>
+                <span class="block text-sm font-medium opacity-90 mb-1">Total Estimado</span>
+                <span class="text-2xl font-bold">{{ formatCurrency(getEstimatedTotal()) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Información de Paginación -->
+        <div class="mb-4 flex justify-between items-center text-sm text-gray-600 dark:text-gray-400">
+          <span>
+            Mostrando {{ paginationInfo().start }} - {{ paginationInfo().end }} de {{ paginationInfo().total }} empleados
+          </span>
+          <span>
+            Página {{ currentPage() }} de {{ totalPages() }}
+          </span>
+        </div>
+
+        <!-- Lista de Empleados -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 min-h-[400px] p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-600">
+          <div
+            *ngFor="let employee of employees"
+            class="flex items-center gap-4 p-4 bg-white dark:bg-gray-700 rounded-lg border-2 cursor-pointer transition-all hover:shadow-md"
+            [class]="isEmployeeSelected(employee.employee_id) ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20' : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'"
+            (click)="onEmployeeToggle(employee.employee_id)"
+          >
+            <div>
+              <input
+                type="checkbox"
+                [checked]="isEmployeeSelected(employee.employee_id)"
+                class="w-5 h-5 text-primary-500 bg-white dark:bg-gray-600 border-gray-300 dark:border-gray-500 rounded focus:ring-primary-500 focus:ring-2"
+                readonly
+              />
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="font-semibold text-gray-900 dark:text-white truncate">
+                {{ employee.user?.first_name }} {{ employee.user?.last_name }}
+              </div>
+              <div class="text-sm text-gray-500 dark:text-gray-400">{{ employee.employee_code }}</div>
+              <div class="flex items-center gap-1 text-sm font-medium text-green-600 dark:text-green-400 mt-1">
+                <lucide-angular [img]="DollarSign" size="14"></lucide-angular>
+                {{ formatCurrency(employee.base_salary) }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Controles de Paginación Mejorados -->
+        <div *ngIf="totalPages() > 1" class="mt-6 bg-white dark:bg-gray-800 px-4 py-3 border-t border-gray-200 dark:border-gray-700 sm:px-6 rounded-b-lg">
+          <div class="flex items-center justify-between">
+            <!-- Información de paginación en móvil -->
+            <div class="flex-1 flex justify-between sm:hidden">
+              <button
+                type="button"
+                [disabled]="currentPage() === 1"
+                (click)="onPageChange(currentPage() - 1)"
+                class="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                Anterior
+              </button>
+              <button
+                type="button"
+                [disabled]="currentPage() === totalPages()"
+                (click)="onPageChange(currentPage() + 1)"
+                class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                Siguiente
+              </button>
+            </div>
+            
+            <!-- Información de paginación en desktop -->
+            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+              <div>
+                <p class="text-sm text-gray-700 dark:text-gray-300">
+                   Mostrando
+                   <span class="font-medium">{{ getPaginationInfo().start }}</span>
+                   a
+                   <span class="font-medium">{{ getPaginationInfo().end }}</span>
+                   de
+                   <span class="font-medium">{{ getPaginationInfo().total }}</span>
+                   empleados
+                 </p>
+              </div>
+              
+              <!-- Controles de navegación -->
+              <div>
+                <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                  <!-- Botón Primera Página -->
+                  <button
+                    type="button"
+                    [disabled]="currentPage() === 1"
+                    (click)="onPageChange(1)"
+                    class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    title="Primera página"
+                  >
+                    <span class="sr-only">Primera página</span>
+                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414zm-6 0a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                    </svg>
+                  </button>
+                  
+                  <!-- Botón Anterior -->
+                  <button
+                    type="button"
+                    [disabled]="currentPage() === 1"
+                    (click)="onPageChange(currentPage() - 1)"
+                    class="relative inline-flex items-center px-2 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <span class="sr-only">Anterior</span>
+                    <lucide-angular [img]="ChevronLeft" size="20"></lucide-angular>
+                  </button>
+                  
+                  <!-- Números de página -->
+                  <button
+                    type="button"
+                    *ngFor="let page of getPageNumbers()"
+                    [class]="currentPage() === page ? 
+                      'z-10 bg-primary-50 dark:bg-primary-900/50 border-primary-500 dark:border-primary-400 text-primary-600 dark:text-primary-300' : 
+                      'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600'"
+                    (click)="onPageChange(page)"
+                    class="relative inline-flex items-center px-4 py-2 border text-sm font-medium transition-colors"
+                  >
+                    {{ page }}
+                  </button>
+                  
+                  <!-- Botón Siguiente -->
+                  <button
+                    type="button"
+                    [disabled]="currentPage() === totalPages()"
+                    (click)="onPageChange(currentPage() + 1)"
+                    class="relative inline-flex items-center px-2 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <span class="sr-only">Siguiente</span>
+                    <lucide-angular [img]="ChevronRight" size="20"></lucide-angular>
+                  </button>
+                  
+                  <!-- Botón Última Página -->
+                  <button
+                    type="button"
+                    [disabled]="currentPage() === totalPages()"
+                    (click)="onPageChange(totalPages())"
+                    class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    title="Última página"
+                  >
+                    <span class="sr-only">Última página</span>
+                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414zm6 0a1 1 0 011.414 0l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414-1.414L14.586 10l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                  </button>
+                </nav>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notas -->
+      <div class="mb-8 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 transition-colors">
+        <div>
+          <label for="notes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Notas Adicionales
+          </label>
+          <textarea
+            id="notes"
+            formControlName="notes"
+            placeholder="Notas sobre este proceso de nómina..."
+            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors resize-vertical"
+            rows="3"
+          ></textarea>
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="flex flex-col sm:flex-row gap-4 justify-end">
+        <button type="button" (click)="onCancel()" class="px-6 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-500 transition-colors">
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          [disabled]="isLoading || payrollForm.invalid || getTotalSelectedEmployees() === 0"
+          class="flex items-center justify-center gap-2 px-6 py-3 text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 disabled:bg-gray-400 dark:disabled:bg-gray-600 disabled:cursor-not-allowed rounded-lg focus:ring-2 focus:ring-primary-500 transition-colors"
+        >
+          <lucide-angular [img]="Save" size="20" *ngIf="!isLoading"></lucide-angular>
+          <div *ngIf="isLoading" class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+          <span *ngIf="!isLoading">Generar Nóminas</span>
+          <span *ngIf="isLoading">Generando...</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,28 @@
+<div class="w-full max-w-md sm:max-w-xl p-6 bg-gray-900 text-white rounded-2xl space-y-4">
+    <h3 class="text-xl font-bold mb-4">{{ isEditMode ? 'Edit' : 'New' }} Interaction</h3>
+    <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-4">
+        <div>
+            <label class="label">Date</label>
+            <input type="date" class="input" formControlName="date" />
+        </div>
+        <div>
+            <label class="label">Channel</label>
+            <select class="input" formControlName="channel">
+                <option *ngFor="let c of channels" [value]="c">{{ c }}</option>
+            </select>
+        </div>
+        <div>
+            <label class="label">Notes</label>
+            <textarea class="input" formControlName="notes"></textarea>
+        </div>
+        <div class="flex justify-end gap-3 pt-4">
+            <button type="button" class="btn-secondary" (click)="close()">
+                <lucide-icon [name]="X" class="w-4 h-4"></lucide-icon>
+                Cancel
+            </button>
+            <button type="submit" class="btn-primary" [disabled]="form.invalid">{{ isEditMode ? 'Update' : 'Create'
+                }}</button>
+        </div>
+    </form>
+</div>
+  

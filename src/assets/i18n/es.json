@@ -1,0 +1,407 @@
+{
+  "login": {
+    "h2WelcomeTo": "Bienvenido a Casa Bonita",
+    "username": "Usuario",
+    "placeHolderUser": "Ingrese tu usuario",
+    "password": "Contraseña",
+    "remember": "Recuérdame",
+    "charging": "validando...",
+    "submit": "Iniciar sesión",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "userEmpty": "El usuario es obligatorio.",
+    "passwordEmpty": "La contraseña es obligatoria."
+  },
+  "sidebar": {
+    "dashboard": {
+      "title": "Dashboard"
+    },
+    "crm": {
+      "title": "CRM",
+      "clients": {
+        "title": "Clientes"
+      }
+    },
+    "security": {
+      "title": "Seguridad",
+      "users": {
+        "title": "Usuarios"
+      },
+      "roles": {
+        "title": "Roles"
+      },
+      "permissions": {
+        "title": "Permisos"
+      }
+    },
+    "inventory": {
+      "title": "Inventario"
+    },
+    "sales": {
+      "title": "Ventas",
+      "reservations": {
+        "title": "Reservas"
+      },
+      "contracts": {
+        "title": "Contratos"
+      },
+      "invoices": {
+        "title": "Facturas"
+      },
+      "payments": {
+        "title": "Pagos"
+      }
+    },
+    "finance": {
+      "title": "Finanzas",
+      "budgets": {
+        "title": "Presupuestos"
+      },
+      "cash-flows": {
+        "title": "Flujos de Efectivo"
+      },
+      "cost-centers": {
+        "title": "Centros de Costo"
+      }
+    },
+    "collections": {
+      "title": "Cobranzas",
+      "accounts-receivable": {
+        "title": "Cuentas por Cobrar"
+      },
+      "payments": {
+        "title": "Pagos"
+      },
+      "reports": {
+        "title": "Reportes"
+      }
+    },
+    "accounting": {
+      "title": "Contabilidad"
+    },
+    "service desk": {
+      "title": "Incidencias"
+    },
+    "audit": {
+      "title": "Auditoría"
+    },
+    "settings": {
+      "title": "Configuración"
+    },
+    "hr": {
+      "title": "Recursos Humanos",
+      "adminDashboard": {
+        "title": "Panel Administrativo"
+      },
+      "dashboard": {
+        "title": "Dashboard"
+      },
+      "employees": {
+        "title": "Empleados"
+      },
+      "teams": {
+        "title": "Equipos"
+      },
+      "bonuses": {
+        "title": "Bonos"
+      },
+      "bonus-types": {
+        "title": "Tipos de Bonos"
+      },
+      "bonus-goals": {
+        "title": "Metas de Bonos"
+      },
+      "commissions": {
+        "title": "Comisiones"
+      },
+      "payroll": {
+        "title": "Nómina"
+      },
+      "attendance": {
+        "title": "Asistencia"
+      }
+    }
+  },
+  "navbar": {
+    "welcome": "Bienvenido",
+    "logout": "Cerrar sesión",
+    "profile": "Perfil",
+    "language": "Idioma"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "totalClients": "Total de Clientes",
+    "totalUsers": "Total de Usuarios",
+    "activeContracts": "Contratos Activos",
+    "pendingPayments": "Pagos Pendientes",
+    "salesOverview": "Resumen de Ventas",
+    "lotsSold": "Lotes Vendidos",
+    "recentActivities": "Actividades Recientes",
+    "upcomingEvents": "Próximos Eventos",
+    "finance": {
+      "activeBudgets": "Presupuestos Activos",
+      "accountsReceivable": "Cuentas por Cobrar",
+      "overduePayments": "Pagos Vencidos"
+    }
+  },
+  "users": {
+    "title": "Usuarios",
+    "create": "crear usuario",
+    "edit": "editar",
+    "name": "Nombre",
+    "email": "Correo Electrónico",
+    "status": "Estado",
+    "active": "Activo",
+    "blocked": "Bloqueado",
+    "roles": "Roles",
+    "searchPlaceholder": "Buscar Usuario",
+    "allUsers": "Todos los Usuarios",
+    "actions": "Acciones",
+    "createUser": {
+      "titleEdit": "Editar Usuario",
+      "titleCreate": "Crear Usuario",
+      "personalInfo": "Información Personal",
+      "contactInfo": "Información de Contacto",
+      "workInfo": "Información Laboral",
+      "accessInfo": "Información de Acceso",
+      "roles": "Roles",
+      "firstName": "Nombre",
+      "lastName": "Apellido",
+      "birthDate": "Fecha de Nacimiento",
+      "profilePicture": "Foto de Perfil"
+    },
+    "import": {
+      "button": "Importar Usuarios"
+    },
+    "cvFile": "Archivo CV"
+  },
+  "common": {
+    "all": "Todos",
+    "new": "Nuevo",
+    "create": "Crear",
+    "update": "Actualizar",
+    "edit": "Editar",
+    "cancel": "Cancelar",
+    "back": "Volver",
+    "delete": "Eliminar",
+    "close": "Cerrar",
+    "save": "Guardar",
+    "loading": "Cargando...",
+    "download": "Descargar",
+    "select": "Seleccionar",
+    "saved": "Guardado correctamente",
+    "deleted": "Eliminado correctamente",
+    "errorLoad": "No se pudieron cargar los datos.",
+    "errorSave": "No se pudieron guardar los cambios.",
+    "records": "registros",
+    "created": "Creado el",
+    "step": "Paso",
+    "of": "de",
+    "noData": "No hay registros",
+    "next": "Siguiente"
+  },
+  "security": {
+    "access": "Acceso al Sistema",
+    "permissions": {
+      "title": "Permisos",
+      "codName": "Permisos",
+      "name": "Nombre",
+      "view": "Ver Permisos",
+      "store": "Crear Permisos",
+      "update": "Editar Permisos",
+      "destroy": "Eliminar Permisos"
+    },
+    "roles": {
+      "general": "General",
+      "title": "Roles",
+      "singular": "Rol",
+      "name": "Nombre",
+      "description": "Descripción",
+      "permissions": "Permisos",
+      "basic": "Datos básicos",
+      "view": "Ver Roles",
+      "store": "Crear Roles",
+      "update": "Editar Roles",
+      "destroy": "Eliminar Roles",
+      "editTitle": "Editar Rol",
+      "createTitle": "Crear Rol"
+    },
+    "users": {
+      "title": "Usuarios",
+      "index": "Ver Lista de Usuarios",
+      "view": "Ver Usuario",
+      "store": "Crear Usuario",
+      "update": "Editar Usuario",
+      "destroy": "Eliminar Usuario",
+      "change-password": "Cambiar Contraseña",
+      "toggle-status": "Activar/Desactivar Usuario"
+    }
+  },
+  "crm": {
+    "access": "Acceso a CRM",
+    "addresses": {
+      "view": "Ver Direcciones",
+      "store": "Crear Dirección",
+      "update": "Editar Dirección",
+      "destroy": "Eliminar Dirección"
+    },
+    "clients": {
+      "title": "Clientes",
+      "view": "Ver Clientes",
+      "store": "Crear Cliente",
+      "update": "Editar Cliente",
+      "delete": "Eliminar Cliente",
+      "export": "Exportar Clientes",
+      "doc_type": "Tipo Doc.",
+      "primary_phone": "Telefono",
+      "spouses": {
+        "view": "Ver Cónyuges",
+        "create": "Agregar Cónyuge",
+        "delete": "Eliminar Cónyuge"
+      },
+      "first_name": "Nombre",
+      "last_name": "Apellido",
+      "doc_number": "N° Doc.",
+      "email": "Correo",
+      "type": "Tipo",
+      "search": "Buscar",
+      "types": {
+        "lead": "Prospecto",
+        "client": "Cliente"
+      }
+    },
+    "interactions": {
+      "view": "Ver Interacciones",
+      "create": "Registrar Interacción",
+      "update": "Actualizar Interacción",
+      "delete": "Eliminar Interacción"
+    },
+    "family_members": {
+      "view": "Ver Familiares",
+      "create": "Agregar Familiar",
+      "update": "Actualizar Familiar",
+      "delete": "Eliminar Familiar"
+    }
+  },
+  "inventory": {
+    "lots": {
+      "title": "Lotes",
+      "search": "Buscar lotes",
+      "status": {
+        "label": "Estado",
+        "disponible": "Disponible",
+        "reservado": "Reservado",
+        "vendido": "Vendido"
+      },
+      "filterManzana": "N° Manzana",
+      "detailTitle": "Detalle del Lote",
+      "manzana": "Manzana",
+      "streetType": "Tipo de Calle",
+      "numLot": "Número de Lote",
+      "areaM2": "Área (m²)",
+      "areaConstructionM2": "Área de Construcción (m²)",
+      "totalPrice": "Precio Total",
+      "initialQuota": "Cuota Inicial",
+      "currency": "Moneda",
+      "funding": "Financiamiento",
+      "BPP": "BPP",
+      "BFH": "BFH",
+      "generalTitle": "Datos Generales",
+      "financesTitle": "Finanzas",
+      "subsidiesTitle": "Subsidios",
+      "areasTitle": "Áreas",
+      "media": {
+        "title": "Multimedia",
+        "type": {
+          "foto": "Foto",
+          "plano": "Plano",
+          "video": "Video",
+          "doc": "Documento"
+        }
+      }
+    }
+  },
+  "sales": {
+    "contracts": {
+      "title": "Contratos",
+      "create": "Crear Contrato",
+      "contractNumber": "N° Contrato",
+      "reservation": "Reserva",
+      "signDate": "Fecha de Firma",
+      "totalPrice": "Precio Total",
+      "currency": "Moneda",
+      "status": "Estado",
+      "import": {
+        "button": "Importar Contratos",
+        "title": "Importar Contratos desde Excel",
+        "template": {
+          "title": "Plantilla de Importación",
+          "description": "Descarga la plantilla de ejemplo para conocer el formato requerido",
+          "download": "Descargar Plantilla"
+        },
+        "selectFile": "Seleccionar Archivo",
+        "dragDrop": "Arrastra y suelta tu archivo aquí, o haz clic para seleccionar",
+        "supportedFormats": "Formatos soportados: .xlsx, .xls, .csv",
+        "validating": "Validando estructura del archivo...",
+        "processing": "Procesando importación...",
+        "importSync": "Importar Ahora",
+        "importAsync": "Importar en Segundo Plano",
+        "importHelp": "Importar Ahora: Proceso inmediato (recomendado para archivos pequeños). Segundo Plano: Proceso asíncrono (recomendado para archivos grandes)",
+        "processed": "Registros procesados",
+        "showHistory": "Ver Historial de Importaciones",
+        "hideHistory": "Ocultar Historial",
+        "history": "Historial de Importaciones",
+        "noHistory": "No hay importaciones previas",
+        "totalRows": "Total filas",
+        "processedRows": "Procesadas",
+        "errorRows": "Con errores"
+      }
+    },
+    "reservations": {
+      "title": "Reservas",
+      "create": "Crear Reserva",
+      "client": "Cliente",
+      "lot": "Lote",
+      "date": "Fecha",
+      "status": "Estado"
+    },
+    "payments": {
+      "title": "Pagos",
+      "create": "Crear Pago",
+      "amount": "Monto",
+      "date": "Fecha",
+      "method": "Método",
+      "status": "Estado"
+    },
+    "invoices": {
+      "title": "Facturas",
+      "create": "Crear Factura",
+      "number": "Número",
+      "date": "Fecha",
+      "amount": "Monto",
+      "status": "Estado"
+     }
+   },
+   "finance": {
+     "title": "Finanzas",
+     "budgets": "Presupuestos",
+     "expenses": "Gastos",
+     "income": "Ingresos",
+     "reports": "Reportes"
+   },
+   "collections": {
+     "title": "Cobranzas",
+     "accounts": "Cuentas",
+     "receivable": "Por Cobrar",
+     "payments": "Pagos",
+     "reports": "Reportes"
+   },
+   "validation": {
+     "required": "Este campo es obligatorio",
+     "maxLength": "Máximo {{value}} caracteres",
+     "minLength": "Mínimo {{value}} caracteres",
+     "email": "Formato de email inválido",
+     "birthDate": {
+       "required": "La fecha de nacimiento es obligatoria"
+     }
+   }
+ }

@@ -1,0 +1,380 @@
+<div class="commission-detail-container max-w-4xl mx-auto p-4 sm:p-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
+  <!-- Header -->
+  <div class="header bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 mb-6 sm:mb-8">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div class="flex items-center gap-3 sm:gap-4">
+        <button 
+          type="button"
+          (click)="goBack()"
+          class="btn-back bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 p-2 rounded-lg transition-colors duration-200 flex-shrink-0">
+          <lucide-angular [img]="ArrowLeft" size="20"></lucide-angular>
+        </button>
+        <div class="min-w-0">
+          <h1 class="title text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-gray-100 truncate">Detalle de Comisión</h1>
+          <p class="subtitle text-gray-600 dark:text-gray-300 text-sm sm:text-base lg:text-lg">Información completa de la comisión</p>
+        </div>
+      </div>
+      
+      <!-- Actions -->
+      <div *ngIf="commission() && !loading()" class="actions flex flex-wrap items-center gap-2 sm:gap-3">
+        <button 
+          *ngIf="canPayCommission() && !isParentCommission(commission()!)"
+          (click)="payCommission()"
+          class="btn btn-success bg-green-600 hover:bg-green-700 text-white px-3 sm:px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 text-sm sm:text-base">
+          <lucide-angular [img]="CheckCircle" size="16"></lucide-angular>
+          <span class="hidden sm:inline">Marcar como Pagada</span>
+          <span class="sm:hidden">Pagar</span>
+        </button>
+        
+        <button 
+          *ngIf="canEditCommission()"
+          (click)="editCommission()"
+          class="btn btn-primary bg-blue-600 hover:bg-blue-700 text-white px-3 sm:px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 text-sm sm:text-base">
+          <lucide-angular [img]="Edit" size="16"></lucide-angular>
+          <span class="hidden sm:inline">Editar</span>
+        </button>
+        
+        <button 
+          *ngIf="canDeleteCommission()"
+          (click)="deleteCommission()"
+          class="btn btn-danger bg-red-600 hover:bg-red-700 text-white px-3 sm:px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 text-sm sm:text-base">
+          <lucide-angular [img]="Trash2" size="16"></lucide-angular>
+          <span class="hidden sm:inline">Eliminar</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading()" class="loading-container bg-white dark:bg-gray-800 p-12 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 text-center">
+    <div class="loading-spinner mx-auto mb-4 w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+    <p class="text-gray-600 dark:text-gray-300">Cargando información de la comisión...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error() && !loading()" class="error-container bg-white dark:bg-gray-800 p-12 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 text-center">
+    <div class="error-icon mx-auto mb-4 w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center">
+      <lucide-angular [img]="XCircle" size="32"></lucide-angular>
+    </div>
+    <h3 class="error-title text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Error al cargar la comisión</h3>
+    <p class="error-message text-gray-600 dark:text-gray-300 mb-6">{{ error() }}</p>
+    <button 
+      (click)="goBack()"
+      class="btn btn-primary bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg font-medium transition-all duration-200">
+      Volver al listado
+    </button>
+  </div>
+
+  <!-- Commission Details -->
+  <div *ngIf="commission() && !loading() && !error()" class="commission-details space-y-6 sm:space-y-8">
+    
+    <!-- Status Card -->
+    <div class="status-card bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="status-info">
+          <h2 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Estado de la Comisión</h2>
+          <span [class]="'status-badge inline-flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-medium border ' + getStatusClass(commission()!.payment_status)">
+            <lucide-angular [img]="getStatusIcon(commission()!.payment_status)" [size]="14" class="sm:hidden"></lucide-angular>
+            <lucide-angular [img]="getStatusIcon(commission()!.payment_status)" [size]="16" class="hidden sm:block"></lucide-angular>
+            {{ getStatusLabel(commission()!.payment_status) }}
+          </span>
+        </div>
+        <div class="amount-info text-left sm:text-right">
+          <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mb-1">Monto de Comisión</p>
+          <p class="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-gray-100">{{ formatCurrency(commission()!.commission_amount) }}</p>
+        </div>
+      </div>
+    </div>
+
+
+
+    <!-- Employee Information -->
+    <div class="info-section bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+      <div class="section-header bg-gray-50 dark:bg-gray-700 px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100 dark:border-gray-600">
+        <div class="flex items-center gap-2 sm:gap-3">
+          <div class="icon bg-blue-100 text-blue-600 w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center flex-shrink-0">
+            <lucide-angular [img]="User" [size]="16" class="sm:hidden"></lucide-angular>
+            <lucide-angular [img]="User" [size]="20" class="hidden sm:block"></lucide-angular>
+          </div>
+          <h3 class="section-title text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100">Información del Empleado</h3>
+        </div>
+      </div>
+      <div class="section-content p-4 sm:p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+          <div class="info-item">
+            <label class="info-label text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 mb-1 block">Nombre Completo</label>
+            <p class="info-value text-sm sm:text-base text-gray-900 dark:text-gray-100 font-medium break-words">
+              {{ getEmployeeName() }}
+            </p>
+          </div>
+          <div class="info-item">
+            <label class="info-label text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 mb-1 block">Código de Empleado</label>
+            <p class="info-value text-sm sm:text-base text-gray-900 dark:text-gray-100 font-mono bg-gray-100 dark:bg-gray-700 px-2 sm:px-3 py-1 rounded inline-block break-all">
+              {{ commission()!.employee.employee_code }}
+            </p>
+          </div>
+          <div class="info-item">
+            <label class="info-label text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 mb-1 block">Email</label>
+            <p class="info-value text-sm sm:text-base text-gray-900 dark:text-gray-100 break-all">{{ commission()!.employee.email || commission()!.employee.user?.email || 'N/A' }}</p>
+          </div>
+          <div class="info-item">
+            <label class="info-label text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 mb-1 block">ID del Empleado</label>
+            <p class="info-value text-sm sm:text-base text-gray-900 dark:text-gray-100">{{ commission()!.employee_id }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Period Information -->
+    <div class="info-section bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+      <div class="section-header bg-gray-50 dark:bg-gray-700 px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100 dark:border-gray-600">
+        <div class="flex items-center gap-2 sm:gap-3">
+          <div class="icon bg-purple-100 text-purple-600 w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center flex-shrink-0">
+            <lucide-angular [img]="Calendar" [size]="16" class="sm:hidden"></lucide-angular>
+            <lucide-angular [img]="Calendar" [size]="20" class="hidden sm:block"></lucide-angular>
+          </div>
+          <h3 class="section-title text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100">Período de la Comisión</h3>
+        </div>
+      </div>
+      <div class="section-content p-4 sm:p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+          <div class="info-item">
+            <label class="info-label text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 mb-1 block">Mes</label>
+            <p class="info-value text-sm sm:text-base text-gray-900 dark:text-gray-100 font-medium">{{ getMonthName(commission()!.period_month) }}</p>
+          </div>
+          <div class="info-item">
+            <label class="info-label text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 mb-1 block">Año</label>
+            <p class="info-value text-sm sm:text-base text-gray-900 dark:text-gray-100 font-medium">{{ commission()!.period_year }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Commission Details -->
+    <div class="info-section bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+      <div class="section-header bg-gray-50 dark:bg-gray-700 px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100 dark:border-gray-600">
+        <div class="flex items-center gap-2 sm:gap-3">
+          <div class="icon bg-green-100 text-green-600 w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center flex-shrink-0">
+            <lucide-angular [img]="DollarSign" [size]="16" class="sm:hidden"></lucide-angular>
+            <lucide-angular [img]="DollarSign" [size]="20" class="hidden sm:block"></lucide-angular>
+          </div>
+          <h3 class="section-title text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100">Detalles de la Comisión</h3>
+        </div>
+      </div>
+      <div class="section-content p-4 sm:p-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          <div class="info-item" *ngIf="commission()!.commission_type">
+            <label class="info-label text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 mb-1 block">Tipo de Comisión</label>
+             <p class="info-value text-sm sm:text-base text-gray-900 dark:text-gray-100 font-medium break-words">{{ commission()!.commission_type }}</p>
+          </div>
+          
+          <div class="info-item" *ngIf="commission()!.sale_amount">
+            <label class="info-label text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 mb-1 block">Monto de Venta</label>
+            <p class="info-value text-sm sm:text-base text-gray-900 dark:text-gray-100 font-medium">{{ formatCurrency(commission()!.sale_amount!) }}</p>
+          </div>
+          
+          <div class="info-item" *ngIf="commission()!.commission_percentage">
+            <label class="info-label text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 mb-1 block">Porcentaje de Comisión</label>
+            <p class="info-value text-sm sm:text-base text-gray-900 dark:text-gray-100 font-medium">{{ commission()!.commission_percentage }}%</p>
+          </div>
+          
+          <div class="info-item">
+            <label class="info-label text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 mb-1 block">Monto de Comisión</label>
+             <p class="info-value text-gray-900 dark:text-gray-100 font-bold text-lg sm:text-xl">{{ formatCurrency(commission()!.commission_amount) }}</p>
+          </div>
+          
+          <div class="info-item" *ngIf="commission()!.contract_id">
+            <label class="info-label text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 mb-1 block">ID del Contrato</label>
+            <p class="info-value text-gray-900 dark:text-gray-100 font-mono bg-gray-100 dark:bg-gray-700 px-2 sm:px-3 py-1 rounded inline-block text-xs sm:text-sm break-all">
+              {{ commission()!.contract_id }}
+            </p>
+          </div>
+          
+          <div class="info-item" *ngIf="commission()!.installment_plan">
+            <label class="info-label text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 mb-1 block">Plan de Cuotas</label>
+            <p class="info-value text-sm sm:text-base text-gray-900 dark:text-gray-100 font-medium">{{ commission()!.installment_plan }} meses</p>
+          </div>
+          
+          <div class="info-item" *ngIf="commission()!.payment_type">
+            <label class="info-label text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 mb-1 block">Tipo de Pago</label>
+            <p class="info-value text-sm sm:text-base text-gray-900 dark:text-gray-100 font-medium">{{ getPaymentTypeLabel(commission()!.payment_type!) }}</p>
+          </div>
+          
+          <div class="info-item" *ngIf="commission()!.total_commission_amount">
+            <label class="info-label text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 mb-1 block">Monto Total Original</label>
+            <p class="info-value text-sm sm:text-base text-gray-900 dark:text-gray-100 font-medium">{{ formatCurrency(commission()!.total_commission_amount!) }}</p>
+          </div>
+          
+          <div class="info-item" *ngIf="commission()!.sales_count">
+            <label class="info-label text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 mb-1 block">Cantidad de Ventas</label>
+            <p class="info-value text-sm sm:text-base text-gray-900 dark:text-gray-100 font-medium">{{ commission()!.sales_count }} ventas</p>
+          </div>
+          
+          <div class="info-item col-span-full" *ngIf="commission()!.notes">
+            <label class="info-label text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 mb-1 block">Notas</label>
+            <p class="info-value text-sm sm:text-base text-gray-900 dark:text-gray-100 font-medium bg-orange-50 dark:bg-orange-900/20 px-3 sm:px-4 py-2 sm:py-3 rounded-lg border border-orange-200 dark:border-orange-800 break-words">{{ commission()!.notes }}</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Sección de Información de Pagos Divididos -->
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden" *ngIf="hasPaymentSplitInfo()">
+        <div class="bg-gradient-to-r from-purple-500 to-purple-600 px-4 sm:px-6 py-3 sm:py-4">
+          <h3 class="text-base sm:text-lg font-semibold text-white flex items-center gap-2">
+            <i class="fas fa-money-bill-wave"></i>
+            Información de Pagos Divididos
+          </h3>
+        </div>
+        <div class="p-4 sm:p-6">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            
+            <div class="info-item" *ngIf="commission()!.commission_period">
+              <label class="info-label text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 mb-1 block">Período de Generación</label>
+              <p class="info-value text-sm sm:text-base text-gray-900 dark:text-gray-100 font-medium">{{ commission()!.commission_period }}</p>
+            </div>
+            
+            <div class="info-item" *ngIf="commission()!.payment_period">
+              <label class="info-label text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 mb-1 block">Período de Pago</label>
+              <p class="info-value text-sm sm:text-base text-gray-900 dark:text-gray-100 font-medium">{{ commission()!.payment_period }}</p>
+            </div>
+            
+            <div class="info-item" *ngIf="commission()!.payment_percentage">
+              <label class="info-label text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 mb-1 block">Porcentaje del Pago</label>
+              <p class="info-value text-sm sm:text-base text-gray-900 dark:text-gray-100 font-medium">{{ commission()!.payment_percentage }}%</p>
+            </div>
+            
+            <div class="info-item" *ngIf="commission()!.payment_part">
+              <label class="info-label text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 mb-1 block">Parte del Pago</label>
+              <p class="info-value text-sm sm:text-base text-gray-900 dark:text-gray-100 font-medium">Pago {{ commission()!.payment_part }}</p>
+            </div>
+            
+            <div class="info-item" *ngIf="commission()!.status">
+              <label class="info-label text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 mb-1 block">Estado del Sistema</label>
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" [ngClass]="getStatusClass(commission()!.status!)">
+                {{ getStatusLabel(commission()!.status!) }}
+              </span>
+            </div>
+            
+          </div>
+        </div>
+      </div>
+      
+      <!-- Sección de Comisiones Relacionadas -->
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden" *ngIf="hasRelatedCommissions()">
+        <div class="bg-gradient-to-r from-indigo-500 to-indigo-600 px-4 sm:px-6 py-3 sm:py-4">
+          <h3 class="text-base sm:text-lg font-semibold text-white flex items-center gap-2">
+            <i class="fas fa-link"></i>
+            Comisiones Relacionadas
+          </h3>
+        </div>
+        <div class="p-4 sm:p-6">
+          
+          <!-- Comisión Padre -->
+          <div *ngIf="commission()!.parent_commission" class="mb-6">
+            <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Comisión Padre</h4>
+            <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label class="text-xs font-medium text-gray-600 dark:text-gray-400">ID</label>
+                  <p class="text-sm font-medium text-gray-900 dark:text-gray-100">#{{ commission()!.parent_commission!.commission_id }}</p>
+                </div>
+                <div>
+                  <label class="text-xs font-medium text-gray-600 dark:text-gray-400">Monto</label>
+                  <p class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ formatCurrency(commission()!.parent_commission!.commission_amount) }}</p>
+                </div>
+                <div>
+                  <label class="text-xs font-medium text-gray-600 dark:text-gray-400">Estado</label>
+                  <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" [ngClass]="getPaymentStatusClass(commission()!.parent_commission!.payment_status)">
+                    {{ getPaymentStatusLabel(commission()!.parent_commission!.payment_status) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Comisiones Hijas -->
+          <div *ngIf="commission()!.child_commissions && commission()!.child_commissions!.length > 0">
+            <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Comisiones Derivadas ({{ commission()!.child_commissions!.length }})</h4>
+            <div class="space-y-3">
+              <div *ngFor="let childCommission of commission()!.child_commissions" class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
+                <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                  <div>
+                    <label class="text-xs font-medium text-gray-600 dark:text-gray-400">ID</label>
+                    <p class="text-sm font-medium text-gray-900 dark:text-gray-100">#{{ childCommission.commission_id }}</p>
+                  </div>
+                  <div>
+                    <label class="text-xs font-medium text-gray-600 dark:text-gray-400">Parte</label>
+                    <p class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ childCommission.payment_part || 'N/A' }}</p>
+                  </div>
+                  <div>
+                    <label class="text-xs font-medium text-gray-600 dark:text-gray-400">Monto</label>
+                    <p class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ formatCurrency(childCommission.commission_amount) }}</p>
+                  </div>
+                  <div>
+                    <label class="text-xs font-medium text-gray-600 dark:text-gray-400">Estado</label>
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" [ngClass]="getPaymentStatusClass(childCommission.payment_status)">
+                      {{ getPaymentStatusLabel(childCommission.payment_status) }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+      
+    </div>
+
+    <!-- Payment Information -->
+    <div class="info-section bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+      <div class="section-header bg-gray-50 dark:bg-gray-700 px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100 dark:border-gray-600">
+        <div class="flex items-center gap-2 sm:gap-3">
+          <div class="icon bg-yellow-100 text-yellow-600 w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center flex-shrink-0">
+            <lucide-angular [img]="CheckCircle" [size]="16" class="sm:hidden"></lucide-angular>
+            <lucide-angular [img]="CheckCircle" [size]="20" class="hidden sm:block"></lucide-angular>
+          </div>
+          <h3 class="section-title text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100">Información de Pago</h3>
+        </div>
+      </div>
+      <div class="section-content p-4 sm:p-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+          <div class="info-item">
+            <label class="info-label text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 mb-1 block">Estado de Pago</label>
+            <span [class]="'status-badge inline-flex items-center gap-2 px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium border ' + getStatusClass(commission()!.payment_status)">
+              <lucide-angular [img]="getStatusIcon(commission()!.payment_status)" [size]="12" class="sm:hidden"></lucide-angular>
+              <lucide-angular [img]="getStatusIcon(commission()!.payment_status)" [size]="14" class="hidden sm:block"></lucide-angular>
+              {{ getStatusLabel(commission()!.payment_status) }}
+            </span>
+          </div>
+          
+          <div class="info-item" *ngIf="commission()!.payment_date">
+            <label class="info-label text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 mb-1 block">Fecha de Pago</label>
+            <p class="info-value text-sm sm:text-base text-gray-900 dark:text-gray-100 font-medium">{{ formatDate(commission()!.payment_date!) }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+    <!-- Metadata -->
+    <div class="info-section bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+      <div class="section-header bg-gray-50 dark:bg-gray-700 px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100 dark:border-gray-600">
+        <h3 class="section-title text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100">Información del Sistema</h3>
+      </div>
+      <div class="section-content p-4 sm:p-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+          <div class="info-item">
+            <label class="info-label text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 mb-1 block">Fecha de Creación</label>
+            <p class="info-value text-sm sm:text-base text-gray-900 dark:text-gray-100">{{ formatDate(commission()!.created_at) }}</p>
+          </div>
+          <div class="info-item">
+            <label class="info-label text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 mb-1 block">Última Actualización</label>
+            <p class="info-value text-sm sm:text-base text-gray-900 dark:text-gray-100">{{ formatDate(commission()!.updated_at) }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

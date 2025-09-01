@@ -1,0 +1,103 @@
+<!-- users.component.html -->
+<div class="p-6 space-y-4">
+    <!-- Header y filtro igual que antes -->
+    <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-bold text-white">{{'users.title'|translate}}</h2>
+        <div class="flex gap-2">
+            <button (click)="onImport()" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                </svg>
+                {{'users.import.button' | translate}}
+            </button>
+            <button (click)="onCreate()" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                {{'users.create' | translate}}
+            </button>
+        </div>
+    </div>
+    <div class="flex items-center gap-4 mb-4">
+        <input type="text" [(ngModel)]="filter" placeholder="Search users..."
+            class="input-text border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-indigo-500
+                         placeholder:text-white dark:border-slate-600 dark:bg-slate-800 dark:placeholder:text-indigo-400" />
+        <select [(ngModel)]="status" class="input-text border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-indigo-500
+                         placeholder:text-white dark:border-slate-600 dark:bg-slate-800 dark:placeholder:text-indigo-400">
+            <option value="">All</option>
+            <option value="active">Active</option>
+            <option value="blocked">Blocked</option>
+        </select>
+    </div>
+
+    <!-- Skeleton loader -->
+    <div *ngIf="loading; else tableBlock">
+        <div class="w-full animate-pulse">
+            <div class="h-8 bg-gray-700 rounded mb-2"></div>
+            <ng-container *ngFor="let _ of [1,2,3,4,5]">
+                <div class="flex items-center border-b border-gray-600 py-3 space-x-4">
+                    <div class="h-4 bg-gray-800 rounded w-1/4"></div>
+                    <div class="h-4 bg-gray-800 rounded w-1/4"></div>
+                    <div class="h-4 bg-gray-800 rounded w-1/6"></div>
+                    <div class="h-4 bg-gray-800 rounded w-1/6"></div>
+                    <div class="h-4 bg-gray-800 rounded w-1/6 ml-auto"></div>
+                </div>
+            </ng-container>
+        </div>
+    </div>
+
+    <!-- Tabla real -->
+    <ng-template #tableBlock>
+        <ng-container *ngIf="users$ | async as users">
+            <table class="min-w-full text-sm text-left text-white">
+                <thead>
+                    <tr class="bg-gray-700">
+                        <th class="px-4 py-2">{{ 'users.name' | translate }}</th>
+                        <th class="px-4 py-2">{{ 'users.email' | translate }}</th>
+                        <th class="px-4 py-2">{{ 'users.status' | translate }}</th>
+                        <th class="px-4 py-2">{{ 'users.roles' | translate }}</th>
+                        <th class="px-4 py-2 text-right">{{ 'users.actions' | translate }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let user of users | userFilter: filter : status"
+                        class="border-b border-gray-600 hover:bg-gray-800 cursor-pointer"
+                        [routerLink]="['/security/users', user.id]">
+                        <td class="px-4 py-2">{{ user.name || (user.first_name + ' ' + user.last_name) }}</td>
+                        <td class="px-4 py-2">{{ user.email || user.username }}</td>
+                        <td class="px-4 py-2">
+                            <span class="px-2 py-1 rounded text-xs font-semibold" [ngClass]="{
+                        'bg-green-600 text-white': user.status === 'active',
+                        'bg-gray-600 text-white': user.status === 'blocked'
+                      }">
+                                {{ 'users.' + (user.status || 'active') | translate | titlecase }}
+                            </span>
+                        </td>
+                        <td class="px-4 py-2">{{ user.roles.join(', ') || '-' }}</td>
+                        <td class="px-4 py-2 text-right">
+                            <button (click)="onEdit(user); $event.stopPropagation()" class="text-blue-400 hover:underline">
+                                {{ 'users.edit' | translate }}
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </ng-container>
+    </ng-template>
+      
+
+</div>
+  
+<div *ngIf="isModalOpen" class="fixed inset-0 flex items-center justify-center z-50">
+    <div class="bg-gray-900 rounded-2xl shadow-2xl p-6 max-h-[80vh] overflow-y-auto">
+      <router-outlet name="modal"
+                     (activate)="onModalActivate($event)"></router-outlet>
+    </div>
+</div>
+
+
+<!-- Tabla -->
+<ng-container *ngIf="(users$ | async) as users">
+    <app-shared-table [columns]="columns" [data]="users" 
+        [componentName]="'users'" [permissionPrefix]="'security'" [idField]="idField" (onEdit)="onEdit($event)"
+        (onViewDetails)="onView($event)" (delete)="onDelete($event)">
+    </app-shared-table>
+</ng-container>
+    

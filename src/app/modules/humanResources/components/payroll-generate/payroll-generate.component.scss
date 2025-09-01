@@ -1,0 +1,49 @@
+// Payroll Generate Component - Dark Mode Compatible with Tailwind CSS
+// All styles are now handled through Tailwind utility classes in the template
+// This ensures consistent dark mode support across the application
+
+// Custom scrollbar for employee list (webkit browsers)
+:host ::ng-deep .overflow-y-auto::-webkit-scrollbar {
+  width: 6px;
+}
+
+:host ::ng-deep .overflow-y-auto::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+:host ::ng-deep .overflow-y-auto::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.5); /* gray-400/50 */
+  border-radius: 3px;
+}
+
+:host ::ng-deep .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(156, 163, 175, 0.7); /* gray-400/70 */
+}
+
+// Dark mode scrollbar
+:host ::ng-deep [data-theme="dark"] .overflow-y-auto::-webkit-scrollbar-thumb {
+  background-color: rgba(107, 114, 128, 0.5); /* gray-500/50 */
+}
+
+:host ::ng-deep [data-theme="dark"] .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(107, 114, 128, 0.7); /* gray-500/70 */
+}
+
+// Firefox scrollbar support
+:host ::ng-deep .overflow-y-auto {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+}
+
+:host ::ng-deep [data-theme="dark"] .overflow-y-auto {
+  scrollbar-color: rgba(107, 114, 128, 0.5) transparent;
+}
+
+// Smooth transitions for theme switching
+:host {
+  * {
+    transition-property: background-color, border-color, color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 200ms;
+  }
+}

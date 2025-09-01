@@ -1,0 +1,419 @@
+{
+  "login": {
+    "h2WelcomeTo": "Welcome to Casa Bonita",
+    "username": "Username",
+    "placeHolderUser": "Enter your user",
+    "password": "Password",
+    "remember": "Remember Me",
+    "charging": "validating...",
+    "submit": "Login",
+    "forgotPassword": "Forgot Password?",
+    "userEmpty": "User is required.",
+    "passwordEmpty": "Password is required."
+  },
+  "sidebar": {
+    "dashboard": {
+      "title": "Dashboard"
+    },
+    "crm": {
+      "title": "CRM",
+      "clients": {
+        "title": "Clients"
+      }
+    },
+    "security": {
+      "title": "Security",
+      "users": {
+        "title": "Users"
+      },
+      "roles": {
+        "title": "Roles"
+      },
+      "permissions": {
+        "title": "Permissions"
+      }
+    },
+    "inventory": {
+      "title": "Inventory"
+    },
+    "sales": {
+      "title": "Sales",
+      "reservations": {
+        "title": "Reservations"
+      },
+      "contracts": {
+        "title": "Contracts"
+      },
+      "invoices": {
+        "title": "Invoices"
+      },
+      "payments": {
+        "title": "Payments"
+      }
+    },
+    "finance": {
+      "title": "Finance",
+      "budgets": {
+        "title": "Budgets"
+      },
+      "cash-flows": {
+        "title": "Cash Flows"
+      },
+      "cost-centers": {
+        "title": "Cost Centers"
+      }
+    },
+    "collections": {
+      "title": "Collections",
+      "accounts-receivable": {
+        "title": "Accounts Receivable"
+      },
+      "payments": {
+        "title": "Payments"
+      },
+      "reports": {
+        "title": "Reports"
+      }
+    },
+    "accounting": {
+      "title": "Accounting"
+    },
+    "service desk": {
+      "title": "Service Desk"
+    },
+    "audit": {
+      "title": "Audit"
+    },
+    "settings": {
+      "title": "Settings"
+    },
+    "hr": {
+      "title": "Human Resources",
+      "adminDashboard": {
+        "title": "Admin Dashboard"
+      },
+      "dashboard": {
+        "title": "Dashboard"
+      },
+      "employees": {
+        "title": "Employees"
+      },
+      "teams": {
+        "title": "Teams"
+      },
+      "bonuses": {
+        "title": "Bonuses"
+      },
+      "bonus-types": {
+        "title": "Bonus Types"
+      },
+      "bonus-goals": {
+        "title": "Bonus Goals"
+      },
+      "commissions": {
+        "title": "Commissions"
+      },
+      "payroll": {
+        "title": "Payroll"
+      },
+      "attendance": {
+        "title": "Attendance"
+      }
+    }
+  },
+  "navbar": {
+    "welcome": "Welcome",
+    "logout": "Logout",
+    "profile": "Profile",
+    "language": "Language"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "totalClients": "Total Clients",
+    "totalUsers": "Total Users",
+    "activeContracts": "Active Contracts",
+    "pendingPayments": "Pending Payments",
+    "salesOverview": "Sales Overview",
+    "lotsSold": "Lots Sold",
+    "recentActivities": "Recent Activities",
+    "upcomingEvents": "Upcoming Events",
+    "finance": {
+      "activeBudgets": "Active Budgets",
+      "accountsReceivable": "Accounts Receivable",
+      "overduePayments": "Overdue Payments"
+    }
+  },
+  "users": {
+    "title": "Users",
+    "create": "Create User",
+    "edit": "Edit",
+    "name": "Name",
+    "email": "Email",
+    "roles": "Roles",
+    "status": "Status",
+    "active": "Active",
+    "blocked": "Blocked",
+    "searchPlaceholder": "Search User",
+    "allUsers": "All Users",
+    "actions": "Actions",
+   "createUser": {
+        "titleEdit": "Edit User",
+        "titleCreate": "Create User",
+      "personalInfo": "Personal Information",
+      "contactInfo": "Contact Information",
+      "workInfo": "Work Information",
+      "accessInfo": "Access Information",
+      "roles": "Roles",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "birthDate": "Birth Date",
+      "profilePicture": "Profile Picture"
+    },
+    "import": {
+      "button": "Import Users"
+    },
+    "cvFile": "CV File"
+  },
+  "common": {
+    "title": "All",
+    "all": "All",
+    "new": "New",
+    "create": "Create",
+    "update": "Update",
+    "edit": "Edit",
+    "cancel": "Cancel",
+    "back": "Back",
+    "delete": "Delete",
+    "close": "Close",
+    "save": "Save",
+    "loading": "Loading...",
+    "download": "Download",
+    "select": "Select",
+    "saved": "Saved successfully",
+    "deleted": "Deleted successfully",
+    "errorLoad": "Unable to load data.",
+    "errorSave": "Unable to save changes.",
+    "records": "records",
+    "created": "Created at",
+    "step": "Step",
+    "of": "of",
+    "noData": "No records found",
+    "next": "Next"
+  },
+  "security": {
+    "access": "System Access",
+    "permissions": {
+      "title": "Permissions",
+      "codName": "Permission",
+      "name": "name",
+      "view": "View Permissions",
+      "store": "Create Permissions",
+      "update": "Edit Permissions",
+      "destroy": "Delete Permissions"
+    },
+    "roles": {
+      "title": "Roles",
+      "singular": "Role",
+      "name": "Name",
+      "description": "Description",
+      "permissions": "Permissions",
+      "basic": "Basic Data",
+      "view": "View Roles",
+      "store": "Create Roles",
+      "update": "Edit Roles",
+      "destroy": "Delete Roles",
+      "editTitle": "Role Edit",
+      "createTitle": "Role Create"
+    },
+    "users": {
+      "title": "Users",
+      "index": "View User List",
+      "view": "View User",
+      "store": "Create User",
+      "update": "Edit User",
+      "destroy": "Delete User",
+      "change-password": "Change Password",
+      "toggle-status": "Enable/Disable User"
+    },
+    "clients": {
+      "view": "View Clients",
+      "store": "Create Client",
+      "update": "Edit Client",
+      "delete": "Delete Client",
+      "export": "Export Clients",
+      "spouses": {
+        "view": "View Spouses",
+        "create": "Add Spouse",
+        "delete": "Delete Spouse"
+      }
+    }
+  },
+  "crm": {
+    "access": "CRM Access",
+    "addresses": {
+      "view": "View Addresses",
+      "store": "Create Address",
+      "update": "Edit Address",
+      "destroy": "Delete Address"
+    },
+    "clients": {
+      "title": "Clients",
+      "view": "View Clients",
+      "store": "Create Client",
+      "update": "Edit Client",
+      "delete": "Delete Client",
+      "export": "Export Clients",
+      "doc_type": "Doc Type",
+      "primary_phone": "Telephone",
+      "spouses": {
+        "view": "View Spouses",
+        "create": "Add Spouse",
+        "delete": "Delete Spouse"
+      },
+      "first_name": "First Name",
+      "last_name": "Last Name",
+      "doc_number": "Doc Number",
+      "email": "Email",
+      "type": "Type",
+      "search": "Search",
+      "types": {
+        "lead": "Lead",
+        "client": "Client"
+      }
+    },
+    "interactions": {
+      "view": "View Interactions",
+      "create": "Log Interaction",
+      "update": "Update Interaction",
+      "delete": "Delete Interaction"
+    },
+    "family_members": {
+      "view": "View Family Members",
+      "create": "Add Member",
+      "update": "Update Member",
+      "delete": "Delete Member"
+    }
+  },
+  "inventory": {
+    "lots": {
+      "title": "Lots",
+      "search": "Search lots",
+      "status": {
+        "label": "Status",
+        "disponible": "Available",
+        "reservado": "Reserved",
+        "vendido": "Sold"
+      },
+      "filterManzana": "Block #",
+      "detailTitle": "Lot Details",
+      "manzana": "Block",
+      "streetType": "Street Type",
+      "numLot": "Lot Number",
+      "areaM2": "Area (m²)",
+      "areaConstructionM2": "Construction Area (m²)",
+      "totalPrice": "Total Price",
+      "initialQuota": "Initial Quota",
+      "currency": "Currency",
+      "funding": "Funding",
+      "BPP": "BPP",
+      "BFH": "BFH",
+      "generalTitle": "General Info",
+      "financesTitle": "Finances",
+      "subsidiesTitle": "Subsidies",
+      "areasTitle": "Areas",
+      "media": {
+        "title": "Media",
+        "type": {
+          "foto": "Photo",
+          "plano": "Plan",
+          "video": "Video",
+          "doc": "Document"
+        }
+      }
+    }
+  },
+  "sales": {
+    "contracts": {
+      "title": "Contracts",
+      "create": "Create Contract",
+      "contractNumber": "Contract #",
+      "reservation": "Reservation",
+      "signDate": "Sign Date",
+      "totalPrice": "Total Price",
+      "currency": "Currency",
+      "status": "Status",
+      "import": {
+        "button": "Import Contracts",
+        "title": "Import Contracts from Excel",
+        "template": {
+          "title": "Import Template",
+          "description": "Download the sample template to know the required format",
+          "download": "Download Template"
+        },
+        "selectFile": "Select File",
+        "dragDrop": "Drag and drop your file here, or click to select",
+        "supportedFormats": "Supported formats: .xlsx, .xls, .csv",
+        "validating": "Validating file structure...",
+        "processing": "Processing import...",
+        "importSync": "Import Now",
+        "importAsync": "Import in Background",
+        "importHelp": "Import Now: Immediate process (recommended for small files). Background: Asynchronous process (recommended for large files)",
+        "processed": "Records processed",
+        "showHistory": "Show Import History",
+        "hideHistory": "Hide History",
+        "history": "Import History",
+        "noHistory": "No previous imports",
+        "totalRows": "Total rows",
+        "processedRows": "Processed",
+        "errorRows": "With errors"
+      }
+    },
+    "reservations": {
+      "title": "Reservations",
+      "create": "Create Reservation",
+      "client": "Client",
+      "lot": "Lot",
+      "date": "Date",
+      "status": "Status"
+    },
+    "payments": {
+      "title": "Payments",
+      "create": "Create Payment",
+      "amount": "Amount",
+      "date": "Date",
+      "method": "Method",
+      "status": "Status"
+    },
+    "invoices": {
+      "title": "Invoices",
+      "create": "Create Invoice",
+      "number": "Number",
+      "date": "Date",
+      "amount": "Amount",
+      "status": "Status"
+     }
+   },
+   "finance": {
+     "title": "Finance",
+     "budgets": "Budgets",
+     "expenses": "Expenses",
+     "income": "Income",
+     "reports": "Reports"
+   },
+   "collections": {
+     "title": "Collections",
+     "accounts": "Accounts",
+     "receivable": "Receivable",
+     "payments": "Payments",
+     "reports": "Reports"
+   },
+   "validation": {
+     "required": "This field is required",
+     "maxLength": "Maximum {{value}} characters",
+     "minLength": "Minimum {{value}} characters",
+     "email": "Invalid email format",
+     "birthDate": {
+       "required": "Birth date is required"
+     }
+   }
+ }

@@ -1,0 +1,17 @@
+<div class="p-6 space-y-6">
+    <div class="flex justify-between items-center">
+        <h2 class="text-2xl font-bold text-white">Family Group</h2>
+        <button class="btn-primary" (click)="onCreate()">
+            <lucide-icon [name]="plus" class="w-4 h-4"></lucide-icon>
+            {{ 'common.new' | translate }}
+        </button>
+    </div>
+
+    <app-shared-table [columns]="columns" [data]="members"></app-shared-table>
+</div>
+
+<div *ngIf="isModalOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+    <div class="bg-gray-900 rounded-2xl p-6 max-h-[80vh] overflow-y-auto">
+        <router-outlet name="modal" (activate)="onModalActivate()" (deactivate)="onModalDeactivate()"></router-outlet>
+    </div>
+    </div>

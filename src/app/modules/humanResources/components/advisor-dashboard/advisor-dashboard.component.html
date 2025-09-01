@@ -1,0 +1,326 @@
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 py-6" *ngIf="dashboard()">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                <div class="flex-1">
+                    <div class="flex items-center gap-4 mb-2">
+                        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
+                            <span class="text-white font-bold text-lg">
+                                {{ getEmployeeInitials(dashboard()!.employee.user?.first_name + " " + dashboard()!.employee.user?.last_name)}}
+                            </span>
+                        </div>
+                        <div>
+                            <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">
+                                Dashboard - {{ dashboard()!.employee.user?.name || dashboard()!.employee.full_name }}
+                            </h1>
+                            <p class="text-gray-600 dark:text-gray-300 mt-1 flex items-center gap-2">
+                                <lucide-icon [name]="calendar" class="w-4 h-4"></lucide-icon>
+                                {{ dashboard()!.period.label }}
+                            </p>
+                        </div>
+                </div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+                    <!-- Period Selector -->
+                    <div class="flex items-center gap-3 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 px-4 py-3 period-selector hover:shadow-md transition-shadow duration-200">
+                        <div class="p-1.5 bg-blue-50 dark:bg-blue-900 rounded-lg">
+                            <lucide-icon [name]="calendar" class="w-4 h-4 text-blue-600"></lucide-icon>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <select
+                                [(ngModel)]="selectedMonth"
+                                (change)="onPeriodChange()"
+                                class="border-0 bg-transparent text-sm font-medium text-gray-700 dark:text-gray-300 focus:ring-0 cursor-pointer">
+                                <option *ngFor="let month of availableMonths" [value]="month.value">
+                                    {{ month.label }}
+                                </option>
+                            </select>
+                            <div class="w-px h-4 bg-gray-300 dark:bg-gray-600"></div>
+                            <select
+                                [(ngModel)]="selectedYear"
+                                (change)="onPeriodChange()"
+                                class="border-0 bg-transparent text-sm font-medium text-gray-700 dark:text-gray-300 focus:ring-0 cursor-pointer">
+                                <option *ngFor="let year of availableYears" [value]="year">
+                                    {{ year }}
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <a routerLink="/hr/employees" class="btn btn-secondary bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-3 rounded-xl font-medium transition-all duration-200 flex items-center gap-2 hover:shadow-md border border-gray-200 dark:border-gray-700">
+                        <lucide-icon [name]="arrowLeft" class="w-4 h-4"></lucide-icon>
+                        {{ 'common.back' | translate }}
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <!-- Ventas del Mes -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 hover:shadow-md hover:-translate-y-1 transition-all duration-200">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div class="p-3 bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800 rounded-xl">
+                            <lucide-icon [name]="trendingUp" class="w-6 h-6 text-blue-600"></lucide-icon>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Ventas del Mes</p>
+                            <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                                {{ dashboard()!.sales_summary.count }}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Monto Total -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 hover:shadow-md hover:-translate-y-1 transition-all duration-200">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div class="p-3 bg-gradient-to-br from-green-100 to-green-200 dark:from-green-900 dark:to-green-800 rounded-xl">
+                            <lucide-icon [name]="dollarSign" class="w-6 h-6 text-green-600"></lucide-icon>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Monto Total</p>
+                            <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                                {{ dashboard()!.sales_summary.total_amount | currency:'S/':'symbol':'1.0-0' }}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cumplimiento de Meta -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 hover:shadow-md hover:-translate-y-1 transition-all duration-200">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div class="p-3 bg-gradient-to-br from-yellow-100 to-yellow-200 dark:from-yellow-900 dark:to-yellow-800 rounded-xl">
+                            <lucide-icon [name]="target" class="w-6 h-6 text-yellow-600"></lucide-icon>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Cumplimiento</p>
+                            <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                                {{ dashboard()!.sales_summary.achievement_percentage }}%
+                            </p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="w-8 h-8 relative">
+                            <svg class="w-8 h-8 transform -rotate-90" viewBox="0 0 32 32">
+                                <circle cx="16" cy="16" r="14" stroke="currentColor" stroke-width="4" fill="none" class="text-gray-200"></circle>
+                                <circle cx="16" cy="16" r="14" stroke="currentColor" stroke-width="4" fill="none"
+                                class="text-yellow-500"
+                                    [style.stroke-dasharray]="87.96"
+                                    [style.stroke-dashoffset]="87.96 - (87.96 * dashboard()!.sales_summary.achievement_percentage / 100)"></circle>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ranking -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 hover:shadow-md hover:-translate-y-1 transition-all duration-200">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div class="p-3 bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-900 dark:to-purple-800 rounded-xl">
+                            <lucide-icon [name]="award" class="w-6 h-6 text-purple-600"></lucide-icon>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Ranking</p>
+                            <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                                {{ dashboard()!.performance.ranking || 'N/A' }}
+                                <span class="text-sm text-gray-500 dark:text-gray-400" *ngIf="dashboard()!.performance.ranking">
+                                    / {{ dashboard()!.performance.total_advisors }}
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="text-right" *ngIf="dashboard()!.performance.ranking">
+                        <div class="px-2 py-1 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 rounded-full text-xs font-medium">
+                            Top {{ Math.round((dashboard()!.performance.ranking! / dashboard()!.performance.total_advisors) * 100) }}%
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Resumen de Ingresos -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-md transition-shadow duration-200">
+                <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900 dark:to-emerald-900">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
+                            <lucide-icon [name]="dollarSign" class="w-5 h-5 text-white"></lucide-icon>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Resumen de Ingresos</h3>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                            <div class="flex items-center gap-3">
+                                <div class="w-2 h-2 bg-gray-400 rounded-full"></div>
+                                <span class="text-gray-700 dark:text-gray-300 font-medium">Salario Base</span>
+                            </div>
+                            <span class="font-semibold text-gray-600 dark:text-gray-400">
+                                {{ dashboard()!.earnings_summary.base_salary | currency:'S/':'symbol':'1.2-2' }}
+                            </span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-green-50 dark:bg-green-900 rounded-lg border border-green-200 dark:border-green-700">
+                            <div class="flex items-center gap-3">
+                                <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                                <span class="text-gray-700 dark:text-gray-300 font-medium">Comisiones</span>
+                            </div>
+                            <span class="font-semibold text-green-600 dark:text-green-400">
+                                {{ dashboard()!.earnings_summary.commissions | currency:'S/':'symbol':'1.2-2' }}
+                            </span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-blue-50 dark:bg-blue-900 rounded-lg border border-blue-200 dark:border-blue-700">
+                            <div class="flex items-center gap-3">
+                                <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                <span class="text-gray-700 dark:text-gray-300 font-medium">Bonos</span>
+                            </div>
+                            <span class="font-semibold text-blue-600 dark:text-blue-400">
+                                {{ dashboard()!.earnings_summary.bonuses | currency:'S/':'symbol':'1.2-2' }}
+                            </span>
+                        </div>
+                        <hr class="my-4 border-gray-200 dark:border-gray-700">
+                        <div class="flex justify-between items-center p-4 bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900 dark:to-emerald-900 rounded-xl border-2 border-green-300 dark:border-green-700">
+                            <div class="flex items-center gap-3">
+                                <div class="w-3 h-3 bg-green-600 rounded-full"></div>
+                                <span class="text-lg font-bold text-gray-900 dark:text-gray-100">Total Estimado</span>
+                            </div>
+                            <span class="text-xl font-bold text-green-700 dark:text-green-400">
+                                {{ dashboard()!.earnings_summary.total_estimated | currency:'S/':'symbol':'1.2-2' }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contratos Recientes -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-md transition-shadow duration-200">
+                <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900 dark:to-indigo-900">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                            <lucide-icon [name]="fileText" class="w-5 h-5 text-white"></lucide-icon>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Contratos Recientes</h3>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-4" *ngIf="dashboard()!.recent_contracts.length > 0; else noContracts">
+                        <div *ngFor="let contract of dashboard()!.recent_contracts"
+                            class="flex justify-between items-center p-4 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-600 rounded-xl border border-gray-200 dark:border-gray-600 hover:shadow-sm transition-all duration-200 hover:scale-[1.02]">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                    <p class="font-semibold text-gray-900 dark:text-gray-100">{{ contract.contract_number }}</p>
+                                </div>
+                                <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">{{ contract.client_name }}</p>
+                                <div class="flex items-center gap-1">
+                                    <lucide-icon [name]="calendar" class="w-3 h-3 text-gray-400"></lucide-icon>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ contract.sign_date | date:'dd/MM/yyyy' }}</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="px-3 py-1.5 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded-lg">
+                                    <p class="font-bold text-sm">
+                                        {{ contract.total_price | currency:'S/':'symbol':'1.0-0' }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <ng-template #noContracts>
+                        <div class="text-center py-8">
+                            <div class="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <lucide-icon [name]="fileText" class="w-8 h-8 text-gray-400"></lucide-icon>
+                            </div>
+                            <p class="text-gray-500 dark:text-gray-400 font-medium">No hay contratos recientes</p>
+                            <p class="text-gray-400 dark:text-gray-500 text-sm mt-1">Los contratos aparecerán aquí cuando se registren</p>
+                        </div>
+                    </ng-template>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progreso de Meta -->
+        <div class="mt-8 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-md transition-shadow duration-200">
+            <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900 dark:to-orange-900">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-yellow-600 rounded-lg flex items-center justify-center">
+                        <lucide-icon [name]="target" class="w-5 h-5 text-white"></lucide-icon>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Progreso de Meta Individual</h3>
+                </div>
+            </div>
+            <div class="p-6">
+                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center text-sm text-gray-600 dark:text-gray-400 mb-4 gap-2">
+                    <div class="flex items-center gap-2">
+                        <div class="w-2 h-2 bg-gray-400 rounded-full"></div>
+                        <span class="font-medium">Meta: {{ dashboard()!.sales_summary.goal | currency:'S/':'symbol':'1.0-0' }}</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="font-bold text-lg" [class]="getPercentageClass(dashboard()!.sales_summary.achievement_percentage)">
+                            {{ dashboard()!.sales_summary.achievement_percentage }}%
+                        </span>
+                    </div>
+                </div>
+
+                <div class="relative">
+                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4 overflow-hidden">
+                        <div class="h-4 rounded-full transition-all duration-1000 ease-out relative overflow-hidden"
+                            [class]="getProgressBarClass(dashboard()!.sales_summary.achievement_percentage)"
+                            [style.width.%]="Math.min(dashboard()!.sales_summary.achievement_percentage, 100)">
+                            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-30 animate-pulse"></div>
+                        </div>
+                    </div>
+                    <div class="absolute top-0 right-0 -mt-1 -mr-1" *ngIf="dashboard()!.sales_summary.achievement_percentage >= 100">
+                        <div class="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                            <lucide-icon [name]="check" class="w-4 h-4 text-white"></lucide-icon>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row sm:justify-between text-sm text-gray-600 dark:text-gray-400 mt-4 gap-2">
+                    <div class="flex items-center gap-2">
+                        <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                        <span class="font-medium">Logrado: {{ dashboard()!.sales_summary.total_amount | currency:'S/':'symbol':'1.0-0' }}</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-2 h-2 bg-red-500 rounded-full"></div>
+                        <span class="font-medium">
+                            Falta: {{ Math.max(0, dashboard()!.sales_summary.goal - dashboard()!.sales_summary.total_amount) | currency:'S/':'symbol':'1.0-0' }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading State -->
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center" *ngIf="loading()">
+    <div class="text-center">
+        <div class="relative">
+            <div class="animate-spin rounded-full h-16 w-16 border-4 border-gray-200 dark:border-gray-700 border-t-blue-600 mx-auto"></div>
+            <div class="absolute inset-0 rounded-full h-16 w-16 border-4 border-transparent border-r-blue-400 animate-spin mx-auto" style="animation-delay: -0.5s;"></div>
+        </div>
+        <p class="mt-6 text-gray-600 dark:text-gray-400 font-medium">{{ 'common.loading' | translate }}</p>
+        <div class="mt-2 flex justify-center space-x-1">
+            <div class="w-2 h-2 bg-blue-600 rounded-full animate-bounce"></div>
+            <div class="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style="animation-delay: 0.1s;"></div>
+            <div class="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style="animation-delay: 0.2s;"></div>
+        </div>
+    </div>
+</div>

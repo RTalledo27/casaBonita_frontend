@@ -1,0 +1,172 @@
+.commission-detail-container {
+  .btn-back {
+    @apply transition-all duration-200 flex items-center justify-center;
+    
+    &:hover {
+      @apply transform -translate-y-0.5 shadow-md;
+    }
+  }
+
+  .actions {
+    .btn {
+      @apply font-medium transition-all duration-200 flex items-center gap-2;
+      
+      &:hover {
+        @apply transform -translate-y-0.5 shadow-lg;
+      }
+
+      &.btn-success {
+        @apply bg-green-600 hover:bg-green-700 text-white;
+        
+        &:hover {
+          @apply shadow-green-500/25;
+        }
+      }
+
+      &.btn-primary {
+        @apply bg-blue-600 hover:bg-blue-700 text-white;
+        
+        &:hover {
+          @apply shadow-blue-500/25;
+        }
+      }
+
+      &.btn-danger {
+        @apply bg-red-600 hover:bg-red-700 text-white;
+        
+        &:hover {
+          @apply shadow-red-500/25;
+        }
+      }
+    }
+  }
+
+  .loading-container {
+    .loading-spinner {
+      animation: spin 1s linear infinite;
+    }
+  }
+
+  .status-card {
+    @apply transition-all duration-200;
+    
+    &:hover {
+      @apply shadow-md transform -translate-y-1;
+    }
+
+    .status-badge {
+      @apply transition-all duration-200;
+    }
+  }
+
+  .info-section {
+    @apply transition-all duration-200;
+    
+    &:hover {
+      @apply shadow-md;
+    }
+
+    .section-header {
+      .icon {
+        @apply flex-shrink-0;
+      }
+      
+      .section-title {
+        @apply text-gray-900 font-semibold;
+      }
+    }
+
+    .section-content {
+      .info-item {
+        .info-label {
+          @apply text-gray-600 font-medium;
+        }
+
+        .info-value {
+          @apply text-gray-900;
+        }
+      }
+    }
+  }
+
+  .status-badge {
+    @apply transition-all duration-200;
+    
+    &:hover {
+      @apply transform scale-105;
+    }
+  }
+
+  // Responsive adjustments
+  @media (max-width: 768px) {
+    .header {
+      .flex {
+        @apply flex-col items-start gap-4;
+      }
+      
+      .actions {
+        @apply w-full flex flex-wrap gap-2;
+        
+        .btn {
+          @apply flex-1 min-w-0;
+        }
+      }
+    }
+
+    .status-card {
+      .flex {
+        @apply flex-col items-start gap-4;
+      }
+      
+      .amount-info {
+        @apply text-left;
+      }
+    }
+  }
+
+  // Animation for sections
+  .commission-details {
+    .info-section {
+      animation: fadeInUp 0.5s ease-out;
+    }
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  // Custom styling for status badges
+  .status-badge {
+    &.bg-green-100 {
+      @apply border-green-200;
+    }
+    
+    &.bg-yellow-100 {
+      @apply border-yellow-200;
+    }
+    
+    &.bg-red-100 {
+      @apply border-red-200;
+    }
+    
+    &.bg-gray-100 {
+      @apply border-gray-200;
+    }
+  }
+}

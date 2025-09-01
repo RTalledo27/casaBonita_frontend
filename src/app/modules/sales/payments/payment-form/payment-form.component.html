@@ -1,0 +1,26 @@
+<form [formGroup]="form" (ngSubmit)="submit()" class="space-y-4">
+    <div>
+        <label>Contract ID</label>
+        <input formControlName="contract_id" type="text" class="input" />
+    </div>
+    <div>
+        <label>Amount</label>
+        <input formControlName="amount" type="number" class="input" />
+    </div>
+    <div>
+        <label>Date</label>
+        <input formControlName="payment_date" type="date" class="input" />
+    </div>
+    <div>
+        <label>Status</label>
+        <select formControlName="status" class="input">
+            <option value="pending">Pending</option>
+            <option value="paid">Paid</option>
+        </select>
+    </div>
+    <div class="flex gap-2 justify-end">
+        <button type="button" class="btn" (click)="cancel()">{{ 'common.cancel' | translate }}</button>
+        <button type="submit" class="btn btn-primary">{{ 'common.save' | translate }}</button>
+    </div>
+</form>
+  

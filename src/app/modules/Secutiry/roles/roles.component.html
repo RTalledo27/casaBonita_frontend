@@ -1,0 +1,44 @@
+<!-- encabezado -->
+<div class="flex justify-between items-start mb-6">
+    <div>
+        <h3 class="text-2xl font-bold">
+            {{ 'security.roles.title' | translate }}
+        </h3>
+        <p class="text-xs text-gray-400">
+            {{ (roles$ | async)?.length || 0 }} {{ 'common.records' | translate }}
+        </p>
+    </div>
+
+    <!-- botón crear solo si el usuario tiene permiso -->
+    <button *ngIf="canCreate()" (click)="onCreate()"
+        class="btn-primary flex items-center gap-1">
+        <lucide-icon [name]="plus" class="w-4 h-4"></lucide-icon>
+        {{ 'common.new' | translate }}
+    </button>
+</div>
+
+<ng-template #dateTpl let-row>
+    {{ row.created_at | date:'yyyy/dd/MM HH:mm' }}
+</ng-template>
+
+<!-- tabla compartida -->
+<app-shared-table [columns]="columns"  [data]="(roles$ | async) ?? []" 
+    (delete)="delete($event)"   (onEdit)="onEdit($event)" (onViewDetails)="onViewDetails($event)" [templates]="{ date: dateTpl }"
+    [componentName]="'roles'">
+</app-shared-table>
+
+<!-- Modal eliminar -->
+<app-shared-delete [visible]="showDeleteModal" [itemName]="selectedItemName" (confirm)="deleteConfirmed()"
+    (cancel)="showDeleteModal = false">
+</app-shared-delete>
+
+
+<!-- modal create/edit se abre si hay ?new o ?edit=id (lógica en RolesComponent) -->
+<!-- Modal Container -->
+<div *ngIf="isModalOpen" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+    <div class="bg-gray-800 rounded-xl w-full max-w-2xl p-6 animate-slide-up">
+        <router-outlet name="modal" (activate)="onModalActivate($event)"></router-outlet>
+    </div>
+    </div>
+
+  

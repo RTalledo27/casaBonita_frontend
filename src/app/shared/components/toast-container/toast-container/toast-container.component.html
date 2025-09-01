@@ -1,0 +1,31 @@
+<!-- toast-container.component.html -->
+<div class="fixed top-4 right-4 flex flex-col items-end space-y-3 z-50">
+    <div *ngFor="let t of toasts" [@toastAnim]
+        class="flex items-center max-w-xs w-full bg-gray-900 text-white shadow-xl rounded-2xl overflow-hidden"
+        [ngClass]="{
+           'border-l-4 border-green-500': t.type==='success',
+           'border-l-4 border-red-500':   t.type==='error',
+           'border-l-4 border-blue-500':  t.type==='info'
+         }">
+        <div class="p-3 flex-shrink-0" [ngClass]="{
+             'text-green-500': t.type==='success',
+             'text-red-500':   t.type==='error',
+             'text-blue-500':  t.type==='info'
+           }">
+            <ng-container [ngSwitch]="t.type">
+                <lucide-icon *ngSwitchCase="'success'" [name]="CheckCircle" class="w-6 h-6" />
+                <lucide-icon *ngSwitchCase="'error'" [name]="XCircle" class="w-6 h-6" />
+                <lucide-icon *ngSwitchDefault [name]="Info" class="w-6 h-6" />
+            </ng-container>
+        </div>
+
+        <div class="px-4 py-3 flex-1 text-sm">
+            {{ t.message }}
+        </div>
+
+        <button (click)="dismiss(t.id)" class="p-3 text-gray-400 hover:text-gray-200 transition-colors">
+            <lucide-icon [name]="X" class="w-5 h-5" />
+        </button>
+    </div>
+</div>
+  

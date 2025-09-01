@@ -1,0 +1,371 @@
+<div class="payroll-list-container max-w-7xl mx-auto p-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
+  <!-- Header -->
+  <div class="header bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 mb-8">
+    <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 mb-6">
+      <div class="header-content flex-1">
+        <h1 class="title text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">Gestión de Nómina</h1>
+        <p class="subtitle text-gray-600 dark:text-gray-400 text-lg">Administra y procesa las nóminas de los empleados</p>
+      </div>
+      <div class="header-actions flex flex-col sm:flex-row gap-3">
+        <button 
+          class="btn btn-secondary bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 px-4 py-2.5 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 hover:shadow-md hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
+          [disabled]="processing()"
+          (click)="processPayroll()">
+          <lucide-angular [img]="Calculator" size="16"></lucide-angular>
+          {{ processing() ? 'Procesando...' : 'Procesar Nóminas Masivo' }}
+        </button>
+        <button 
+          class="btn btn-primary bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 hover:shadow-lg hover:shadow-blue-500/25 hover:-translate-y-0.5"
+          (click)="generatePayroll()">
+          <lucide-angular [img]="Plus" size="16"></lucide-angular>
+          Generar Nómina
+        </button>
+      </div>
+    </div>
+    
+    <!-- Period Statistics -->
+    <div class="period-stats bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
+      <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Estadísticas del Período Actual</h3>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+         <div class="stat-item text-center">
+           <div class="stat-value text-lg font-bold text-blue-600 dark:text-blue-400">{{ getPeriodStats().borrador }}</div>
+           <div class="stat-label text-xs text-gray-600 dark:text-gray-400">Borradores</div>
+         </div>
+         <div class="stat-item text-center">
+           <div class="stat-value text-lg font-bold text-orange-600 dark:text-orange-400">{{ getPeriodStats().procesado }}</div>
+           <div class="stat-label text-xs text-gray-600 dark:text-gray-400">Procesadas</div>
+         </div>
+         <div class="stat-item text-center">
+           <div class="stat-value text-lg font-bold text-green-600 dark:text-green-400">{{ getPeriodStats().aprobado }}</div>
+           <div class="stat-label text-xs text-gray-600 dark:text-gray-400">Aprobadas</div>
+         </div>
+         <div class="stat-item text-center">
+           <div class="stat-value text-lg font-bold text-gray-600 dark:text-gray-400">{{ getPeriodStats().total }}</div>
+           <div class="stat-label text-xs text-gray-600 dark:text-gray-400">Total</div>
+         </div>
+       </div>
+    </div>
+  </div>
+
+  <!-- Statistics Cards -->
+  <div class="stats-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="stat-card bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md hover:-translate-y-1 transition-all duration-200 flex items-center gap-4">
+      <div class="stat-icon bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 w-12 h-12 rounded-xl flex items-center justify-center">
+        <lucide-angular [img]="DollarSign" size="24"></lucide-angular>
+      </div>
+      <div class="stat-content flex-1">
+        <h3 class="stat-value text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">{{ formatCurrency(totalGross()) }}</h3>
+        <p class="stat-label text-gray-600 dark:text-gray-400 text-sm">Total Bruto</p>
+      </div>
+    </div>
+    <div class="stat-card bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md hover:-translate-y-1 transition-all duration-200 flex items-center gap-4">
+      <div class="stat-icon bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 w-12 h-12 rounded-xl flex items-center justify-center">
+        <lucide-angular [img]="CheckCircle" size="24"></lucide-angular>
+      </div>
+      <div class="stat-content flex-1">
+        <h3 class="stat-value text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">{{ formatCurrency(totalNet()) }}</h3>
+        <p class="stat-label text-gray-600 dark:text-gray-400 text-sm">Total Neto</p>
+      </div>
+    </div>
+    <div class="stat-card bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md hover:-translate-y-1 transition-all duration-200 flex items-center gap-4">
+      <div class="stat-icon bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 w-12 h-12 rounded-xl flex items-center justify-center">
+        <lucide-angular [img]="XCircle" size="24"></lucide-angular>
+      </div>
+      <div class="stat-content flex-1">
+        <h3 class="stat-value text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">{{ formatCurrency(totalDeductions()) }}</h3>
+        <p class="stat-label text-gray-600 dark:text-gray-400 text-sm">Deducciones</p>
+      </div>
+    </div>
+    <div class="stat-card bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md hover:-translate-y-1 transition-all duration-200 flex items-center gap-4">
+      <div class="stat-icon bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 w-12 h-12 rounded-xl flex items-center justify-center">
+        <lucide-angular [img]="FileText" size="24"></lucide-angular>
+      </div>
+      <div class="stat-content flex-1">
+        <h3 class="stat-value text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">{{ filteredPayrolls().length }}</h3>
+        <p class="stat-label text-gray-600 dark:text-gray-400 text-sm">Total Registros</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-section bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 mb-6">
+    <div class="filters-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <!-- Search -->
+      <div class="filter-group">
+        <label class="filter-label block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Buscar empleado</label>
+        <div class="search-input relative">
+          <lucide-angular [img]="Search" size="16" class="search-icon absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500"></lucide-angular>
+          <input
+            type="text"
+            placeholder="Buscar por nombre o código..."
+            [(ngModel)]="searchTerm"
+            (input)="onSearch()"
+            class="input w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400">
+        </div>
+      </div>
+      <!-- Status Filter -->
+      <div class="filter-group">
+        <label class="filter-label block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Estado</label>
+        <select 
+          [(ngModel)]="selectedStatus"
+          (change)="onFilterChange()"
+          class="select w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+          <option *ngFor="let option of statusOptions" [value]="option.value">
+            {{ option.label }}
+          </option>
+        </select>
+      </div>
+      <!-- Month Filter -->
+      <div class="filter-group">
+        <label class="filter-label block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Mes</label>
+        <select 
+          [(ngModel)]="selectedMonth"
+          (change)="onFilterChange()"
+          class="select w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+          <option *ngFor="let option of monthOptions" [value]="option.value">
+            {{ option.label }}
+          </option>
+        </select>
+      </div>
+      <!-- Year Filter -->
+      <div class="filter-group">
+        <label class="filter-label block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Año</label>
+        <select 
+          [(ngModel)]="selectedYear"
+          (change)="onFilterChange()"
+          class="select w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+          <option *ngFor="let option of yearOptions" [value]="option.value">
+            {{ option.label }}
+          </option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading()" class="loading-state bg-white dark:bg-gray-800 p-12 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col items-center justify-center">
+    <div class="loading-spinner w-10 h-10 border-4 border-gray-200 dark:border-gray-600 border-t-blue-600 rounded-full animate-spin mb-4"></div>
+    <p class="text-gray-600 dark:text-gray-400">Cargando nóminas...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error()" class="error-state bg-white dark:bg-gray-800 p-12 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col items-center justify-center text-center">
+    <div class="error-icon text-red-500 mb-4">
+      <lucide-angular [img]="XCircle" size="48"></lucide-angular>
+    </div>
+    <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Error al cargar datos</h3>
+    <p class="text-gray-600 dark:text-gray-400 mb-6">{{ error() }}</p>
+    <button class="btn btn-primary bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg font-medium transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/25" (click)="loadPayrolls()">
+      Reintentar
+    </button>
+  </div>
+
+  <!-- Payrolls Table -->
+  <div *ngIf="!loading() && !error()" class="table-container bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+    <div class="table-wrapper overflow-x-auto">
+      <table class="table w-full">
+        <thead class="bg-gray-50 dark:bg-gray-700">
+          <tr>
+            <th class="px-4 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-600">Empleado</th>
+            <th class="px-4 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-600">Período</th>
+            <th class="px-4 py-4 text-right text-sm font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-600">Salario Base</th>
+            <th class="px-4 py-4 text-right text-sm font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-600">Comisiones</th>
+            <th class="px-4 py-4 text-right text-sm font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-600">Bonos</th>
+            <th class="px-4 py-4 text-right text-sm font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-600">Total Bruto</th>
+            <th class="px-4 py-4 text-right text-sm font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-600">Deducciones</th>
+            <th class="px-4 py-4 text-right text-sm font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-600">Total Neto</th>
+            <th class="px-4 py-4 text-center text-sm font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-600">Estado</th>
+            <th class="px-4 py-4 text-center text-sm font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-600">Acciones</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100 dark:divide-gray-600">
+          <tr *ngFor="let payroll of filteredPayrolls(); trackBy: trackByPayrollId" class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150">
+            <td class="px-4 py-4">
+              <div class="employee-info">
+                <div class="employee-name font-medium text-gray-900 dark:text-gray-100">
+                  {{ payroll.employee?.full_name || 'N/A' }}
+                </div>
+                <div class="employee-code text-sm text-gray-500 dark:text-gray-400 font-mono">
+                  {{ payroll.employee?.employee_code }}
+                </div>
+              </div>
+            </td>
+            <td class="px-4 py-4">
+              <div class="period-info">
+                <div class="period-month font-medium text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-700 px-3 py-1 rounded-lg text-center">
+                  {{ formatDate(payroll.payroll_period) }}
+                </div>
+              </div>
+            </td>
+            <td class="px-4 py-4 text-right">
+              <span class="amount font-semibold text-gray-900 dark:text-gray-100">{{ formatCurrency(payroll.base_salary) }}</span>
+            </td>
+            <td class="px-4 py-4 text-right">
+              <span class="amount commission font-semibold text-blue-600 dark:text-blue-400">{{ formatCurrency(payroll.commissions_amount) }}</span>
+            </td>
+            <td class="px-4 py-4 text-right">
+              <span class="amount bonus font-semibold text-purple-600 dark:text-purple-400">{{ formatCurrency(payroll.bonuses_amount) }}</span>
+            </td>
+            <td class="px-4 py-4 text-right">
+              <span class="amount gross font-bold text-lg text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/30 px-3 py-1 rounded-lg">{{ formatCurrency(payroll.gross_salary) }}</span>
+            </td>
+            <td class="px-4 py-4 text-right">
+              <span class="amount deduction font-semibold text-red-600 dark:text-red-400">{{ formatCurrency(payroll.total_deductions) }}</span>
+            </td>
+            <td class="px-4 py-4 text-right">
+              <span class="amount net font-bold text-xl text-green-700 dark:text-green-400 bg-green-100 dark:bg-green-900/30 px-4 py-2 rounded-lg">{{ formatCurrency(payroll.net_salary) }}</span>
+            </td>
+            <td class="px-4 py-4 text-center">
+              <span [class]="'status-badge inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ' + getStatusClass(payroll.status)">
+                <lucide-angular [img]="getStatusIcon(payroll.status)" size="14"></lucide-angular>
+                {{ getStatusLabel(payroll.status) }}
+              </span>
+            </td>
+            <td class="px-4 py-4">
+              <div class="action-buttons flex items-center justify-center gap-2">
+                <!-- Ver detalle -->
+                <button
+                  class="btn-icon btn-icon-primary w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-800/50 hover:scale-110 transition-all duration-200 flex items-center justify-center"
+                  (click)="viewPayroll(payroll)"
+                  title="Ver detalle">
+                  <lucide-angular [img]="Eye" size="14"></lucide-angular>
+                </button>
+                
+                <!-- Procesar individual -->
+                <button
+                  *ngIf="canProcess(payroll)"
+                  class="btn-icon btn-icon-warning w-8 h-8 rounded-lg bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-800/50 hover:scale-110 transition-all duration-200 flex items-center justify-center"
+                  (click)="processIndividualPayroll(payroll)"
+                  title="Procesar nómina">
+                  <lucide-angular [img]="Calculator" size="14"></lucide-angular>
+                </button>
+                
+                <!-- Aprobar -->
+                <button
+                  *ngIf="canApprove(payroll)"
+                  class="btn-icon btn-icon-success w-8 h-8 rounded-lg bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-800/50 hover:scale-110 transition-all duration-200 flex items-center justify-center"
+                  (click)="approvePayroll(payroll)"
+                  title="Aprobar nómina">
+                  <lucide-angular [img]="CheckCircle" size="14"></lucide-angular>
+                </button>
+                
+                <!-- Descargar -->
+                <button
+                  *ngIf="canDownload(payroll)"
+                  class="btn-icon btn-icon-secondary w-8 h-8 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 hover:scale-110 transition-all duration-200 flex items-center justify-center"
+                  (click)="downloadPayroll(payroll)"
+                  title="Descargar PDF">
+                  <lucide-angular [img]="Download" size="14"></lucide-angular>
+                </button>
+                
+                <!-- Editar -->
+                <button
+                  *ngIf="canEdit(payroll)"
+                  class="btn-icon btn-icon-info w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-800/50 hover:scale-110 transition-all duration-200 flex items-center justify-center"
+                  (click)="editPayroll(payroll)"
+                  title="Editar nómina">
+                  <lucide-angular [img]="Edit" size="14"></lucide-angular>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <!-- Empty State -->
+      <div *ngIf="filteredPayrolls().length === 0" class="empty-state p-12 flex flex-col items-center justify-center text-center">
+        <div class="empty-icon text-gray-300 dark:text-gray-600 mb-4">
+          <lucide-angular [img]="FileText" size="48"></lucide-angular>
+        </div>
+        <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">No hay nóminas</h3>
+        <p class="text-gray-600 dark:text-gray-400 mb-6">No se encontraron nóminas para los filtros seleccionados.</p>
+        <button class="btn btn-primary bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 hover:shadow-lg hover:shadow-blue-500/25" (click)="generatePayroll()">
+          <lucide-angular [img]="Plus" size="16"></lucide-angular>
+          Generar Primera Nómina
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination Controls -->
+  <div *ngIf="totalPages() > 1 || totalItems() > 0" class="pagination-container bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 mt-6">
+    
+    <!-- Pagination Info and Items Per Page Selector -->
+    <div class="pagination-header flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+      <div class="pagination-info text-sm text-gray-600 dark:text-gray-400">
+        {{ getPaginationInfo() }}
+      </div>
+      
+      <div class="items-per-page-selector flex items-center gap-2">
+        <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Mostrar:</label>
+        <select 
+          [(ngModel)]="itemsPerPage"
+          (ngModelChange)="onItemsPerPageChange()"
+          class="select px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm">
+          <option *ngFor="let option of itemsPerPageOptions" [value]="option">
+            {{ option }} registros
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Pagination Navigation -->
+    <div *ngIf="totalPages() > 1" class="pagination-nav flex items-center justify-center gap-2">
+      
+      <!-- First Page Button -->
+      <button 
+        class="pagination-btn w-10 h-10 flex items-center justify-center border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-400 dark:hover:border-gray-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+        [disabled]="currentPage() === 1"
+        (click)="goToFirstPage()"
+        title="Primera página">
+        <lucide-angular [img]="ChevronFirst" size="16"></lucide-angular>
+      </button>
+      
+      <!-- Previous Page Button -->
+      <button 
+        class="pagination-btn w-10 h-10 flex items-center justify-center border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-400 dark:hover:border-gray-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+        [disabled]="currentPage() === 1"
+        (click)="onPageChange(currentPage() - 1)"
+        title="Página anterior">
+        <lucide-angular [img]="ChevronLeft" size="16"></lucide-angular>
+      </button>
+      
+      <!-- Page Numbers -->
+      <div class="page-numbers flex items-center gap-1">
+        <button 
+          *ngFor="let page of getPageNumbers(); trackBy: trackByPageNumber"
+          class="page-btn w-10 h-10 flex items-center justify-center rounded-lg text-sm font-medium transition-all duration-200"
+          [class.current]="page === currentPage()"
+          [class.ellipsis]="page === -1"
+          [class]="page === currentPage() 
+            ? 'bg-blue-600 text-white shadow-md' 
+            : page === -1 
+              ? 'text-gray-400 dark:text-gray-500 cursor-default' 
+              : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'"
+          [disabled]="page === -1"
+          (click)="page !== -1 && onPageChange(page)">
+          {{ page === -1 ? '...' : page }}
+        </button>
+      </div>
+      
+      <!-- Next Page Button -->
+      <button 
+        class="pagination-btn w-10 h-10 flex items-center justify-center border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-400 dark:hover:border-gray-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+        [disabled]="currentPage() === totalPages()"
+        (click)="onPageChange(currentPage() + 1)"
+        title="Página siguiente">
+        <lucide-angular [img]="ChevronRight" size="16"></lucide-angular>
+      </button>
+      
+      <!-- Last Page Button -->
+      <button 
+        class="pagination-btn w-10 h-10 flex items-center justify-center border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-400 dark:hover:border-gray-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+        [disabled]="currentPage() === totalPages()"
+        (click)="goToLastPage()"
+        title="Última página">
+        <lucide-angular [img]="ChevronLast" size="16"></lucide-angular>
+      </button>
+      
+    </div>
+    
+  </div>
+</div>

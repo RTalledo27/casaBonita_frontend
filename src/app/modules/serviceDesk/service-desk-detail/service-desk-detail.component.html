@@ -1,0 +1,192 @@
+<div class="p-6 space-y-6 text-gray-800 dark:text-white">
+    <ng-container *ngIf="ticket$ | async as ticket">
+        <!-- Header -->
+        <div class="flex flex-wrap justify-between items-center border-b pb-4 mb-6 gap-2">
+            <div class="flex items-center gap-2">
+                <button (click)="router.navigate(['/service-desk/tickets'])"
+                    class="text-indigo-400 hover:text-indigo-600 flex items-center">
+                    <lucide-icon name="arrow-left" class="w-6 h-6 mr-1"></lucide-icon>
+                </button>
+                <h2 class="text-2xl font-bold">Ticket #{{ ticket.ticket_id }}</h2>
+            </div>
+            <div class="flex gap-2">
+                <button (click)="onEdit(ticket)" class="btn btn-outline-primary flex items-center gap-1">
+                    <lucide-icon name="pencil" class="w-4 h-4"></lucide-icon> Editar
+                </button>
+                <button (click)="openAddAction(ticket)" class="btn btn-outline-success flex items-center gap-1">
+                    <lucide-icon name="plus-circle" class="w-4 h-4"></lucide-icon> Agregar Acción
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- Info principal -->
+            <div class="lg:col-span-8 space-y-6">
+                <!-- Info Ticket -->
+                <div class="rounded-2xl border border-slate-700 bg-slate-950 p-6 shadow-lg">
+                    <div class="flex justify-between items-center mb-2">
+                        <h4 class="font-semibold">Información del Ticket</h4>
+                        <div class="flex gap-2">
+                            <span class="badge bg-red-600 text-white"
+                                *ngIf="ticket.priority === 'alta' || ticket.priority === 'critica'">
+                                {{ ticket.priority | titlecase }} Prioridad
+                            </span>
+                            <span class="badge" [ngClass]="{
+                    'bg-blue-700 text-white': ticket.status === 'abierto',
+                    'bg-yellow-600 text-white': ticket.status === 'en_proceso',
+                    'bg-green-600 text-white': ticket.status === 'cerrado'
+                  }">
+                                {{ ticket.status | titlecase }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
+                        <div>
+                            <p><b>ID:</b> #{{ ticket.ticket_id }}</p>
+                            <p><b>Tipo:</b>
+                                <span class="badge bg-indigo-600 text-white">
+                                    {{ ticket.ticket_type | titlecase }}
+                                </span>
+                            </p>
+                            <p><b>Creado por:</b> {{ ticket.opened_by.first_name }} {{ ticket.opened_by.last_name }}</p>
+                            <p><b>Fecha de apertura:</b> {{ ticket.opened_at | date: 'dd/MM/yyyy HH:mm' }}</p>
+                        </div>
+                        <div>
+                            <p>
+                                <b>Contrato:</b>
+                                <ng-container *ngIf="ticket.contract_id && ticket.contract; else noContract">
+                                    #{{ ticket.contract.contract_id }}
+                                </ng-container>
+                                <ng-template #noContract>
+                                    <span class="text-gray-400">Sin contrato</span>
+                                </ng-template>
+                            </p>
+                            <p><b>SLA vence:</b>
+                                <span [ngClass]="{'text-red-400': ticket.sla_due_at}">
+                                    {{ ticket.sla_due_at ? (ticket.sla_due_at | date: 'dd/MM/yyyy HH:mm') : '--' }}
+                                </span>
+                            </p>
+                            <p><b>Escalado:</b>
+                                <span *ngIf="ticket.escalated_at; else noEscalado" class="text-warning">Sí</span>
+                                <ng-template #noEscalado><span class="text-gray-400">No</span></ng-template>
+                            </p>
+                            <p><b>Asignado a:</b>
+                                <span *ngIf="ticket.assigned_to; else unassigned" class="text-white">
+                                    {{ ticket.assigned_to.first_name }} {{ ticket.assigned_to.last_name }}
+                                </span>
+                                <ng-template #unassigned><span class="text-gray-400">Sin asignar</span></ng-template>
+                            </p>
+                        </div>
+                    </div>
+                    <hr class="border-slate-700 my-2" />
+                    <div>
+                        <h6 class="font-semibold">Descripción:</h6>
+                        <p class="text-slate-400">{{ ticket.description || 'Sin descripción.' }}</p>
+                    </div>
+                </div>
+
+                <!-- Historial de Acciones -->
+                <div class="rounded-2xl border border-slate-700 bg-slate-950 p-6 shadow-lg">
+                    <h4 class="font-semibold mb-3">Historial de Acciones</h4>
+                    <ng-container *ngIf="ticket.actions && ticket.actions.length > 0; else noActions">
+                        <div class="flex flex-col gap-6">
+                            <div *ngFor="let action of ticket.actions" class="flex items-start gap-4">
+                                <div>
+                                    <div class="rounded-full w-10 h-10 flex items-center justify-center" [ngClass]="{
+                            'bg-indigo-600': action.action_type === 'comentario',
+                            'bg-yellow-400': action.action_type === 'cambio_estado',
+                            'bg-pink-600': action.action_type === 'escalado'
+                          }">
+                                        <lucide-icon [name]="getActionIcon(action.action_type)"
+                                            class="w-5 h-5 text-white"></lucide-icon>
+                                    </div>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex justify-between items-center">
+                                        <h6 class="font-semibold">{{ getActionTitle(action.action_type) }}</h6>
+                                        <small class="text-gray-400">{{ action.created_at | date: 'dd/MM/yyyy HH:mm'
+                                            }}</small>
+                                    </div>
+                                    <div class="text-xs text-gray-400 mb-1">
+                                        <b>Por:</b> {{ action.user.first_name }} {{ action.user.last_name }}
+                                    </div>
+                                    <div class="text-gray-300">{{ action.notes }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </ng-container>
+                    <ng-template #noActions>
+                        <div class="flex flex-col items-center justify-center py-6 text-gray-500">
+                            <lucide-icon name="message-circle" class="w-8 h-8 mb-2"></lucide-icon>
+                            <span>Sin acciones registradas.</span>
+                        </div>
+                    </ng-template>
+                </div>
+            </div>
+
+            <!-- Panel lateral -->
+            <div class="lg:col-span-4 flex flex-col gap-6">
+                <!-- Métricas -->
+                <div class="rounded-2xl border border-slate-700 bg-slate-950 p-6 shadow-lg">
+                    <h6 class="mb-4 font-semibold">Métricas</h6>
+                    <div class="grid grid-cols-2 gap-2 text-center">
+                        <div>
+                            <h4 class="text-red-400 text-2xl font-bold">{{ calcElapsedTime(ticket) }}</h4>
+                            <div class="text-gray-400 text-xs">Tiempo transcurrido</div>
+                        </div>
+                        <div>
+                            <h4 class="text-yellow-400 text-2xl font-bold">{{ calcSlaLeft(ticket) }}</h4>
+                            <div class="text-gray-400 text-xs">Tiempo restante SLA</div>
+                        </div>
+                        <div>
+                            <h4 class="text-cyan-400 text-2xl font-bold">{{ ticket.actions?.length || 0 }}</h4>
+                            <div class="text-gray-400 text-xs">Acciones realizadas</div>
+                        </div>
+                        <div>
+                            <h4 class="text-green-400 text-2xl font-bold">{{ getEscalations(ticket) }}</h4>
+                            <div class="text-gray-400 text-xs">Escalaciones</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Info contrato -->
+                <div class="rounded-2xl border border-slate-700 bg-slate-950 p-6 shadow-lg">
+                    <h6 class="mb-4 font-semibold">Información del Contrato</h6>
+                    <ng-container *ngIf="ticket.contract_id && ticket.contract; else noContract">
+                        <p><b>Contrato:</b> #{{ ticket.contract.contract_id }}</p>
+                    </ng-container>
+                    <ng-template #noContract>
+                        <div class="text-gray-400">Sin información de contrato.</div>
+                    </ng-template>
+                </div>
+
+                <!-- Acciones rápidas -->
+                <div class="rounded-2xl border border-slate-700 bg-slate-950 p-6 shadow-lg">
+                    <h6 class="mb-4 font-semibold">Acciones Rápidas</h6>
+                    <div class="flex flex-col gap-2">
+                        <button class="btn btn-outline-success btn-sm flex gap-1 items-center"
+                            (click)="markAsResolved(ticket)">
+                            <lucide-icon name="check-circle" class="w-5 h-5"></lucide-icon> Marcar como Resuelto
+                        </button>
+                        <button class="btn btn-outline-warning btn-sm flex gap-1 items-center"
+                            (click)="escalateTicket(ticket)">
+                            <lucide-icon name="arrow-up-circle" class="w-5 h-5"></lucide-icon> Escalar Ticket
+                        </button>
+                        <button class="btn btn-outline-info btn-sm flex gap-1 items-center"
+                            (click)="openAssignTech(ticket)">
+                            <lucide-icon name="user-plus" class="w-5 h-5"></lucide-icon> Asignar Técnico
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm flex gap-1 items-center"
+                            (click)="extendSla(ticket)">
+                            <lucide-icon name="clock" class="w-5 h-5"></lucide-icon> Extender SLA
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </ng-container>
+</div>
+  
+<!-- MODAL PARA AGREGAR ACCIÓN (puedes usar tu propio modal/dialog angular) -->
+<!-- Aquí tu modal component o dialog -->
+  

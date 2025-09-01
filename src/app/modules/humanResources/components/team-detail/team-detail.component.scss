@@ -1,0 +1,109 @@
+/* Team Detail Component Styles */
+.team-header {
+  @apply flex items-center justify-between mb-6;
+}
+
+.team-info-card {
+  @apply bg-white rounded-lg shadow-sm border border-gray-200 p-6;
+}
+
+.team-stats-grid {
+  @apply grid grid-cols-2 md:grid-cols-4 gap-4 mt-6;
+}
+
+.stat-card {
+  @apply text-center p-4 rounded-lg;
+}
+
+.stat-value {
+  @apply text-2xl font-bold;
+}
+
+.stat-label {
+  @apply text-sm text-gray-600;
+}
+
+.leader-card {
+  @apply bg-white rounded-lg shadow-sm border border-gray-200 p-6;
+}
+
+.leader-info {
+  @apply flex items-center space-x-4;
+}
+
+.leader-avatar {
+  @apply bg-yellow-100 p-3 rounded-full;
+}
+
+.leader-details h4 {
+  @apply text-lg font-medium text-gray-900;
+}
+
+.leader-details p {
+  @apply text-gray-600;
+}
+
+.leader-contact {
+  @apply flex items-center space-x-4 mt-2 text-sm text-gray-500;
+}
+
+.members-card {
+  @apply bg-white rounded-lg shadow-sm border border-gray-200 p-6;
+}
+
+.member-item {
+  @apply flex items-center justify-between p-4 border border-gray-200 rounded-lg;
+  @apply hover:bg-gray-50 transition-colors;
+}
+
+.member-info {
+  @apply flex items-center space-x-4;
+}
+
+.member-avatar {
+  @apply bg-blue-100 p-2 rounded-full;
+}
+
+.member-details h4 {
+  @apply font-medium text-gray-900;
+}
+
+.member-details p {
+  @apply text-sm text-gray-600;
+}
+
+.member-meta {
+  @apply flex items-center space-x-3 mt-1 text-xs text-gray-500;
+}
+
+.member-status {
+  @apply text-right;
+}
+
+.status-badge {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.status-active {
+  @apply bg-green-100 text-green-800;
+}
+
+.status-inactive {
+  @apply bg-red-100 text-red-800;
+}
+
+.empty-state {
+  @apply text-center py-8;
+}
+
+.empty-state-icon {
+  @apply w-12 h-12 text-gray-300 mx-auto mb-3;
+}
+
+.empty-state-text {
+  @apply text-gray-500;
+}
+
+.empty-state-subtext {
+  @apply text-sm text-gray-400 mt-1;
+}

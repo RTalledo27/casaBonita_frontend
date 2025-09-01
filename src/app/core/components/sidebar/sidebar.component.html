@@ -1,0 +1,41 @@
+<div class="h-full flex flex-col sidebar-container">
+  <!-- Header fijo -->
+  <div class="flex-shrink-0 sidebar-header">
+    <h1>CASA BONITA</h1>
+  </div>
+
+  <!-- Contenedor scrolleable para la navegación -->
+  <div class="flex-1 overflow-y-auto px-6 pb-6 sidebar-scroll">
+    <nav class="mt-6">
+      <ng-container *ngFor="let item of navItems">
+        <div class="mb-2 sidebar-item sidebar-hover" [class.sidebar-active]="item.active">
+          <a *ngIf="!item.children" [routerLink]="item.route"
+             routerLinkActive="sidebar-active">
+            <lucide-icon [name]="item.icon"></lucide-icon>
+            <span>{{'sidebar.'+item.label+'.title'|translate}}</span>
+          </a>
+
+          <div *ngIf="item.children">
+            <a (click)="toggle(item)">
+              <lucide-icon [name]="item.icon"></lucide-icon>
+              <span>{{'sidebar.'+item.label+'.title'|translate }}</span>
+              <lucide-icon [name]="chevronDown[0].icon" class="chevron-rotate"
+                          [class.rotate-180]="item.expanded"></lucide-icon>
+            </a>
+            
+            <!-- Submenú -->
+            <div *ngIf="item.expanded" class="ml-3 mt-2">
+              <ng-container *ngFor="let child of item.children">
+                <div class="sidebar-item sidebar-hover submenu-item" [class.sidebar-active]="child.active">
+                  <a [routerLink]="child.route" routerLinkActive="sidebar-active">
+                    {{ 'sidebar.' + item.label + '.' + child.label + '.title' | translate }}
+                  </a>
+                </div>
+              </ng-container>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </nav>
+  </div>
+</div>

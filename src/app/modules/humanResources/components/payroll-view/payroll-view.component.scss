@@ -1,0 +1,138 @@
+/* Clases personalizadas para los estados de los badges */
+.status-badge.status-draft {
+  @apply bg-gray-100 text-gray-800 border border-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600;
+}
+
+.status-badge.status-procesado {
+  @apply bg-blue-100 text-blue-800 border border-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700;
+}
+
+.status-badge.status-approved {
+  @apply bg-green-100 text-green-800 border border-green-200 dark:bg-green-900 dark:text-green-300 dark:border-green-700;
+}
+
+.status-badge.status-paid {
+  @apply bg-emerald-100 text-emerald-800 border border-emerald-200 dark:bg-emerald-900 dark:text-emerald-300 dark:border-emerald-700;
+}
+
+.status-badge.status-cancelled {
+  @apply bg-red-100 text-red-800 border border-red-200 dark:bg-red-900 dark:text-red-300 dark:border-red-700;
+}
+
+/* Animación personalizada para el spinner */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+/* Efectos hover mejorados */
+.detail-card:hover {
+  transform: translateY(-1px);
+}
+
+.back-button:hover {
+  transform: translateX(-2px);
+}
+
+/* Estilos especiales para montos */
+.item-value,
+.total-value {
+  font-variant-numeric: tabular-nums;
+}
+
+.final-total {
+  position: relative;
+  overflow: hidden;
+}
+
+.final-total::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+
+  100% {
+    left: 100%;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .view-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .header-actions {
+    flex-direction: column;
+  }
+
+  .header-actions .action-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .employee-info {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .salary-item,
+  .total-item {
+    flex-direction: column;
+    text-align: center;
+    gap: 2px;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+  }
+
+  .action-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Mejoras visuales adicionales */
+.employee-avatar {
+  box-shadow: 0 4px 12px rgba(147, 51, 234, 0.2);
+}
+
+.salary-item,
+.total-item {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.salary-item:hover,
+.total-item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.final-total:hover {
+  transform: scale(1.02);
+}

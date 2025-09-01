@@ -1,0 +1,322 @@
+<div class="commission-form-container max-w-4xl mx-auto p-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
+  <!-- Header -->
+  <div class="header bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 mb-8">
+    <div class="flex items-center gap-4 mb-4">
+      <button 
+        type="button"
+        (click)="goBack()"
+        class="btn-back bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 p-2 rounded-lg transition-colors duration-200">
+        <lucide-angular [img]="ArrowLeft" size="20"></lucide-angular>
+      </button>
+      <div>
+        <h1 class="title text-3xl font-bold text-gray-900 dark:text-gray-100">
+          {{ isEditMode() ? 'Editar Comisión' : 'Nueva Comisión' }}
+        </h1>
+        <p class="subtitle text-gray-600 dark:text-gray-300 text-lg">
+          {{ isEditMode() ? 'Modifica los datos de la comisión' : 'Registra una nueva comisión manualmente' }}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form -->
+  <div class="form-container bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-8">
+    <form [formGroup]="commissionForm" (ngSubmit)="onSubmit()" class="space-y-8">
+      
+      <!-- Employee and Basic Info Section -->
+      <div class="form-section">
+        <div class="section-header flex items-center gap-3 mb-6">
+          <div class="icon bg-blue-100 text-blue-600 w-10 h-10 rounded-lg flex items-center justify-center">
+            <lucide-angular [img]="User" size="20"></lucide-angular>
+          </div>
+          <h2 class="section-title text-xl font-semibold text-gray-900 dark:text-gray-100">Información del Empleado</h2>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Employee -->
+          <div class="form-group">
+            <label for="employee_id" class="form-label block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Empleado *
+            </label>
+            <select 
+              id="employee_id"
+              formControlName="employee_id"
+              class="form-control w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+              [class.border-red-500]="isFieldInvalid('employee_id')">
+              <option value="">Seleccionar empleado</option>
+              <option *ngFor="let employee of employees()" [value]="employee.employee_id">
+                {{ employee.user?.first_name }} {{ employee.user?.last_name }} - {{ employee.employee_code }}
+              </option>
+            </select>
+            <div *ngIf="isFieldInvalid('employee_id')" class="error-message text-red-500 text-sm mt-1">
+              {{ getFieldError('employee_id') }}
+            </div>
+          </div>
+
+          <!-- Commission Type -->
+          <div class="form-group">
+            <label for="commission_type" class="form-label block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Tipo de Comisión *
+            </label>
+            <select 
+              id="commission_type"
+              formControlName="commission_type"
+              class="form-control w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+              [class.border-red-500]="isFieldInvalid('commission_type')">
+              <option *ngFor="let type of commissionTypeOptions" [value]="type.value">
+                {{ type.label }}
+              </option>
+            </select>
+            <div *ngIf="isFieldInvalid('commission_type')" class="error-message text-red-500 text-sm mt-1">
+              {{ getFieldError('commission_type') }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Period Section -->
+      <div class="form-section">
+        <div class="section-header flex items-center gap-3 mb-6">
+          <div class="icon bg-purple-100 text-purple-600 w-10 h-10 rounded-lg flex items-center justify-center">
+            <lucide-angular [img]="Calendar" size="20"></lucide-angular>
+          </div>
+          <h2 class="section-title text-xl font-semibold text-gray-900 dark:text-gray-100">Período</h2>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Month -->
+          <div class="form-group">
+            <label for="period_month" class="form-label block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Mes *
+            </label>
+            <select 
+              id="period_month"
+              formControlName="period_month"
+              class="form-control w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+              [class.border-red-500]="isFieldInvalid('period_month')">
+              <option *ngFor="let month of monthOptions" [value]="month.value">
+                {{ month.label }}
+              </option>
+            </select>
+            <div *ngIf="isFieldInvalid('period_month')" class="error-message text-red-500 text-sm mt-1">
+              {{ getFieldError('period_month') }}
+            </div>
+          </div>
+
+          <!-- Year -->
+          <div class="form-group">
+            <label for="period_year" class="form-label block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Año *
+            </label>
+            <input 
+              type="number"
+              id="period_year"
+              formControlName="period_year"
+              min="2020"
+              max="2030"
+              class="form-control w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+              [class.border-red-500]="isFieldInvalid('period_year')"
+              placeholder="2024">
+            <div *ngIf="isFieldInvalid('period_year')" class="error-message text-red-500 text-sm mt-1">
+              {{ getFieldError('period_year') }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Commission Calculation Section -->
+      <div class="form-section">
+        <div class="section-header flex items-center gap-3 mb-6">
+          <div class="icon bg-green-100 text-green-600 w-10 h-10 rounded-lg flex items-center justify-center">
+            <lucide-angular [img]="Calculator" size="20"></lucide-angular>
+          </div>
+          <h2 class="section-title text-xl font-semibold text-gray-900 dark:text-gray-100">Cálculo de Comisión</h2>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Sale Amount -->
+          <div class="form-group">
+            <label for="sale_amount" class="form-label block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Monto de Venta
+            </label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <span class="text-gray-500 sm:text-sm">S/</span>
+              </div>
+              <input 
+                type="number"
+                id="sale_amount"
+                formControlName="sale_amount"
+                step="0.01"
+                min="0"
+                class="form-control w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                [class.border-red-500]="isFieldInvalid('sale_amount')"
+                placeholder="0.00">
+            </div>
+            <div *ngIf="isFieldInvalid('sale_amount')" class="error-message text-red-500 text-sm mt-1">
+              {{ getFieldError('sale_amount') }}
+            </div>
+          </div>
+
+          <!-- Commission Percentage -->
+          <div class="form-group">
+            <label for="commission_percentage" class="form-label block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Porcentaje de Comisión
+            </label>
+            <div class="relative">
+              <input 
+                type="number"
+                id="commission_percentage"
+                formControlName="commission_percentage"
+                step="0.01"
+                min="0"
+                max="100"
+                class="form-control w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                [class.border-red-500]="isFieldInvalid('commission_percentage')"
+                placeholder="0.00">
+              <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                <span class="text-gray-500 sm:text-sm">%</span>
+              </div>
+            </div>
+            <div *ngIf="isFieldInvalid('commission_percentage')" class="error-message text-red-500 text-sm mt-1">
+              {{ getFieldError('commission_percentage') }}
+            </div>
+          </div>
+
+          <!-- Commission Amount -->
+          <div class="form-group">
+            <label for="commission_amount" class="form-label block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Monto de Comisión *
+            </label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <span class="text-gray-500 sm:text-sm">S/</span>
+              </div>
+              <input 
+                type="number"
+                id="commission_amount"
+                formControlName="commission_amount"
+                step="0.01"
+                min="0"
+                class="form-control w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                [class.border-red-500]="isFieldInvalid('commission_amount')"
+                placeholder="0.00">
+            </div>
+            <div *ngIf="isFieldInvalid('commission_amount')" class="error-message text-red-500 text-sm mt-1">
+              {{ getFieldError('commission_amount') }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Additional Fields -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+          <!-- Contract ID -->
+          <div class="form-group">
+            <label for="contract_id" class="form-label block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              ID del Contrato
+            </label>
+            <input 
+              type="number"
+              id="contract_id"
+              formControlName="contract_id"
+              min="1"
+              class="form-control w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+              placeholder="Opcional">
+          </div>
+
+          <!-- Installment Plan -->
+          <div class="form-group">
+            <label for="installment_plan" class="form-label block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Plan de Cuotas (meses)
+            </label>
+            <input 
+              type="number"
+              id="installment_plan"
+              formControlName="installment_plan"
+              min="1"
+              class="form-control w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+              placeholder="12, 24, 36...">
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment Section -->
+      <div class="form-section">
+        <div class="section-header flex items-center gap-3 mb-6">
+          <div class="icon bg-yellow-100 text-yellow-600 w-10 h-10 rounded-lg flex items-center justify-center">
+            <lucide-angular [img]="DollarSign" size="20"></lucide-angular>
+          </div>
+          <h2 class="section-title text-xl font-semibold text-gray-900 dark:text-gray-100">Estado de Pago</h2>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Payment Status -->
+          <div class="form-group">
+            <label for="payment_status" class="form-label block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Estado de Pago *
+            </label>
+            <select 
+              id="payment_status"
+              formControlName="payment_status"
+              class="form-control w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+              [class.border-red-500]="isFieldInvalid('payment_status')">
+              <option *ngFor="let status of statusOptions" [value]="status.value">
+                {{ status.label }}
+              </option>
+            </select>
+            <div *ngIf="isFieldInvalid('payment_status')" class="error-message text-red-500 text-sm mt-1">
+              {{ getFieldError('payment_status') }}
+            </div>
+          </div>
+
+          <!-- Payment Date -->
+          <div class="form-group">
+            <label for="payment_date" class="form-label block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Fecha de Pago
+            </label>
+            <input 
+              type="date"
+              id="payment_date"
+              formControlName="payment_date"
+              class="form-control w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
+            <p class="text-sm text-gray-500 mt-1">Solo si el estado es "Pagado"</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notes Section -->
+      <div class="form-section">
+        <div class="form-group">
+          <label for="notes" class="form-label block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Notas
+          </label>
+          <textarea 
+            id="notes"
+            formControlName="notes"
+            rows="4"
+            class="form-control w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+            placeholder="Información adicional sobre la comisión..."></textarea>
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="form-actions flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+        <button 
+          type="submit"
+          [disabled]="loading() || commissionForm.invalid"
+          class="btn btn-primary bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-8 py-3 rounded-lg font-medium transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/25 flex items-center justify-center gap-2">
+          <lucide-angular [img]="Save" size="20"></lucide-angular>
+          <span *ngIf="!loading()">{{ isEditMode() ? 'Actualizar Comisión' : 'Crear Comisión' }}</span>
+          <span *ngIf="loading()">Guardando...</span>
+        </button>
+        
+        <button 
+          type="button"
+          (click)="goBack()"
+          class="btn btn-secondary bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 px-8 py-3 rounded-lg font-medium transition-colors duration-200">
+          Cancelar
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

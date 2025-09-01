@@ -1,0 +1,324 @@
+<div class="commission-list-container max-w-7xl mx-auto p-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
+  <!-- Header -->
+  <div class="header bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 mb-8 flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+    <div class="header-content flex-1">
+      <h1 class="title text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">Gestión de Comisiones</h1>
+      <p class="subtitle text-gray-600 dark:text-gray-300 text-lg">Administra y procesa las comisiones de los empleados</p>
+    </div>
+    <div class="header-actions flex gap-3">
+      <button 
+        class="btn btn-info bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 hover:shadow-lg hover:shadow-purple-500/25 hover:-translate-y-0.5"
+        (click)="viewSalesDetail()">
+        <lucide-angular [img]="FileText" size="16"></lucide-angular>
+        Detalle de Ventas
+      </button>
+      <button 
+        class="btn btn-secondary bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 px-6 py-3 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 hover:shadow-lg hover:-translate-y-0.5"
+        (click)="createCommission()">
+        <lucide-angular [img]="Plus" size="16"></lucide-angular>
+        Nueva Comisión
+      </button>
+      <button 
+        class="btn btn-primary bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 hover:shadow-lg hover:shadow-blue-500/25 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
+        [disabled]="processing()"
+        (click)="processCommissions()">
+        <lucide-angular [img]="TrendingUp" size="16"></lucide-angular>
+        {{ processing() ? 'Procesando...' : 'Procesar Comisiones' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Statistics Cards -->
+  <div class="stats-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="stat-card bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md hover:-translate-y-1 transition-all duration-200 flex items-center gap-4">
+      <div class="stat-icon bg-blue-100 text-blue-600 w-12 h-12 rounded-xl flex items-center justify-center">
+        <lucide-angular [img]="DollarSign" size="24"></lucide-angular>
+      </div>
+      <div class="stat-content flex-1">
+        <h3 class="stat-value text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">{{ formatCurrency(totalCommissions()) }}</h3>
+        <p class="stat-label text-gray-600 dark:text-gray-300 text-sm">Total Comisiones</p>
+      </div>
+    </div>
+    <div class="stat-card bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md hover:-translate-y-1 transition-all duration-200 flex items-center gap-4">
+      <div class="stat-icon bg-green-100 text-green-600 w-12 h-12 rounded-xl flex items-center justify-center">
+        <lucide-angular [img]="CheckCircle" size="24"></lucide-angular>
+      </div>
+      <div class="stat-content flex-1">
+        <h3 class="stat-value text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">{{ formatCurrency(paidAmount()) }}</h3>
+        <p class="stat-label text-gray-600 dark:text-gray-300 text-sm">Pagadas</p>
+      </div>
+    </div>
+    <div class="stat-card bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md hover:-translate-y-1 transition-all duration-200 flex items-center gap-4">
+      <div class="stat-icon bg-yellow-100 text-yellow-600 w-12 h-12 rounded-xl flex items-center justify-center">
+        <lucide-angular [img]="Clock" size="24"></lucide-angular>
+      </div>
+      <div class="stat-content flex-1">
+        <h3 class="stat-value text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">{{ formatCurrency(pendingAmount()) }}</h3>
+        <p class="stat-label text-gray-600 dark:text-gray-300 text-sm">Pendientes</p>
+      </div>
+    </div>
+    <div class="stat-card bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md hover:-translate-y-1 transition-all duration-200 flex items-center gap-4">
+      <div class="stat-icon bg-purple-100 text-purple-600 w-12 h-12 rounded-xl flex items-center justify-center">
+        <lucide-angular [img]="Calendar" size="24"></lucide-angular>
+      </div>
+      <div class="stat-content flex-1">
+        <h3 class="stat-value text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">{{ filteredCommissions().length }}</h3>
+        <p class="stat-label text-gray-600 dark:text-gray-300 text-sm">Total Registros</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-section bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 mb-6">
+    <div class="filters-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <!-- Search -->
+      <div class="filter-group">
+        <label class="filter-label block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Buscar empleado</label>
+        <div class="search-input relative">
+          <lucide-angular [img]="Search" size="16" class="search-icon absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500"></lucide-angular>
+          <input
+            type="text"
+            placeholder="Buscar por nombre o código..."
+            [(ngModel)]="searchTerm"
+            (input)="onSearch()"
+            class="form-input w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+        </div>
+      </div>
+      <!-- Status Filter -->
+      <div class="filter-group">
+        <label class="filter-label block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Estado</label>
+        <select 
+          [(ngModel)]="selectedStatus"
+          (change)="onFilterChange()"
+          class="form-select w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+          <option *ngFor="let option of statusOptions" [value]="option.value">
+            {{ option.label }}
+          </option>
+        </select>
+      </div>
+      <!-- Month Filter -->
+      <div class="filter-group">
+        <label class="filter-label block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Mes</label>
+        <select 
+          [(ngModel)]="selectedMonth"
+          (change)="onFilterChange()"
+          class="form-select w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+          <option *ngFor="let option of monthOptions" [value]="option.value">
+            {{ option.label }}
+          </option>
+        </select>
+      </div>
+      <!-- Year Filter -->
+      <div class="filter-group">
+        <label class="filter-label block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Año</label>
+        <select 
+          [(ngModel)]="selectedYear"
+          (change)="onFilterChange()"
+          class="form-select w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+          <option *ngFor="let option of yearOptions" [value]="option.value">
+            {{ option.label }}
+          </option>
+        </select>
+      </div>
+      <!-- Split Payments Toggle -->
+      <div class="filter-group">
+        <label class="filter-label block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Mostrar Divisiones</label>
+        <div class="flex items-center">
+          <button 
+            type="button"
+            (click)="toggleSplitPayments()"
+            [class]="'relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ' + (showSplitPayments() ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-600')">
+            <span 
+              [class]="'inline-block h-4 w-4 transform rounded-full bg-white transition-transform ' + (showSplitPayments() ? 'translate-x-6' : 'translate-x-1')">
+            </span>
+          </button>
+          <span class="ml-3 text-sm text-gray-600 dark:text-gray-300">
+            {{ showSplitPayments() ? 'Incluir comisiones divididas' : 'Solo comisiones generales' }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading()" class="loading-state bg-white dark:bg-gray-800 p-12 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col items-center justify-center">
+    <div class="loading-spinner w-10 h-10 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin mb-4"></div>
+    <p class="text-gray-600 dark:text-gray-300">Cargando comisiones...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error()" class="error-state bg-white dark:bg-gray-800 p-12 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col items-center justify-center text-center">
+    <div class="error-icon text-red-500 mb-4">
+      <lucide-angular [img]="XCircle" size="48"></lucide-angular>
+    </div>
+    <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Error al cargar datos</h3>
+    <p class="text-gray-600 dark:text-gray-300 mb-6">{{ error() }}</p>
+    <button class="btn btn-primary bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg font-medium transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/25" (click)="loadCommissions()">
+      Reintentar
+    </button>
+  </div>
+
+  <!-- Advisor Commissions Cards -->
+  <div *ngIf="!loading() && !error()" class="advisor-commissions-container">
+    <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+      <div *ngFor="let advisorGroup of groupedCommissions(); trackBy: trackByAdvisorId" 
+           class="advisor-card bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+           (click)="viewAdvisorCommissions(advisorGroup)">
+        
+        <!-- Card Header -->
+        <div class="card-header p-6 border-b border-gray-100 dark:border-gray-700">
+          <div class="flex items-start justify-between">
+            <div class="advisor-info flex-1">
+              <h3 class="advisor-name text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                {{ advisorGroup.employee.full_name}}
+              </h3>
+              <div class="advisor-details flex flex-col gap-1">
+                <span class="employee-code font-mono text-sm bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-200 px-2 py-1 rounded inline-block w-fit">
+                  {{ advisorGroup.employee && advisorGroup.employee.employee_code ? advisorGroup.employee.employee_code : 'N/A' }}
+                </span>
+                <span class="employee-email text-sm text-gray-500 dark:text-gray-400">
+                  {{ advisorGroup.employee && advisorGroup.employee.user ? advisorGroup.employee.user.email : '' }}
+                </span>
+              </div>
+            </div>
+            <div class="payment-status-indicator">
+              <span [class]="'status-badge inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ' + getOverallStatusClass(advisorGroup.overallStatus)">
+                <lucide-angular [img]="getOverallStatusIcon(advisorGroup.overallStatus)" size="12"></lucide-angular>
+                {{ getOverallStatusLabel(advisorGroup.overallStatus) }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card Body -->
+        <div class="card-body p-6">
+          <!-- Total Commission Amount -->
+          <div class="total-amount mb-4">
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-gray-600 dark:text-gray-300">Total Comisiones</span>
+              <span class="text-2xl font-bold text-green-600">{{ formatCurrency(advisorGroup.totalAmount) }}</span>
+            </div>
+          </div>
+
+          <!-- Commission Breakdown -->
+          <div class="commission-breakdown space-y-3">
+            <div class="breakdown-item flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                <span class="text-sm text-gray-600 dark:text-gray-300">Pagadas</span>
+              </div>
+              <div class="text-right">
+                <span class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ advisorGroup.paidCount }}</span>
+                <span class="text-xs text-gray-500 dark:text-gray-400 ml-1">{{ formatCurrency(advisorGroup.paidAmount) }}</span>
+              </div>
+            </div>
+            
+            <div class="breakdown-item flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                <span class="text-sm text-gray-600 dark:text-gray-300">Pendientes</span>
+              </div>
+              <div class="text-right">
+                <span class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ advisorGroup.pendingCount }}</span>
+                <span class="text-xs text-gray-500 dark:text-gray-400 ml-1">{{ formatCurrency(advisorGroup.pendingAmount) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Payment Verification Status -->
+          <div class="verification-status mt-4 pt-3 border-t border-gray-100 dark:border-gray-700">
+            <h4 class="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">Estado de Verificación de Pagos</h4>
+            <div class="verification-summary space-y-2">
+              <div *ngFor="let commission of advisorGroup.commissions" class="verification-item">
+                <div *ngIf="requiresPaymentVerification(commission)" class="flex items-center justify-between text-xs">
+                  <div class="flex items-center gap-2">
+                    <lucide-angular [img]="getVerificationStatusIcon(commission.payment_verification_status)" size="12" 
+                                    [class]="getPaymentEligibilityClass(commission)"></lucide-angular>
+                    <span class="text-gray-600 dark:text-gray-300">Comisión #{{ commission.commission_id }}</span>
+                  </div>
+                  <div class="flex items-center gap-1">
+                    <span [class]="'px-2 py-1 rounded-full text-xs ' + getVerificationStatusClass(commission.payment_verification_status)">
+                      {{ getVerificationStatusLabel(commission.payment_verification_status) }}
+                    </span>
+                    <span *ngIf="!isEligibleForPayment(commission)" class="text-red-500" title="No elegible para pago">
+                      <lucide-angular [img]="AlertTriangle" size="10"></lucide-angular>
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div *ngIf="!hasCommissionsRequiringVerification(advisorGroup.commissions)" 
+                   class="text-xs text-gray-500 dark:text-gray-400 italic">
+                Ninguna comisión requiere verificación de pagos del cliente
+              </div>
+            </div>
+          </div>
+
+          <!-- Period Info -->
+          <div class="period-info mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-gray-600 dark:text-gray-300">Período</span>
+              <span class="font-medium text-gray-900 dark:text-gray-100">
+                {{ monthOptions[selectedMonth() - 1].label }} {{ selectedYear() }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Payment Progress -->
+          <div class="payment-progress mt-4">
+            <div class="flex items-center justify-between text-xs text-gray-600 dark:text-gray-300 mb-1">
+              <span>Progreso de Pago</span>
+              <span>{{ advisorGroup.paymentPercentage }}%</span>
+            </div>
+            <div class="progress-bar w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+              <div class="progress-fill bg-green-500 h-2 rounded-full transition-all duration-300" 
+                   [style.width.%]="advisorGroup.paymentPercentage"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card Footer -->
+        <div class="card-footer p-4 bg-gray-50 dark:bg-gray-700 rounded-b-xl">
+          <div class="flex items-center justify-between">
+            <span class="text-xs text-gray-500 dark:text-gray-400">
+              {{ advisorGroup.commissions.length }} comisión{{ advisorGroup.commissions.length !== 1 ? 'es' : '' }}
+            </span>
+            <div class="action-hint flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400">
+              <span>Ver detalles</span>
+              <lucide-angular [img]="ChevronRight" size="12"></lucide-angular>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="filteredCommissions().length === 0" class="empty-state bg-white dark:bg-gray-800 p-12 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col items-center justify-center text-center">
+      <div class="empty-icon text-gray-300 dark:text-gray-500 mb-4">
+        <lucide-angular [img]="DollarSign" size="48"></lucide-angular>
+      </div>
+      <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">No hay comisiones</h3>
+      <p class="text-gray-600 dark:text-gray-300">No se encontraron comisiones para los filtros seleccionados.</p>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div *ngIf="totalPages() > 1" class="pagination bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 mt-6 flex items-center justify-center gap-4">
+    <button 
+      class="pagination-btn px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-400 dark:hover:border-gray-500 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+      [disabled]="currentPage() === 1"
+      (click)="onPageChange(currentPage() - 1)">
+      Anterior
+    </button>
+    
+    <span class="pagination-info text-gray-600 dark:text-gray-300 font-medium">
+      Página {{ currentPage() }} de {{ totalPages() }}
+    </span>
+    
+    <button 
+      class="pagination-btn px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-400 dark:hover:border-gray-500 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+      [disabled]="currentPage() === totalPages()"
+      (click)="onPageChange(currentPage() + 1)">
+      Siguiente
+    </button>
+  </div>
+</div>

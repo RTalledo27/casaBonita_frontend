@@ -1,0 +1,174 @@
+<div class="lot-detail-container" *ngIf="lot">
+    <!-- Encabezado mejorado -->
+    <div class="detail-header">
+        <button (click)="back()" class="back-button">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd"
+                    d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
+                    clip-rule="evenodd" />
+            </svg>
+            {{ 'common.back' | translate }}
+        </button>
+
+        <div class="title-container">
+            <h1>{{ 'inventory.lots.detailTitle' | translate }}</h1>
+            <div class="status-badge">
+                <span class="dot"></span>
+                {{ ('inventory.lots.status.' + lot.status) | translate }}
+            </div>
+            </div>
+    </div>
+
+    <!-- Grid principal -->
+    <div class="detail-grid">
+        <!-- Columna de datos -->
+        <div class="data-column">
+            <!-- Datos generales -->
+            <div class="data-card">
+                <h2 class="card-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="title-icon" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                    {{ 'inventory.lots.generalTitle' | translate }}
+                </h2>
+
+                <div class="data-grid">
+                    <div class="data-item">
+                        <span class="data-label">{{ 'inventory.lots.manzana' | translate }}</span>
+                        <span class="data-value">{{ lot.manzana?.name || '-' }}</span>
+                    </div>
+
+                    <div class="data-item">
+                        <span class="data-label">{{ 'inventory.lots.streetType' | translate }}</span>
+                        <span class="data-value">{{ lot.street_type?.name || '-' }}</span>
+                    </div>
+
+                    <div class="data-item">
+                        <span class="data-label">{{ 'inventory.lots.numLot' | translate }}</span>
+                        <span class="data-value">{{ lot.num_lot || '-' }}</span>
+                    </div>
+
+                    <div class="data-item">
+                        <span class="data-label">{{ 'inventory.lots.areaM2' | translate }}</span>
+                        <span class="data-value">{{ lot.area_m2 || '-' }} m²</span>
+                    </div>
+
+                    <div class="data-item">
+                        <span class="data-label">{{ 'inventory.lots.areaConstructionM2' | translate }}</span>
+                        <span class="data-value">{{ lot.area_construction_m2 || '-' }} m²</span>
+                    </div>
+
+                    <div class="data-item">
+                        <span class="data-label">{{ 'inventory.lots.status.label' | translate }}</span>
+                        <span class="data-value status-available">{{ lot.status || '-' }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Finanzas -->
+            <div class="data-card">
+                <h2 class="card-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="title-icon" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    {{ 'inventory.lots.financesTitle' | translate }}
+                </h2>
+
+                <div class="data-grid">
+                    <div class="data-item">
+                        <span class="data-label">{{ 'inventory.lots.totalPrice' | translate }}</span>
+                        <span class="data-value">{{ lot.currency || 'PEN' }} {{ lot.total_price || '-' }}</span>
+                    </div>
+
+                    <div class="data-item">
+                        <span class="data-label">{{ 'inventory.lots.initialQuota' | translate }}</span>
+                        <span class="data-value">{{ lot.initial_quota || '-' }}</span>
+                    </div>
+
+                    <div class="data-item">
+                        <span class="data-label">{{ 'inventory.lots.currency' | translate }}</span>
+                        <span class="data-value">{{ lot.currency || '-' }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Columna de detalles adicionales -->
+        <div class="details-column">
+            <!-- Subsidios -->
+            <div class="data-card">
+                <h2 class="card-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="title-icon" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM10 8.5a.5.5 0 11-1 0 .5.5 0 011 0zm5 5a.5.5 0 11-1 0 .5.5 0 011 0z" />
+                    </svg>
+                    {{ 'inventory.lots.subsidiesTitle' | translate }}
+                </h2>
+
+                <div class="data-grid">
+                    <div class="data-item">
+                        <span class="data-label">{{ 'inventory.lots.funding' | translate }}</span>
+                        <span class="data-value">{{ getLotValue('funding') || '-' }}</span>
+                    </div>
+
+                    <div class="data-item">
+                        <span class="data-label">{{ 'inventory.lots.BPP' | translate }}</span>
+                        <span class="data-value">{{ getLotValue('BPP') || '-' }}</span>
+                    </div>
+
+                    <div class="data-item">
+                        <span class="data-label">{{ 'inventory.lots.BFH' | translate }}</span>
+                        <span class="data-value">{{ getLotValue('BFH') || '-' }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Multimedia -->
+            <div class="data-card">
+                <h2 class="card-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="title-icon" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    {{ 'inventory.lots.media' | translate }}
+                </h2>
+
+                <div class="media-grid">
+                    <ng-container *ngFor="let m of lot.media">
+                        <div class="media-item">
+                            <div class="media-content">
+                                <img *ngIf="m.type !== 'doc'" [src]="backendBaseUrl+m.url" class="media-image"
+                                    alt="Media" />
+
+                                <a *ngIf="m.type === 'doc'" [href]="m.url" target="_blank" class="doc-link">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="doc-icon" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                    <span>{{ getFileName(m.url) }}</span>
+                                </a>
+                            </div>
+                            <div class="media-type">{{ m.type }}</div>
+                        </div>
+                    </ng-container>
+
+                    <div *ngIf="!lot.media || lot.media.length === 0" class="no-media">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="no-media-icon" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        No hay elementos multimedia
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>

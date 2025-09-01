@@ -1,0 +1,103 @@
+<ng-container *ngIf="client$ | async as c">
+    <div class="p-6 bg-gray-900 text-white rounded-2xl shadow-lg">
+        <button routerLink="/crm/clients" class="text-blue-400 hover:underline mb-6 inline-flex items-center gap-1">
+            ← Back to list
+        </button>
+
+        <div class="flex flex-col md:flex-row gap-6">
+            <div class="flex-shrink-0">
+                <div class="w-32 h-32 rounded-full border-2 border-blue-600 overflow-hidden mb-4">
+                    <div class="w-full h-full bg-gray-800 flex items-center justify-center text-gray-500 text-4xl">
+                        <lucide-icon [name]="User" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="bg-gray-800 p-4 rounded-lg">
+                    <dt class="font-semibold mb-1">Name:</dt>
+                    <dd>{{ c.first_name }} {{ c.last_name }}</dd>
+                </div>
+                <div class="bg-gray-800 p-4 rounded-lg">
+                    <dt class="font-semibold mb-1">Document</dt>␊
+                    <dd>{{ c.doc_type }} - {{ c.doc_number }}</dd>
+                </div>
+                <div class="bg-gray-800 p-4 rounded-lg">
+                    <dt class="font-semibold mb-1">Marital Status</dt>
+                    <dd>{{ c.marital_status || '-' }}</dd>
+                </div>
+                <div class="bg-gray-800 p-4 rounded-lg">
+                    <dt class="font-semibold mb-1">Family Group</dt>
+                    <dd>
+                        <a [routerLink]="['/crm/clients', c.client_id, 'family']" class="text-blue-400 hover:underline">
+                            View ({{ c.family_members?.length || 0 }})
+                        </a>
+                    </dd>
+                </div>
+                <div class="bg-gray-800 p-4 rounded-lg">
+                    <dt class="font-semibold mb-1">Interactions</dt>
+                    <dd>
+                        <a [routerLink]="['/crm/clients', c.client_id, 'interactions']" class="text-blue-400 hover:underline">
+                            View ({{ c.interactions?.length || 0 }})
+                        </a>
+                    </dd>
+                </div>
+                <div class="bg-gray-800 p-4 rounded-lg">
+                    <dt class="font-semibold mb-1">Email</dt>
+                    <dd>{{ c.email || '-' }}</dd>
+                </div>
+
+                
+                <div class="bg-gray-800 p-4 rounded-lg">
+                    <dt class="font-semibold mb-1">Phone</dt>
+                    <dd>{{ c.primary_phone || '-' }}</dd>
+                </div>
+                <div class="bg-gray-800 p-4 rounded-lg">
+                    <dt class="font-semibold mb-1">Alt. Phone</dt>
+                    <dd>{{ c.secondary_phone || '-' }}</dd>
+                </div>
+                <div class="bg-gray-800 p-4 rounded-lg">
+                    <dt class="font-semibold mb-1">Type</dt>
+                    <dd>{{ c.type }}</dd>
+                </div>
+                <div class="bg-gray-800 p-4 rounded-lg">
+                    <dt class="font-semibold mb-1">Date</dt>
+                    <dd>{{ c.date | date:'short' }}</dd>
+                </div>
+                <div class="bg-gray-800 p-4 rounded-lg">
+                    <dt class="font-semibold mb-1">Occupation</dt>
+                    <dd>{{ c.occupation || '-' }}</dd>
+                </div>
+                <div class="bg-gray-800 p-4 rounded-lg">
+                    <dt class="font-semibold mb-1">Salary</dt>
+                    <dd>{{ c.salary || '-' }}</dd>
+                </div>
+                <div class="sm:col-span-2 bg-gray-800 p-4 rounded-lg">
+                    <dt class="font-semibold mb-1">Address</dt>
+                    <dd>{{ c.addresses?.[0]?.line1 || '-' }}</dd>
+                </div>
+                <div class="bg-gray-800 p-4 rounded-lg">
+                    <dt class="font-semibold mb-1">Created</dt>
+                    <dd>{{ c.created_at | date:'short' }}</dd>
+                </div>
+                <div class="bg-gray-800 p-4 rounded-lg">
+                    <dt class="font-semibold mb-1">Updated</dt>
+                    <dd>{{ c.updated_at | date:'short' }}</dd>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-6 flex gap-3">
+            <button (click)="onEdit(c)">Edit</button>
+            <button (click)="onDelete(c.client_id)" class="bg-red-600 hover:bg-red-500 px-4 py-2 rounded">
+                Delete
+            </button>
+        </div>
+    </div>
+</ng-container>
+
+<div *ngIf="isModalOpen" class="fixed inset-0 flex items-center justify-center z-50">
+    <div class="bg-gray-900 rounded-2xl shadow-2xl p-6 max-h-[80vh] overflow-y-auto">
+        <router-outlet name="modal" (activate)="onModalActivate($event)"></router-outlet>
+    </div>
+    </div>

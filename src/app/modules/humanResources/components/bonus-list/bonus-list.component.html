@@ -1,0 +1,264 @@
+<div class="bonus-list-container max-w-7xl mx-auto p-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
+  <!-- Header -->
+  <div class="header bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 mb-8 flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+    <div class="header-content flex-1">
+      <h1 class="title text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">Gestión de Bonos</h1>
+      <p class="subtitle text-gray-600 dark:text-gray-400 text-lg">Administra y procesa los bonos de los empleados</p>
+    </div>
+    <div class="header-actions flex flex-col sm:flex-row gap-3">
+      <button 
+        class="btn btn-secondary bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 px-4 py-2.5 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 hover:shadow-md hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
+        [disabled]="processing()"
+        (click)="processAutomaticBonuses()">
+        <lucide-angular [img]="Target" size="16"></lucide-angular>
+        {{ processing() ? 'Procesando...' : 'Procesar Automáticos' }}
+      </button>
+      <button 
+        class="btn btn-primary bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 hover:shadow-lg hover:shadow-blue-500/25 hover:-translate-y-0.5"
+        (click)="createBonus()">
+        <lucide-angular [img]="Plus" size="16"></lucide-angular>
+        Nuevo Bono
+      </button>
+    </div>
+  </div>
+
+  <!-- Statistics Cards -->
+  <div class="stats-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="stat-card bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md hover:-translate-y-1 transition-all duration-200 flex items-center gap-4">
+      <div class="stat-icon bg-purple-100 text-purple-600 w-12 h-12 rounded-xl flex items-center justify-center">
+        <lucide-angular [img]="Gift" size="24"></lucide-angular>
+      </div>
+      <div class="stat-content flex-1">
+        <h3 class="stat-value text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">{{ formatCurrency(totalAmount()) }}</h3>
+        <p class="stat-label text-gray-600 dark:text-gray-300 text-sm">Total Bonos</p>
+      </div>
+    </div>
+    <div class="stat-card bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md hover:-translate-y-1 transition-all duration-200 flex items-center gap-4">
+      <div class="stat-icon bg-green-100 text-green-600 w-12 h-12 rounded-xl flex items-center justify-center">
+        <lucide-angular [img]="CheckCircle" size="24"></lucide-angular>
+      </div>
+      <div class="stat-content flex-1">
+        <h3 class="stat-value text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">{{ formatCurrency(approvedAmount()) }}</h3>
+        <p class="stat-label text-gray-600 dark:text-gray-300 text-sm">Aprobados</p>
+      </div>
+    </div>
+    <div class="stat-card bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md hover:-translate-y-1 transition-all duration-200 flex items-center gap-4">
+      <div class="stat-icon bg-yellow-100 text-yellow-600 w-12 h-12 rounded-xl flex items-center justify-center">
+        <lucide-angular [img]="Clock" size="24"></lucide-angular>
+      </div>
+      <div class="stat-content flex-1">
+        <h3 class="stat-value text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">{{ formatCurrency(pendingAmount()) }}</h3>
+        <p class="stat-label text-gray-600 dark:text-gray-300 text-sm">Pendientes</p>
+      </div>
+    </div>
+    <div class="stat-card bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md hover:-translate-y-1 transition-all duration-200 flex items-center gap-4">
+      <div class="stat-icon bg-blue-100 text-blue-600 w-12 h-12 rounded-xl flex items-center justify-center">
+        <lucide-angular [img]="Target" size="24"></lucide-angular>
+      </div>
+      <div class="stat-content flex-1">
+        <h3 class="stat-value text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">{{ filteredBonuses().length }}</h3>
+        <p class="stat-label text-gray-600 dark:text-gray-300 text-sm">Total Registros</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-section bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 mb-6">
+    <div class="filters-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <!-- Search -->
+      <div class="filter-group">
+        <label class="filter-label block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Buscar</label>
+        <div class="search-input relative">
+          <lucide-angular [img]="Search" size="16" class="search-icon absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500"></lucide-angular>
+          <input
+            type="text"
+            placeholder="Buscar por empleado o tipo..."
+            [(ngModel)]="searchTerm"
+            (input)="onSearch()"
+            class="input w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+        </div>
+      </div>
+      <!-- Status Filter -->
+      <div class="filter-group">
+        <label class="filter-label block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Estado</label>
+        <select 
+          [(ngModel)]="selectedStatus"
+          (change)="onFilterChange()"
+          class="select w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+          <option *ngFor="let option of statusOptions" [value]="option.value">
+            {{ option.label }}
+          </option>
+        </select>
+      </div>
+      <!-- Type Filter -->
+      <div class="filter-group">
+        <label class="filter-label block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tipo de Bono</label>
+        <select 
+          [(ngModel)]="selectedType"
+          (change)="onFilterChange()"
+          class="select w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+          <option value="">Todos los tipos</option>
+          <option *ngFor="let type of bonusTypes()" [value]="type.id">
+            {{ type.name }}
+          </option>
+        </select>
+      </div>
+      <!-- Month Filter -->
+      <div class="filter-group">
+        <label class="filter-label block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Mes</label>
+        <select 
+          [(ngModel)]="selectedMonth"
+          (change)="onFilterChange()"
+          class="select w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+          <option *ngFor="let option of monthOptions" [value]="option.value">
+            {{ option.label }}
+          </option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading()" class="loading-state bg-white dark:bg-gray-800 p-12 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col items-center justify-center">
+    <div class="loading-spinner w-10 h-10 border-4 border-gray-200 dark:border-gray-600 border-t-blue-600 rounded-full animate-spin mb-4"></div>
+    <p class="text-gray-600 dark:text-gray-300">Cargando bonos...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error()" class="error-state bg-white dark:bg-gray-800 p-12 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col items-center justify-center text-center">
+    <div class="error-icon text-red-500 mb-4">
+      <lucide-angular [img]="XCircle" size="48"></lucide-angular>
+    </div>
+    <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Error al cargar datos</h3>
+    <p class="text-gray-600 dark:text-gray-300 mb-6">{{ error() }}</p>
+    <button class="btn btn-primary bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg font-medium transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/25" (click)="loadBonuses()">
+      Reintentar
+    </button>
+  </div>
+
+  <!-- Bonuses Table -->
+  <div *ngIf="!loading() && !error()" class="table-container bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+    <div class="table-wrapper overflow-x-auto">
+      <table class="table w-full">
+        <thead class="bg-gray-50 dark:bg-gray-700">
+          <tr>
+            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-600">Empleado</th>
+            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-600">Tipo de Bono</th>
+            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-600">Período</th>
+            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-600">Monto</th>
+            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-600">Estado</th>
+            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-600">Fecha Creación</th>
+            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-600">Acciones</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100 dark:divide-gray-600">
+          <tr *ngFor="let bonus of filteredBonuses(); trackBy: trackByBonusId" class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150">
+            <td class="px-6 py-4">
+              <div class="employee-info">
+                <div class="employee-name font-medium text-gray-900 dark:text-gray-100">
+                  Empleado ID: {{ bonus.employee_id }}
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4">
+              <div class="bonus-type">
+                <div class="type-name font-medium text-gray-900 dark:text-gray-100">{{ bonus.bonus_type?.type_name || 'Sin tipo' }}</div>
+                <div class="type-description text-sm text-gray-500 dark:text-gray-400">{{ bonus.bonus_name }}</div>
+              </div>
+            </td>
+            <td class="px-6 py-4">
+              <div class="period-info">
+                <div class="period-month font-medium text-gray-900 dark:text-gray-100">{{ bonus.period_month ? monthOptions[bonus.period_month - 1].label : '-' }}</div>
+                <div class="period-year text-sm text-gray-500 dark:text-gray-400">{{ bonus.period_year }}</div>
+              </div>
+            </td>
+            <td class="px-6 py-4">
+              <span class="bonus-amount font-semibold text-green-600 text-lg">{{ formatCurrency(bonus.bonus_amount || 0) }}</span>
+            </td>
+            <td class="px-6 py-4">
+              <span [class]="'status-badge inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ' + getStatusClass(bonus.payment_status)">
+                <lucide-angular [img]="getStatusIcon(bonus.payment_status)" size="14"></lucide-angular>
+                {{ getStatusLabel(bonus.payment_status) }}
+              </span>
+            </td>
+            <td class="px-6 py-4">
+              <span class="created-date text-gray-600 dark:text-gray-300" *ngIf="bonus.approved_at">{{ formatDate(bonus.approved_at) }}</span>
+              <span class="text-gray-400 dark:text-gray-500" *ngIf="!bonus.approved_at">-</span>
+            </td>
+            <td class="px-6 py-4">
+              <div class="action-buttons flex items-center gap-2">
+                <button
+                  class="btn-icon btn-icon-primary w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30 hover:scale-110 transition-all duration-200 flex items-center justify-center"
+                  (click)="viewBonus(bonus)"
+                  title="Ver detalle">
+                  <lucide-angular [img]="Eye" size="14"></lucide-angular>
+                </button>
+                <button
+                  *ngIf="bonus.payment_status === 'pendiente'"
+                  class="btn-icon btn-icon-secondary w-8 h-8 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 hover:scale-110 transition-all duration-200 flex items-center justify-center"
+                  (click)="editBonus(bonus)"
+                  title="Editar">
+                  <lucide-angular [img]="Edit" size="14"></lucide-angular>
+                </button>
+                <button
+                  *ngIf="bonus.payment_status === 'pendiente'"
+                  class="btn-icon btn-icon-success w-8 h-8 rounded-lg bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30 hover:scale-110 transition-all duration-200 flex items-center justify-center"
+                  (click)="approveBonus(bonus)"
+                  title="Aprobar">
+                  <lucide-angular [img]="CheckCircle" size="14"></lucide-angular>
+                </button>
+                <button
+                  *ngIf="bonus.payment_status === 'pendiente'"
+                  class="btn-icon btn-icon-danger w-8 h-8 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 hover:scale-110 transition-all duration-200 flex items-center justify-center"
+                  (click)="rejectBonus(bonus)"
+                  title="Rechazar">
+                  <lucide-angular [img]="XCircle" size="14"></lucide-angular>
+                </button>
+                <button
+                  *ngIf="bonus.payment_status === 'pendiente'"
+                  class="btn-icon btn-icon-danger w-8 h-8 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 hover:scale-110 transition-all duration-200 flex items-center justify-center"
+                  (click)="deleteBonus(bonus)"
+                  title="Eliminar">
+                  <lucide-angular [img]="Trash2" size="14"></lucide-angular>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <!-- Empty State -->
+      <div *ngIf="filteredBonuses().length === 0" class="empty-state p-12 flex flex-col items-center justify-center text-center">
+        <div class="empty-icon text-gray-300 dark:text-gray-600 mb-4">
+          <lucide-angular [img]="Gift" size="48"></lucide-angular>
+        </div>
+        <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">No hay bonos</h3>
+        <p class="text-gray-600 dark:text-gray-300 mb-6">No se encontraron bonos para los filtros seleccionados.</p>
+        <button class="btn btn-primary bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 hover:shadow-lg hover:shadow-blue-500/25" (click)="createBonus()">
+          <lucide-angular [img]="Plus" size="16"></lucide-angular>
+          Crear Primer Bono
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div *ngIf="totalPages() > 1" class="pagination bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-center gap-4">
+    <button 
+      class="pagination-btn px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-400 dark:hover:border-gray-500 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+      [disabled]="currentPage() === 1"
+      (click)="onPageChange(currentPage() - 1)">
+      Anterior
+    </button>
+    
+    <span class="pagination-info text-gray-600 dark:text-gray-300 font-medium">
+      Página {{ currentPage() }} de {{ totalPages() }}
+    </span>
+    
+    <button 
+      class="pagination-btn px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-400 dark:hover:border-gray-500 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+      [disabled]="currentPage() === totalPages()"
+      (click)="onPageChange(currentPage() + 1)">
+      Siguiente
+    </button>
+  </div>
+</div>

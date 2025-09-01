@@ -1,0 +1,66 @@
+<ng-template #tipoTpl let-row>
+    <span class="px-2 py-1 rounded font-semibold text-xs" [ngClass]="{
+        'bg-cyan-500 text-white': row.ticket_type === 'incidente',
+        'bg-green-700 text-white': row.ticket_type === 'solicitud',
+        'bg-yellow-400 text-white': row.ticket_type === 'cambio'
+      }">{{ row.ticket_type | titlecase }}</span>
+</ng-template>
+
+<ng-template #prioridadTpl let-row>
+    <span class="px-2 py-1 rounded-full text-xs font-bold" [ngClass]="{
+        'bg-red-400 text-white': row.priority === 'alta',
+        'bg-gray-500 text-white': row.priority === 'media',
+        'bg-cyan-400 text-white': row.priority === 'baja',
+        'bg-pink-700 text-white': row.priority === 'critica'
+      }">{{ row.priority | titlecase }}</span>
+</ng-template>
+
+<ng-template #estadoTpl let-row>
+    <span class="px-2 py-1 rounded-full text-xs font-bold" [ngClass]="{
+        'bg-blue-600 text-white': row.status === 'abierto',
+        'bg-yellow-400 text-white': row.status === 'en_proceso',
+        'bg-green-700 text-white': row.status === 'cerrado'
+      }">{{ row.status | estadoTicket }}</span>
+</ng-template>
+
+<ng-template #slaTpl let-row>
+    <ng-container [ngSwitch]="row.sla_status">
+        <span *ngSwitchCase="'cumplido'" class="flex items-center gap-1 text-green-600 font-semibold">
+            <lucide-icon [name]="checkCircle" class="w-4 h-4"></lucide-icon> Cumplido
+        </span>
+        <span *ngSwitchCase="'pendiente'" class="flex items-center gap-1 text-gray-500">
+            <lucide-icon [name]="clock" class="w-4 h-4"></lucide-icon> Pendiente
+        </span>
+        <span *ngSwitchDefault class="flex items-center gap-1 text-red-500 font-semibold">
+            <lucide-icon [name]="clock" class="w-4 h-4"></lucide-icon> {{ row.sla_text }}
+        </span>
+    </ng-container>
+</ng-template>
+
+<ng-template #accionesTpl let-row>
+    <button class="btn-icon" (click)="onView(row)">
+        <lucide-icon name="eye" class="w-5 h-5"></lucide-icon>
+    </button>
+    <button class="btn-icon" (click)="onEdit(row)">
+        <lucide-icon name="pencil" class="w-5 h-5"></lucide-icon>
+    </button>
+</ng-template>
+
+<div>
+    PRueba de componente de tickets
+</div>
+  
+
+<ng-container *ngIf="(tickets$ | async) as tickets">
+    <app-shared-table [columns]="columns" [data]="tickets | serviceDeskFilter: filter : priority : status"
+        [idField]="idField" [templates]="{
+        tipoTpl: tipoTpl,
+        prioridadTpl: prioridadTpl,
+        estadoTpl: estadoTpl,
+        slaTpl: slaTpl,
+        accionesTpl: accionesTpl
+      }" [componentName]="'tickets'" [permissionPrefix]="'service-desk'" (onEdit)="onEdit($event)"
+        (onViewDetails)="onView($event)" (delete)="onDelete($event)">
+    </app-shared-table>
+</ng-container>
+

@@ -1,0 +1,27 @@
+<form [formGroup]="form" (ngSubmit)="submit()" class="space-y-4">
+    <div>
+        <label>Client</label>
+        <input formControlName="client_name" type="text" class="input" />
+    </div>
+    <div>
+        <label>Lot</label>
+        <input formControlName="lot_name" type="text" class="input" />
+    </div>
+    <div>
+        <label>Date</label>
+        <input formControlName="date" type="date" class="input" />
+    </div>
+    <div>
+        <label>Status</label>
+        <select formControlName="status" class="input">
+            <option value="pending">Pending</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="cancelled">Cancelled</option>
+        </select>
+    </div>
+    <div class="flex gap-2 justify-end">
+        <button type="button" class="btn" (click)="cancel()">{{ 'common.cancel' | translate }}</button>
+        <button type="submit" class="btn btn-primary">{{ 'common.save' | translate }}</button>
+    </div>
+</form>
+  

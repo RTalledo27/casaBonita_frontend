@@ -1,0 +1,56 @@
+<div class="p-6 space-y-4">
+    <div class="flex justify-between items-center">
+        <h2 class="text-2xl font-bold">{{ 'inventory.lots.title' | translate }}</h2>
+        <div class="flex gap-2">
+            <button *ngIf="canImport()" (click)="openImportModal()" class="btn-secondary flex items-center gap-1">
+                <lucide-icon [name]="upload" class="w-4 h-4"></lucide-icon>
+                Importar Lotes
+            </button>
+            <button *ngIf="canCreate()" (click)="onCreate()" class="btn-primary flex items-center gap-1">
+                <lucide-icon [name]="plus" class="w-4 h-4"></lucide-icon>
+                {{ 'common.new' | translate }}
+            </button>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="flex gap-4 mb-4">
+        <input type="text" [(ngModel)]="filterText" placeholder="{{ 'inventory.lots.search' | translate }}"
+            class="input-text border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-indigo-500
+                         placeholder:text-white dark:border-slate-600 dark:bg-slate-800 dark:placeholder:text-indigo-400" />
+        <select [(ngModel)]="statusFilter" class="input-text border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-indigo-500
+                         placeholder:text-white dark:border-slate-600 dark:bg-slate-800 dark:placeholder:text-indigo-400">
+            <option value="">{{ 'common.all' | translate }}</option>
+            <option value="disponible">{{ 'inventory.lots.status.disponible' | translate }}</option>
+            <option value="reservado">{{ 'inventory.lots.status.reservado' | translate }}</option>
+            <option value="vendido">{{ 'inventory.lots.status.vendido' | translate }}</option>
+        </select>
+        <input type="number" [(ngModel)]="manzanaFilter" placeholder="{{ 'inventory.lots.filterManzana' | translate }}"
+            class="input-text border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-indigo-500
+                         placeholder:text-white dark:border-slate-600 dark:bg-slate-800 dark:placeholder:text-indigo-400 w-32" />
+    </div>
+
+
+    
+    <ng-container *ngIf="lots$ | async as lots" >
+
+        <app-shared-table [columns]="columns" [data]="lots | inventoryFilter:filterText:statusFilter:manzanaFilter"
+            [idField]="idField"  [componentName]="'lots'" (onViewDetails)="onView($event)" (onEdit)="onEdit($event)"
+            [permissionPrefix]="'inventory'"
+            (delete)="onDelete($event)"></app-shared-table>
+
+            <app-shared-delete [visible]="showDeleteModal" [itemName]="selectedItemName" (confirm)="deleteConfirmed()"
+                (cancel)="showDeleteModal = false"></app-shared-delete>
+
+
+    </ng-container>
+    
+    <!-- Import Modal -->
+    <app-lot-import 
+        *ngIf="isImportModalOpen" 
+        (modalClosed)="closeImportModal()" 
+        (importCompleted)="onImportCompleted()">
+    </app-lot-import>
+  
+</div>
+  

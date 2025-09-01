@@ -1,0 +1,348 @@
+<div class="commission-verification-container p-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
+  <!-- Header Section -->
+  <div class="mb-8">
+    <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center space-x-3">
+        <lucide-icon [img]="Shield" class="w-8 h-8 text-blue-600 dark:text-blue-400"></lucide-icon>
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Verificación de Comisiones</h1>
+          <p class="text-gray-600 dark:text-gray-400">Gestiona las verificaciones de pagos de clientes para comisiones condicionadas</p>
+        </div>
+      </div>
+      
+      <div class="flex items-center space-x-3">
+        <button 
+          (click)="refreshData()"
+          [disabled]="isLoading()"
+          class="flex items-center space-x-2 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors disabled:opacity-50">
+          <lucide-icon [img]="RefreshCw" [class]="isLoading() ? 'w-4 h-4 animate-spin' : 'w-4 h-4'"></lucide-icon>
+          <span>Actualizar</span>
+        </button>
+        
+        <button 
+          (click)="processAutomaticVerifications()"
+          [disabled]="isProcessingAutoVerifications()"
+          class="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50">
+          <lucide-icon [img]="Settings" [class]="isProcessingAutoVerifications() ? 'w-4 h-4 animate-spin' : 'w-4 h-4'"></lucide-icon>
+          <span>Procesar Automáticas</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6" *ngIf="verificationStats()">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Pendientes</p>
+            <p class="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{{ verificationStats()?.pending_verification || 0 }}</p>
+          </div>
+          <lucide-icon [img]="Clock" class="w-8 h-8 text-yellow-600 dark:text-yellow-400"></lucide-icon>
+        </div>
+      </div>
+      
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Verificadas</p>
+            <p class="text-2xl font-bold text-green-600 dark:text-green-400">{{ verificationStats()?.fully_verified || 0 }}</p>
+          </div>
+          <lucide-icon [img]="CheckCircle" class="w-8 h-8 text-green-600 dark:text-green-400"></lucide-icon>
+        </div>
+      </div>
+      
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Fallidas</p>
+            <p class="text-2xl font-bold text-red-600 dark:text-red-400">{{ verificationStats()?.verification_failed || 0 }}</p>
+          </div>
+          <lucide-icon [img]="XCircle" class="w-8 h-8 text-red-600 dark:text-red-400"></lucide-icon>
+        </div>
+      </div>
+      
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Auto-Verificación</p>
+            <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ verificationStats()?.auto_verification_enabled || 0 }}</p>
+          </div>
+          <lucide-icon [img]="Settings" class="w-8 h-8 text-blue-600 dark:text-blue-400"></lucide-icon>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters and Search Section -->
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 mb-6">
+    <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Filtros y Búsqueda</h3>
+        <button 
+          (click)="showFilters.set(!showFilters())"
+          class="flex items-center space-x-2 px-3 py-2 text-sm bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+          <lucide-icon [img]="Filter" class="w-4 h-4"></lucide-icon>
+          <span>{{ showFilters() ? 'Ocultar' : 'Mostrar' }} Filtros</span>
+        </button>
+      </div>
+    </div>
+    
+    <div class="p-4">
+      <!-- Search Bar -->
+      <div class="mb-4">
+        <div class="relative">
+          <lucide-icon [img]="Search" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"></lucide-icon>
+          <input 
+            type="text" 
+            [(ngModel)]="searchTerm"
+            (input)="applyFilters()"
+            placeholder="Buscar por empleado, ID de comisión o contrato..."
+            class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+        </div>
+      </div>
+      
+      <!-- Advanced Filters -->
+      <div *ngIf="showFilters()" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Estado de Verificación</label>
+          <select 
+            [(ngModel)]="filters().verification_status"
+            (change)="applyFilters()"
+            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+            <option value="">Todos los estados</option>
+            <option value="pending_verification">Pendiente</option>
+            <option value="first_payment_verified">Primera Cuota</option>
+            <option value="second_payment_verified">Segunda Cuota</option>
+            <option value="fully_verified">Completamente Verificada</option>
+            <option value="verification_failed">Verificación Fallida</option>
+          </select>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tipo de Dependencia</label>
+          <select 
+            [(ngModel)]="filters().payment_dependency_type"
+            (change)="applyFilters()"
+            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+            <option value="">Todos los tipos</option>
+            <option value="first_payment">Primera Cuota</option>
+            <option value="second_payment">Segunda Cuota</option>
+            <option value="both_payments">Ambas Cuotas</option>
+          </select>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Fecha Desde</label>
+          <input 
+            type="date" 
+            [(ngModel)]="filters().date_from"
+            (change)="applyFilters()"
+            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Fecha Hasta</label>
+          <input 
+            type="date" 
+            [(ngModel)]="filters().date_to"
+            (change)="applyFilters()"
+            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+        </div>
+      </div>
+      
+      <!-- Filter Actions -->
+      <div class="flex items-center justify-between mt-4" *ngIf="showFilters()">
+        <button 
+          (click)="clearFilters()"
+          class="px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors">
+          Limpiar Filtros
+        </button>
+        
+        <button 
+          (click)="applyFilters()"
+          class="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors">
+          Aplicar Filtros
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bulk Actions -->
+  <div *ngIf="hasSelectedCommissions()" class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <lucide-icon [img]="Users" class="w-5 h-5 text-blue-600 dark:text-blue-400"></lucide-icon>
+        <span class="text-blue-800 dark:text-blue-200 font-medium">
+          {{ selectedCommissions().size }} comisión(es) seleccionada(s)
+        </span>
+      </div>
+      
+      <div class="flex items-center space-x-2">
+        <button 
+          (click)="verifySelectedCommissions()"
+          class="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+          <lucide-icon [img]="CheckCircle" class="w-4 h-4"></lucide-icon>
+          <span>Verificar Seleccionadas</span>
+        </button>
+        
+        <button 
+          (click)="clearSelection()"
+          class="px-4 py-2 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 transition-colors">
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Commissions Table -->
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+    <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Comisiones Pendientes de Verificación</h3>
+        <div class="flex items-center space-x-2">
+          <span class="text-sm text-gray-600 dark:text-gray-400">
+            {{ filteredCommissions().length }} comisión(es)
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Loading State -->
+    <div *ngIf="isLoading()" class="p-8 text-center">
+      <lucide-icon [img]="RefreshCw" class="w-8 h-8 animate-spin mx-auto mb-4 text-gray-400"></lucide-icon>
+      <p class="text-gray-600 dark:text-gray-400">Cargando comisiones...</p>
+    </div>
+    
+    <!-- Empty State -->
+    <div *ngIf="!isLoading() && filteredCommissions().length === 0" class="p-8 text-center">
+      <lucide-icon [img]="CheckCircle" class="w-12 h-12 mx-auto mb-4 text-gray-400"></lucide-icon>
+      <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No hay comisiones pendientes</h3>
+      <p class="text-gray-600 dark:text-gray-400">Todas las comisiones están verificadas o no requieren verificación.</p>
+    </div>
+    
+    <!-- Table -->
+    <div *ngIf="!isLoading() && filteredCommissions().length > 0" class="overflow-x-auto">
+      <table class="w-full">
+        <thead class="bg-gray-50 dark:bg-gray-700">
+          <tr>
+            <th class="px-4 py-3 text-left">
+              <input 
+                type="checkbox" 
+                [checked]="areAllVisibleSelected()"
+                (change)="toggleAllCommissions()"
+                class="rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500">
+            </th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">ID</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Empleado</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Contrato</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Monto</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Estado Verificación</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Tipo Dependencia</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Auto-Verificación</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Acciones</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+          <tr *ngFor="let commission of paginatedCommissions()" class="hover:bg-gray-50 dark:hover:bg-gray-700">
+            <td class="px-4 py-4">
+              <input 
+                type="checkbox" 
+                [checked]="selectedCommissions().has(commission.commission_id!)"
+                (change)="toggleCommissionSelection(commission.commission_id!)"
+                class="rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500">
+            </td>
+            <td class="px-4 py-4 text-sm font-medium text-gray-900 dark:text-white">
+              #{{ commission.commission_id }}
+            </td>
+            <td class="px-4 py-4">
+              <div class="text-sm font-medium text-gray-900 dark:text-white">
+                {{ commission.employee?.first_name }} {{ commission.employee.last_name }}
+              </div>
+              <div class="text-sm text-gray-500 dark:text-gray-400">
+                ID: {{ commission.employee_id }}
+              </div>
+            </td>
+            <td class="px-4 py-4 text-sm text-gray-900 dark:text-white">
+              #{{ commission.contract_id }}
+            </td>
+            <td class="px-4 py-4">
+              <div class="flex items-center space-x-1">
+                <lucide-icon [img]="DollarSign" class="w-4 h-4 text-green-600 dark:text-green-400"></lucide-icon>
+                <span class="text-sm font-medium text-gray-900 dark:text-white">
+                  {{ commission.commission_amount | currency:'USD':'symbol':'1.2-2' }}
+                </span>
+              </div>
+            </td>
+            <td class="px-4 py-4">
+              <span [class]="'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ' + getVerificationStatusClass(commission.payment_verification_status_new || 'pending_verification')">
+                <lucide-icon [img]="getVerificationStatusIcon(commission.payment_verification_status_new || 'pending_verification')" class="w-3 h-3 mr-1"></lucide-icon>
+                {{ getVerificationStatusText(commission.payment_verification_status_new || 'pending_verification') }}
+              </span>
+            </td>
+            <td class="px-4 py-4 text-sm text-gray-900 dark:text-white">
+              <span class="capitalize">{{ commission.payment_dependency_type || 'No especificado' }}</span>
+            </td>
+            <td class="px-4 py-4">
+              <span [class]="commission.auto_verification_enabled ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400'">
+                {{ commission.auto_verification_enabled ? 'Habilitada' : 'Deshabilitada' }}
+              </span>
+            </td>
+            <td class="px-4 py-4">
+              <div class="flex items-center space-x-2">
+                <button 
+                  (click)="viewCommissionDetail(commission)"
+                  class="p-1 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 transition-colors"
+                  title="Ver detalle">
+                  <lucide-icon [img]="Eye" class="w-4 h-4"></lucide-icon>
+                </button>
+                
+                <button 
+                  (click)="verifyCommission(commission)"
+                  class="p-1 text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-200 transition-colors"
+                  title="Verificar manualmente">
+                  <lucide-icon [img]="CheckCircle" class="w-4 h-4"></lucide-icon>
+                </button>
+                
+                <button 
+                  (click)="openVerificationSettings(commission)"
+                  class="p-1 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+                  title="Configuración de verificación">
+                  <lucide-icon [img]="Settings" class="w-4 h-4"></lucide-icon>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <!-- Pagination -->
+    <div *ngIf="!isLoading() && filteredCommissions().length > 0" class="px-4 py-3 border-t border-gray-200 dark:border-gray-700">
+      <div class="flex items-center justify-between">
+        <div class="text-sm text-gray-700 dark:text-gray-300">
+          Mostrando {{ (currentPage() - 1) * itemsPerPage() + 1 }} a {{ maxItemsShown() }} de {{ filteredCommissions().length }} comisiones
+        </div>
+        
+        <div class="flex items-center space-x-2">
+          <button 
+            (click)="changePage(currentPage() - 1)"
+            [disabled]="currentPage() === 1"
+            class="px-3 py-1 text-sm bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+            Anterior
+          </button>
+          
+          <span class="text-sm text-gray-700 dark:text-gray-300">
+            Página {{ currentPage() }} de {{ totalPages() }}
+          </span>
+          
+          <button 
+            (click)="changePage(currentPage() + 1)"
+            [disabled]="currentPage() === totalPages()"
+            class="px-3 py-1 text-sm bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+            Siguiente
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

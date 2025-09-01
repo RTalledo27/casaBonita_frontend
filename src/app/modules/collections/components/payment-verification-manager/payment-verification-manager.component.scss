@@ -1,0 +1,358 @@
+.payment-verification-manager {
+  padding: 24px;
+  background-color: #f8fafc;
+  min-height: 100vh;
+
+  .header-section {
+    .grid {
+      gap: 16px;
+    }
+
+    .bg-yellow-50 {
+      background-color: #fffbeb;
+      border-color: #fde68a;
+      
+      .text-yellow-600 {
+        color: #d97706;
+      }
+      
+      .text-yellow-800 {
+        color: #92400e;
+      }
+      
+      .text-yellow-900 {
+        color: #78350f;
+      }
+    }
+
+    .bg-green-50 {
+      background-color: #f0fdf4;
+      border-color: #bbf7d0;
+      
+      .text-green-600 {
+        color: #16a34a;
+      }
+      
+      .text-green-800 {
+        color: #166534;
+      }
+      
+      .text-green-900 {
+        color: #14532d;
+      }
+    }
+
+    .bg-red-50 {
+      background-color: #fef2f2;
+      border-color: #fecaca;
+      
+      .text-red-600 {
+        color: #dc2626;
+      }
+      
+      .text-red-800 {
+        color: #991b1b;
+      }
+      
+      .text-red-900 {
+        color: #7f1d1d;
+      }
+    }
+
+    .bg-blue-50 {
+      background-color: #eff6ff;
+      border-color: #bfdbfe;
+      
+      .text-blue-600 {
+        color: #2563eb;
+      }
+      
+      .text-blue-800 {
+        color: #1e40af;
+      }
+      
+      .text-blue-900 {
+        color: #1e3a8a;
+      }
+    }
+  }
+
+  .table-container {
+    overflow-x: auto;
+    
+    table {
+      min-width: 800px;
+    }
+    
+    .mat-column-commission_id {
+      width: 80px;
+    }
+    
+    .mat-column-employee_name {
+      width: 200px;
+    }
+    
+    .mat-column-client_name {
+      width: 200px;
+    }
+    
+    .mat-column-contract_id {
+      width: 100px;
+    }
+    
+    .mat-column-commission_amount {
+      width: 120px;
+      text-align: right;
+    }
+    
+    .mat-column-payment_verification_status {
+      width: 180px;
+    }
+    
+    .mat-column-created_at {
+      width: 120px;
+    }
+    
+    .mat-column-actions {
+      width: 120px;
+      text-align: center;
+    }
+  }
+
+  // Status badge styles
+  .bg-yellow-100 {
+    background-color: #fef3c7;
+    
+    &.text-yellow-800 {
+      color: #92400e;
+    }
+    
+    &.border-yellow-200 {
+      border-color: #fde68a;
+    }
+  }
+
+  .bg-blue-100 {
+    background-color: #dbeafe;
+    
+    &.text-blue-800 {
+      color: #1e40af;
+    }
+    
+    &.border-blue-200 {
+      border-color: #bfdbfe;
+    }
+  }
+
+  .bg-green-100 {
+    background-color: #dcfce7;
+    
+    &.text-green-800 {
+      color: #166534;
+    }
+    
+    &.border-green-200 {
+      border-color: #bbf7d0;
+    }
+  }
+
+  .bg-red-100 {
+    background-color: #fee2e2;
+    
+    &.text-red-800 {
+      color: #991b1b;
+    }
+    
+    &.border-red-200 {
+      border-color: #fecaca;
+    }
+  }
+
+  .bg-gray-100 {
+    background-color: #f3f4f6;
+    
+    &.text-gray-800 {
+      color: #374151;
+    }
+    
+    &.border-gray-200 {
+      border-color: #e5e7eb;
+    }
+  }
+
+  // Filtros avanzados
+  .filters-card {
+    margin-bottom: 1.5rem;
+    
+    .filters-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+      
+      .quick-filters {
+        grid-column: 1 / -1;
+        
+        mat-chip-listbox {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.5rem;
+          
+          mat-chip-option {
+            transition: all 0.2s ease;
+            
+            &.mdc-evolution-chip--selected {
+              background-color: #3b82f6;
+              color: white;
+            }
+            
+            &:hover {
+              background-color: #e5e7eb;
+            }
+          }
+        }
+      }
+      
+      .filter-actions {
+        grid-column: 1 / -1;
+        display: flex;
+        gap: 0.75rem;
+        justify-content: flex-start;
+        align-items: center;
+        
+        button {
+          min-width: 120px;
+        }
+      }
+    }
+    
+    .active-filters {
+      padding-top: 1rem;
+      border-top: 1px solid #e5e7eb;
+      
+      .filter-label {
+        font-weight: 500;
+        color: #374151;
+        margin-right: 0.75rem;
+        font-size: 0.875rem;
+      }
+      
+      mat-chip-listbox {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+        
+        mat-chip-option {
+          background-color: #f3f4f6;
+          color: #374151;
+          font-size: 0.75rem;
+          
+          mat-icon {
+            font-size: 0.875rem;
+            width: 0.875rem;
+            height: 0.875rem;
+            cursor: pointer;
+            
+            &:hover {
+              color: #dc2626;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Responsive design
+  @media (max-width: 768px) {
+    padding: 16px;
+    
+    .header-section {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .flex {
+        flex-direction: column;
+        gap: 8px;
+        
+        &.justify-between {
+          align-items: stretch;
+        }
+      }
+    }
+    
+    .table-container {
+      table {
+        font-size: 14px;
+      }
+    }
+    
+    .filters-card {
+      .filters-grid {
+        grid-template-columns: 1fr;
+        
+        .filter-actions {
+          flex-direction: column;
+          align-items: stretch;
+          
+          button {
+            min-width: auto;
+          }
+        }
+      }
+    }
+  }
+
+  // Loading state
+  .mat-spinner {
+    margin: 0 auto;
+  }
+
+  // Empty state
+  .text-center {
+    text-align: center;
+    
+    mat-icon {
+      display: block;
+      margin: 0 auto 16px;
+    }
+  }
+
+  // Form styling
+  .mat-form-field {
+    width: 100%;
+  }
+
+  // Button styling
+  .mat-raised-button,
+  .mat-stroked-button {
+    .mat-icon {
+      margin-right: 8px;
+    }
+  }
+
+  // Card styling
+  .mat-card {
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    border-radius: 8px;
+  }
+
+  // Snackbar styles (global)
+  ::ng-deep {
+    .success-snackbar {
+      background-color: #10b981 !important;
+      color: white !important;
+    }
+
+    .error-snackbar {
+      background-color: #ef4444 !important;
+      color: white !important;
+    }
+
+    .info-snackbar {
+      background-color: #3b82f6 !important;
+      color: white !important;
+    }
+  }
+}
