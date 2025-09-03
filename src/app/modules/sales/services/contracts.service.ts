@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { API_ROUTES } from '../../../core/constants/api.routes';
-import { HttpClient } from '@angular/common/http';
-import { map, Observable } from 'rxjs';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
 import { Contract } from '../models/contract';
 
 @Injectable({
@@ -12,9 +12,14 @@ export class ContractsService {
 
   constructor(private http: HttpClient) {}
 
-  list(): Observable<Contract[]> {
-    return this.http.get<{data: Contract[]}>(this.base)
-      .pipe(map(res => res.data));
+  list(params?: { page?: number; per_page?: number; search?: string; status?: string }): Observable<{data: Contract[], meta: any}> {
+    let httpParams = new HttpParams();
+    if (params?.page) httpParams = httpParams.set('page', params.page.toString());
+    if (params?.per_page) httpParams = httpParams.set('per_page', params.per_page.toString());
+    if (params?.search) httpParams = httpParams.set('search', params.search);
+    if (params?.status) httpParams = httpParams.set('status', params.status);
+    
+    return this.http.get<{data: Contract[], meta: any}>(this.base, { params: httpParams });
   }
 
   get(id: number): Observable<Contract> {

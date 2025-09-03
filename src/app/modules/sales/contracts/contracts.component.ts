@@ -12,6 +12,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { ModalService } from '../../../core/services/modal.service';
 import { BehaviorSubject } from 'rxjs';
 import { Contract } from '../models/contract';
+import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 
 @Component({
   selector: 'app-contracts',
@@ -23,6 +24,7 @@ import { Contract } from '../models/contract';
     LucideAngularModule,
     FormsModule,
     ContractImportComponent,
+    PaginationComponent,
   ],
   templateUrl: './contracts.component.html',
   styleUrl: './contracts.component.scss',
@@ -30,6 +32,13 @@ import { Contract } from '../models/contract';
 export class ContractsComponent {
   private contractsSubject = new BehaviorSubject<Contract[]>([]);
   contracts$ = this.contractsSubject.asObservable();
+  
+  pagination = {
+    current_page: 1,
+    per_page: 10,
+    total: 0,
+    last_page: 1
+  };
 
   columns: ColumnDef[] = [
     { field: 'contract_number', header: 'sales.contracts.contractNumber' },
@@ -82,9 +91,27 @@ export class ContractsComponent {
   }
 
   loadContracts() {
+    const params = {
+      page: this.pagination.current_page,
+      per_page: this.pagination.per_page
+    };
+    
     this.contractService
-      .list()
-      .subscribe((data) => this.contractsSubject.next(data));
+      .list(params)
+      .subscribe((response) => {
+        this.contractsSubject.next(response.data);
+        this.pagination = {
+          current_page: response.meta.current_page,
+          per_page: response.meta.per_page,
+          total: response.meta.total,
+          last_page: response.meta.last_page
+        };
+      });
+  }
+  
+  onPageChange(page: number): void {
+    this.pagination.current_page = page;
+    this.loadContracts();
   }
 
   onCreate() {

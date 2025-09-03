@@ -1,30 +1,43 @@
-<div class="flex justify-between items-center mb-4">
-    <h2>{{ 'sales.contracts.title' | translate }}</h2>
-    <div class="flex gap-2">
-        <button
-          (click)="onImport()"
-          class="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-        >
-          <lucide-angular [img]="upload" class="w-4 h-4"></lucide-angular>
-          {{ 'sales.contracts.import.button' | translate }}
-        </button>
-        <button
-          *ngIf="authService.hasPermission('sales.contracts.store')"
-          (click)="onCreate()"
-          class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          <lucide-angular [img]="plus" class="w-4 h-4"></lucide-angular>
-          {{ 'sales.contracts.create' | translate }}
-        </button>
-    </div>
+<div class="p-6">
+  <div class="flex justify-between items-center mb-6">
+      <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">{{ 'sales.contracts.title' | translate }}</h2>
+      <div class="flex gap-2">
+          <button
+            (click)="onImport()"
+            class="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+          >
+            <lucide-angular [img]="upload" class="w-4 h-4"></lucide-angular>
+            {{ 'sales.contracts.import.button' | translate }}
+          </button>
+          <button
+            *ngIf="authService.hasPermission('sales.contracts.store')"
+            (click)="onCreate()"
+            class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            <lucide-angular [img]="plus" class="w-4 h-4"></lucide-angular>
+            {{ 'sales.contracts.create' | translate }}
+          </button>
+      </div>
+  </div>
+<div class="bg-white rounded-lg shadow overflow-hidden">
+  <div class="overflow-x-auto">
+    <app-shared-table [columns]="columns" [data]="(contracts$ | async) || []" [idField]="idField" (onEdit)="onEdit($event)"
+        [permissionPrefix]="'sales'" componentName="contracts"></app-shared-table>
+  </div>
+  <app-pagination
+    [currentPage]="pagination.current_page"
+    [totalPages]="pagination.last_page"
+    [total]="pagination.total"
+    [perPage]="pagination.per_page"
+    (pageChange)="onPageChange($event)">
+  </app-pagination>
 </div>
-<app-shared-table [columns]="columns" [data]="(contracts$ | async) || []" [idField]="idField" (onEdit)="onEdit($event)"
-    [permissionPrefix]="'sales'" componentName="contracts"></app-shared-table>
-<router-outlet name="modal" (activate)="onModalActivate($event)" (deactivate)="onModalDeactivate()"></router-outlet>
+  <router-outlet name="modal" (activate)="onModalActivate($event)" (deactivate)="onModalDeactivate()"></router-outlet>
 
-<!-- Import Modal -->
-<app-contract-import
-  *ngIf="isImportModalOpen"
-  (modalClosed)="onImportModalClose()"
-  (importCompleted)="onImportCompleted()"
-></app-contract-import>
+  <!-- Import Modal -->
+  <app-contract-import
+    *ngIf="isImportModalOpen"
+    (modalClosed)="onImportModalClose()"
+    (importCompleted)="onImportCompleted()"
+  ></app-contract-import>
+</div>
