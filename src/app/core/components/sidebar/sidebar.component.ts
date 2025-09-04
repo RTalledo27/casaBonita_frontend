@@ -123,12 +123,12 @@ export class SidebarComponent {
         },
         {
           label: 'schedule-generator',
-          route: '/collections-simplified/schedule-generator',
+          route: '/collections-simplified/generator',
           active: false,
         },
         {
           label: 'installment-management',
-          route: '/collections-simplified/installment-management',
+          route: '/collections-simplified/installments',
           active: false,
         },
         {

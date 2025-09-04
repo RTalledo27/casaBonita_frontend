@@ -93,7 +93,7 @@ export class AccountsReceivableService {
   /**
    * Obtiene métricas de cuentas por cobrar
    */
-  getMetrics(currency?: 'PEN' | 'USD'): Observable<{ data: AccountReceivableMetrics }> {
+  getMetrics(currency?: 'PEN'): Observable<{ data: AccountReceivableMetrics }> {
     let params = new HttpParams();
     if (currency) {
       params = params.set('currency', currency);

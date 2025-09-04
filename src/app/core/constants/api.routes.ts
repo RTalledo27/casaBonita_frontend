@@ -7,6 +7,7 @@ export const API_ROUTES = {
     LOGIN: `${BASE}/v1/security/login`,
     LOGOUT: `${BASE}/v1/security/logout`,
     PROFILE: `${BASE}/v1/security/me`,
+    ME: `${BASE}/v1/security/me`,
     CHANGE_PASSWORD: `${BASE}/v1/security/change-password`,
   },
 

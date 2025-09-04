@@ -1,7 +1,7 @@
 export interface AgingReportData {
   periods: AgingPeriodSummary[];
   total_amount: number;
-  currency: 'PEN' | 'USD';
+  currency: 'PEN';
   clients: AgingClientData[];
   generated_at: string;
 }
@@ -16,7 +16,7 @@ export interface AgingClientData {
   days_90: number;
   over_90: number;
   total: number;
-  currency: 'PEN' | 'USD';
+  currency: 'PEN';
   last_payment_date?: string;
   aging_periods: AgingPeriodSummary[];
   contact_info?: {
@@ -27,7 +27,7 @@ export interface AgingClientData {
 
 export interface AgingReportFilters {
   client_id?: number;
-  currency?: 'PEN' | 'USD';
+  currency?: 'PEN';
   date_from?: string;
   date_to?: string;
   include_paid?: boolean;

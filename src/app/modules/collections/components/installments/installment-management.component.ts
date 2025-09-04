@@ -18,10 +18,14 @@ import {
   Download,
   Eye,
   Edit,
-  X
+  X,
+  ChevronDown,
+  ChevronRight,
+  Users,
+  User
 } from 'lucide-angular';
 import { CollectionsSimplifiedService } from '../../services/collections-simplified.service';
-import { PaymentSchedule, PaymentScheduleFilters, MarkPaymentPaidRequest } from '../../models/payment-schedule';
+import { PaymentSchedule, ContractSummary, MarkPaymentPaidRequest } from '../../models/payment-schedule';
 
 @Component({
   selector: 'app-installment-management',
@@ -39,13 +43,13 @@ import { PaymentSchedule, PaymentScheduleFilters, MarkPaymentPaidRequest } from 
             <lucide-angular [img]="ArrowLeftIcon" class="w-5 h-5"></lucide-angular>
           </button>
           <div>
-            <h1 class="text-3xl font-bold text-gray-900">Gestión de Cuotas</h1>
-            <p class="text-gray-600 mt-1">Administrar cronogramas de pago y cuotas</p>
+            <h1 class="text-3xl font-bold text-gray-900">Gestión de Contratos y Cuotas</h1>
+            <p class="text-gray-600 mt-1">Administrar contratos con sus cronogramas de pago</p>
           </div>
         </div>
         <div class="flex space-x-3">
           <button 
-            (click)="exportSchedules()"
+            (click)="exportContracts()"
             [disabled]="isLoading()"
             class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 flex items-center space-x-2"
           >
@@ -70,16 +74,30 @@ import { PaymentSchedule, PaymentScheduleFilters, MarkPaymentPaidRequest } from 
           </button>
         </div>
         
-        <form [formGroup]="filterForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <!-- Search -->
+        <form [formGroup]="filterForm" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Search by Contract -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Buscar</label>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Número de Contrato</label>
             <div class="relative">
               <lucide-angular [img]="SearchIcon" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"></lucide-angular>
               <input
                 type="text"
-                formControlName="search"
-                placeholder="Contrato, cliente..."
+                formControlName="contract_number"
+                placeholder="Buscar por contrato..."
+                class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+            </div>
+          </div>
+
+          <!-- Search by Client -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Cliente</label>
+            <div class="relative">
+              <lucide-angular [img]="UserIcon" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"></lucide-angular>
+              <input
+                type="text"
+                formControlName="client_name"
+                placeholder="Buscar por cliente..."
                 class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
             </div>
@@ -98,36 +116,16 @@ import { PaymentSchedule, PaymentScheduleFilters, MarkPaymentPaidRequest } from 
               <option value="vencido">Vencido</option>
             </select>
           </div>
-
-          <!-- Date From -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Desde</label>
-            <input
-              type="date"
-              formControlName="date_from"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            >
-          </div>
-
-          <!-- Date To -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Hasta</label>
-            <input
-              type="date"
-              formControlName="date_to"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            >
-          </div>
         </form>
       </div>
 
-      <!-- Schedules List -->
+      <!-- Contracts List -->
       <div class="bg-white rounded-lg shadow-sm border border-gray-200">
         <div class="p-6 border-b border-gray-200">
           <div class="flex justify-between items-center">
-            <h2 class="text-lg font-semibold text-gray-900">Cronogramas de Pago</h2>
+            <h2 class="text-lg font-semibold text-gray-900">Contratos con Cronogramas</h2>
             <div class="text-sm text-gray-600">
-              {{ filteredSchedules().length }} cronogramas encontrados
+              {{ filteredContracts().length }} contratos encontrados
             </div>
           </div>
         </div>
@@ -135,81 +133,191 @@ import { PaymentSchedule, PaymentScheduleFilters, MarkPaymentPaidRequest } from 
         @if (isLoading()) {
           <div class="text-center py-12">
             <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-            <p class="text-gray-600 mt-2">Cargando cronogramas...</p>
+            <p class="text-gray-600 mt-2">Cargando contratos...</p>
           </div>
-        } @else if (filteredSchedules().length > 0) {
+        } @else if (filteredContracts().length > 0) {
           <div class="overflow-x-auto">
             <table class="w-full">
               <thead class="bg-gray-50">
                 <tr>
                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contrato</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha Vencimiento</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monto</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Días Vencido</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Asesor</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lote</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cuotas</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Progreso</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Próximo Vencimiento</th>
                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
                 </tr>
               </thead>
               <tbody class="bg-white divide-y divide-gray-200">
-                @for (schedule of paginatedSchedules(); track schedule.schedule_id) {
-                  <tr class="hover:bg-gray-50">
+                @for (contract of paginatedContracts(); track contract.contract_id) {
+                  <!-- Contract Row -->
+                  <tr class="hover:bg-gray-50 cursor-pointer" (click)="toggleContractExpansion(contract)">
                     <td class="px-6 py-4 whitespace-nowrap">
-                      <div>
-                        <p class="text-sm font-medium text-gray-900">{{ schedule.contract_id }}</p>
-                        <p class="text-sm text-gray-500">Cuota {{ schedule.installment_number || 'N/A' }}</p>
+                      <div class="flex items-center">
+                        <lucide-angular 
+                          [img]="contract.expanded ? ChevronDownIcon : ChevronRightIcon" 
+                          class="w-4 h-4 text-gray-400 mr-2"
+                        ></lucide-angular>
+                        <div>
+                          <p class="text-sm font-medium text-gray-900">{{ contract.contract_number }}</p>
+                          <p class="text-sm text-gray-500">ID: {{ contract.contract_id }}</p>
+                        </div>
                       </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                       <div class="flex items-center">
-                        <lucide-angular [img]="CalendarIcon" class="w-4 h-4 text-gray-400 mr-2"></lucide-angular>
-                        <span class="text-sm text-gray-900">{{ formatDate(schedule.due_date) }}</span>
+                        <lucide-angular [img]="UserIcon" class="w-4 h-4 text-gray-400 mr-2"></lucide-angular>
+                        <span class="text-sm text-gray-900">{{ contract.client_name }}</span>
                       </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                       <div class="flex items-center">
-                        <lucide-angular [img]="DollarSignIcon" class="w-4 h-4 text-gray-400 mr-2"></lucide-angular>
-                        <span class="text-sm font-medium text-gray-900">{{ formatCurrency(schedule.amount) }}</span>
+                        <lucide-angular [img]="UsersIcon" class="w-4 h-4 text-gray-400 mr-2"></lucide-angular>
+                        <span class="text-sm text-gray-900">{{ contract.advisor_name }}</span>
                       </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                      <span [class]="getStatusClass(schedule.status)">{{ getStatusLabel(schedule.status) }}</span>
+                      <span class="text-sm text-gray-900">{{ contract.lot_name }}</span>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                      @if (schedule.status === 'vencido') {
-                        <span class="text-sm text-red-600 font-medium">{{ getDaysOverdue(schedule.due_date) }} días</span>
+                      <div class="text-sm">
+                        <div class="flex items-center space-x-2">
+                          <span class="font-medium text-gray-900">{{ contract.total_schedules }}</span>
+                          <span class="text-gray-500">cuotas</span>
+                        </div>
+                        <div class="flex space-x-1 text-xs mt-1">
+                          <span class="text-green-600">{{ contract.paid_schedules }} pagadas</span>
+                          <span class="text-gray-400">•</span>
+                          <span class="text-yellow-600">{{ contract.pending_schedules }} pendientes</span>
+                          @if (contract.overdue_schedules > 0) {
+                            <span class="text-gray-400">•</span>
+                            <span class="text-red-600">{{ contract.overdue_schedules }} vencidas</span>
+                          }
+                        </div>
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div 
+                          class="bg-blue-600 h-2 rounded-full" 
+                          [style.width.%]="contract.payment_rate"
+                        ></div>
+                      </div>
+                      <span class="text-xs text-gray-600 mt-1">{{ contract.payment_rate }}% completado</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      @if (contract.next_due_date) {
+                        <div class="flex items-center">
+                          <lucide-angular [img]="CalendarIcon" class="w-4 h-4 text-gray-400 mr-2"></lucide-angular>
+                          <span class="text-sm text-gray-900">{{ formatDate(contract.next_due_date) }}</span>
+                        </div>
                       } @else {
-                        <span class="text-sm text-gray-500">-</span>
+                        <span class="text-sm text-gray-500">Sin cuotas pendientes</span>
                       }
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                       <button 
-                        (click)="viewScheduleDetails(schedule)"
+                        (click)="viewContractDetails(contract); $event.stopPropagation()"
                         class="text-blue-600 hover:text-blue-900 p-1 rounded"
                         title="Ver detalles"
                       >
                         <lucide-angular [img]="EyeIcon" class="w-4 h-4"></lucide-angular>
                       </button>
-                      @if (schedule.status !== 'pagado') {
-                        <button 
-                          (click)="openMarkPaidModal(schedule)"
-                          class="text-green-600 hover:text-green-900 p-1 rounded"
-                          title="Marcar como pagado"
-                        >
-                          <lucide-angular [img]="CheckCircleIcon" class="w-4 h-4"></lucide-angular>
-                        </button>
-                      }
                     </td>
                   </tr>
+                  
+                  <!-- Expanded Schedules -->
+                  @if (contract.expanded) {
+                    <tr>
+                      <td colspan="8" class="px-6 py-0">
+                        <div class="bg-gray-50 border-l-4 border-blue-500 p-4">
+                          <h4 class="text-sm font-medium text-gray-900 mb-3">Cronograma de Cuotas</h4>
+                          <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                              <thead>
+                                <tr class="border-b border-gray-200">
+                                  <th class="text-left py-2 px-3 font-medium text-gray-700">Cuota</th>
+                                  <th class="text-left py-2 px-3 font-medium text-gray-700">Vencimiento</th>
+                                  <th class="text-left py-2 px-3 font-medium text-gray-700">Monto</th>
+                                  <th class="text-left py-2 px-3 font-medium text-gray-700">Estado</th>
+                                  <th class="text-left py-2 px-3 font-medium text-gray-700">Días Vencido</th>
+                                  <th class="text-left py-2 px-3 font-medium text-gray-700">Acciones</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                @for (schedule of contract.schedules; track schedule.schedule_id) {
+                                  <tr class="border-b border-gray-100 hover:bg-white">
+                                    <td class="py-2 px-3">
+                                      <span class="font-medium">{{ schedule.installment_number || 'N/A' }}</span>
+                                    </td>
+                                    <td class="py-2 px-3">
+                                      {{ formatDate(schedule.due_date) }}
+                                    </td>
+                                    <td class="py-2 px-3">
+                                      <span class="font-medium">{{ formatCurrency(schedule.amount) }}</span>
+                                    </td>
+                                    <td class="py-2 px-3">
+                                      <span [class]="getStatusClass(schedule.status)">{{ getStatusLabel(schedule.status) }}</span>
+                                    </td>
+                                    <td class="py-2 px-3">
+                                      @if (schedule.status === 'vencido') {
+                                        <span class="text-red-600 font-medium">{{ getDaysOverdue(schedule.due_date) }} días</span>
+                                      } @else {
+                                        <span class="text-gray-500">-</span>
+                                      }
+                                    </td>
+                                    <td class="py-2 px-3 space-x-1">
+                                      @if (schedule.status !== 'pagado') {
+                                        <button 
+                                          (click)="openMarkPaidModal(schedule)"
+                                          class="text-green-600 hover:text-green-900 p-1 rounded"
+                                          title="Marcar como pagado"
+                                        >
+                                          <lucide-angular [img]="CheckCircleIcon" class="w-3 h-3"></lucide-angular>
+                                        </button>
+                                      }
+                                    </td>
+                                  </tr>
+                                }
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  }
                 }
               </tbody>
             </table>
           </div>
 
           <!-- Pagination -->
-          @if (totalPages() > 1) {
+          @if (totalPages() > 1 || contracts().length > 0) {
             <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
-              <div class="text-sm text-gray-700">
-                Mostrando {{ (currentPage() - 1) * pageSize() + 1 }} a {{ Math.min(currentPage() * pageSize(), filteredSchedules().length) }} de {{ filteredSchedules().length }} resultados
+              <div class="flex items-center space-x-4">
+                <div class="text-sm text-gray-700">
+                  @if (paginationInfo()) {
+                    Mostrando {{ paginationInfo()!.from }} a {{ paginationInfo()!.to }} de {{ paginationInfo()!.total }} resultados
+                  } @else {
+                    Mostrando {{ contracts().length }} resultados
+                  }
+                </div>
+                <div class="flex items-center space-x-2">
+                  <label class="text-sm text-gray-700">Mostrar:</label>
+                  <select 
+                    [value]="pageSize()"
+                    (change)="onPageSizeChange($event)"
+                    class="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                  </select>
+                  <span class="text-sm text-gray-700">por página</span>
+                </div>
               </div>
               <div class="flex space-x-2">
                 <button 
@@ -242,7 +350,7 @@ import { PaymentSchedule, PaymentScheduleFilters, MarkPaymentPaidRequest } from 
         } @else {
           <div class="text-center py-12 text-gray-500">
             <lucide-angular [img]="CalendarIcon" class="w-12 h-12 mx-auto mb-4 text-gray-400"></lucide-angular>
-            <p class="text-lg font-medium">No se encontraron cronogramas</p>
+            <p class="text-lg font-medium">No se encontraron contratos</p>
             <p class="text-sm">Intenta ajustar los filtros de búsqueda</p>
           </div>
         }
@@ -382,9 +490,13 @@ export class InstallmentManagementComponent implements OnInit, OnDestroy {
   EyeIcon = Eye;
   EditIcon = Edit;
   XIcon = X;
+  ChevronDownIcon = ChevronDown;
+  ChevronRightIcon = ChevronRight;
+  UsersIcon = Users;
+  UserIcon = User;
 
   // Signals
-  schedules = signal<PaymentSchedule[]>([]);
+  contracts = signal<ContractSummary[]>([]);
   isLoading = signal(false);
   errorMessage = signal<string | null>(null);
   successMessage = signal<string | null>(null);
@@ -393,84 +505,63 @@ export class InstallmentManagementComponent implements OnInit, OnDestroy {
   isMarkingPaid = signal(false);
   currentPage = signal(1);
   pageSize = signal(10);
+  totalItems = signal(0);
+  paginationInfo = signal<{
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+    from: number;
+    to: number;
+  } | null>(null);
 
   // Forms
   filterForm: FormGroup;
   markPaidForm: FormGroup;
 
-  // Computed
-  filteredSchedules = computed(() => {
-    const filters = this.filterForm.value;
-    let filtered = this.schedules();
-
-    if (filters.search) {
-      const search = filters.search.toLowerCase();
-      filtered = filtered.filter(schedule => 
-        schedule.contract_id.toString().includes(search)
-      );
-    }
-
-    if (filters.status) {
-      filtered = filtered.filter(schedule => schedule.status === filters.status);
-    }
-
-    if (filters.date_from) {
-      filtered = filtered.filter(schedule => schedule.due_date >= filters.date_from);
-    }
-
-    if (filters.date_to) {
-      filtered = filtered.filter(schedule => schedule.due_date <= filters.date_to);
-    }
-
-    return filtered;
+  // Computed properties - Now using backend pagination
+  paginatedContracts = computed(() => {
+    return this.contracts();
   });
 
-  totalPages = computed(() => Math.ceil(this.filteredSchedules().length / this.pageSize()));
-  
-  paginatedSchedules = computed(() => {
-    const start = (this.currentPage() - 1) * this.pageSize();
-    const end = start + this.pageSize();
-    return this.filteredSchedules().slice(start, end);
+  totalPages = computed(() => {
+    const paginationInfo = this.paginationInfo();
+    return paginationInfo ? paginationInfo.last_page : 1;
+  });
+
+  filteredContracts = computed(() => {
+    return this.contracts();
   });
 
   Math = Math;
 
   constructor() {
     this.filterForm = this.fb.group({
-      search: [''],
-      status: [''],
-      date_from: [''],
-      date_to: ['']
+      contract_number: [''],
+      client_name: [''],
+      status: ['']
     });
 
     this.markPaidForm = this.fb.group({
       payment_date: [new Date().toISOString().split('T')[0], Validators.required],
       amount_paid: [0, [Validators.required, Validators.min(0.01)]],
-      payment_method: ['transfer', Validators.required],
+      payment_method: ['cash', Validators.required],
       notes: ['']
     });
   }
 
   ngOnInit() {
-    // Check for status filter from query params
-    this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe(params => {
-      if (params['status']) {
-        this.filterForm.patchValue({ status: params['status'] });
-      }
+    this.loadContracts();
+    
+    // Setup filter changes
+    this.filterForm.valueChanges.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      takeUntil(this.destroy$)
+    ).subscribe(() => {
+      this.currentPage.set(1);
+      this.loadContracts();
     });
-
-    // Watch for filter changes
-    this.filterForm.valueChanges
-      .pipe(
-        debounceTime(300),
-        distinctUntilChanged(),
-        takeUntil(this.destroy$)
-      )
-      .subscribe(() => {
-        this.currentPage.set(1);
-      });
-
-    this.loadSchedules();
   }
 
   ngOnDestroy() {
@@ -478,127 +569,164 @@ export class InstallmentManagementComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  loadSchedules() {
+  loadContracts() {
     this.isLoading.set(true);
-    this.errorMessage.set(null);
+    this.clearMessages();
     
-    const filters: PaymentScheduleFilters = {};
+    const filters = this.filterForm.value;
+    const cleanFilters = Object.fromEntries(
+      Object.entries(filters).filter(([_, value]) => value !== null && value !== '')
+    );
     
-    this.collectionsService.getPaymentSchedules(filters)
+    // Add pagination parameters
+    const paginationFilters = {
+      ...cleanFilters,
+      page: this.currentPage(),
+      per_page: this.pageSize()
+    };
+    
+    this.collectionsService.getContractsWithSchedulesSummary(paginationFilters)
       .pipe(
-        takeUntil(this.destroy$),
         catchError(error => {
-          console.error('Error loading schedules:', error);
-          this.errorMessage.set('Error al cargar los cronogramas');
-          return of({ data: [], meta: {} });
-        })
+          console.error('Error loading contracts:', error);
+          this.errorMessage.set('Error cargando contratos: ' + (error.error?.message || error.message));
+          return of({ success: false, data: [] });
+        }),
+        takeUntil(this.destroy$)
       )
-      .subscribe({
-        next: (response) => {
-          this.schedules.set(response.data || []);
-          this.isLoading.set(false);
-        },
-        error: () => {
-          this.isLoading.set(false);
+      .subscribe((response: any) => {
+        this.isLoading.set(false);
+        if (response.success) {
+          // Add expanded property to each contract
+          const contractsWithExpanded = response.data.map((contract: ContractSummary) => ({
+            ...contract,
+            expanded: false
+          }));
+          this.contracts.set(contractsWithExpanded);
+          if (response.pagination) {
+             this.paginationInfo.set(response.pagination);
+             this.totalItems.set(response.pagination.total);
+           }
+        } else {
+          this.errorMessage.set('Error cargando contratos');
         }
       });
   }
 
+  toggleContractExpansion(contract: ContractSummary) {
+    const contracts = this.contracts();
+    const updatedContracts = contracts.map(c => 
+      c.contract_id === contract.contract_id 
+        ? { ...c, expanded: !c.expanded }
+        : c
+    );
+    this.contracts.set(updatedContracts);
+  }
+
   clearFilters() {
     this.filterForm.reset({
-      search: '',
-      status: '',
-      date_from: '',
-      date_to: ''
+      contract_number: '',
+      client_name: '',
+      status: ''
     });
     this.currentPage.set(1);
   }
 
-  viewScheduleDetails(schedule: PaymentSchedule) {
-    // Navigate to schedule details or open modal
-    console.log('View schedule details:', schedule);
+  viewContractDetails(contract: ContractSummary) {
+    console.log('View contract details:', contract);
+    // TODO: Navigate to contract details page
   }
 
   openMarkPaidModal(schedule: PaymentSchedule) {
+    console.log('DEBUG: openMarkPaidModal called with schedule:', schedule);
+    console.log('DEBUG: schedule_id value:', schedule.schedule_id);
     this.selectedScheduleForPayment.set(schedule);
     this.markPaidForm.patchValue({
       payment_date: new Date().toISOString().split('T')[0],
       amount_paid: schedule.amount,
-      payment_method: 'transfer',
+      payment_method: 'cash',
       notes: ''
     });
     this.showMarkPaidModal.set(true);
-    this.clearMessages();
   }
 
   closeMarkPaidModal() {
     this.showMarkPaidModal.set(false);
     this.selectedScheduleForPayment.set(null);
-    this.markPaidForm.reset();
   }
 
   markAsPaid() {
-    if (this.markPaidForm.invalid || !this.selectedScheduleForPayment()) {
+    if (this.markPaidForm.invalid) {
       return;
     }
+
+    const selectedSchedule = this.selectedScheduleForPayment();
+    if (!selectedSchedule) return;
+
+    console.log('DEBUG: markAsPaid - selectedSchedule:', selectedSchedule);
+    console.log('DEBUG: markAsPaid - schedule_id:', selectedSchedule.schedule_id);
 
     this.isMarkingPaid.set(true);
     this.clearMessages();
 
-    const formValue = this.markPaidForm.value;
-    const schedule = this.selectedScheduleForPayment()!;
-
     const request: MarkPaymentPaidRequest = {
-      payment_date: formValue.payment_date,
-      amount_paid: formValue.amount_paid,
-      payment_method: formValue.payment_method,
-      notes: formValue.notes || undefined
+      payment_date: this.markPaidForm.value.payment_date,
+      amount_paid: this.markPaidForm.value.amount_paid,
+      payment_method: this.markPaidForm.value.payment_method,
+      notes: this.markPaidForm.value.notes
     };
 
-    this.collectionsService.markPaymentPaid(schedule.schedule_id, request)
+    console.log('DEBUG: About to call markPaymentPaid with schedule_id:', selectedSchedule.schedule_id, 'and request:', request);
+    this.collectionsService.markPaymentPaid(selectedSchedule.schedule_id, request)
       .pipe(
-        takeUntil(this.destroy$),
         catchError(error => {
           console.error('Error marking payment as paid:', error);
-          this.errorMessage.set('Error al marcar el pago como pagado');
-          return of(null);
-        })
+          this.errorMessage.set('Error marcando pago: ' + (error.error?.message || error.message));
+          return of({ success: false });
+        }),
+        takeUntil(this.destroy$)
       )
-      .subscribe({
-        next: (response) => {
-          if (response) {
-            this.successMessage.set('Pago marcado como pagado exitosamente');
-            this.closeMarkPaidModal();
-            this.loadSchedules();
-          }
-          this.isMarkingPaid.set(false);
-        },
-        error: () => {
-          this.isMarkingPaid.set(false);
+      .subscribe((response: any) => {
+        this.isMarkingPaid.set(false);
+        if (response.success) {
+          this.successMessage.set('Pago marcado como pagado exitosamente');
+          this.closeMarkPaidModal();
+          this.loadContracts(); // Reload to get updated data
         }
       });
   }
 
-  exportSchedules() {
-    // Implement export functionality
-    console.log('Export schedules');
+  exportContracts() {
+    console.log('Export contracts');
+    // TODO: Implement export functionality
   }
 
   // Pagination methods
   previousPage() {
     if (this.currentPage() > 1) {
       this.currentPage.set(this.currentPage() - 1);
+      this.loadContracts();
     }
   }
 
   nextPage() {
     if (this.currentPage() < this.totalPages()) {
       this.currentPage.set(this.currentPage() + 1);
+      this.loadContracts();
     }
   }
 
   goToPage(page: number) {
     this.currentPage.set(page);
+    this.loadContracts();
+  }
+
+  onPageSizeChange(event: Event) {
+    const target = event.target as HTMLSelectElement;
+    const newPageSize = parseInt(target.value, 10);
+    this.pageSize.set(newPageSize);
+    this.currentPage.set(1); // Reset to first page
+    this.loadContracts();
   }
 
   getPageNumbers(): number[] {
@@ -617,8 +745,8 @@ export class InstallmentManagementComponent implements OnInit, OnDestroy {
   }
 
   private clearMessages() {
-    this.successMessage.set(null);
     this.errorMessage.set(null);
+    this.successMessage.set(null);
   }
 
   formatCurrency(amount: number): string {
@@ -630,22 +758,24 @@ export class InstallmentManagementComponent implements OnInit, OnDestroy {
   }
 
   formatDate(dateString: string): string {
-    return new Date(dateString).toLocaleDateString('es-PE', {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('es-DO', {
       year: 'numeric',
       month: 'short',
       day: 'numeric'
-    });
+    }).format(date);
   }
 
   getStatusClass(status: string): string {
     switch (status) {
       case 'pagado':
         return 'inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800';
+      case 'pendiente':
+        return 'inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800';
       case 'vencido':
         return 'inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800';
-      case 'pendiente':
       default:
-        return 'inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800';
+        return 'inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800';
     }
   }
 
@@ -653,18 +783,19 @@ export class InstallmentManagementComponent implements OnInit, OnDestroy {
     switch (status) {
       case 'pagado':
         return 'Pagado';
+      case 'pendiente':
+        return 'Pendiente';
       case 'vencido':
         return 'Vencido';
-      case 'pendiente':
       default:
-        return 'Pendiente';
+        return status;
     }
   }
 
   getDaysOverdue(dueDate: string): number {
-    const today = new Date();
     const due = new Date(dueDate);
-    const diffTime = today.getTime() - due.getTime();
+    const now = new Date();
+    const diffTime = now.getTime() - due.getTime();
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   }
 }

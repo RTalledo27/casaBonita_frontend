@@ -16,7 +16,7 @@ export const COLLECTIONS_SIMPLIFIED_ROUTES: Routes = [
     data: {
       title: 'Dashboard de Cronogramas',
       breadcrumb: 'Dashboard',
-      permissions: ['collections.view']
+      permissions: ['collections.dashboard.view']
     }
   },
   {
@@ -25,7 +25,7 @@ export const COLLECTIONS_SIMPLIFIED_ROUTES: Routes = [
     data: {
       title: 'Generador de Cronogramas',
       breadcrumb: 'Generador',
-      permissions: ['collections.create']
+      permissions: ['collections.schedules.create']
     }
   },
   {
@@ -34,7 +34,7 @@ export const COLLECTIONS_SIMPLIFIED_ROUTES: Routes = [
     data: {
       title: 'Gestión de Cuotas',
       breadcrumb: 'Cuotas',
-      permissions: ['collections.view']
+      permissions: ['collections.schedules.view']
     }
   },
   {
@@ -43,7 +43,7 @@ export const COLLECTIONS_SIMPLIFIED_ROUTES: Routes = [
     data: {
       title: 'Gestión de Cuotas',
       breadcrumb: 'Cuotas',
-      permissions: ['collections.view']
+      permissions: ['collections.schedules.view']
     }
   },
   {
@@ -52,7 +52,7 @@ export const COLLECTIONS_SIMPLIFIED_ROUTES: Routes = [
     data: {
       title: 'Reportes de Cronogramas',
       breadcrumb: 'Reportes',
-      permissions: ['collections.reports']
+      permissions: ['collections.reports.view']
     }
   },
   {
@@ -61,7 +61,7 @@ export const COLLECTIONS_SIMPLIFIED_ROUTES: Routes = [
     data: {
       title: 'Detalle de Cronograma',
       breadcrumb: 'Detalle',
-      permissions: ['collections.view']
+      permissions: ['collections.schedules.view']
     }
   }
 ];

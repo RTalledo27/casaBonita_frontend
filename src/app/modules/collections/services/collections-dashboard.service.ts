@@ -23,7 +23,7 @@ export class CollectionsDashboardService {
   /**
    * Obtiene métricas generales del dashboard
    */
-  getMetrics(currency?: 'PEN' | 'USD'): Observable<{ data: CollectionMetrics }> {
+  getMetrics(currency?: 'PEN'): Observable<{ data: CollectionMetrics }> {
     let params = new HttpParams();
     if (currency) {
       params = params.set('currency', currency);
@@ -34,7 +34,7 @@ export class CollectionsDashboardService {
   /**
    * Obtiene tendencias de cobranza
    */
-  getTrends(period: string = '12months', currency?: 'PEN' | 'USD'): Observable<{ data: CollectionTrends }> {
+  getTrends(period: string = '12months', currency?: 'PEN'): Observable<{ data: CollectionTrends }> {
     let params = new HttpParams().set('period', period);
     if (currency) {
       params = params.set('currency', currency);
@@ -45,7 +45,7 @@ export class CollectionsDashboardService {
   /**
    * Obtiene datos mensuales de cobranza
    */
-  getMonthlyData(months: number = 12, currency?: 'PEN' | 'USD'): Observable<{ data: MonthlyCollectionData[] }> {
+  getMonthlyData(months: number = 12, currency?: 'PEN'): Observable<{ data: MonthlyCollectionData[] }> {
     let params = new HttpParams().set('months', months.toString());
     if (currency) {
       params = params.set('currency', currency);
@@ -56,7 +56,7 @@ export class CollectionsDashboardService {
   /**
    * Obtiene distribución por estado
    */
-  getStatusDistribution(currency?: 'PEN' | 'USD'): Observable<{ data: StatusDistribution[] }> {
+  getStatusDistribution(currency?: 'PEN'): Observable<{ data: StatusDistribution[] }> {
     let params = new HttpParams();
     if (currency) {
       params = params.set('currency', currency);
@@ -67,7 +67,7 @@ export class CollectionsDashboardService {
   /**
    * Obtiene top clientes morosos
    */
-  getTopDelinquent(limit: number = 10, currency?: 'PEN' | 'USD'): Observable<{ data: DelinquentClient[] }> {
+  getTopDelinquent(limit: number = 10, currency?: 'PEN'): Observable<{ data: DelinquentClient[] }> {
     let params = new HttpParams().set('limit', limit.toString());
     if (currency) {
       params = params.set('currency', currency);
@@ -89,7 +89,7 @@ export class CollectionsDashboardService {
   /**
    * Obtiene KPIs principales del dashboard
    */
-  getKPIs(currency?: 'PEN' | 'USD'): Observable<{ data: DashboardKPI[] }> {
+  getKPIs(currency?: 'PEN'): Observable<{ data: DashboardKPI[] }> {
     let params = new HttpParams();
     if (currency) {
       params = params.set('currency', currency);
@@ -100,7 +100,7 @@ export class CollectionsDashboardService {
   /**
    * Obtiene metas de cobranza
    */
-  getCollectionTargets(year?: number, currency?: 'PEN' | 'USD'): Observable<{ data: CollectionTarget[] }> {
+  getCollectionTargets(year?: number, currency?: 'PEN'): Observable<{ data: CollectionTarget[] }> {
     let params = new HttpParams();
     if (year) {
       params = params.set('year', year.toString());
@@ -123,7 +123,7 @@ export class CollectionsDashboardService {
   /**
    * Obtiene comparación de períodos
    */
-  getPeriodComparison(currentPeriod: string, previousPeriod: string, currency?: 'PEN' | 'USD'): Observable<{
+  getPeriodComparison(currentPeriod: string, previousPeriod: string, currency?: 'PEN'): Observable<{
     data: {
       current: CollectionMetrics;
       previous: CollectionMetrics;
@@ -189,7 +189,7 @@ export class CollectionsDashboardService {
       type: 'payment' | 'assignment' | 'status_change' | 'action';
       description: string;
       amount?: number;
-      currency?: 'PEN' | 'USD';
+      currency?: 'PEN';
       client_name?: string;
       collector_name?: string;
       created_at: string;
@@ -202,7 +202,7 @@ export class CollectionsDashboardService {
         type: 'payment' | 'assignment' | 'status_change' | 'action';
         description: string;
         amount?: number;
-        currency?: 'PEN' | 'USD';
+        currency?: 'PEN';
         client_name?: string;
         collector_name?: string;
         created_at: string;
@@ -213,7 +213,7 @@ export class CollectionsDashboardService {
   /**
    * Exporta datos del dashboard
    */
-  exportDashboardData(format: 'excel' | 'pdf', currency?: 'PEN' | 'USD'): Observable<Blob> {
+  exportDashboardData(format: 'excel' | 'pdf', currency?: 'PEN'): Observable<Blob> {
     let params = new HttpParams().set('format', format);
     if (currency) {
       params = params.set('currency', currency);

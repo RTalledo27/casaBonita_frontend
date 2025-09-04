@@ -76,6 +76,26 @@ export class AuthService {
     return !!user && Array.isArray(user.roles) && user.roles.includes(role);
   }
 
+  /**
+   * Refrescar los datos del usuario autenticado
+   */
+  refreshUser(): Observable<any> {
+    return this.http.get(API_ROUTES.AUTH.ME).pipe(
+      tap((response: any) => {
+        if (response.user) {
+          // Actualizar el usuario con los nuevos permisos
+          const updatedUser = {
+            ...response.user,
+            permissions: response.permissions || [],
+            roles: response.roles || []
+          };
+          localStorage.setItem('user', JSON.stringify(updatedUser));
+          this.userSubject.next(updatedUser);
+        }
+      })
+    );
+  }
+
   isAdmin(): boolean {
     return this.hasRole('admin');
   }

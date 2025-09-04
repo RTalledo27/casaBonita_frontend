@@ -75,6 +75,21 @@
         "title": "Reports"
       }
     },
+    "collections-simplified": {
+      "title": "Collections",
+      "dashboard": {
+        "title": "Dashboard"
+      },
+      "schedule-generator": {
+        "title": "Schedule Generator"
+      },
+      "installment-management": {
+        "title": "Installment Management"
+      },
+      "reports": {
+        "title": "Reports"
+      }
+    },
     "accounting": {
       "title": "Accounting"
     },

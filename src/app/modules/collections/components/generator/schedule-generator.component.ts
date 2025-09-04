@@ -51,7 +51,7 @@ import { GenerateScheduleRequest, GenerateScheduleResponse } from '../../models/
               <lucide-angular [img]="SearchIcon" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"></lucide-angular>
               <input
                 type="text"
-                [(ngModel)]="searchTerm"
+                [ngModel]="searchTerm()"
                 (input)="onSearchChange($event)"
                 placeholder="Buscar por número de contrato, cliente o lote..."
                 class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -92,7 +92,7 @@ import { GenerateScheduleRequest, GenerateScheduleResponse } from '../../models/
             <div class="text-center py-8 text-gray-500">
               <lucide-angular [img]="FileTextIcon" class="w-8 h-8 mx-auto mb-2 text-gray-400"></lucide-angular>
               <p>No se encontraron contratos</p>
-              @if (searchTerm) {
+              @if (searchTerm()) {
                 <p class="text-sm">Intenta con otros términos de búsqueda</p>
               }
             </div>
@@ -266,7 +266,7 @@ export class ScheduleGeneratorComponent implements OnInit {
   isGenerating = signal(false);
   successMessage = signal<string | null>(null);
   errorMessage = signal<string | null>(null);
-  searchTerm = '';
+  searchTerm = signal('');
   generatedScheduleId: string | null = null;
 
   // Form
@@ -274,11 +274,12 @@ export class ScheduleGeneratorComponent implements OnInit {
 
   // Computed
   filteredContracts = computed(() => {
-    if (!this.searchTerm.trim()) {
+    const searchValue = this.searchTerm().trim();
+    if (!searchValue) {
       return this.contracts();
     }
     
-    const term = this.searchTerm.toLowerCase();
+    const term = searchValue.toLowerCase();
     return this.contracts().filter(contract => 
       contract.contract_number.toLowerCase().includes(term) ||
       contract.client_name.toLowerCase().includes(term) ||
@@ -314,7 +315,8 @@ export class ScheduleGeneratorComponent implements OnInit {
     this.isLoadingContracts.set(true);
     this.errorMessage.set(null);
     
-    this.collectionsService.getContractsWithFinancing()
+    // Load all contracts by setting a high per_page value
+    this.collectionsService.getContractsWithFinancing({ per_page: 1000 })
       .pipe(
         takeUntil(this.destroy$),
         catchError(error => {
@@ -335,11 +337,15 @@ export class ScheduleGeneratorComponent implements OnInit {
   }
 
   onSearchChange(event: any) {
-    this.searchTerm = event.target.value;
+    this.searchTerm.set(event.target.value);
   }
 
   selectContract(contract: ContractWithSchedules) {
     this.selectedContract.set(contract);
+    // Actualizar la fecha de inicio basada en la fecha de venta del contrato
+    this.scheduleForm.patchValue({
+      start_date: this.getDefaultStartDate(contract)
+    });
     this.clearMessages();
   }
 
@@ -364,12 +370,13 @@ export class ScheduleGeneratorComponent implements OnInit {
     const formValue = this.scheduleForm.value;
     const contract = this.selectedContract()!;
 
-    const request: GenerateScheduleRequest = {
-      contract_id: contract.contract_id,
-      start_date: formValue.start_date
+    const request = {
+      start_date: formValue.start_date,
+      frequency: formValue.frequency,
+      notes: formValue.notes
     };
 
-    this.collectionsService.generateSchedule(request)
+    this.collectionsService.generateContractSchedule(contract.contract_id, request)
       .pipe(
         takeUntil(this.destroy$),
         catchError(error => {
@@ -378,19 +385,29 @@ export class ScheduleGeneratorComponent implements OnInit {
           return of(null);
         })
       )
-      .subscribe({
-        next: (response: GenerateScheduleResponse | null) => {
+      .subscribe(
+        (response) => {
           if (response && response.success) {
-            this.generatedScheduleId = response.contract.contract_id.toString();
+            this.generatedScheduleId = contract.contract_id.toString();
             this.successMessage.set(`Cronograma generado exitosamente para el contrato ${contract.contract_number}`);
-            this.clearSelection();
+            // Reload contracts to get updated data with new schedule
+            this.loadContracts();
+            // Clear selection but keep success message
+            this.selectedContract.set(null);
+            this.scheduleForm.patchValue({
+              start_date: this.getDefaultStartDate(),
+              frequency: 'monthly',
+              notes: ''
+            });
+            // Only clear error message, keep success message
+            this.errorMessage.set(null);
           }
           this.isGenerating.set(false);
         },
-        error: () => {
+        () => {
           this.isGenerating.set(false);
         }
-      });
+      );
   }
 
   viewGeneratedSchedule() {
@@ -399,7 +416,16 @@ export class ScheduleGeneratorComponent implements OnInit {
     }
   }
 
-  private getDefaultStartDate(): string {
+  private getDefaultStartDate(contract?: ContractWithSchedules): string {
+    if (contract && contract.sign_date) {
+      // Usar la fecha de venta del contrato como base
+      const signDate = new Date(contract.sign_date);
+      // Iniciar cronograma el primer día del mes siguiente a la fecha de venta
+      const nextMonth = new Date(signDate.getFullYear(), signDate.getMonth() + 1, 1);
+      return nextMonth.toISOString().split('T')[0];
+    }
+    
+    // Fallback: usar la fecha actual si no hay contrato seleccionado
     const today = new Date();
     const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
     return nextMonth.toISOString().split('T')[0];

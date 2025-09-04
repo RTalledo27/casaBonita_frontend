@@ -189,7 +189,7 @@ import { PaymentSchedule } from '../../models/payment-schedule';
                 <div>
                   <p class="text-sm font-medium text-gray-600">Monto Vencido</p>
                   <p class="text-2xl font-bold text-red-600 mt-1">{{ formatCurrency(reportData()!.overdue_amount) }}</p>
-                  <p class="text-xs text-gray-500 mt-1">{{ reportData()!.overdue_count }} cuotas</p>
+                  <p class="text-xs text-gray-500 mt-1">{{ getOverdueCount() }} cuotas</p>
                 </div>
                 <div class="bg-red-500 p-3 rounded-lg">
                   <lucide-angular [img]="AlertTriangleIcon" class="w-6 h-6 text-white"></lucide-angular>
@@ -234,26 +234,9 @@ import { PaymentSchedule } from '../../models/payment-schedule';
                 <lucide-angular [img]="BarChart3Icon" class="w-5 h-5 mr-2"></lucide-angular>
                 Tendencia Mensual
               </h3>
-              @if (reportData()?.monthly_trend && reportData()!.monthly_trend!.length > 0) {
-                <div class="space-y-3">
-                  @for (month of reportData()!.monthly_trend; track month.month) {
-                    <div class="flex items-center justify-between">
-                      <div>
-                        <p class="text-sm font-medium text-gray-900">{{ formatMonth(month.month) }}</p>
-                        <p class="text-xs text-gray-500">{{ month.schedules_count }} cronogramas</p>
-                      </div>
-                      <div class="text-right">
-                        <p class="text-sm font-semibold text-gray-900">{{ formatCurrency(month.total_amount) }}</p>
-                        <p class="text-xs text-green-600">{{ formatCurrency(month.paid_amount) }} pagado</p>
-                      </div>
-                    </div>
-                  }
-                </div>
-              } @else {
-                <div class="text-center py-8 text-gray-500">
-                  <p>No hay datos de tendencia disponibles</p>
-                </div>
-              }
+              <div class="text-center py-8 text-gray-500">
+                <p>Funcionalidad de tendencia mensual próximamente</p>
+              </div>
             </div>
           </div>
 
@@ -385,8 +368,26 @@ export class CollectionsReportsComponent implements OnInit, OnDestroy {
     this.errorMessage.set(null);
     
     const filters = this.filterForm.value;
+    const reportType = filters.report_type;
     
-    this.collectionsService.generateReport(filters)
+    let reportObservable;
+    
+    // Select the appropriate report method based on type
+    switch (reportType) {
+      case 'summary':
+        reportObservable = this.collectionsService.getPaymentSummaryReport(filters);
+        break;
+      case 'detailed':
+        reportObservable = this.collectionsService.getOverdueAnalysisReport(filters);
+        break;
+      case 'overdue':
+        reportObservable = this.collectionsService.getAgingReport(filters);
+        break;
+      default:
+        reportObservable = this.collectionsService.getCollectionEfficiencyReport(filters);
+    }
+    
+    reportObservable
       .pipe(
         takeUntil(this.destroy$),
         catchError(error => {
@@ -396,7 +397,14 @@ export class CollectionsReportsComponent implements OnInit, OnDestroy {
         })
       )
       .subscribe({
-        next: (report: PaymentScheduleReport | null) => {
+        next: (response: any) => {
+          // Handle different response formats from different report endpoints
+          let report: PaymentScheduleReport | null = null;
+          if (response && response.success) {
+            report = response.data;
+          } else if (response) {
+            report = response;
+          }
           this.reportData.set(report);
           this.isLoading.set(false);
         },
@@ -437,7 +445,7 @@ export class CollectionsReportsComponent implements OnInit, OnDestroy {
     csvContent += `Monto Pagado,${report.paid_amount}\n`;
     csvContent += `Monto Pendiente,${report.pending_amount}\n`;
     csvContent += `Monto Vencido,${report.overdue_amount}\n`;
-    csvContent += `Cronogramas Vencidos,${report.overdue_count}\n\n`;
+    csvContent += `Cronogramas Vencidos,${Math.round((report.overdue_amount || 0) / ((report.total_amount || 1) / (report.total_schedules || 1)))}\n\n`;
     
     // Detailed data if available
     if (report.schedules && report.schedules.length > 0) {
@@ -475,33 +483,54 @@ export class CollectionsReportsComponent implements OnInit, OnDestroy {
     if (!report) return [];
 
     const total = report.total_schedules;
+    const paidCount = this.getPaidCount();
+    const pendingCount = this.getPendingCount();
+    const overdueCount = this.getOverdueCount();
     
     return [
       {
         name: 'paid',
         label: 'Pagado',
-        count: report.paid_count || 0,
+        count: paidCount,
         amount: report.paid_amount,
-        percentage: total > 0 ? ((report.paid_count || 0) / total) * 100 : 0,
+        percentage: total > 0 ? (paidCount / total) * 100 : 0,
         color: 'bg-green-500'
       },
       {
         name: 'pending',
         label: 'Pendiente',
-        count: report.pending_count || 0,
+        count: pendingCount,
         amount: report.pending_amount,
-        percentage: total > 0 ? ((report.pending_count || 0) / total) * 100 : 0,
+        percentage: total > 0 ? (pendingCount / total) * 100 : 0,
         color: 'bg-yellow-500'
       },
       {
         name: 'overdue',
         label: 'Vencido',
-        count: report.overdue_count || 0,
+        count: overdueCount,
         amount: report.overdue_amount,
-        percentage: total > 0 ? ((report.overdue_count || 0) / total) * 100 : 0,
+        percentage: total > 0 ? (overdueCount / total) * 100 : 0,
         color: 'bg-red-500'
       }
     ];
+  }
+
+  getPaidCount(): number {
+    const report = this.reportData();
+    if (!report) return 0;
+    return Math.round((report.paid_amount || 0) / ((report.total_amount || 1) / (report.total_schedules || 1)));
+  }
+
+  getPendingCount(): number {
+    const report = this.reportData();
+    if (!report) return 0;
+    return Math.round((report.pending_amount || 0) / ((report.total_amount || 1) / (report.total_schedules || 1)));
+  }
+
+  getOverdueCount(): number {
+    const report = this.reportData();
+    if (!report) return 0;
+    return Math.round((report.overdue_amount || 0) / ((report.total_amount || 1) / (report.total_schedules || 1)));
   }
 
   formatCurrency(amount: number): string {

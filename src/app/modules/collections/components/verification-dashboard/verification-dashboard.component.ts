@@ -378,9 +378,9 @@ export class VerificationDashboardComponent implements OnInit, OnDestroy {
     if (amount === null || amount === undefined || isNaN(amount)) {
       return '$0.00';
     }
-    return amount.toLocaleString('es-ES', {
+    return amount.toLocaleString('es-PE', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'PEN',
       minimumFractionDigits: 2
     });
   }

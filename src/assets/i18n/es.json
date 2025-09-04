@@ -75,6 +75,21 @@
         "title": "Reportes"
       }
     },
+    "collections-simplified": {
+      "title": "Cobranzas",
+      "dashboard": {
+        "title": "Dashboard"
+      },
+      "schedule-generator": {
+        "title": "Generador de Cronogramas"
+      },
+      "installment-management": {
+        "title": "Gestión de Cuotas"
+      },
+      "reports": {
+        "title": "Reportes"
+      }
+    },
     "accounting": {
       "title": "Contabilidad"
     },
@@ -394,6 +409,21 @@
      "receivable": "Por Cobrar",
      "payments": "Pagos",
      "reports": "Reportes"
+   },
+   "collections-simplified": {
+     "title": "Cobranzas",
+     "dashboard": {
+       "title": "Dashboard"
+     },
+     "schedule-generator": {
+       "title": "Generador de Cronogramas"
+     },
+     "installment-management": {
+       "title": "Gestión de Cuotas"
+     },
+     "reports": {
+       "title": "Reportes"
+     }
    },
    "validation": {
      "required": "Este campo es obligatorio",

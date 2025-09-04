@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { AuthService, UserResource } from '../../services/auth.service';
 import { Router } from '@angular/router';
 import { NotificationService } from '../../services/notification.service';
+import { ToastService } from '../../services/toast.service';
 import { CommonModule } from '@angular/common';
 import { LangSwitcherComponent } from '../../../shared/components/lang-switcher/lang-switcher.component';
 import { TranslateModule } from '@ngx-translate/core';
@@ -22,11 +23,13 @@ export class NavbarComponent {
   user: UserResource | null = null;
   unreadCount = 0;
   menuOpen = false;
+  refreshingPermissions = false;
 
   constructor(
     private auth: AuthService,
     private router: Router,
-    private notifications: NotificationService
+    private notifications: NotificationService,
+    private toast: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -46,5 +49,20 @@ export class NavbarComponent {
 
   toggleNotifications() {
     
+  }
+
+  async refreshPermissions(): Promise<void> {
+    if (this.refreshingPermissions) return;
+    
+    this.refreshingPermissions = true;
+    try {
+      await this.auth.refreshUser();
+      this.toast.success('Permisos actualizados correctamente');
+    } catch (error) {
+      console.error('Error refreshing permissions:', error);
+      this.toast.error('Error al actualizar permisos');
+    } finally {
+      this.refreshingPermissions = false;
+    }
   }
 }

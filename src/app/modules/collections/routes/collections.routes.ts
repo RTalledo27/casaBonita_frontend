@@ -3,6 +3,10 @@ import { PaymentVerificationManagerComponent } from '../components/payment-verif
 import { VerificationDashboardComponent } from '../components/verification-dashboard/verification-dashboard.component';
 import { HrIntegrationDashboardComponent } from '../components/hr-integration-dashboard/hr-integration-dashboard.component';
 import { CollectionsDashboardComponent } from '../components/dashboard/collections-dashboard.component';
+import { CollectionsSimplifiedDashboardComponent } from '../components/dashboard/collections-simplified-dashboard.component';
+import { ScheduleGeneratorComponent } from '../components/generator/schedule-generator.component';
+import { InstallmentManagementComponent } from '../components/installments/installment-management.component';
+import { CollectionsReportsComponent } from '../components/reports/collections-reports.component';
 import { AccountsReceivableListComponent } from '../components/accounts-receivable/accounts-receivable-list.component';
 import { AgingReportsComponent } from '../components/aging-reports/aging-reports.component';
 import { OverdueAlertsComponent } from '../components/alerts/overdue-alerts.component';
@@ -16,11 +20,65 @@ export const collectionsRoutes: Routes = [
   },
   {
     path: 'dashboard',
+    component: CollectionsSimplifiedDashboardComponent,
+    data: {
+      title: 'Dashboard de Cronogramas',
+      breadcrumb: 'Dashboard',
+      permission: 'collections.dashboard.view'
+    }
+  },
+  {
+    path: 'generator',
+    component: ScheduleGeneratorComponent,
+    data: {
+      title: 'Generador de Cronogramas',
+      breadcrumb: 'Generador',
+      permission: 'collections.schedules.create'
+    }
+  },
+  {
+    path: 'installments',
+    component: InstallmentManagementComponent,
+    data: {
+      title: 'Gestión de Cuotas',
+      breadcrumb: 'Cuotas',
+      permission: 'collections.schedules.view'
+    }
+  },
+  {
+    path: 'reports',
+    component: CollectionsReportsComponent,
+    data: {
+      title: 'Reportes de Cronogramas',
+      breadcrumb: 'Reportes',
+      permission: 'collections.reports.view'
+    }
+  },
+  {
+    path: 'schedules',
+    component: InstallmentManagementComponent,
+    data: {
+      title: 'Gestión de Cuotas',
+      breadcrumb: 'Cuotas',
+      permission: 'collections.schedules.view'
+    }
+  },
+  {
+    path: 'schedules/:id',
+    component: InstallmentManagementComponent,
+    data: {
+      title: 'Detalle de Cronograma',
+      breadcrumb: 'Detalle',
+      permission: 'collections.schedules.view'
+    }
+  },
+  {
+    path: 'collections-dashboard',
     component: CollectionsDashboardComponent,
     data: {
-      title: 'Dashboard de Cobranzas',
-      breadcrumb: 'Dashboard',
-      permission: 'collections.access'
+      title: 'Dashboard de Cobranzas Completo',
+      breadcrumb: 'Dashboard Completo',
+      permission: 'collections.dashboard.view'
     }
   },
   {
@@ -82,7 +140,7 @@ export const collectionsRoutes: Routes = [
     data: {
       title: 'Integración HR - Collections',
       breadcrumb: 'Integración HR',
-      permission: 'collections.access'
+      permission: 'collections.hr-integration.view'
     }
   },
   {

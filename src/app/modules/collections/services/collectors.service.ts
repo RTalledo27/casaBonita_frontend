@@ -40,7 +40,7 @@ export class CollectorsService {
   create(collectorData: {
     employee_id: number;
     collection_target: number;
-    currency: 'PEN' | 'USD';
+    currency: 'PEN';
   }): Observable<{ data: Collector }> {
     return this.http.post<{ data: Collector }>(`${this.baseUrl}`, collectorData);
   }

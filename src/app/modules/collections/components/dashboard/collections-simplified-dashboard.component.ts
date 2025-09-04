@@ -18,6 +18,7 @@ import {
 } from 'lucide-angular';
 import { CollectionsSimplifiedService, CollectionsSimplifiedDashboard } from '../../services/collections-simplified.service';
 import { PaymentSchedule } from '../../models/payment-schedule';
+import { RecentContract } from '../../models/recent-contract';
 
 @Component({
   selector: 'app-collections-simplified-dashboard',
@@ -41,7 +42,7 @@ import { PaymentSchedule } from '../../models/payment-schedule';
             <span>{{ isLoading() ? 'Actualizando...' : 'Actualizar' }}</span>
           </button>
           <button 
-            routerLink="/collections/generator"
+            routerLink="/collections-simplified/generator"
             class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center space-x-2"
           >
             <lucide-angular [img]="FileTextIcon" class="w-4 h-4"></lucide-angular>
@@ -118,26 +119,61 @@ import { PaymentSchedule } from '../../models/payment-schedule';
         </div>
       </div>
 
-      <!-- Recent Schedules and Overdue -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Recent Payment Schedules -->
+      <!-- Three sections: Recent Created, Upcoming, and Overdue -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Recently Created Schedules -->
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-semibold text-gray-900">Cronogramas Recientes</h3>
+            <h3 class="text-lg font-semibold text-gray-900">Cronogramas Recién Creados</h3>
             <button 
-              routerLink="/collections/schedules"
-              class="text-blue-600 hover:text-blue-800 text-sm font-medium"
+              routerLink="/collections-simplified/schedules"
+              class="text-green-600 hover:text-green-800 text-sm font-medium"
             >
               Ver todos
+            </button>
+          </div>
+          @if (recentCreatedSchedules().length > 0) {
+            <div class="space-y-3">
+              @for (contract of recentCreatedSchedules(); track contract.contract_id) {
+                <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200">
+                  <div>
+                    <p class="font-medium text-gray-900">{{ contract.contract_number }}</p>
+                    <p class="text-sm text-green-600">{{ contract.client_name }}</p>
+                    <p class="text-xs text-gray-500">{{ contract.lot_name }}</p>
+                  </div>
+                  <div class="text-right">
+                    <p class="font-semibold text-gray-900">{{ contract.total_schedules }}</p>
+                    <p class="text-xs text-green-600">cuotas</p>
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="text-center py-8 text-gray-500">
+              <lucide-angular [img]="FileTextIcon" class="w-8 h-8 mx-auto mb-2 text-gray-400"></lucide-angular>
+              <p>No hay cronogramas recién creados</p>
+            </div>
+          }
+        </div>
+
+        <!-- Upcoming Payment Schedules -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold text-gray-900">Cuotas Próximas a Vencer</h3>
+            <button 
+              routerLink="/collections-simplified/schedules"
+              class="text-blue-600 hover:text-blue-800 text-sm font-medium"
+            >
+              Ver todas
             </button>
           </div>
           @if (recentSchedules().length > 0) {
             <div class="space-y-3">
               @for (schedule of recentSchedules(); track schedule.schedule_id) {
-                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div class="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-200">
                   <div>
-                    <p class="font-medium text-gray-900">Contrato #{{ schedule.contract_id }}</p>
-                    <p class="text-sm text-gray-600">Vence: {{ formatDate(schedule.due_date) }}</p>
+                    <p class="font-medium text-gray-900">Contrato #{{ schedule.contract_number }}</p>
+                    <p class="text-sm text-blue-600">Vence: {{ formatDate(schedule.due_date) }}</p>
                   </div>
                   <div class="text-right">
                     <p class="font-semibold text-gray-900">{{ formatCurrency(schedule.amount) }}</p>
@@ -151,7 +187,7 @@ import { PaymentSchedule } from '../../models/payment-schedule';
           } @else {
             <div class="text-center py-8 text-gray-500">
               <lucide-angular [img]="CalendarIcon" class="w-8 h-8 mx-auto mb-2 text-gray-400"></lucide-angular>
-              <p>No hay cronogramas recientes</p>
+              <p>No hay cuotas próximas a vencer</p>
             </div>
           }
         </div>
@@ -161,7 +197,7 @@ import { PaymentSchedule } from '../../models/payment-schedule';
           <div class="flex justify-between items-center mb-4">
             <h3 class="text-lg font-semibold text-gray-900">Cuotas Vencidas</h3>
             <button 
-              routerLink="/collections/installments"
+              routerLink="/collections-simplified/installments"
               [queryParams]="{ status: 'vencido' }"
               class="text-red-600 hover:text-red-800 text-sm font-medium"
             >
@@ -173,7 +209,7 @@ import { PaymentSchedule } from '../../models/payment-schedule';
               @for (schedule of overdueSchedules(); track schedule.schedule_id) {
                 <div class="flex items-center justify-between p-3 bg-red-50 rounded-lg border border-red-200">
                   <div>
-                    <p class="font-medium text-gray-900">Contrato #{{ schedule.contract_id }}</p>
+                    <p class="font-medium text-gray-900">Contrato #{{ schedule.contract_number }}</p>
                     <p class="text-sm text-red-600">Vencido: {{ formatDate(schedule.due_date) }}</p>
                   </div>
                   <div class="text-right">
@@ -202,7 +238,7 @@ import { PaymentSchedule } from '../../models/payment-schedule';
         <h3 class="text-lg font-semibold text-gray-900 mb-4">Acciones Rápidas</h3>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <button 
-            routerLink="/collections/generator"
+            routerLink="/collections-simplified/generator"
             class="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
           >
             <lucide-angular [img]="FileTextIcon" class="w-5 h-5 text-blue-600"></lucide-angular>
@@ -213,7 +249,7 @@ import { PaymentSchedule } from '../../models/payment-schedule';
           </button>
           
           <button 
-            routerLink="/collections/installments"
+            routerLink="/collections-simplified/installments"
             class="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
           >
             <lucide-angular [img]="DollarSignIcon" class="w-5 h-5 text-green-600"></lucide-angular>
@@ -224,7 +260,7 @@ import { PaymentSchedule } from '../../models/payment-schedule';
           </button>
           
           <button 
-            routerLink="/collections/reports"
+            routerLink="/collections-simplified/reports"
             class="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
           >
             <lucide-angular [img]="FileTextIcon" class="w-5 h-5 text-purple-600"></lucide-angular>
@@ -259,6 +295,7 @@ export class CollectionsSimplifiedDashboardComponent implements OnInit, OnDestro
   error = signal<string | null>(null);
 
   // Computed values
+  recentCreatedSchedules = computed(() => this.dashboardData()?.recent_created_schedules || [] as RecentContract[]);
   recentSchedules = computed(() => this.dashboardData()?.recent_schedules || []);
   overdueSchedules = computed(() => this.dashboardData()?.overdue_schedules || []);
 

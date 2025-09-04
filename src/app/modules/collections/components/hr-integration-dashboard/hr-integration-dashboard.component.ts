@@ -404,9 +404,9 @@ export class HrIntegrationDashboardComponent implements OnInit, OnDestroy {
   }
 
   formatCurrency(amount: number): string {
-    return new Intl.NumberFormat('es-CO', {
+    return new Intl.NumberFormat('es-PE', {
       style: 'currency',
-      currency: 'COP',
+      currency: 'PEN',
       minimumFractionDigits: 0
     }).format(amount);
   }

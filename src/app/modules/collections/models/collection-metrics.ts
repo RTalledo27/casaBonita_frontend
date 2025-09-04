@@ -8,7 +8,7 @@ export interface CollectionMetrics {
   collected_this_month: number;
   pending_amount: number;
   active_collectors: number;
-  currency: 'PEN' | 'USD';
+  currency: 'PEN';
   last_updated: string;
 }
 
@@ -71,7 +71,7 @@ export interface CollectionTarget {
   target_amount: number;
   achieved_amount: number;
   achievement_percentage: number;
-  currency: 'PEN' | 'USD';
+  currency: 'PEN';
 }
 
 export interface DashboardKPI {

@@ -1,6 +1,7 @@
 export interface PaymentSchedule {
   schedule_id: number;
   contract_id: number;
+  contract_number?: string;
   installment_number: number;
   due_date: string;
   amount: number;
@@ -10,6 +11,9 @@ export interface PaymentSchedule {
   notes?: string;
   created_at: string;
   updated_at: string;
+  days_since_created?: number | string;
+  days_overdue?: number;
+  client_name?: string;
 }
 
 export interface PaymentScheduleFilters {
@@ -53,45 +57,58 @@ export interface PaymentScheduleMetrics {
   overdue_amount: number;
   overdue_count: number;
   payment_rate: number;
-  currency: 'PEN' | 'USD';
+  currency: 'PEN';
 }
 
 export interface PaymentScheduleReport {
-  summary: {
-    total_schedules: number;
-    total_amount: number;
-    paid_amount: number;
-    pending_amount: number;
-    overdue_amount: number;
-    payment_rate: number;
-  };
-  status_distribution: {
-    status: string;
-    count: number;
-    amount: number;
-  }[];
-  monthly_trends: {
-    month: string;
-    scheduled_amount: number;
-    paid_amount: number;
-    overdue_amount: number;
-  }[];
-  schedules: PaymentSchedule[];
-  // Propiedades adicionales para compatibilidad con el componente
+  contract_id: number;
+  contract_number: string;
+  client_name: string;
+  lot_name: string;
   total_schedules: number;
+  paid_schedules: number;
+  pending_schedules: number;
+  overdue_schedules: number;
   total_amount: number;
   paid_amount: number;
   pending_amount: number;
   overdue_amount: number;
-  paid_count?: number;
-  pending_count?: number;
-  overdue_count: number;
-  monthly_trend?: {
-    month: string;
-    schedules_count: number;
-    total_amount: number;
-    paid_amount: number;
-  }[];
+  payment_rate: number;
+  schedules: PaymentSchedule[];
+}
+
+export interface ContractSummary {
+  contract_id: number;
+  contract_number: string;
+  client_name: string;
+  client_id: number;
+  advisor_name: string;
+  advisor_id: number;
+  lot_name: string;
+  total_schedules: number;
+  paid_schedules: number;
+  pending_schedules: number;
+  overdue_schedules: number;
+  total_amount: number;
+  paid_amount: number;
+  pending_amount: number;
+  overdue_amount: number;
+  payment_rate: number;
+  next_due_date: string | null;
+  schedules: PaymentSchedule[];
+  expanded?: boolean;
+}
+
+export interface ContractSchedulesResponse {
+  success: boolean;
+  message: string;
+  data: ContractSummary[];
+  meta?: {
+    total: number;
+    per_page: number;
+    current_page: number;
+    last_page: number;
+  };
 }
 
 export interface GenerateScheduleRequest {

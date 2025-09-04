@@ -181,7 +181,7 @@ export class AgingReportsService {
   /**
    * Obtiene tendencias de antigüedad por período
    */
-  getAgingTrends(months: number = 12, currency?: 'PEN' | 'USD'): Observable<{
+  getAgingTrends(months: number = 12, currency?: 'PEN'): Observable<{
     data: {
       month: string;
       current: number;
@@ -214,7 +214,7 @@ export class AgingReportsService {
   /**
    * Obtiene comparación de antigüedad entre períodos
    */
-  getAgingComparison(currentDate: string, previousDate: string, currency?: 'PEN' | 'USD'): Observable<{
+  getAgingComparison(currentDate: string, previousDate: string, currency?: 'PEN'): Observable<{
     data: {
       current_period: AgingReportData;
       previous_period: AgingReportData;

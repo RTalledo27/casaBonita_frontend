@@ -69,7 +69,6 @@ import { AgingReportData, AgingReportFilters, AgingPeriodSummary, AgingClientDat
               >
                 <option value="">Todas las monedas</option>
                 <option value="PEN">Soles (PEN)</option>
-                <option value="USD">Dólares (USD)</option>
               </select>
             </div>
 
