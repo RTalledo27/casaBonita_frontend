@@ -5,6 +5,7 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "build:vercel": "ng build --configuration production",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "tailwind:build": "tailwindcss -c ./src/tailwind.config.js -i ./src/tailwind.css -o ./src/styles.scss --minify",
