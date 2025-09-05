@@ -8,14 +8,17 @@ import { LucideAngularModule, Plus, Upload } from 'lucide-angular';
 import { FormsModule } from '@angular/forms';
 import { ContractFormComponent } from './components/contract-form/contract-form.component';
 import { ContractImportComponent } from './components/contract-import/contract-import.component';
+import { ContractCreationModalComponent } from './contract-creation-modal/contract-creation-modal.component';
 import { AuthService } from '../../../core/services/auth.service';
 import { ModalService } from '../../../core/services/modal.service';
 import { BehaviorSubject } from 'rxjs';
 import { Contract } from '../models/contract';
 import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
+import { ThemeService } from '../../../core/services/theme.service';
 
 @Component({
   selector: 'app-contracts',
+  standalone:true,
   imports: [
     CommonModule,
     RouterOutlet,
@@ -24,6 +27,7 @@ import { PaginationComponent } from '../../../shared/components/pagination/pagin
     LucideAngularModule,
     FormsModule,
     ContractImportComponent,
+    ContractCreationModalComponent,
     PaginationComponent,
   ],
   templateUrl: './contracts.component.html',
@@ -77,13 +81,15 @@ export class ContractsComponent {
   upload = Upload;
   isModalOpen = false;
   isImportModalOpen = false;
+  isCreationModalOpen = false;
 
   constructor(
     private contractService: ContractsService,
     private router: Router,
     private route: ActivatedRoute,
     private modalService: ModalService,
-    public authService: AuthService
+    public authService: AuthService,
+    public theme: ThemeService
   ) {}
 
   ngOnInit() {
@@ -115,8 +121,7 @@ export class ContractsComponent {
   }
 
   onCreate() {
-    this.modalService.open(['create'], this.route);
-    this.isModalOpen = true;
+    this.isCreationModalOpen = true;
   }
 
   onEdit(id: number) {
@@ -155,5 +160,14 @@ export class ContractsComponent {
   onImportCompleted() {
     this.loadContracts();
     this.isImportModalOpen = false;
+  }
+
+  onCreationModalClose() {
+    this.isCreationModalOpen = false;
+  }
+
+  onContractCreated() {
+    this.loadContracts();
+    this.onCreationModalClose();
   }
 }

@@ -1,8 +1,8 @@
 export const environment = {
   production: true,
-  URL_BACKEND: 'https://api.casaBonita.com/api',
-  URL_FRONTEND: 'https://www.casaBonita.com',
-  BACKEND_BASE_URL: 'https://api.casaBonita.com',
+  URL_BACKEND: 'http://localhost:8000/api',
+  URL_FRONTEND: 'http://localhost:4200',
+  BACKEND_BASE_URL: 'http://localhost:8000',
   pusher: {
     key: '3caa2ab27c5f3a7cd282',
     cluster: 'us2',

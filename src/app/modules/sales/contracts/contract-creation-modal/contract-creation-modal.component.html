@@ -1,0 +1,460 @@
+<!-- Modal Backdrop -->
+<div 
+  *ngIf="isOpen" 
+  class="fixed inset-0 z-50 overflow-y-auto modal-backdrop animate-fade-in"
+  (click)="onClose()"
+>
+  <!-- Modal Container -->
+  <div class="flex min-h-screen items-center justify-center p-4">
+    <div 
+      class="relative w-full max-w-6xl bg-white dark:bg-gray-800 rounded-2xl shadow-2xl animate-slide-in-up dynamic-shadow"
+      (click)="$event.stopPropagation()"
+    >
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-600 bg-gradient-to-r from-blue-600 to-purple-600 dark:from-gray-800 dark:to-gray-900 rounded-t-2xl">
+        <div class="flex items-center space-x-3">
+          <div class="p-2 bg-white bg-opacity-20 rounded-lg">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-xl font-bold text-white">Crear Nuevo Contrato</h2>
+            <p class="text-blue-100 dark:text-gray-300 text-sm">Complete la información para generar el contrato</p>
+          </div>
+        </div>
+        <button 
+          (click)="onClose()" 
+          class="p-2 text-white dark:text-gray-300 hover:bg-white hover:bg-opacity-20 dark:hover:bg-white dark:hover:bg-opacity-10 rounded-lg transition-all duration-200 hover-lift"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-6 max-h-[80vh] overflow-y-auto">
+        <form [formGroup]="contractForm" (ngSubmit)="onSubmit()" class="space-y-8">
+          
+          <!-- Step 1: Selección de Manzana y Lote -->
+          <div class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-xl p-6 border border-blue-200 dark:border-blue-700/50 animate-slide-in-left">
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center">
+              <span class="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">1</span>
+              Selección de Propiedad
+            </h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Selección de Manzana -->
+              <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Manzana *</label>
+                <select 
+                  formControlName="manzana_id" 
+                  (change)="onManzanaChange($any($event.target).value)"
+                  class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 dark:text-white shadow-sm hover:shadow-md"
+                  [class.border-red-500]="contractForm.get('manzana_id')?.invalid && contractForm.get('manzana_id')?.touched"
+                >
+                  <option value="">Seleccione una manzana</option>
+                  <option *ngFor="let manzana of manzanas()" [value]="manzana.manzana_id">
+                    {{ manzana.name }}
+                  </option>
+                </select>
+                <div *ngIf="loadingManzanas()" class="flex items-center text-blue-600 text-sm">
+                  <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
+                  Cargando manzanas...
+                </div>
+              </div>
+
+              <!-- Información de Manzana Seleccionada -->
+              <div *ngIf="contractForm.get('manzana_id')?.value" class="bg-white dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
+                <h4 class="font-medium text-gray-800 dark:text-white mb-2">Información de la Manzana</h4>
+                <div class="text-sm text-gray-600 dark:text-gray-300">
+                  <p><span class="font-medium">Lotes disponibles:</span> {{ availableLots().length }}</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Selección de Lote -->
+            <div *ngIf="availableLots().length > 0" class="mt-6">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Lotes Disponibles *</label>
+              <div *ngIf="loadingLots()" class="flex items-center justify-center py-8">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                <span class="ml-3 text-gray-600 dark:text-gray-300">Cargando lotes...</span>
+              </div>
+              
+              <div *ngIf="!loadingLots()" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div 
+                  *ngFor="let lot of availableLots(); trackBy: trackByLotId" 
+                  (click)="onLotSelect(lot)"
+                  class="relative p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 hover:shadow-md hover-lift dynamic-shadow animate-fade-in lot-card"
+                  [class.border-blue-500]="selectedLot()?.lot_id === lot.lot_id"
+                  [class.bg-blue-50]="selectedLot()?.lot_id === lot.lot_id"
+                  [class.border-gray-200]="selectedLot()?.lot_id !== lot.lot_id"
+                  [class.hover:border-gray-300]="selectedLot()?.lot_id !== lot.lot_id"
+                  [class.selected]="selectedLot()?.lot_id === lot.lot_id"
+                >
+                  <div class="flex justify-between items-start mb-2">
+                    <h4 class="font-semibold text-gray-800 dark:text-white">Lote {{ lot.num_lot }}</h4>
+                    <span class="status-badge status-available">
+                      Disponible
+                    </span>
+                  </div>
+                  <div class="space-y-1 text-sm text-gray-600 dark:text-gray-300">
+                    <p><span class="font-medium">Área:</span> {{ lot.area_m2 }} m²</p>
+                    <p><span class="font-medium">Precio:</span> {{ lot.total_price | currency:'S/.':'symbol':'1.2-2' }}</p>
+                    <p *ngIf="lot.street_type" class="text-xs text-gray-500 dark:text-gray-400">{{ lot.street_type }}</p>
+                  </div>
+                  
+                  <!-- Checkmark for selected lot -->
+                  <div *ngIf="selectedLot()?.lot_id === lot.lot_id" 
+                       class="absolute top-2 right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div *ngIf="contractForm.get('manzana_id')?.value && availableLots().length === 0 && !loadingLots()" 
+                 class="mt-6 p-4 bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-700/50 rounded-lg">
+              <div class="flex items-center">
+                <svg class="w-5 h-5 text-yellow-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                </svg>
+                <span class="text-yellow-800 dark:text-yellow-200">No hay lotes disponibles en esta manzana</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2: Selección de Cliente -->
+          <div class="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30 rounded-xl p-6 border border-green-200 dark:border-green-700/50 animate-slide-in-right">
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center">
+              <span class="bg-green-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">2</span>
+              Selección de Cliente
+            </h3>
+
+            <!-- Cliente Seleccionado -->
+            <div *ngIf="selectedClient()" class="mb-4 p-4 bg-white dark:bg-gray-700 rounded-lg border border-green-200 dark:border-green-700/50">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h4 class="font-semibold text-gray-800 dark:text-white">{{ selectedClient()!.first_name }} {{ selectedClient()!.last_name }}</h4>
+                  <p class="text-sm text-gray-600 dark:text-gray-300">{{ selectedClient()!.doc_type }}: {{ selectedClient()!.doc_number }}</p>
+                  <p *ngIf="selectedClient()!.email" class="text-sm text-gray-600 dark:text-gray-300">{{ selectedClient()!.email }}</p>
+                </div>
+                <button 
+                  type="button" 
+                  (click)="selectedClient.set(null); contractForm.patchValue({client_id: ''})"
+                  class="text-red-600 hover:text-red-800 transition-colors"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Búsqueda y Selección de Cliente -->
+            <div *ngIf="!selectedClient()" class="space-y-4">
+              <div class="flex space-x-3">
+                <div class="flex-1">
+                  <input 
+                    type="text" 
+                    [(ngModel)]="clientSearchTerm"
+                    [ngModelOptions]="{standalone: true}"
+                    placeholder="Buscar cliente por nombre, documento o email..."
+                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 dark:text-white shadow-sm hover:shadow-md"
+                  >
+                </div>
+                <button 
+                  type="button" 
+                  (click)="toggleClientForm()"
+                  class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-200 font-medium hover-lift shadow-md"
+                >
+                  <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                  </svg>
+                  Nuevo Cliente
+                </button>
+              </div>
+
+              <!-- Lista de Clientes Filtrados -->
+              <div *ngIf="filteredClients().length > 0" class="max-h-60 overflow-y-auto border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700">
+                <div 
+                  *ngFor="let client of filteredClients()" 
+                  (click)="onClientSelect(client)"
+                  class="p-3 hover:bg-gray-50 dark:hover:bg-gray-600 cursor-pointer border-b border-gray-100 dark:border-gray-600 last:border-b-0 transition-colors"
+                >
+                  <div class="flex justify-between items-center">
+                    <div>
+                      <h4 class="font-medium text-gray-800 dark:text-white">{{ client.first_name }} {{ client.last_name }}</h4>
+                      <p class="text-sm text-gray-600 dark:text-gray-300">{{ client.doc_type }}: {{ client.doc_number }}</p>
+                      <p *ngIf="client.email" class="text-xs text-gray-500 dark:text-gray-400">{{ client.email }}</p>
+                    </div>
+                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Formulario de Nuevo Cliente -->
+              <div *ngIf="showClientForm()" class="mt-4 p-4 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 animate-slide-in-up">
+                <h4 class="font-semibold text-gray-800 dark:text-white mb-4">Crear Nuevo Cliente</h4>
+                <div [formGroup]="newClientForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nombres *</label>
+                    <input 
+                      type="text" 
+                      formControlName="first_name"
+                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-600 dark:text-white"
+                    >
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Apellidos *</label>
+                    <input 
+                      type="text" 
+                      formControlName="last_name"
+                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-600 dark:text-white"
+                    >
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tipo de Documento *</label>
+                    <select 
+                      formControlName="doc_type"
+                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-600 dark:text-white"
+                    >
+                      <option value="DNI">DNI</option>
+                      <option value="CE">CE</option>
+                      <option value="RUC">RUC</option>
+                      <option value="PAS">Pasaporte</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Número de Documento *</label>
+                    <input 
+                      type="text" 
+                      formControlName="doc_number"
+                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-600 dark:text-white"
+                    >
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+                    <input 
+                      type="email" 
+                      formControlName="email"
+                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-600 dark:text-white"
+                    >
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Teléfono Principal</label>
+                    <input 
+                      type="tel" 
+                      formControlName="primary_phone"
+                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-600 dark:text-white"
+                    >
+                  </div>
+                </div>
+                <div class="flex justify-end space-x-3 mt-4">
+                  <button 
+                    type="button" 
+                    (click)="toggleClientForm()"
+                    class="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white transition-colors"
+                  >
+                    Cancelar
+                  </button>
+                  <button 
+                    type="button" 
+                    (click)="createNewClient()"
+                    [disabled]="newClientForm.invalid"
+                    class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-200 font-medium"
+                  >
+                    Crear Cliente
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3: Información del Contrato -->
+          <div class="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/30 dark:to-pink-900/30 rounded-xl p-6 border border-purple-200 dark:border-purple-700/50 animate-slide-in-up">
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center">
+              <span class="bg-purple-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">3</span>
+              Información del Contrato
+            </h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <!-- Fecha de Firma -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Fecha de Firma *</label>
+                <input 
+                  type="date" 
+                  formControlName="sign_date"
+                  class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 dark:text-white shadow-sm hover:shadow-md"
+                >
+              </div>
+
+              <!-- Moneda -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Moneda *</label>
+                <select 
+                  formControlName="currency"
+                  class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 dark:text-white shadow-sm hover:shadow-md"
+                >
+                  <option value="S/.">Soles (S/.)</option>
+                  <option value="USD">Dólares (USD)</option>
+                </select>
+              </div>
+
+              <!-- Estado -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Estado *</label>
+                <select 
+                  formControlName="status"
+                  class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 dark:text-white shadow-sm hover:shadow-md"
+                >
+                  <option value="active">Activo</option>
+                  <option value="pending">Pendiente</option>
+                  <option value="cancelled">Cancelado</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Información Financiera -->
+            <div class="mt-6">
+              <h4 class="text-md font-semibold text-gray-800 dark:text-white mb-4">Información Financiera</h4>
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Precio Total -->
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Precio Total *</label>
+                    <input 
+                      type="number" 
+                      formControlName="total_price"
+                      step="0.01"
+                      class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 dark:text-white shadow-sm hover:shadow-md"
+                  >
+                </div>
+
+                <!-- Cuota Inicial -->
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Cuota Inicial *</label>
+                    <input 
+                      type="number" 
+                      formControlName="initial_payment"
+                      step="0.01"
+                      class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 dark:text-white shadow-sm hover:shadow-md"
+                  >
+                </div>
+
+                <!-- Monto Financiado (calculado automáticamente) -->
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Monto Financiado</label>
+                    <input 
+                      type="number" 
+                      formControlName="financed_amount"
+                      readonly
+                      class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-600 text-gray-600 dark:text-gray-300 cursor-not-allowed"
+                  >
+                </div>
+
+                <!-- Tasa de Interés -->
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tasa de Interés Anual (%) *</label>
+                    <input 
+                      type="number" 
+                      formControlName="interest_rate"
+                      step="0.01"
+                      min="0"
+                      class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 dark:text-white shadow-sm hover:shadow-md"
+                  >
+                </div>
+
+                <!-- Plazo en Meses (Automático basado en template) -->
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Plazo (Meses) *</label>
+                  <input 
+                    type="number" 
+                    formControlName="term_months"
+                    readonly
+                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-600 text-gray-600 dark:text-gray-300 cursor-not-allowed shadow-sm"
+                  >
+                  <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">El plazo se determina automáticamente según el template financiero del lote</p>
+                </div>
+
+                <!-- Cuota Mensual (calculada automáticamente) -->
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Cuota Mensual</label>
+                  <input 
+                    type="number" 
+                    formControlName="monthly_payment"
+                    readonly
+                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-600 text-gray-600 dark:text-gray-300 cursor-not-allowed"
+                  >
+                </div>
+              </div>
+            </div>
+
+            <!-- Resumen Financiero -->
+            <div *ngIf="totalPrice > 0" class="mt-6 p-4 bg-white dark:bg-gray-700 rounded-lg border border-purple-200 dark:border-purple-700/50">
+              <h4 class="font-semibold text-gray-800 dark:text-white mb-3">Resumen Financiero</h4>
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                <div class="text-center">
+                  <p class="text-gray-600 dark:text-gray-300">Precio Total</p>
+                  <p class="font-semibold text-lg text-gray-800 dark:text-white">{{ totalPrice | currency:'S/.':'symbol':'1.0-0' }}</p>
+                </div>
+                <div class="text-center">
+                  <p class="text-gray-600 dark:text-gray-300">Cuota Inicial</p>
+                  <p class="font-semibold text-lg text-green-600">{{ initialPayment | currency:'S/.':'symbol':'1.0-0' }}</p>
+                </div>
+                <div class="text-center">
+                  <p class="text-gray-600 dark:text-gray-300">Monto Financiado</p>
+                  <p class="font-semibold text-lg text-blue-600">{{ financedAmount | currency:'S/.':'symbol':'1.0-0' }}</p>
+                </div>
+                <div class="text-center">
+                  <p class="text-gray-600 dark:text-gray-300">Cuota Mensual</p>
+                  <p class="font-semibold text-lg text-purple-600">{{ monthlyPayment | currency:'S/.':'symbol':'1.0-0' }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="flex items-center justify-between p-6 border-t border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 rounded-b-2xl">
+        <div class="text-sm text-gray-600 dark:text-gray-300">
+          <span *ngIf="!isFormValid" class="text-red-600 dark:text-red-400">Complete todos los campos requeridos</span>
+          <span *ngIf="isFormValid" class="text-green-600 dark:text-green-400">✓ Formulario completo</span>
+        </div>
+        
+        <div class="flex space-x-3">
+          <button 
+            type="button" 
+            (click)="onClose()"
+            class="btn-secondary hover-lift"
+          >
+            Cancelar
+          </button>
+          <button 
+            type="submit" 
+            (click)="onSubmit()"
+            [disabled]="!isFormValid || creatingContract()"
+            class="btn-primary hover-lift animate-pulse-glow"
+            [class.animate-pulse-glow]="isFormValid && !creatingContract()"
+          >
+            <span *ngIf="!creatingContract()" class="flex items-center">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+              Crear Contrato
+            </span>
+            <span *ngIf="creatingContract()" class="flex items-center">
+              <div class="spinner rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+              Creando...
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

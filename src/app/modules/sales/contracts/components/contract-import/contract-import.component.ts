@@ -2,9 +2,10 @@ import { Component, EventEmitter, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { LucideAngularModule, Upload, Download, FileText, AlertCircle, CheckCircle, X, Loader, BarChart3 } from 'lucide-angular';
+import { LucideAngularModule, Upload, Download, FileText, AlertCircle, CheckCircle, X, Loader, BarChart3, Trash2, ChevronUp, ChevronDown, History, FileX, Clock } from 'lucide-angular';
 import { ContractImportService, ImportResponse, ImportLog } from '../../../services/contract-import.service';
 import { finalize } from 'rxjs/operators';
+import { ThemeService } from '../../../../../core/services/theme.service';
 
 @Component({
   selector: 'app-contract-import',
@@ -30,7 +31,14 @@ export class ContractImportComponent {
   checkIcon = CheckCircle;
   closeIcon = X;
   loaderIcon = Loader;
+  loadingIcon = Loader;
   progressIcon = BarChart3;
+  trashIcon = Trash2;
+  chevronUpIcon = ChevronUp;
+  chevronDownIcon = ChevronDown;
+  historyIcon = History;
+  fileXIcon = FileX;
+  clockIcon = Clock;
 
   // Utility
   Math = Math;
@@ -74,9 +82,14 @@ export class ContractImportComponent {
     estimatedTimeRemaining: 0
   };
 
-  constructor(private importService: ContractImportService) {
+  constructor(
+    private importService: ContractImportService,
+    public theme: ThemeService
+  ) {
     this.loadImportHistory();
   }
+
+
 
   onFileSelected(event: any) {
     const file = event.target.files[0];

@@ -8,6 +8,7 @@ import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-lot-detail',
+  standalone: true,
   imports: [CommonModule, TranslateModule],
   templateUrl: './lot-detail.component.html',
   styleUrl: './lot-detail.component.scss',

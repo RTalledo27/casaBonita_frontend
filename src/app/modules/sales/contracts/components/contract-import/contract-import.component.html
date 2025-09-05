@@ -1,13 +1,23 @@
-<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-  <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 modal-backdrop">
+  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto hover-lift dynamic-shadow animate-slide-in-up">
     <!-- Header -->
-    <div class="flex items-center justify-between p-6 border-b">
-      <h2 class="text-xl font-semibold text-gray-900">
-        {{ 'sales.contracts.import.title' | translate }}
-      </h2>
+    <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-600 bg-gradient-to-r from-blue-600 to-purple-700 dark:from-gray-800 dark:to-gray-900 rounded-t-xl">
+      <div class="flex items-center space-x-4 animate-slide-in-left">
+        <div class="bg-white/20 dark:bg-white/10 p-3 rounded-xl backdrop-blur-sm animate-bounce-in">
+          <lucide-angular [img]="uploadIcon" class="w-7 h-7 text-white"></lucide-angular>
+        </div>
+        <div>
+          <h2 class="text-2xl font-bold text-white drop-shadow-sm">
+            {{ 'sales.contracts.import.title' | translate }}
+          </h2>
+          <p class="text-blue-100 dark:text-gray-300 text-sm mt-1">
+            Gestiona y administra todos los contratos disponibles
+          </p>
+        </div>
+      </div>
       <button 
         (click)="closeModal()" 
-        class="text-gray-400 hover:text-gray-600 transition-colors"
+        class="text-white/80 hover:text-white dark:text-gray-300 dark:hover:text-white transition-all duration-200 hover:scale-110 p-3 rounded-xl hover:bg-white/10 dark:hover:bg-white/5 backdrop-blur-sm"
       >
         <lucide-angular [img]="closeIcon" class="w-6 h-6"></lucide-angular>
       </button>
@@ -16,146 +26,170 @@
     <!-- Content -->
     <div class="p-6">
       <!-- Template Download -->
-      <div class="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+      <div class="mb-6 p-6 bg-gradient-to-br from-emerald-500/10 via-green-500/10 to-teal-500/10 dark:from-emerald-900/30 dark:via-green-900/30 dark:to-teal-900/30 rounded-2xl border border-emerald-200/50 dark:border-emerald-700/50 shadow-xl hover:shadow-2xl transition-all duration-300 hover-lift animate-slide-in-up backdrop-blur-sm">
         <div class="flex items-center justify-between">
-          <div>
-            <h3 class="text-sm font-medium text-blue-900">
-              {{ 'sales.contracts.import.template.title' | translate }}
-            </h3>
-            <p class="text-sm text-blue-700 mt-1">
-              {{ 'sales.contracts.import.template.description' | translate }}
-            </p>
+          <div class="flex items-center space-x-5">
+            <div class="bg-gradient-to-br from-emerald-400 to-green-500 dark:from-emerald-600 dark:to-green-700 p-4 rounded-2xl shadow-lg animate-bounce-in">
+              <lucide-angular [img]="downloadIcon" class="w-8 h-8 text-white drop-shadow-sm"></lucide-angular>
+            </div>
+            <div>
+              <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-1">
+                {{ 'sales.contracts.import.template.title' | translate }}
+              </h3>
+              <p class="text-sm text-gray-600 dark:text-gray-300">
+                {{ 'sales.contracts.import.template.description' | translate }}
+              </p>
+            </div>
           </div>
           <button 
             (click)="downloadTemplate()"
-            class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            class="bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 dark:from-emerald-600 dark:to-green-700 dark:hover:from-emerald-700 dark:hover:to-green-800 text-white px-8 py-4 rounded-2xl font-semibold transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl animate-pulse-glow flex items-center space-x-3 backdrop-blur-sm"
           >
-            <lucide-angular [img]="downloadIcon" class="w-4 h-4"></lucide-angular>
-            {{ 'sales.contracts.import.template.download' | translate }}
+            <lucide-angular [img]="downloadIcon" class="w-6 h-6"></lucide-angular>
+            <span>{{ 'sales.contracts.import.template.download' | translate }}</span>
           </button>
         </div>
       </div>
 
       <!-- File Upload Area -->
-      <div class="mb-6">
-        <label class="block text-sm font-medium text-gray-700 mb-2">
+      <div class="mb-8">
+        <label class="block text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">
           {{ 'sales.contracts.import.selectFile' | translate }}
         </label>
         
         <div 
-          class="border-2 border-dashed rounded-lg p-8 text-center transition-colors"
+          class="border-2 border-dashed rounded-3xl p-10 text-center transition-all duration-300 hover-lift animate-fade-in border-gray-300/60 dark:border-gray-600/60 bg-gradient-to-br from-blue-50/50 via-indigo-50/30 to-purple-50/50 dark:from-gray-800/50 dark:via-gray-700/30 dark:to-gray-800/50 shadow-xl hover:shadow-2xl backdrop-blur-sm"
           [class.border-blue-400]="dragOver"
-          [class.bg-blue-50]="dragOver"
-          [class.border-gray-300]="!dragOver"
+          [class.bg-gradient-to-br]="dragOver"
+          [class.from-blue-50]="dragOver"
+          [class.to-indigo-50]="dragOver"
+          [class.shadow-lg]="dragOver"
+          [ngClass]="{ 'dark:bg-blue-900/20': dragOver }"
           (dragover)="onDragOver($event)"
           (dragleave)="onDragLeave($event)"
-          (drop)="onDrop($event)"
-        >
-          <div class="flex flex-col items-center">
-            <lucide-angular [img]="uploadIcon" class="w-12 h-12 text-gray-400 mb-4"></lucide-angular>
+          (drop)="onDrop($event)">
+          <div class="flex flex-col items-center animate-bounce-in space-y-6">
+            <div class="bg-gradient-to-br from-blue-400 to-indigo-500 dark:from-blue-600 dark:to-indigo-700 p-6 rounded-full shadow-lg animate-pulse-glow">
+              <lucide-angular [img]="uploadIcon" class="w-16 h-16 text-white drop-shadow-sm"></lucide-angular>
+            </div>
             
-            <div class="mb-4">
-              <p class="text-sm text-gray-600">
+            <div class="space-y-4">
+              <h3 class="text-2xl font-bold text-gray-800 dark:text-white">
                 {{ 'sales.contracts.import.dragDrop' | translate }}
-              </p>
-              <p class="text-xs text-gray-500 mt-1">
+              </h3>
+              <p class="text-lg text-gray-600 dark:text-gray-300 max-w-md mx-auto">
                 {{ 'sales.contracts.import.supportedFormats' | translate }}
               </p>
             </div>
             
-            <input 
-              type="file" 
-              id="fileInput" 
-              class="hidden" 
-              accept=".xlsx,.xls,.csv"
-              (change)="onFileSelected($event)"
-            >
-            <label 
-              for="fileInput" 
-              class="cursor-pointer px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
-            >
-              {{ 'sales.contracts.import.selectFile' | translate }}
-            </label>
+            <div class="pt-2">
+              <input type="file" id="fileInput" class="hidden" accept=".xlsx,.xls,.csv" (change)="onFileSelected($event)">
+              <label for="fileInput" class="cursor-pointer px-10 py-4 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 dark:from-blue-600 dark:to-indigo-700 dark:hover:from-blue-700 dark:hover:to-indigo-800 text-white rounded-2xl font-semibold text-lg transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl animate-pulse-glow flex items-center gap-3 backdrop-blur-sm">
+                <lucide-angular [img]="uploadIcon" class="w-6 h-6"></lucide-angular>
+                {{ 'sales.contracts.import.selectFile' | translate }}
+              </label>
+            </div>
           </div>
         </div>
       </div>
 
       <!-- Selected File Info -->
-      <div *ngIf="selectedFile" class="mb-6 p-4 bg-gray-50 rounded-lg">
-        <div class="flex items-center gap-3">
-          <lucide-angular [img]="fileIcon" class="w-5 h-5 text-gray-500"></lucide-angular>
-          <div class="flex-1">
-            <p class="text-sm font-medium text-gray-900">{{ selectedFile.name }}</p>
-            <p class="text-xs text-gray-500">{{ getFileSize(selectedFile.size) }}</p>
+      <div *ngIf="selectedFile" class="mb-8 p-6 bg-gradient-to-br from-blue-500/10 via-indigo-500/10 to-purple-500/10 dark:from-blue-900/30 dark:via-indigo-900/30 dark:to-purple-900/30 rounded-2xl border border-blue-200/50 dark:border-blue-700/50 shadow-xl hover:shadow-2xl transition-all duration-300 animate-slide-in-left backdrop-blur-sm">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-5">
+            <div class="bg-gradient-to-br from-blue-400 to-indigo-500 dark:from-blue-600 dark:to-indigo-700 p-4 rounded-2xl shadow-lg animate-bounce-in">
+              <lucide-angular [img]="fileIcon" class="w-10 h-10 text-white drop-shadow-sm"></lucide-angular>
+            </div>
+            <div>
+              <h4 class="text-xl font-bold text-gray-800 dark:text-white mb-1">{{ selectedFile.name }}</h4>
+              <p class="text-sm text-gray-600 dark:text-gray-300 font-medium">{{ getFileSize(selectedFile.size) }}</p>
+            </div>
           </div>
           <button 
             (click)="resetForm()"
-            class="text-gray-400 hover:text-gray-600"
+            class="text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 transition-all duration-300 hover:scale-110 p-3 rounded-2xl hover:bg-red-50 dark:hover:bg-red-900/20 shadow-md hover:shadow-lg backdrop-blur-sm"
           >
-            <lucide-angular [img]="closeIcon" class="w-4 h-4"></lucide-angular>
+            <lucide-angular [img]="closeIcon" class="w-6 h-6"></lucide-angular>
           </button>
         </div>
       </div>
 
       <!-- Validation Progress -->
-      <div *ngIf="isValidating" class="mb-6 p-6 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg border border-yellow-200 shadow-sm">
-        <div class="flex items-center gap-3 mb-4">
-          <lucide-angular [img]="progressIcon" class="w-6 h-6 text-yellow-600"></lucide-angular>
+      <div *ngIf="isValidating" class="mb-8 p-8 bg-gradient-to-br from-amber-500/10 via-yellow-500/10 to-orange-500/10 dark:from-amber-900/30 dark:via-yellow-900/30 dark:to-orange-900/30 rounded-3xl border border-amber-200/50 dark:border-amber-700/50 shadow-xl hover:shadow-2xl transition-all duration-300 animate-slide-in-up backdrop-blur-sm">
+        <div class="flex items-center space-x-6 mb-6">
+          <div class="bg-gradient-to-br from-amber-400 to-orange-500 dark:from-amber-600 dark:to-orange-700 p-4 rounded-2xl shadow-lg animate-bounce-in">
+            <lucide-angular [img]="progressIcon" class="w-10 h-10 text-white drop-shadow-sm animate-spin"></lucide-angular>
+          </div>
           <div class="flex-1">
-            <h3 class="text-sm font-semibold text-yellow-900">Validando archivo</h3>
-            <p class="text-xs text-yellow-700">{{ validationProgress.currentStep }}</p>
+            <h3 class="text-2xl font-bold text-gray-800 dark:text-white mb-1">Validando archivo</h3>
+            <p class="text-gray-600 dark:text-gray-300">{{ validationProgress.currentStep }}</p>
           </div>
           <div class="text-right">
-            <span class="text-lg font-bold text-yellow-800">{{ validationProgress.percentage }}%</span>
+            <span class="text-3xl font-bold text-amber-700 dark:text-amber-300">{{ validationProgress.percentage }}%</span>
           </div>
         </div>
         
         <!-- Progress Bar -->
-        <div class="w-full bg-yellow-200 rounded-full h-3 mb-3 overflow-hidden">
+        <div class="w-full bg-gray-200/80 dark:bg-gray-700/80 rounded-full h-4 shadow-inner backdrop-blur-sm mb-4">
           <div 
-            class="bg-gradient-to-r from-yellow-500 to-orange-500 h-3 rounded-full transition-all duration-500 ease-out"
+            class="bg-gradient-to-r from-amber-500 via-yellow-500 to-orange-500 h-4 rounded-full transition-all duration-500 shadow-lg animate-pulse-glow relative overflow-hidden"
             [style.width.%]="validationProgress.percentage"
-          ></div>
+          >
+            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer"></div>
+          </div>
         </div>
         
         <!-- Steps Indicator -->
-        <div class="flex justify-between text-xs text-yellow-700">
+        <div class="flex justify-between text-xs text-amber-700 dark:text-amber-300">
           <span *ngFor="let step of validationProgress.steps; let i = index" 
-                class="flex-1 text-center"
+                class="flex-1 text-center p-2 bg-white/50 dark:bg-gray-800/50 rounded-lg backdrop-blur-sm"
                 [class.font-semibold]="i === validationProgress.currentStepIndex - 1"
-                [class.text-yellow-900]="i < validationProgress.currentStepIndex">
+                [class.text-amber-900]="i < validationProgress.currentStepIndex"
+                [class.dark:text-amber-100]="i < validationProgress.currentStepIndex">
             Paso {{ i + 1 }}
           </span>
         </div>
       </div>
 
       <!-- Validation Result -->
-      <div *ngIf="validationResult && !isValidating" class="mb-6">
+      <div *ngIf="validationResult && !isValidating" class="mb-8">
         <div 
-          class="p-4 rounded-lg border"
-          [class.bg-green-50]="validationResult.success"
-          [class.border-green-200]="validationResult.success"
-          [class.bg-red-50]="!validationResult.success"
-          [class.border-red-200]="!validationResult.success"
+          class="p-6 rounded-2xl border shadow-xl hover:shadow-2xl transition-all duration-300 animate-slide-in-up backdrop-blur-sm"
+          [ngClass]="{
+            'bg-gradient-to-br from-emerald-500/10 via-green-500/10 to-teal-500/10 dark:from-emerald-900/30 dark:via-green-900/30 dark:to-teal-900/30 border-emerald-200/50 dark:border-emerald-700/50': validationResult.success,
+            'bg-gradient-to-br from-red-500/10 via-rose-500/10 to-pink-500/10 dark:from-red-900/30 dark:via-rose-900/30 dark:to-pink-900/30 border-red-200/50 dark:border-red-700/50': !validationResult.success
+          }"
         >
-          <div class="flex items-start gap-3">
-            <lucide-angular 
-              [img]="validationResult.success ? checkIcon : alertIcon" 
-              class="w-5 h-5 mt-0.5"
-              [class.text-green-600]="validationResult.success"
-              [class.text-red-600]="!validationResult.success"
-            ></lucide-angular>
+          <div class="flex items-start space-x-5">
+            <div class="p-3 rounded-2xl shadow-lg animate-bounce-in"
+                 [ngClass]="{
+                   'bg-gradient-to-br from-emerald-400 to-green-500 dark:from-emerald-600 dark:to-green-700': validationResult.success,
+                   'bg-gradient-to-br from-red-400 to-rose-500 dark:from-red-600 dark:to-rose-700': !validationResult.success
+                 }">
+              <lucide-angular 
+                [img]="validationResult.success ? checkIcon : alertIcon" 
+                class="w-8 h-8 text-white drop-shadow-sm"
+              ></lucide-angular>
+            </div>
             <div class="flex-1">
               <p 
-                class="text-sm font-medium"
-                [class.text-green-800]="validationResult.success"
-                [class.text-red-800]="!validationResult.success"
+                class="text-lg font-bold mb-2"
+                [ngClass]="{
+                  'text-emerald-800 dark:text-emerald-200': validationResult.success,
+                  'text-red-800 dark:text-red-200': !validationResult.success
+                }"
               >
                 {{ validationResult.message }}
               </p>
-              <div *ngIf="validationResult.data?.errors?.length" class="mt-2">
-                <ul class="text-xs text-red-700 space-y-1">
-                  <li *ngFor="let error of validationResult.data?.errors">• {{ error }}</li>
+              <div *ngIf="validationResult.data?.errors?.length" class="mt-3">
+                <ul class="text-sm space-y-2"
+                    [ngClass]="{
+                      'text-red-700 dark:text-red-300': !validationResult.success
+                    }">
+                  <li *ngFor="let error of validationResult.data?.errors" class="flex items-start space-x-2">
+                    <span class="text-red-500 mt-1">•</span>
+                    <span>{{ error }}</span>
+                  </li>
                 </ul>
               </div>
             </div>
@@ -164,47 +198,56 @@
       </div>
 
       <!-- Import Actions -->
-      <div *ngIf="validationResult?.success && !isUploading" class="mb-6">
-        <div class="flex gap-3">
-          <button 
-            (click)="importFile(false)"
-            class="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-          >
-            <lucide-angular [img]="uploadIcon" class="w-4 h-4"></lucide-angular>
-            {{ 'sales.contracts.import.importSync' | translate }}
-          </button>
-          <button 
-            (click)="importFile(true)"
-            class="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            <lucide-angular [img]="uploadIcon" class="w-4 h-4"></lucide-angular>
-            {{ 'sales.contracts.import.importAsync' | translate }}
-          </button>
+      <div *ngIf="validationResult?.success && !isUploading" class="mb-8">
+        <div class="p-6 bg-gradient-to-br from-slate-50/50 via-gray-50/30 to-slate-50/50 dark:from-gray-800/50 dark:via-gray-700/30 dark:to-gray-800/50 rounded-2xl border border-gray-200/50 dark:border-gray-600/50 shadow-xl backdrop-blur-sm">
+          <h3 class="text-lg font-bold text-gray-800 dark:text-white mb-4 text-center">
+            Opciones de Importación
+          </h3>
+          <div class="flex gap-4">
+            <button 
+              (click)="importFile(false)"
+              class="flex-1 flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 dark:from-emerald-600 dark:to-green-700 dark:hover:from-emerald-700 dark:hover:to-green-800 text-white rounded-2xl font-semibold transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl animate-pulse-glow backdrop-blur-sm"
+            >
+              <lucide-angular [img]="uploadIcon" class="w-6 h-6"></lucide-angular>
+              <span>{{ 'sales.contracts.import.importSync' | translate }}</span>
+            </button>
+            <button 
+              (click)="importFile(true)"
+              class="flex-1 flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 dark:from-blue-600 dark:to-indigo-700 dark:hover:from-blue-700 dark:hover:to-indigo-800 text-white rounded-2xl font-semibold transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl animate-pulse-glow backdrop-blur-sm"
+            >
+              <lucide-angular [img]="uploadIcon" class="w-6 h-6"></lucide-angular>
+              <span>{{ 'sales.contracts.import.importAsync' | translate }}</span>
+            </button>
+          </div>
+          <p class="text-sm text-gray-600 dark:text-gray-300 mt-4 text-center bg-white/50 dark:bg-gray-800/50 p-3 rounded-xl backdrop-blur-sm">
+            {{ 'sales.contracts.import.importHelp' | translate }}
+          </p>
         </div>
-        <p class="text-xs text-gray-500 mt-2 text-center">
-          {{ 'sales.contracts.import.importHelp' | translate }}
-        </p>
       </div>
 
       <!-- Import Progress -->
-      <div *ngIf="isUploading" class="mb-6 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200 shadow-sm">
-        <div class="flex items-center gap-3 mb-4">
-          <lucide-angular [img]="progressIcon" class="w-6 h-6 text-blue-600"></lucide-angular>
+      <div *ngIf="isUploading" class="mb-8 p-8 bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-pink-500/10 dark:from-indigo-900/30 dark:via-purple-900/30 dark:to-pink-900/30 rounded-3xl border border-indigo-200/50 dark:border-indigo-700/50 shadow-xl hover:shadow-2xl transition-all duration-300 animate-slide-in-up backdrop-blur-sm">
+        <div class="flex items-center space-x-6 mb-6">
+          <div class="bg-gradient-to-br from-indigo-400 to-purple-500 dark:from-indigo-600 dark:to-purple-700 p-4 rounded-2xl shadow-lg animate-bounce-in">
+            <lucide-angular [img]="progressIcon" class="w-10 h-10 text-white drop-shadow-sm animate-spin"></lucide-angular>
+          </div>
           <div class="flex-1">
-            <h3 class="text-sm font-semibold text-blue-900">Importando contratos</h3>
-            <p class="text-xs text-blue-700">{{ importProgress.currentStep }}</p>
+            <h3 class="text-2xl font-bold text-gray-800 dark:text-white mb-1">Importando contratos</h3>
+            <p class="text-gray-600 dark:text-gray-300">{{ importProgress.currentStep }}</p>
           </div>
           <div class="text-right">
-            <span class="text-lg font-bold text-blue-800">{{ importProgress.percentage }}%</span>
+            <span class="text-3xl font-bold text-indigo-700 dark:text-indigo-300">{{ importProgress.percentage }}%</span>
           </div>
         </div>
         
         <!-- Progress Bar -->
-        <div class="w-full bg-blue-200 rounded-full h-3 mb-4 overflow-hidden">
+        <div class="w-full bg-gray-200/80 dark:bg-gray-700/80 rounded-full h-4 shadow-inner backdrop-blur-sm mb-4">
           <div 
-            class="bg-gradient-to-r from-blue-500 to-indigo-500 h-3 rounded-full transition-all duration-500 ease-out"
+            class="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 h-4 rounded-full transition-all duration-500 shadow-lg animate-pulse-glow relative overflow-hidden"
             [style.width.%]="importProgress.percentage"
-          ></div>
+          >
+            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer"></div>
+          </div>
         </div>
         
         <!-- Progress Details -->
@@ -239,40 +282,57 @@
       </div>
 
       <!-- Import Result -->
-      <div *ngIf="importResult && !isUploading" class="mb-6">
+      <div *ngIf="importResult && !isUploading" class="mb-8">
         <div 
-          class="p-4 rounded-lg border"
-          [class.bg-green-50]="importResult.success"
-          [class.border-green-200]="importResult.success"
-          [class.bg-red-50]="!importResult.success"
-          [class.border-red-200]="!importResult.success"
+          class="p-6 rounded-2xl border shadow-xl hover:shadow-2xl transition-all duration-300 animate-slide-in-up backdrop-blur-sm"
+          [ngClass]="{
+            'bg-gradient-to-br from-emerald-500/10 via-green-500/10 to-teal-500/10 dark:from-emerald-900/30 dark:via-green-900/30 dark:to-teal-900/30 border-emerald-200/50 dark:border-emerald-700/50': importResult.success,
+            'bg-gradient-to-br from-red-500/10 via-rose-500/10 to-pink-500/10 dark:from-red-900/30 dark:via-rose-900/30 dark:to-pink-900/30 border-red-200/50 dark:border-red-700/50': !importResult.success
+          }"
         >
-          <div class="flex items-start gap-3">
-            <lucide-angular 
-              [img]="importResult.success ? checkIcon : alertIcon" 
-              class="w-5 h-5 mt-0.5"
-              [class.text-green-600]="importResult.success"
-              [class.text-red-600]="!importResult.success"
-            ></lucide-angular>
+          <div class="flex items-start space-x-5">
+            <div class="p-3 rounded-2xl shadow-lg animate-bounce-in"
+                 [ngClass]="{
+                   'bg-gradient-to-br from-emerald-400 to-green-500 dark:from-emerald-600 dark:to-green-700': importResult.success,
+                   'bg-gradient-to-br from-red-400 to-rose-500 dark:from-red-600 dark:to-rose-700': !importResult.success
+                 }">
+              <lucide-angular 
+                [img]="importResult.success ? checkIcon : alertIcon" 
+                class="w-8 h-8 text-white drop-shadow-sm"
+              ></lucide-angular>
+            </div>
             <div class="flex-1">
               <p 
-                class="text-sm font-medium"
-                [class.text-green-800]="importResult.success"
-                [class.text-red-800]="!importResult.success"
+                class="text-lg font-bold mb-2"
+                [ngClass]="{
+                  'text-emerald-800 dark:text-emerald-200': importResult.success,
+                  'text-red-800 dark:text-red-200': !importResult.success
+                }"
               >
                 {{ importResult.message }}
               </p>
-              <div *ngIf="importResult.data" class="mt-2 text-xs">
-                <p 
-                  [class.text-green-700]="importResult.success"
-                  [class.text-red-700]="!importResult.success"
-                >
-                  {{ 'sales.contracts.import.processed' | translate }}: {{ importResult.data.processed }}
-                </p>
-                <div *ngIf="importResult.data.errors?.length" class="mt-1">
-                  <ul class="text-red-700 space-y-1">
-                    <li *ngFor="let error of importResult.data?.errors">• {{ error }}</li>
-                  </ul>
+              <div *ngIf="importResult.data" class="mt-3">
+                <div class="p-3 bg-white/50 dark:bg-gray-800/50 rounded-xl backdrop-blur-sm">
+                  <p 
+                    class="text-sm font-medium"
+                    [ngClass]="{
+                      'text-emerald-700 dark:text-emerald-300': importResult.success,
+                      'text-red-700 dark:text-red-300': !importResult.success
+                    }"
+                  >
+                    {{ 'sales.contracts.import.processed' | translate }}: {{ importResult.data.processed }}
+                  </p>
+                  <div *ngIf="importResult.data.errors?.length" class="mt-3">
+                    <ul class="text-sm space-y-2"
+                        [ngClass]="{
+                          'text-red-700 dark:text-red-300': !importResult.success
+                        }">
+                      <li *ngFor="let error of importResult.data?.errors" class="flex items-start space-x-2">
+                        <span class="text-red-500 mt-1">•</span>
+                        <span>{{ error }}</span>
+                      </li>
+                    </ul>
+                  </div>
                 </div>
               </div>
             </div>
@@ -281,50 +341,83 @@
       </div>
 
       <!-- Import History Toggle -->
-      <div class="border-t pt-4">
+      <div class="border-t border-gray-200/50 dark:border-gray-600/50 pt-6">
         <button 
           (click)="toggleHistory()"
-          class="text-sm text-gray-600 hover:text-gray-800 transition-colors"
+          class="w-full flex items-center justify-center space-x-3 p-4 bg-gradient-to-r from-slate-50/50 via-gray-50/30 to-slate-50/50 dark:from-gray-800/50 dark:via-gray-700/30 dark:to-gray-800/50 rounded-2xl border border-gray-200/50 dark:border-gray-600/50 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 backdrop-blur-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium"
         >
-          {{ showHistory ? 'sales.contracts.import.hideHistory' : 'sales.contracts.import.showHistory' | translate }}
+          <lucide-angular [img]="showHistory ? chevronUpIcon : chevronDownIcon" class="w-5 h-5"></lucide-angular>
+          <span>{{ showHistory ? 'sales.contracts.import.hideHistory' : 'sales.contracts.import.showHistory' | translate }}</span>
         </button>
       </div>
 
       <!-- Import History -->
-      <div *ngIf="showHistory" class="mt-4">
-        <div class="bg-gray-50 rounded-lg p-4">
-          <h4 class="text-sm font-medium text-gray-900 mb-3">
-            {{ 'sales.contracts.import.history' | translate }}
-          </h4>
-          <div *ngIf="importHistory.length === 0" class="text-sm text-gray-500 text-center py-4">
-            {{ 'sales.contracts.import.noHistory' | translate }}
+      <div *ngIf="showHistory" class="mt-6 animate-slide-in-up">
+        <div class="p-6 bg-gradient-to-br from-slate-50/50 via-gray-50/30 to-slate-50/50 dark:from-gray-800/50 dark:via-gray-700/30 dark:to-gray-800/50 rounded-2xl border border-gray-200/50 dark:border-gray-600/50 shadow-xl backdrop-blur-sm">
+          <div class="flex items-center space-x-3 mb-6">
+            <div class="bg-gradient-to-br from-slate-400 to-gray-500 dark:from-slate-600 dark:to-gray-700 p-3 rounded-2xl shadow-lg">
+              <lucide-angular [img]="historyIcon" class="w-6 h-6 text-white drop-shadow-sm"></lucide-angular>
+            </div>
+            <h4 class="text-lg font-bold text-gray-800 dark:text-white">
+              {{ 'sales.contracts.import.history' | translate }}
+            </h4>
           </div>
-          <div *ngIf="importHistory.length > 0" class="space-y-2">
+          
+          <div *ngIf="importHistory.length === 0" class="text-center py-8">
+            <div class="bg-white/50 dark:bg-gray-800/50 rounded-2xl p-6 backdrop-blur-sm">
+              <lucide-angular [img]="fileXIcon" class="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-3"></lucide-angular>
+              <p class="text-gray-500 dark:text-gray-400 font-medium">
+                {{ 'sales.contracts.import.noHistory' | translate }}
+              </p>
+            </div>
+          </div>
+          
+          <div *ngIf="importHistory.length > 0" class="space-y-4">
             <div 
               *ngFor="let log of importHistory" 
-              class="bg-white rounded p-3 border text-xs"
+              class="bg-white/70 dark:bg-gray-800/70 rounded-2xl p-5 border border-gray-200/50 dark:border-gray-600/50 shadow-lg hover:shadow-xl transition-all duration-300 hover-lift backdrop-blur-sm"
             >
-              <div class="flex items-center justify-between mb-1">
-                <span class="font-medium">{{ log.filename }}</span>
+              <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center space-x-3">
+                  <lucide-angular [img]="fileIcon" class="w-5 h-5 text-gray-600 dark:text-gray-400"></lucide-angular>
+                  <span class="font-semibold text-gray-800 dark:text-white">{{ log.filename }}</span>
+                </div>
                 <span 
-                  class="px-2 py-1 rounded text-xs"
-                  [class.bg-green-100]="log.status === 'completed'"
-                  [class.text-green-800]="log.status === 'completed'"
-                  [class.bg-yellow-100]="log.status === 'processing'"
-                  [class.text-yellow-800]="log.status === 'processing'"
-                  [class.bg-red-100]="log.status === 'failed'"
-                  [class.text-red-800]="log.status === 'failed'"
+                  class="px-3 py-1 rounded-full text-sm font-medium shadow-sm"
+                  [ngClass]="{
+                    'bg-gradient-to-r from-emerald-100 to-green-100 text-emerald-800 border border-emerald-200': log.status === 'completed',
+                    'bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-800 border border-amber-200': log.status === 'processing',
+                    'bg-gradient-to-r from-red-100 to-rose-100 text-red-800 border border-red-200': log.status === 'failed'
+                  }"
                 >
                   {{ log.status }}
                 </span>
               </div>
-              <div class="text-gray-600">
-                <span>{{ 'sales.contracts.import.totalRows' | translate }}: {{ log.total_rows }}</span> |
-                <span>{{ 'sales.contracts.import.processedRows' | translate }}: {{ log.processed_rows }}</span> |
-                <span>{{ 'sales.contracts.import.errorRows' | translate }}: {{ log.error_rows }}</span>
+              
+              <div class="grid grid-cols-3 gap-4 mb-3">
+                <div class="text-center p-3 bg-white/50 dark:bg-gray-700/50 rounded-xl backdrop-blur-sm">
+                  <div class="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                    {{ 'sales.contracts.import.totalRows' | translate }}
+                  </div>
+                  <div class="text-lg font-bold text-gray-800 dark:text-white">{{ log.total_rows }}</div>
+                </div>
+                <div class="text-center p-3 bg-white/50 dark:bg-gray-700/50 rounded-xl backdrop-blur-sm">
+                  <div class="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                    {{ 'sales.contracts.import.processedRows' | translate }}
+                  </div>
+                  <div class="text-lg font-bold text-emerald-600 dark:text-emerald-400">{{ log.processed_rows }}</div>
+                </div>
+                <div class="text-center p-3 bg-white/50 dark:bg-gray-700/50 rounded-xl backdrop-blur-sm">
+                  <div class="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                    {{ 'sales.contracts.import.errorRows' | translate }}
+                  </div>
+                  <div class="text-lg font-bold text-red-600 dark:text-red-400">{{ log.error_rows }}</div>
+                </div>
               </div>
-              <div class="text-gray-500 mt-1">
-                {{ log.created_at | date:'short' }}
+              
+              <div class="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
+                <lucide-angular [img]="clockIcon" class="w-4 h-4"></lucide-angular>
+                <span>{{ log.created_at | date:'short' }}</span>
               </div>
             </div>
           </div>
@@ -333,12 +426,13 @@
     </div>
 
     <!-- Footer -->
-    <div class="flex justify-end gap-3 p-6 border-t bg-gray-50">
+    <div class="flex justify-end gap-4 p-6 border-t border-gray-200/50 dark:border-gray-600/50 bg-gradient-to-r from-gray-50/50 via-slate-50/30 to-gray-50/50 dark:from-gray-800/50 dark:via-gray-700/30 dark:to-gray-800/50 backdrop-blur-sm rounded-b-xl">
       <button 
         (click)="closeModal()"
-        class="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+        class="px-6 py-3 text-gray-700 dark:text-gray-300 bg-white/70 dark:bg-gray-800/70 border border-gray-300/50 dark:border-gray-600/50 rounded-2xl hover:bg-gray-50 dark:hover:bg-gray-700/80 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl font-medium backdrop-blur-sm flex items-center space-x-2"
       >
-        {{ 'common.close' | translate }}
+        <lucide-angular [img]="closeIcon" class="w-5 h-5"></lucide-angular>
+        <span>{{ 'common.close' | translate }}</span>
       </button>
     </div>
   </div>

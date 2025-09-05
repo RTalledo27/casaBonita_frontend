@@ -1,10 +1,12 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { LucideAngularModule, Upload, Download, FileText, AlertCircle, CheckCircle, X, Loader, BarChart3, DollarSign } from 'lucide-angular';
+import { LucideAngularModule, Upload, Download, FileText, AlertCircle, CheckCircle, X, Loader, BarChart3, DollarSign, ChevronUp, ChevronDown, XCircle, Clock, Zap, Trash2, History, FileX, AlertTriangle, Info } from 'lucide-angular';
 import { LotImportService, LotImportResponse, LotImportLog } from '../../services/lot-import.service';
 import { finalize } from 'rxjs/operators';
+import { ThemeService } from '../../../../core/services/theme.service';
 
 @Component({
   selector: 'app-lot-import',
@@ -29,12 +31,23 @@ export class LotImportComponent {
   uploadIcon = Upload;
   downloadIcon = Download;
   fileIcon = FileText;
-  alertIcon = AlertCircle;
+  alertIcon = AlertTriangle;
   checkIcon = CheckCircle;
   closeIcon = X;
   loaderIcon = Loader;
-  progressIcon = BarChart3;
+  loadingIcon = Loader;
+  progressIcon = Clock;
   dollarIcon = DollarSign;
+  chevronUpIcon = ChevronUp;
+  chevronDownIcon = ChevronDown;
+  xCircleIcon = XCircle;
+  clockIcon = Clock;
+  zapIcon = Zap;
+  trashIcon = Trash2;
+  historyIcon = History;
+  fileXIcon = FileX;
+  checkCircleIcon = CheckCircle;
+  infoIcon = Info;
 
   // Utility
   Math = Math;
@@ -48,6 +61,7 @@ export class LotImportComponent {
   importHistory: LotImportLog[] = [];
   showHistory = false;
   dragOver = false;
+  isImporting = false;
 
   // Progress tracking
   validationProgress = {
@@ -59,6 +73,19 @@ export class LotImportComponent {
       'Analizando reglas de financiamiento por manzana...',
       'Verificando integridad de datos de lotes...',
       'Validando precios y opciones de financiamiento...'
+    ],
+    currentStepIndex: 0
+  };
+
+  // Legacy progress (mantener compatibilidad)
+  progress = {
+    percentage: 0,
+    currentStep: '',
+    steps: [
+      'Verificando formato del archivo...',
+      'Validando estructura de columnas...',
+      'Analizando datos...',
+      'Verificando integridad...'
     ],
     currentStepIndex: 0
   };
@@ -80,7 +107,11 @@ export class LotImportComponent {
     estimatedTimeRemaining: 0
   };
 
-  constructor(private importService: LotImportService) {
+  constructor(
+    private importService: LotImportService,
+    private router: Router,
+    public theme: ThemeService
+  ) {
     this.loadImportHistory();
   }
 
@@ -138,7 +169,7 @@ export class LotImportComponent {
           console.error('Error validating file:', error);
           this.validationResult = {
             success: false,
-            message: 'Error al validar el archivo de lotes'
+            message: 'Error al validar el archivo'
           };
         }
       });
@@ -205,10 +236,14 @@ export class LotImportComponent {
   loadImportHistory() {
     this.importService.getImportHistory().subscribe({
       next: (response) => {
-        this.importHistory = response.data;
+        // Filtrar datos válidos y manejar propiedades null
+        this.importHistory = (response.data || []).filter(log => 
+          log && log.import_id && log.filename
+        );
       },
       error: (error) => {
-        console.error('Error loading import history:', error);
+        console.error('Error al obtener el historial:', error);
+        this.importHistory = []; // Inicializar como array vacío en caso de error
       }
     });
   }
@@ -219,6 +254,7 @@ export class LotImportComponent {
 
   closeModal() {
     this.modalClosed.emit();
+    this.router.navigate(['/inventory/lots']);
   }
 
   resetForm() {
@@ -335,6 +371,27 @@ export class LotImportComponent {
     return `${minutes}m ${remainingSeconds}s`;
   }
 
+  // Legacy methods for compatibility
+  resetProgress() {
+    this.progress.percentage = 0;
+    this.progress.currentStep = '';
+    this.progress.currentStepIndex = 0;
+  }
+
+  simulateProgress() {
+    let stepIndex = 0;
+    const interval = setInterval(() => {
+      if (stepIndex < this.progress.steps.length) {
+        this.progress.currentStep = this.progress.steps[stepIndex];
+        this.progress.currentStepIndex = stepIndex;
+        this.progress.percentage = Math.min(90, (stepIndex + 1) * 20);
+        stepIndex++;
+      } else {
+        clearInterval(interval);
+      }
+    }, 800);
+  }
+
   // Helper methods for displaying import results
   getFinancingRulesCount(): number {
     return this.importResult?.data?.financing_rules ? Object.keys(this.importResult.data.financing_rules).length : 0;
@@ -350,5 +407,52 @@ export class LotImportComponent {
 
   hasColumnMapping(): boolean {
     return this.getColumnMappingCount() > 0;
+  }
+
+  getColumnMappingText(): string {
+    const count = this.getColumnMappingCount();
+    return count > 0 ? `${count} columnas mapeadas` : 'Sin mapeo disponible';
+  }
+
+  importLots(async: boolean = false) {
+    if (!this.selectedFile || !this.validationResult?.success) return;
+
+    this.isImporting = true;
+    this.importResult = null;
+    this.resetImportProgress();
+
+    // Estimate total rows based on file size (rough estimation)
+    this.importProgress.totalRows = Math.floor(this.selectedFile.size / 100); // Rough estimate
+
+    // Simulate step-by-step import progress
+    this.simulateImportProgress();
+
+    const importMethod = async ? 
+      this.importService.importLotsAsync(this.selectedFile) : 
+      this.importService.importLots(this.selectedFile);
+
+    importMethod
+      .pipe(finalize(() => {
+        this.isImporting = false;
+        this.importProgress.percentage = 100;
+        this.importProgress.currentStep = 'Importación completada';
+        this.importProgress.estimatedTimeRemaining = 0;
+      }))
+      .subscribe({
+        next: (result) => {
+          this.importResult = result;
+          if (result.success) {
+            this.loadImportHistory();
+            this.importCompleted.emit();
+          }
+        },
+        error: (error) => {
+          console.error('Error importing file:', error);
+          this.importResult = {
+            success: false,
+            message: 'Error al importar el archivo de lotes'
+          };
+        }
+      });
   }
 }

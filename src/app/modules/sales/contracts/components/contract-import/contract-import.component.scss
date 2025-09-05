@@ -1,23 +1,8 @@
-.drag-over {
-  @apply border-blue-400 bg-blue-50;
-}
-
-.file-upload-area {
-  transition: all 0.2s ease-in-out;
-}
-
-.file-upload-area:hover {
-  @apply border-gray-400;
-}
-
-.import-status {
-  animation: fadeIn 0.3s ease-in-out;
-}
-
+// Animaciones y efectos modernos
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(-10px);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
@@ -25,28 +10,171 @@
   }
 }
 
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.8), 0 0 30px rgba(59, 130, 246, 0.6);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+// Clases de animación
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-out;
+}
+
+.animate-slide-in-up {
+  animation: slideInUp 0.5s ease-out;
+}
+
+.animate-slide-in-left {
+  animation: slideInLeft 0.4s ease-out;
+}
+
+.animate-bounce-in {
+  animation: bounceIn 0.6s ease-out;
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}
+
+// Efectos hover
+.hover-lift {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.dynamic-shadow {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.3s ease;
+}
+
+.dynamic-shadow:hover {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+// Backdrop mejorado
+.modal-backdrop {
+  backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.6);
+}
+
+// Estados de archivo
+.drag-over {
+  @apply border-blue-400 bg-gradient-to-br from-blue-50 to-indigo-50;
+  transform: scale(1.02);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.2);
+}
+
+.file-upload-area {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.file-upload-area:hover {
+  @apply border-gray-400;
+  transform: translateY(-1px);
+}
+
+// Elementos de estado
+.import-status {
+  animation: fadeIn 0.5s ease-out;
+}
+
 .history-item {
-  transition: all 0.2s ease-in-out;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .history-item:hover {
-  @apply shadow-sm;
+  @apply shadow-lg;
+  transform: translateY(-1px);
 }
 
-.modal-backdrop {
-  backdrop-filter: blur(2px);
-}
-
+// Badges de estado
 .status-badge {
-  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold;
+  transition: all 0.2s ease;
 }
 
 .status-completed {
-  @apply bg-green-100 text-green-800;
+  @apply bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200;
 }
 
 .status-processing {
-  @apply bg-yellow-100 text-yellow-800;
+  @apply bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200;
+}
+
+.status-error {
+  @apply bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200;
+}
+
+// Responsive mejoras
+@media (max-width: 640px) {
+  .animate-slide-in-up {
+    animation-duration: 0.3s;
+  }
+  
+  .hover-lift:hover {
+    transform: none;
+  }
 }
 
 .status-failed {
@@ -63,5 +191,119 @@
   }
   to {
     transform: rotate(360deg);
+  }
+}
+
+// Dark mode support
+.dark {
+  // Botones en dark mode
+  .btn-primary {
+    @apply bg-blue-600 hover:bg-blue-700 text-white;
+    box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.39);
+  }
+
+  .btn-secondary {
+    @apply bg-gray-700 hover:bg-gray-600 text-gray-200 border-gray-600;
+  }
+
+  .btn-primary:disabled {
+    @apply bg-gray-600 text-gray-400 cursor-not-allowed;
+    box-shadow: none;
+  }
+
+  // Modal backdrop en dark mode
+  .modal-backdrop {
+    backdrop-filter: blur(8px);
+    background: rgba(0, 0, 0, 0.8);
+  }
+
+  // Formularios en dark mode
+  .form-label {
+    @apply text-gray-300;
+  }
+
+  .form-control {
+    @apply bg-gray-800 border-gray-600 text-gray-200;
+  }
+
+  .form-control:focus {
+    @apply border-blue-500 bg-gray-700;
+    box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
+  }
+
+  // Texto muted en dark mode
+  .text-muted {
+    @apply text-gray-400;
+  }
+
+  // Bordes en dark mode
+  .border {
+    @apply border-gray-600;
+  }
+
+  // Cards en dark mode
+  .card {
+    @apply bg-gray-800 border-gray-700;
+  }
+
+  .card-header {
+    @apply bg-gray-700 border-gray-600;
+  }
+
+  // Área de upload en dark mode
+  .file-upload-area {
+    @apply bg-gray-800 border-gray-600 text-gray-300;
+  }
+
+  .file-upload-area:hover {
+    @apply border-gray-500;
+  }
+
+  .drag-over {
+    @apply border-blue-400 bg-gradient-to-br from-gray-700 to-gray-600;
+  }
+
+  // Items de historial en dark mode
+  .history-item {
+    @apply bg-gray-800 border-gray-700;
+  }
+
+  .history-item:hover {
+    @apply bg-gray-700;
+  }
+
+  // Badges de estado en dark mode ya están definidos arriba
+
+  // Spinner en dark mode
+  .spinner {
+    @apply text-blue-400;
+  }
+
+  // Efectos de sombra en dark mode
+  .dynamic-shadow {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  }
+
+  .dynamic-shadow:hover {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+  }
+
+  .hover-lift:hover {
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+  }
+
+  // Pulso glow en dark mode
+  .animate-pulse-glow {
+    animation: pulseGlowDark 2s ease-in-out infinite;
+  }
+}
+
+// Animación de pulso para dark mode
+@keyframes pulseGlowDark {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(59, 130, 246, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 1), 0 0 30px rgba(59, 130, 246, 0.8);
   }
 }

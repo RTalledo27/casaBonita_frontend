@@ -13,6 +13,12 @@ export interface LotImportResponse {
     financing_rules?: any;
     column_mapping?: any;
     import_id?: string;
+    total_rows?: number;
+    processed_rows?: number;
+    successful_rows?: number;
+    error_rows?: number;
+    skipped_rows?: number;
+    processing_time?: string;
   };
 }
 

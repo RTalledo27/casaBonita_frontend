@@ -1,43 +1,109 @@
-<div class="p-6">
-  <div class="flex justify-between items-center mb-6">
-      <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">{{ 'sales.contracts.title' | translate }}</h2>
-      <div class="flex gap-2">
-          <button
-            (click)="onImport()"
-            class="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-          >
-            <lucide-angular [img]="upload" class="w-4 h-4"></lucide-angular>
-            {{ 'sales.contracts.import.button' | translate }}
-          </button>
-          <button
-            *ngIf="authService.hasPermission('sales.contracts.store')"
-            (click)="onCreate()"
-            class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            <lucide-angular [img]="plus" class="w-4 h-4"></lucide-angular>
-            {{ 'sales.contracts.create' | translate }}
-          </button>
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-indigo-900/30 relative overflow-hidden">
+  <!-- Background Pattern -->
+  <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.1),transparent_50%)] dark:bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.05),transparent_50%)]"></div>
+  <div class="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.08),transparent_50%)] dark:bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.04),transparent_50%)]"></div>
+  
+  <div class="relative p-6">
+    <!-- Modern Header -->
+    <div class="mb-8">
+      <div class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/50 p-8 relative overflow-hidden">
+        <!-- Header Gradient Background -->
+        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/5 to-indigo-500/10 dark:from-blue-600/20 dark:via-purple-600/10 dark:to-indigo-600/20"></div>
+        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500"></div>
+        
+        <div class="relative flex justify-between items-center">
+          <!-- Title Section -->
+          <div class="flex items-center space-x-4">
+            <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-4 rounded-2xl shadow-lg">
+              <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+            </div>
+            <div>
+              <h1 class="text-3xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-indigo-800 dark:from-white dark:via-blue-200 dark:to-indigo-200 bg-clip-text text-transparent">
+                {{ 'sales.contracts.title' | translate }}
+              </h1>
+              <p class="text-gray-600 dark:text-gray-400 mt-1 font-medium">Gestión integral de contratos de venta</p>
+            </div>
+          </div>
+          
+          <!-- Action Buttons -->
+          <div class="flex gap-4">
+            <button
+              (click)="onImport()"
+              class="group relative flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 font-semibold overflow-hidden"
+            >
+              <div class="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <lucide-angular [img]="upload" class="w-5 h-5 relative z-10"></lucide-angular>
+              <span class="relative z-10">{{ 'sales.contracts.import.button' | translate }}</span>
+              <div class="absolute inset-0 rounded-2xl bg-gradient-to-r from-emerald-400/50 to-green-500/50 blur-xl opacity-0 group-hover:opacity-70 transition-opacity duration-300 -z-10"></div>
+            </button>
+            
+            <button
+              *ngIf="authService.hasPermission('sales.contracts.store')"
+              (click)="onCreate()"
+              class="group relative flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 font-semibold overflow-hidden"
+            >
+              <div class="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <lucide-angular [img]="plus" class="w-5 h-5 relative z-10"></lucide-angular>
+              <span class="relative z-10">{{ 'sales.contracts.create' | translate }}</span>
+              <div class="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-400/50 to-indigo-500/50 blur-xl opacity-0 group-hover:opacity-70 transition-opacity duration-300 -z-10"></div>
+            </button>
+          </div>
+        </div>
       </div>
-  </div>
-<div class="bg-white rounded-lg shadow overflow-hidden">
-  <div class="overflow-x-auto">
-    <app-shared-table [columns]="columns" [data]="(contracts$ | async) || []" [idField]="idField" (onEdit)="onEdit($event)"
-        [permissionPrefix]="'sales'" componentName="contracts"></app-shared-table>
-  </div>
-  <app-pagination
-    [currentPage]="pagination.current_page"
-    [totalPages]="pagination.last_page"
-    [total]="pagination.total"
-    [perPage]="pagination.per_page"
-    (pageChange)="onPageChange($event)">
-  </app-pagination>
-</div>
-  <router-outlet name="modal" (activate)="onModalActivate($event)" (deactivate)="onModalDeactivate()"></router-outlet>
+    </div>
+    <!-- Modern Table Container -->
+    <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/30 dark:border-gray-700/50 overflow-hidden relative">
+      <!-- Table Header Gradient -->
+      <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500"></div>
+      
+      <!-- Table Content -->
+      <div class="relative">
+        <!-- Table Header Background -->
+        <div class="absolute inset-0 bg-gradient-to-br from-slate-50/50 via-blue-50/30 to-indigo-50/50 dark:from-gray-800/50 dark:via-blue-900/20 dark:to-indigo-900/30"></div>
+        
+        <div class="relative overflow-x-auto">
+          <app-shared-table 
+            [columns]="columns" 
+            [data]="(contracts$ | async) || []" 
+            [idField]="idField" 
+            (onEdit)="onEdit($event)"
+            [permissionPrefix]="'sales'" 
+            componentName="contracts">
+          </app-shared-table>
+        </div>
+        
+        <!-- Modern Pagination -->
+        <div class="relative border-t border-gray-200/50 dark:border-gray-700/50 bg-gradient-to-r from-white/70 via-slate-50/50 to-white/70 dark:from-gray-800/70 dark:via-gray-700/50 dark:to-gray-800/70 backdrop-blur-sm">
+          <div class="p-6">
+            <app-pagination
+              [currentPage]="pagination.current_page"
+              [totalPages]="pagination.last_page"
+              [total]="pagination.total"
+              [perPage]="pagination.per_page"
+              (pageChange)="onPageChange($event)">
+            </app-pagination>
+          </div>
+        </div>
+      </div>
+     </div>
+     
+     <router-outlet name="modal" (activate)="onModalActivate($event)" (deactivate)="onModalDeactivate()"></router-outlet>
 
-  <!-- Import Modal -->
-  <app-contract-import
-    *ngIf="isImportModalOpen"
-    (modalClosed)="onImportModalClose()"
-    (importCompleted)="onImportCompleted()"
-  ></app-contract-import>
+     <!-- Import Modal -->
+     <app-contract-import
+       *ngIf="isImportModalOpen"
+       (modalClosed)="onImportModalClose()"
+       (importCompleted)="onImportCompleted()"
+     ></app-contract-import>
+
+     <!-- Contract Creation Modal -->
+     <app-contract-creation-modal
+       *ngIf="isCreationModalOpen"
+       [isOpen]="isCreationModalOpen"
+       (closeModal)="onCreationModalClose()"
+       (contractCreated)="onContractCreated()"
+     ></app-contract-creation-modal>
+   </div>
 </div>
