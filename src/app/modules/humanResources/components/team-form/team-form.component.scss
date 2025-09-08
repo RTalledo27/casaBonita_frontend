@@ -1,63 +1,62 @@
-/* Team Form Component Styles */
-.form-container {
-  @apply max-w-2xl mx-auto;
+/* —— Base glass select —— */
+:host ::ng-deep .app-select {
+  appearance: none; /* oculta caret nativo */
+  background-clip: padding-box;
+  /* caret custom (SVG) */
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%23a5b4fc' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right .75rem center;
+  background-size: 1rem;
+  padding-right: 2.25rem !important;
+
+  /* glass */
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.25),
+    0 1px 1px rgba(0,0,0,.04);
+  backdrop-filter: blur(6px) saturate(150%);
+  transition: box-shadow .2s ease, border-color .2s ease, background-color .2s ease;
 }
 
-.form-field {
-  @apply space-y-2;
+:host ::ng-deep .app-select:hover {
+  background-color: rgba(255,255,255,.8);
+}
+:host-context(.dark) ::ng-deep .app-select:hover {
+  background-color: rgba(31,41,55,.6); /* gray-800/60 */
 }
 
-.form-label {
-  @apply block text-sm font-medium text-gray-700;
+/* focus ring elegante */
+:host ::ng-deep .app-select:focus {
+  outline: none;
+  border-color: rgba(99,102,241,.7);           /* indigo-500 */
+  box-shadow:
+    0 0 0 4px rgba(99,102,241,.15),            /* outer */
+    inset 0 1px 0 rgba(255,255,255,.15);
 }
 
-.form-input {
-  @apply w-full px-3 py-2 border border-gray-300 rounded-lg;
-  @apply focus:ring-2 focus:ring-blue-500 focus:border-transparent;
-  @apply transition-colors;
+/* —— Mejora del POPUP nativo —— */
+/* Indica al navegador que el popup debe renderizarse en modo oscuro cuando esté en dark */
+:root { color-scheme: light; }
+:host-context(.dark) { color-scheme: dark; }
+
+/* Muchos navegadores respetan estas reglas para <option> */
+:host ::ng-deep .app-select option {
+  background-color: #0b1220;   /* azul/gris muy oscuro para el menú */
+  color: #e5e7eb;              /* gray-200 */
+}
+:host ::ng-deep .app-select option:checked,
+:host ::ng-deep .app-select option:hover {
+  background-color: #4338ca;   /* indigo-600 */
+  color: #fff;
 }
 
-.form-input.error {
-  @apply border-red-500 focus:ring-red-500;
+/* Alto del popup en listas grandes (Chrome/Edge/Firefox suelen respetarlo) */
+:host ::ng-deep .app-select {
+  scrollbar-color: #64748b transparent; /* thumb slate-500 */
 }
 
-.form-select {
-  @apply w-full px-3 py-2 border border-gray-300 rounded-lg;
-  @apply focus:ring-2 focus:ring-blue-500 focus:border-transparent;
-  @apply transition-colors;
-}
-
-.form-error {
-  @apply text-sm text-red-600 mt-1;
-}
-
-.form-help {
-  @apply text-sm text-gray-500 mt-1;
-}
-
-.form-actions {
-  @apply flex justify-end space-x-3 pt-6 border-t border-gray-200;
-}
-
-.btn-primary {
-  @apply inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg;
-  @apply hover:bg-blue-700 transition-colors;
-  @apply disabled:opacity-50 disabled:cursor-not-allowed;
-}
-
-.btn-secondary {
-  @apply px-4 py-2 border border-gray-300 rounded-lg text-gray-700;
-  @apply hover:bg-gray-50 transition-colors;
-}
-
-.validation-summary {
-  @apply bg-yellow-50 border border-yellow-200 rounded-lg p-4;
-}
-
-.validation-summary h4 {
-  @apply text-sm font-medium text-yellow-800 mb-2;
-}
-
-.validation-summary ul {
-  @apply text-sm text-yellow-700 space-y-1;
+/* Safari/Firefox ajustes leves del borde al abrir (no rompe otros) */
+:host ::ng-deep .app-select:-internal-list-box,
+:host ::ng-deep .app-select::-webkit-list-button {
+  border-radius: .75rem;
 }

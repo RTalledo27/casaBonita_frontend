@@ -219,17 +219,27 @@
     "access": "System Access",
     "permissions": {
       "title": "Permissions",
+      "subtitle": "System permissions management",
       "codName": "Permission",
       "name": "name",
+      "permissions": "Permissions",
+      "assigned_permissions": "Assigned permissions",
+      "no_permissions": "No Permissions",
+      "no_permissions_assigned": "No permissions assigned to this role",
       "view": "View Permissions",
       "store": "Create Permissions",
       "update": "Edit Permissions",
-      "destroy": "Delete Permissions"
+      "destroy": "Delete Permissions",
+      "import": "Import",
+      "create": "Create"
     },
     "roles": {
       "title": "Roles",
       "singular": "Role",
+      "role": "Role",
+      "details": "Role details",
       "name": "Name",
+      "namePlaceholder": "Enter role name",
       "description": "Description",
       "permissions": "Permissions",
       "basic": "Basic Data",
@@ -238,10 +248,14 @@
       "update": "Edit Roles",
       "destroy": "Delete Roles",
       "editTitle": "Role Edit",
-      "createTitle": "Role Create"
+      "createTitle": "Role Create",
+      "no_permissions": "No Permissions Assigned",
+      "no_permissions_description": "This role has no permissions assigned. Assign permissions to define what actions users with this role can perform."
     },
     "users": {
       "title": "Users",
+      "users": "Users",
+      "users_with_role": "Users with this role",
       "index": "View User List",
       "view": "View User",
       "store": "Create User",

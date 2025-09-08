@@ -97,12 +97,12 @@ export class RoleFormComponent {
 
   private loadPermissions(): void {
     this.permissionsService.list().subscribe({
-      next: (permissions) => {
-        console.log('Raw response:', permissions);
-        console.log('Type of response:', typeof permissions);
-        console.log('Is Array?', Array.isArray(permissions));
-        console.log('First item:', permissions[0]);
-        this.permissionsList = permissions;
+      next: (response) => {
+        console.log('Raw response:', response);
+        console.log('Type of response:', typeof response);
+        console.log('Is Array?', Array.isArray(response.data));
+        console.log('First item:', response.data[0]);
+        this.permissionsList = response.data;
       },
       error: () => this.toast.show('Error loading permissions', 'error'),
     });

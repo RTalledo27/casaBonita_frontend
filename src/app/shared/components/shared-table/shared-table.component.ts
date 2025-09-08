@@ -36,6 +36,7 @@ export interface ColumnDef {
 export class SharedTableComponent {
   @Input({ required: true }) columns: ColumnDef[] = [];
   @Input({ required: true }) data: any[] = [];
+  @Input() loading: boolean = false;
 
   constructor(private authService: AuthService) {}
 

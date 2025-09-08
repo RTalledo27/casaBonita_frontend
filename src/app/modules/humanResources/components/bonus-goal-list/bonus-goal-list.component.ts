@@ -1,16 +1,17 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { LucideAngularModule, Plus, Search, Filter, Edit, Trash2, Target, Calendar, Users, TrendingUp } from 'lucide-angular';
+import { LucideAngularModule, Plus, Search, Filter, Edit, Trash2, Target, Calendar, Users, TrendingUp, AlertCircle, ChevronDown } from 'lucide-angular';
 
 import { BonusGoal } from '../../models/bonus-goal';
 import { BonusGoalService, BonusGoalResponse } from '../../services/bonus-goal.service';
+import { BonusGoalModalComponent } from '../bonus-goal-modal/bonus-goal-modal.component';
 
 @Component({
   selector: 'app-bonus-goal-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule],
+  imports: [CommonModule, FormsModule, LucideAngularModule, BonusGoalModalComponent],
   templateUrl: './bonus-goal-list.component.html',
   styleUrls: ['./bonus-goal-list.component.scss']
 })
@@ -25,15 +26,23 @@ export class BonusGoalListComponent implements OnInit {
   readonly Calendar = Calendar;
   readonly Users = Users;
   readonly TrendingUp = TrendingUp;
+  readonly AlertCircle = AlertCircle;
+  readonly ChevronDown = ChevronDown;
 
   // State
   bonusGoals = signal<BonusGoal[]>([]);
   loading = signal(false);
   error = signal<string | null>(null);
+  
+  // Modal state
+  isModalOpen = signal(false);
 
   // Filters
   searchTerm = signal('');
   statusFilter = signal<'all' | 'active' | 'inactive'>('all');
+
+  // Computed for loading state
+  isLoading = computed(() => this.loading());
 
   // Computed
   filteredBonusGoals = computed(() => {
@@ -44,6 +53,7 @@ export class BonusGoalListComponent implements OnInit {
       const term = this.searchTerm().toLowerCase();
       goals = goals.filter(goal => 
         goal.goal_name.toLowerCase().includes(term) ||
+        (goal.description && goal.description.toLowerCase().includes(term)) ||
         goal.bonus_type?.type_name?.toLowerCase().includes(term) ||
         goal.team?.team_name?.toLowerCase().includes(term) ||
         goal.employee_type?.toLowerCase().includes(term)
@@ -85,17 +95,26 @@ export class BonusGoalListComponent implements OnInit {
     });
   }
 
-  onSearchChange(term: string): void {
-    this.searchTerm.set(term);
+  onSearch(): void {
+    // The search is handled by the computed filteredBonusGoals
   }
 
-  onStatusFilterChange(status: string | null): void {
-    const validStatus = status as 'all' | 'active' | 'inactive';
-    this.statusFilter.set(validStatus || 'all');
+  onFilterChange(): void {
+    // The filter is handled by the computed filteredBonusGoals
   }
 
   onNewBonusGoal(): void {
-    this.router.navigate(['/hr/bonus-goals/create']);
+    this.isModalOpen.set(true);
+  }
+  
+  onModalClose(): void {
+    this.isModalOpen.set(false);
+  }
+  
+  onGoalCreated(goal: BonusGoal): void {
+    // Refresh the list after creating a new goal
+    this.loadBonusGoals();
+    this.isModalOpen.set(false);
   }
 
   onEditBonusGoal(goal: BonusGoal): void {

@@ -60,8 +60,8 @@
                                     {{ 'validation.maxLength' | translate:{ value: 60 } }}
                                 </span>
                             </div>
-                            <div *ngIf="serverErrors['name']" class="error-msg">
-                                {{ serverErrors['name'][0] }}
+                            <div *ngIf="serverErrors['name'] && serverErrors['name'].length > 0" class="error-msg">
+                {{ serverErrors['name'][0] }}
                             </div>
                         </div>
 
@@ -73,8 +73,8 @@
                             <div *ngIf="fc('description').hasError('maxlength')" class="error-msg">
                                 {{ 'validation.maxLength' | translate:{ value: 255 } }}
                             </div>
-                            <div *ngIf="serverErrors['description']" class="error-msg">
-                                {{ serverErrors['description'][0] }}
+                            <div *ngIf="serverErrors['description'] && serverErrors['description'].length > 0" class="error-msg">
+                {{ serverErrors['description'][0] }}
                             </div>
                         </div>
                     </div>
@@ -91,8 +91,8 @@
                             </label>
                         </div>
                     </div>
-                    <div *ngIf="serverErrors['permissions']" class="error-msg">
-                        {{ serverErrors['permissions'][0] }}
+                    <div *ngIf="serverErrors['permissions'] && serverErrors['permissions'].length > 0" class="error-msg">
+                {{ serverErrors['permissions'][0] }}
                     </div>
                 </ng-container>
 

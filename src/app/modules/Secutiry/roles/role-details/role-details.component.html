@@ -1,1 +1,414 @@
-<p>role-details works!</p>
+<ng-container *ngIf="vm$ | async as vm">
+  <div
+    class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-indigo-900/30 relative overflow-hidden"
+  >
+    <!-- Background -->
+    <div
+      class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.1),transparent_50%)] dark:bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.05),transparent_50%)]"
+    ></div>
+    <div
+      class="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.08),transparent_50%)] dark:bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.04),transparent_50%)]"
+    ></div>
+
+    <div class="relative p-6">
+      <!-- Header -->
+      <div class="mb-8">
+        <div
+          class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/50 p-6 relative overflow-hidden"
+        >
+          <div
+            class="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/5 to-indigo-500/10 dark:from-blue-600/20 dark:via-purple-600/10 dark:to-indigo-600/20"
+          ></div>
+          <div
+            class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500"
+          ></div>
+
+          <div class="relative flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+              <button
+                (click)="goBack()"
+                class="group flex items-center space-x-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-all duration-300 bg-blue-50/50 dark:bg-blue-900/30 hover:bg-blue-100/70 dark:hover:bg-blue-800/50 px-4 py-2 rounded-xl backdrop-blur-sm border border-blue-200/30 dark:border-blue-700/30"
+              >
+                <lucide-angular
+                  [img]="ArrowLeft"
+                  class="w-5 h-5 group-hover:-translate-x-1 transition-transform duration-300"
+                ></lucide-angular>
+                <span class="font-medium">{{ 'common.back' | translate }}</span>
+              </button>
+
+              <div class="flex items-center space-x-3">
+                <div
+                  class="bg-gradient-to-br from-blue-500 to-indigo-600 p-3 rounded-2xl shadow-lg"
+                >
+                  <lucide-angular [img]="Shield" class="w-6 h-6 text-white"></lucide-angular>
+                </div>
+                <div>
+                  <h1
+                    class="text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent"
+                  >
+                    {{ vm.role.name }}
+                  </h1>
+                  <p class="text-gray-600 dark:text-gray-400 text-sm font-medium">
+                    {{ 'security.roles.details' | translate }}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center space-x-3">
+              <button
+                *ngIf="canEditPerm"
+                (click)="onEdit(vm.role)"
+                class="group flex items-center space-x-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-6 py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 border border-emerald-400/30"
+              >
+                <lucide-angular
+                  [img]="Edit"
+                  class="w-4 h-4 group-hover:rotate-12 transition-transform duration-300"
+                ></lucide-angular>
+                <span>{{ 'common.edit' | translate }}</span>
+              </button>
+
+              <button
+                *ngIf="canDeletePerm"
+                (click)="onDelete(vm.role)"
+                class="group flex items-center space-x-2 bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white px-6 py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 border border-red-400/30"
+              >
+                <lucide-angular
+                  [img]="Trash2"
+                  class="w-4 h-4 group-hover:scale-110 transition-transform duration-300"
+                ></lucide-angular>
+                <span>{{ 'common.delete' | translate }}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Card: Info del Rol -->
+        <div class="lg:col-span-1">
+          <div
+            class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/50 p-8 relative overflow-hidden"
+          >
+            <div
+              class="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-purple-500/3 to-indigo-500/5 dark:from-blue-600/10 dark:via-purple-600/5 dark:to-indigo-600/10"
+            ></div>
+            <div
+              class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500"
+            ></div>
+
+            <div class="relative">
+              <div class="flex justify-center mb-6">
+                <div
+                  class="bg-gradient-to-br from-blue-500 to-indigo-600 p-6 rounded-3xl shadow-2xl"
+                >
+                  <lucide-angular [img]="Shield" class="w-12 h-12 text-white"></lucide-angular>
+                </div>
+              </div>
+
+              <div class="text-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                  {{ vm.role.name }}
+                </h2>
+                <div
+                  class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-full border border-blue-200/50 dark:border-blue-700/50"
+                >
+                  <lucide-angular
+                    [img]="Key"
+                    class="w-4 h-4 text-blue-600 dark:text-blue-400 mr-2"
+                  ></lucide-angular>
+                  <span class="text-sm font-medium text-blue-700 dark:text-blue-300"
+                    >{{ 'security.roles.role' | translate }}</span
+                  >
+                </div>
+              </div>
+
+              <div
+                class="bg-gradient-to-r from-gray-50 to-slate-50 dark:from-gray-700/50 dark:to-gray-600/50 rounded-2xl p-6 border border-gray-200/50 dark:border-gray-600/50 mb-6"
+              >
+                <div class="flex items-start space-x-3">
+                  <div class="bg-gradient-to-br from-gray-400 to-gray-600 p-2 rounded-lg">
+                    <lucide-angular [img]="Settings" class="w-4 h-4 text-white"></lucide-angular>
+                  </div>
+                  <div class="flex-1">
+                    <h3 class="font-semibold text-gray-900 dark:text-white mb-2">
+                      {{ 'security.roles.description' | translate }}
+                    </h3>
+                    <p class="text-gray-600 dark:text-gray-300 text-sm leading-relaxed">
+                      {{ vm.role.description || ('common.no_description' | translate) }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-4 mb-6">
+                <div
+                  class="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 rounded-2xl p-4 border border-emerald-200/50 dark:border-emerald-700/50"
+                >
+                  <div class="flex items-center space-x-3">
+                    <div class="bg-gradient-to-br from-emerald-500 to-teal-600 p-2 rounded-lg">
+                      <lucide-angular [img]="Users" class="w-4 h-4 text-white"></lucide-angular>
+                    </div>
+                    <div>
+                      <p class="text-2xl font-bold text-emerald-700 dark:text-emerald-300">
+                        {{ vm.role.users?.length || 0 }}
+                      </p>
+                      <p class="text-xs text-emerald-600 dark:text-emerald-400 font-medium">
+                        {{ 'security.users.users' | translate }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  class="bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-2xl p-4 border border-purple-200/50 dark:border-purple-700/50"
+                >
+                  <div class="flex items-center space-x-3">
+                    <div class="bg-gradient-to-br from-purple-500 to-indigo-600 p-2 rounded-lg">
+                      <lucide-angular [img]="Key" class="w-4 h-4 text-white"></lucide-angular>
+                    </div>
+                    <div>
+                      <p class="text-2xl font-bold text-purple-700 dark:text-purple-300">
+                        {{ vm.role.permissions?.length || 0 }}
+                      </p>
+                      <p class="text-xs text-purple-600 dark:text-purple-400 font-medium">
+                        {{ 'security.permissions.permissions' | translate }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                class="bg-gradient-to-r from-gray-50 to-slate-50 dark:from-gray-700/50 dark:to-gray-600/50 rounded-2xl p-4 border border-gray-200/50 dark:border-gray-600/50"
+              >
+                <div class="flex items-center space-x-3">
+                  <div class="bg-gradient-to-br from-gray-400 to-gray-600 p-2 rounded-lg">
+                    <lucide-angular [img]="Calendar" class="w-4 h-4 text-white"></lucide-angular>
+                  </div>
+                  <div>
+                    <p class="text-sm font-medium text-gray-900 dark:text-white">
+                      {{ 'common.created' | translate }}
+                    </p>
+                    <p class="text-sm text-gray-600 dark:text-gray-300">
+                      {{ vm.role.created_at | date: 'longDate' }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card: Permisos (Carrusel) -->
+        <div class="lg:col-span-2">
+          <div
+            class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/50 p-8 relative overflow-hidden"
+          >
+            <div
+              class="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-indigo-500/3 to-blue-500/5 dark:from-purple-600/10 dark:via-indigo-600/5 dark:to-blue-600/10"
+            ></div>
+            <div
+              class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 via-indigo-500 to-blue-500"
+            ></div>
+
+            <div class="relative">
+              <div class="flex items-center space-x-4 mb-8">
+                <div
+                  class="bg-gradient-to-br from-purple-500 to-indigo-600 p-3 rounded-2xl shadow-lg"
+                >
+                  <lucide-angular [img]="Key" class="w-6 h-6 text-white"></lucide-angular>
+                </div>
+                <div>
+                  <h3 class="text-2xl font-bold text-gray-900 dark:text-white">
+                    {{ 'security.permissions.permissions' | translate }}
+                  </h3>
+                  <p class="text-gray-600 dark:text-gray-400 text-sm">
+                    {{ 'security.permissions.assigned_permissions' | translate }}
+                  </p>
+                </div>
+              </div>
+
+              <div *ngIf="vm.groups.length > 0; else noPermissions">
+                <!-- Controles -->
+                <div class="flex items-center justify-between mb-6">
+                  <div class="text-sm text-gray-600 dark:text-gray-400">
+                    {{ currentModuleIndex + 1 }} / {{ vm.groups.length }}
+                  </div>
+                  <div class="flex items-center space-x-2">
+                    <button
+                      (click)="previousModule()"
+                      [disabled]="currentModuleIndex === 0"
+                      class="p-2 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:from-indigo-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 shadow-lg hover:shadow-xl"
+                    >
+                      <lucide-angular [img]="ChevronLeft" class="w-4 h-4"></lucide-angular>
+                    </button>
+                    <button
+                      (click)="nextModule(vm.groups.length)"
+                      [disabled]="currentModuleIndex === (vm.groups.length - 1)"
+                      class="p-2 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:from-indigo-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 shadow-lg hover:shadow-xl"
+                    >
+                      <lucide-angular [img]="ChevronRight" class="w-4 h-4"></lucide-angular>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Slides -->
+                <div class="overflow-hidden rounded-2xl border border-gray-200/50 dark:border-gray-700/50">
+                  <div
+                    class="whitespace-nowrap transition-transform duration-500 ease-out"
+                    [style.transform]="'translateX(-' + (currentModuleIndex * 100) + '%)'"
+                  >
+                    <ng-container *ngFor="let group of vm.groups; trackBy: trackGroupBy; let i = index">
+                      <div class="inline-block align-top w-full px-1">
+                        <div
+                          class="bg-gradient-to-r from-gray-50/80 to-slate-50/80 dark:from-gray-700/30 dark:to-gray-600/30 rounded-2xl p-6 border border-gray-200/50 dark:border-gray-600/50 h-full"
+                        >
+                          <div class="flex items-center space-x-3 mb-6">
+                            <div
+                              class="bg-gradient-to-br from-indigo-500 to-purple-600 p-3 rounded-xl shadow-lg"
+                            >
+                              <lucide-angular
+                                [img]="iconMap[group.key] || iconMap['default']"
+                                class="w-5 h-5 text-white"
+                              ></lucide-angular>
+                            </div>
+                            <div class="flex-1">
+                              <h4 class="text-xl font-bold text-gray-900 dark:text-white capitalize">
+                                {{ group.key }}
+                              </h4>
+                              <p class="text-sm text-gray-600 dark:text-gray-400">
+                                {{ group.value.length }} {{ 'security.permissions.permissions' | translate }}
+                              </p>
+                            </div>
+                            <div
+                              class="bg-gradient-to-r from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30 text-indigo-700 dark:text-indigo-300 px-4 py-2 rounded-full text-sm font-bold border border-indigo-200/50 dark:border-indigo-700/50"
+                            >
+                              {{ group.value.length }}
+                            </div>
+                          </div>
+
+                          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 max-h-96 overflow-y-auto custom-scrollbar">
+                            <div
+                              *ngFor="let permission of group.value; trackBy: trackPermBy"
+                              class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-xl p-4 border border-gray-200/40 dark:border-gray-600/40 hover:border-indigo-300/60 dark:hover:border-indigo-600/60 transition-colors"
+                            >
+                              <div class="flex items-center space-x-3">
+                                <div class="w-3 h-3 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full"></div>
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                  {{ permission.name }}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </ng-container>
+                  </div>
+                </div>
+
+                <!-- Indicadores -->
+                <div class="flex justify-center mt-6 space-x-2">
+                  <button
+                    *ngFor="let g of vm.groups; index as i; trackBy: trackGroupBy"
+                    (click)="goToModule(i, vm.groups.length)"
+                    [class]="
+                      'w-3 h-3 rounded-full transition-all duration-300 ' +
+                      (i === currentModuleIndex
+                        ? 'bg-gradient-to-r from-indigo-500 to-purple-600 scale-125'
+                        : 'bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500')
+                    "
+                  ></button>
+                </div>
+              </div>
+
+              <ng-template #noPermissions>
+                <div class="text-center py-12">
+                  <div class="bg-gradient-to-br from-gray-100 to-slate-100 dark:from-gray-700 dark:to-gray-600 p-6 rounded-3xl inline-block mb-4">
+                    <lucide-angular [img]="Key" class="w-12 h-12 text-gray-400 dark:text-gray-500"></lucide-angular>
+                  </div>
+                  <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                    {{ 'security.permissions.no_permissions' | translate }}
+                  </h4>
+                  <p class="text-gray-600 dark:text-gray-400 text-sm">
+                    {{ 'security.permissions.no_permissions_assigned' | translate }}
+                  </p>
+                </div>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Usuarios con este rol -->
+      <div *ngIf="vm.role.users && vm.role.users.length > 0" class="mt-8">
+        <div
+          class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/50 p-8 relative overflow-hidden"
+        >
+          <div
+            class="absolute inset-0 bg-gradient-to-br from-emerald-500/5 via-teal-500/3 to-cyan-500/5 dark:from-emerald-600/10 dark:via-teal-600/5 dark:to-cyan-600/10"
+          ></div>
+          <div
+            class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500"
+          ></div>
+
+          <div class="relative">
+            <div class="flex items-center space-x-4 mb-8">
+              <div class="bg-gradient-to-br from-emerald-500 to-teal-600 p-3 rounded-2xl shadow-lg">
+                <lucide-angular [img]="Users" class="w-6 h-6 text-white"></lucide-angular>
+              </div>
+              <div>
+                <h3 class="text-2xl font-bold text-gray-900 dark:text-white">
+                  {{ 'security.users.users_with_role' | translate }}
+                </h3>
+                <p class="text-gray-600 dark:text-gray-400 text-sm">
+                  {{ vm.role.users.length }} {{ 'security.users.users' | translate }}
+                </p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div
+                *ngFor="let user of vm.role.users; trackBy: trackUserBy"
+                class="bg-gradient-to-r from-white/60 to-gray-50/60 dark:from-gray-800/60 dark:to-gray-700/60 backdrop-blur-sm rounded-2xl p-4 border border-gray-200/30 dark:border-gray-600/30 hover:border-emerald-300/50 dark:hover:border-emerald-600/50 transition-all duration-300 hover:shadow-lg"
+              >
+                <div class="flex items-center space-x-3">
+                  <div class="bg-gradient-to-br from-emerald-500 to-teal-600 p-2 rounded-xl">
+                    <lucide-angular [img]="Users" class="w-4 h-4 text-white"></lucide-angular>
+                  </div>
+                  <div class="flex-1">
+                    <p class="font-semibold text-gray-900 dark:text-white text-sm">
+                      {{ user.first_name }} {{ user.last_name }}
+                    </p>
+                    <p class="text-gray-600 dark:text-gray-400 text-xs">{{ user.email }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal edición -->
+      <div *ngIf="isModalOpen" class="fixed inset-0 z-[60] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+
+        <div
+          class="relative bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/50 max-w-4xl w-full max-h-[90vh] overflow-hidden"
+        >
+          <div
+            class="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-purple-500/3 to-indigo-500/5 dark:from-blue-600/10 dark:via-purple-600/5 dark:to-indigo-600/10"
+          ></div>
+          <div
+            class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500"
+          ></div>
+
+          <div class="relative overflow-y-auto max-h-[90vh]">
+            <router-outlet name="modal" (activate)="onModalActivate($event)"></router-outlet>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-container>

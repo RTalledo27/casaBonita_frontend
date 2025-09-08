@@ -1,44 +1,127 @@
-<!-- encabezado -->
-<div class="flex justify-between items-start mb-6">
-    <div>
-        <h3 class="text-2xl font-bold">
-            {{ 'security.roles.title' | translate }}
-        </h3>
-        <p class="text-xs text-gray-400">
-            {{ (roles$ | async)?.length || 0 }} {{ 'common.records' | translate }}
-        </p>
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-indigo-900/30 relative overflow-hidden">
+  <!-- Background Pattern -->
+  <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.1),transparent_50%)] dark:bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.05),transparent_50%)]"></div>
+  <div class="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.08),transparent_50%)] dark:bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.04),transparent_50%)]"></div>
+
+  <div class="relative p-6">
+    <!-- Modern Header -->
+    <div class="mb-8">
+      <div class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/50 p-8 relative overflow-hidden">
+        <!-- Header Gradient Background -->
+        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/5 to-indigo-500/10 dark:from-blue-600/20 dark:via-purple-600/10 dark:to-indigo-600/20"></div>
+        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500"></div>
+
+        <div class="relative flex justify-between items-center">
+          <!-- Title Section -->
+          <div class="flex items-center space-x-4">
+            <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-4 rounded-2xl shadow-lg">
+              <!-- Icono de roles -->
+              <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+              </svg>
+            </div>
+            <div>
+              <h1 class="text-3xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-indigo-800 dark:from-white dark:via-blue-200 dark:to-indigo-200 bg-clip-text text-transparent">
+                {{ 'security.roles.title' | translate }}
+              </h1>
+              <p class="text-gray-600 dark:text-gray-400 mt-1 font-medium">
+                {{ (roles$ | async)?.length || 0 }} {{ 'common.records' | translate }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Action Button -->
+          <div class="flex gap-4" *ngIf="canCreate()">
+            <button 
+              (click)="onCreate()"
+              class="group relative flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 font-semibold overflow-hidden"
+            >
+              <div class="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <lucide-angular [img]="plus" class="w-5 h-5 relative z-10"></lucide-angular>
+              <span class="relative z-10">{{ 'common.new' | translate }}</span>
+              <div class="absolute inset-0 rounded-2xl bg-gradient-to-r from-emerald-400/50 to-green-500/50 blur-xl opacity-0 group-hover:opacity-70 transition-opacity duration-300 -z-10"></div>
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- botón crear solo si el usuario tiene permiso -->
-    <button *ngIf="canCreate()" (click)="onCreate()"
-        class="btn-primary flex items-center gap-1">
-        <lucide-icon [name]="plus" class="w-4 h-4"></lucide-icon>
-        {{ 'common.new' | translate }}
-    </button>
+    <!-- Template fecha -->
+    <ng-template #dateTpl let-row>
+      <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+        {{ row.created_at | date:'yyyy/dd/MM HH:mm' }}
+      </span>
+    </ng-template>
+
+    <!-- Modern Table Container -->
+    <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/30 dark:border-gray-700/50 overflow-hidden relative">
+      <!-- Table Header Gradient -->
+      <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500"></div>
+
+      <!-- Table Content -->
+      <div class="relative">
+        <!-- Table Header Background -->
+        <div class="absolute inset-0 bg-gradient-to-br from-slate-50/50 via-blue-50/30 to-indigo-50/50 dark:from-gray-800/50 dark:via-blue-900/20 dark:to-indigo-900/30"></div>
+
+        <div class="relative overflow-x-auto">
+          <app-shared-table 
+            [columns]="columns"  
+            [data]="(roles$ | async) ?? []" 
+            (delete)="delete($event)"   
+            (onEdit)="onEdit($event)" 
+            (onViewDetails)="onViewDetails($event)" 
+            [templates]="{ date: dateTpl }"
+            [componentName]="'roles'">
+          </app-shared-table>
+        </div>
+
+        <!-- Si tienes paginación, puedes envolver tu <app-pagination> con el mismo look -->
+        <!--
+        <div class="relative border-t border-gray-200/50 dark:border-gray-700/50 bg-gradient-to-r from-white/70 via-slate-50/50 to-white/70 dark:from-gray-800/70 dark:via-gray-700/50 dark:to-gray-800/70 backdrop-blur-sm">
+          <div class="p-6">
+            <app-pagination
+              [currentPage]="pagination.current_page"
+              [totalPages]="pagination.last_page"
+              [total]="pagination.total"
+              [perPage]="pagination.per_page"
+              (pageChange)="onPageChange($event)">
+            </app-pagination>
+          </div>
+        </div>
+        -->
+      </div>
+    </div>
+  </div>
 </div>
 
-<ng-template #dateTpl let-row>
-    {{ row.created_at | date:'yyyy/dd/MM HH:mm' }}
-</ng-template>
-
-<!-- tabla compartida -->
-<app-shared-table [columns]="columns"  [data]="(roles$ | async) ?? []" 
-    (delete)="delete($event)"   (onEdit)="onEdit($event)" (onViewDetails)="onViewDetails($event)" [templates]="{ date: dateTpl }"
-    [componentName]="'roles'">
-</app-shared-table>
-
 <!-- Modal eliminar -->
-<app-shared-delete [visible]="showDeleteModal" [itemName]="selectedItemName" (confirm)="deleteConfirmed()"
-    (cancel)="showDeleteModal = false">
+<app-shared-delete
+  [visible]="showDeleteModal"
+  [itemName]="selectedItemName"
+  (confirm)="deleteConfirmed()"
+  (cancel)="showDeleteModal = false">
 </app-shared-delete>
 
+<!-- Modal create/edit con glassmorphism -->
+<div *ngIf="isModalOpen" class="fixed inset-0 z-[60] flex items-center justify-center p-4">
+  <!-- Overlay -->
+  <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
 
-<!-- modal create/edit se abre si hay ?new o ?edit=id (lógica en RolesComponent) -->
-<!-- Modal Container -->
-<div *ngIf="isModalOpen" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-    <div class="bg-gray-800 rounded-xl w-full max-w-2xl p-6 animate-slide-up">
-        <router-outlet name="modal" (activate)="onModalActivate($event)"></router-outlet>
+  <!-- Card -->
+  <div class="relative bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/50 w-full max-w-2xl overflow-hidden animate-fade-in-up">
+    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500"></div>
+    <div class="p-6">
+      <router-outlet name="modal" (activate)="onModalActivate($event)"></router-outlet>
     </div>
-    </div>
+  </div>
+</div>
 
-  
+<!-- Animaciones utilitarias (si no las tienes ya en globales) -->
+<style>
+  @keyframes fade-in-up {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .animate-fade-in-up { animation: fade-in-up .45s ease-out both; }
+</style>

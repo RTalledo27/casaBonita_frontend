@@ -218,18 +218,28 @@
     "access": "Acceso al Sistema",
     "permissions": {
       "title": "Permisos",
+      "subtitle": "Gestión de permisos del sistema",
       "codName": "Permisos",
       "name": "Nombre",
+      "permissions": "Permisos",
+      "assigned_permissions": "Permisos asignados",
+      "no_permissions": "Sin Permisos",
+      "no_permissions_assigned": "No hay permisos asignados a este rol",
       "view": "Ver Permisos",
       "store": "Crear Permisos",
       "update": "Editar Permisos",
-      "destroy": "Eliminar Permisos"
+      "destroy": "Eliminar Permisos",
+      "import": "Importar",
+      "create": "Crear"
     },
     "roles": {
       "general": "General",
       "title": "Roles",
       "singular": "Rol",
+      "role": "Rol",
+      "details": "Detalles del rol",
       "name": "Nombre",
+      "namePlaceholder": "Ingrese el nombre del rol",
       "description": "Descripción",
       "permissions": "Permisos",
       "basic": "Datos básicos",
@@ -238,10 +248,14 @@
       "update": "Editar Roles",
       "destroy": "Eliminar Roles",
       "editTitle": "Editar Rol",
-      "createTitle": "Crear Rol"
+      "createTitle": "Crear Rol",
+      "no_permissions": "Sin Permisos Asignados",
+      "no_permissions_description": "Este rol no tiene permisos asignados. Asigna permisos para definir las acciones que pueden realizar los usuarios con este rol."
     },
     "users": {
       "title": "Usuarios",
+      "users": "Usuarios",
+      "users_with_role": "Usuarios con este rol",
       "index": "Ver Lista de Usuarios",
       "view": "Ver Usuario",
       "store": "Crear Usuario",

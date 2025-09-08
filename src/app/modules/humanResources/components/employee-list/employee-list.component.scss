@@ -1,116 +1,30 @@
-/* Estilos específicos para el componente de lista de empleados */
-
-.employee-list-container {
-  @apply min-h-screen bg-gray-50 dark:bg-gray-900;
+/* Mejora de scrollbar en listas/tablas */
+::-webkit-scrollbar {
+  height: 10px;
+  width: 10px;
+}
+::-webkit-scrollbar-thumb {
+  border-radius: 9999px;
+  background: linear-gradient(180deg, rgba(99,102,241,.4), rgba(129,140,248,.8));
+}
+::-webkit-scrollbar-track {
+  background: transparent;
 }
 
-.stats-card {
-  @apply bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border dark:border-gray-700;
-  transition: transform 0.2s ease-in-out;
+/* Pequeñas animaciones */
+.btn-pressable {
+  transition: transform .15s ease, box-shadow .2s ease;
+}
+.btn-pressable:active {
+  transform: translateY(1px) scale(.995);
 }
 
-.stats-card:hover {
-  @apply transform scale-105;
+/* Sombras suaves */
+.shadow-soft {
+  box-shadow: 0 10px 30px -15px rgba(17,24,39,.25);
 }
 
-.filter-section {
-  @apply bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border dark:border-gray-700;
-}
-
-.employee-table {
-  @apply bg-white dark:bg-gray-800 shadow-sm rounded-lg border dark:border-gray-700 overflow-hidden;
-}
-
-.employee-row {
-  @apply hover:bg-gray-50 dark:hover:bg-gray-700;
-  transition: background-color 0.2s ease-in-out;
-}
-
-.action-button {
-  @apply p-1 rounded transition-colors;
-}
-
-.action-button:hover {
-  @apply bg-gray-100 dark:bg-gray-600;
-}
-
-.status-badge {
-  @apply inline-flex px-2 py-1 text-xs font-semibold rounded-full;
-}
-
-.type-badge {
-  @apply inline-flex px-2 py-1 text-xs font-semibold rounded-full;
-}
-
-.pagination-button {
-  @apply relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300;
-  transition: background-color 0.2s ease-in-out;
-}
-
-.pagination-button:hover:not(:disabled) {
-  @apply bg-gray-50 dark:bg-gray-600;
-}
-
-.pagination-button:disabled {
-  @apply opacity-50 cursor-not-allowed;
-}
-
-.search-input {
-  @apply block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md leading-5 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400;
-  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-}
-
-.search-input:focus {
-  @apply outline-none ring-1 ring-blue-500 border-blue-500;
-}
-
-.filter-select {
-  @apply block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md leading-5 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100;
-  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-}
-
-.filter-select:focus {
-  @apply outline-none ring-1 ring-blue-500 border-blue-500;
-}
-
-.loading-spinner {
-  @apply animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600;
-}
-
-.empty-state {
-  @apply text-center py-12;
-}
-
-.employee-avatar {
-  @apply h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center;
-}
-
-.employee-initials {
-  @apply text-sm font-medium text-blue-600 dark:text-blue-400;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .stats-grid {
-    @apply grid-cols-2;
-  }
-  
-  .filter-grid {
-    @apply grid-cols-1;
-  }
-  
-  .employee-table {
-    @apply text-sm;
-  }
-}
-
-@media (max-width: 640px) {
-  .stats-grid {
-    @apply grid-cols-1;
-  }
-  
-  .employee-table th,
-  .employee-table td {
-    @apply px-3 py-2;
-  }
+/* Table hover */
+tr:hover td {
+  transition: background-color .2s ease;
 }

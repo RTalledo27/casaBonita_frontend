@@ -27,282 +27,321 @@ import { PaymentSchedule } from '../../models/payment-schedule';
   standalone: true,
   imports: [CommonModule, RouterModule, FormsModule, ReactiveFormsModule, LucideAngularModule],
   template: `
-    <div class="p-6 space-y-6">
-      <!-- Header -->
-      <div class="flex items-center justify-between">
-        <div class="flex items-center space-x-4">
-          <button 
-            routerLink="/collections/dashboard"
-            class="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg"
-          >
-            <lucide-angular [img]="ArrowLeftIcon" class="w-5 h-5"></lucide-angular>
-          </button>
-          <div>
-            <h1 class="text-3xl font-bold text-gray-900">Reportes de Cronogramas</h1>
-            <p class="text-gray-600 mt-1">Análisis y reportes de estado de pagos</p>
-          </div>
-        </div>
-        <div class="flex space-x-3">
-          <button 
-            (click)="exportReport()"
-            [disabled]="isLoading()"
-            class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 flex items-center space-x-2"
-          >
-            <lucide-angular [img]="DownloadIcon" class="w-4 h-4"></lucide-angular>
-            <span>Exportar Reporte</span>
-          </button>
+   <div class="p-6 space-y-6">
+  <!-- Header -->
+  <div class="relative overflow-hidden rounded-2xl border border-slate-200/70 dark:border-slate-700/60 bg-white/80 dark:bg-slate-900/60 backdrop-blur shadow-xl">
+    <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-indigo-500/10 pointer-events-none"></div>
+    <div class="flex items-center justify-between p-5 relative">
+      <div class="flex items-center gap-4">
+        <button
+          routerLink="/collections/dashboard"
+          class="group p-2 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-white/10 rounded-xl transition"
+          title="Volver"
+        >
+          <lucide-angular [img]="ArrowLeftIcon" class="w-5 h-5 group-hover:scale-110 transition"></lucide-angular>
+        </button>
+
+        <div>
+          <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-900 via-blue-800 to-indigo-800 dark:from-white dark:via-blue-200 dark:to-indigo-200">
+            Reportes de Cronogramas
+          </h1>
+          <p class="text-slate-600 dark:text-slate-400 mt-1">Análisis y reportes de estado de pagos</p>
         </div>
       </div>
 
-      <!-- Filters -->
-      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg font-semibold text-gray-900 flex items-center">
-            <lucide-angular [img]="FilterIcon" class="w-5 h-5 mr-2"></lucide-angular>
-            Filtros de Reporte
-          </h2>
-          <button 
-            (click)="resetFilters()"
-            class="text-blue-600 hover:text-blue-800 text-sm font-medium"
-          >
-            Restablecer
-          </button>
-        </div>
-        
-        <form [formGroup]="filterForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <!-- Date From -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Fecha Desde</label>
+      <div class="flex gap-3">
+        <button
+          (click)="exportReport()"
+          [disabled]="isLoading()"
+          class="group relative inline-flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-white bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition"
+        >
+          <div class="absolute inset-0 opacity-0 group-hover:opacity-100 bg-white/20 rounded-xl transition"></div>
+          <lucide-angular [img]="DownloadIcon" class="w-4 h-4 relative z-10"></lucide-angular>
+          <span class="relative z-10">Exportar Reporte</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="relative overflow-hidden rounded-2xl border border-slate-200/70 dark:border-slate-700/60 bg-white/80 dark:bg-slate-900/60 backdrop-blur shadow-xl">
+    <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500"></div>
+
+    <div class="flex items-center justify-between p-5">
+      <h2 class="text-lg font-bold flex items-center gap-2">
+        <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 text-white shadow">
+          <lucide-angular [img]="FilterIcon" class="w-5 h-5"></lucide-angular>
+        </span>
+        <span class="bg-clip-text text-transparent bg-gradient-to-r from-slate-900 via-purple-800 to-indigo-800 dark:from-white dark:via-purple-200 dark:to-indigo-200">
+          Filtros de Reporte
+        </span>
+      </h2>
+
+      <button
+        (click)="resetFilters()"
+        class="text-sm font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition"
+      >
+        Restablecer
+      </button>
+    </div>
+
+    <div class="px-5 pb-5">
+      <form [formGroup]="filterForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Date From -->
+        <div class="group">
+          <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Fecha Desde</label>
+          <div class="relative">
+            <lucide-angular [img]="CalendarIcon" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"></lucide-angular>
             <input
               type="date"
               formControlName="date_from"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              class="w-full pl-10 pr-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white/70 dark:bg-slate-800/70 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition"
             >
           </div>
+        </div>
 
-          <!-- Date To -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Fecha Hasta</label>
+        <!-- Date To -->
+        <div class="group">
+          <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Fecha Hasta</label>
+          <div class="relative">
+            <lucide-angular [img]="CalendarIcon" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"></lucide-angular>
             <input
               type="date"
               formControlName="date_to"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              class="w-full pl-10 pr-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white/70 dark:bg-slate-800/70 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition"
             >
           </div>
+        </div>
 
-          <!-- Status -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Estado</label>
+        <!-- Status -->
+        <div class="group">
+          <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Estado</label>
+          <div class="relative">
+            <lucide-angular [img]="PieChartIcon" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"></lucide-angular>
             <select
               formControlName="status"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              class="w-full pl-10 pr-9 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white/70 dark:bg-slate-800/70 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition appearance-none"
             >
               <option value="">Todos los estados</option>
               <option value="pendiente">Pendiente</option>
               <option value="pagado">Pagado</option>
               <option value="vencido">Vencido</option>
             </select>
+            <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">▾</span>
           </div>
+        </div>
 
-          <!-- Report Type -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Tipo de Reporte</label>
+        <!-- Report Type -->
+        <div class="group">
+          <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Tipo de Reporte</label>
+          <div class="relative">
+            <lucide-angular [img]="BarChart3Icon" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"></lucide-angular>
             <select
               formControlName="report_type"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              class="w-full pl-10 pr-9 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white/70 dark:bg-slate-800/70 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition appearance-none"
             >
               <option value="summary">Resumen</option>
               <option value="detailed">Detallado</option>
               <option value="overdue">Solo Vencidos</option>
             </select>
+            <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">▾</span>
           </div>
-        </form>
+        </div>
+      </form>
 
-        <div class="mt-4 flex justify-end">
-          <button 
-            (click)="generateReport()"
-            [disabled]="isLoading()"
-            class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center space-x-2"
-          >
-            @if (isLoading()) {
-              <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-              <span>Generando...</span>
-            } @else {
-              <lucide-angular [img]="BarChart3Icon" class="w-4 h-4"></lucide-angular>
-              <span>Generar Reporte</span>
-            }
-          </button>
+      <div class="mt-5 flex justify-end">
+        <button
+          (click)="generateReport()"
+          [disabled]="isLoading()"
+          class="group relative inline-flex items-center gap-2 px-6 py-2 rounded-xl font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition"
+        >
+          <div class="absolute inset-0 opacity-0 group-hover:opacity-100 bg-white/20 rounded-xl transition"></div>
+
+          @if (isLoading()) {
+            <div class="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+            <span>Generando…</span>
+          } @else {
+            <lucide-angular [img]="BarChart3Icon" class="w-4 h-4"></lucide-angular>
+            <span>Generar Reporte</span>
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Report Results -->
+  @if (reportData()) {
+    <div class="space-y-6">
+      <!-- Summary Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Total Schedules -->
+        <div class="relative overflow-hidden rounded-2xl border border-slate-200/70 dark:border-slate-700/60 bg-white/80 dark:bg-slate-900/60 backdrop-blur shadow-lg p-6">
+          <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-indigo-500/5"></div>
+          <div class="relative flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-slate-600 dark:text-slate-400">Total Cronogramas</p>
+              <p class="text-2xl font-extrabold text-slate-900 dark:text-white mt-1">{{ reportData()!.total_schedules }}</p>
+            </div>
+            <div class="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow">
+              <lucide-angular [img]="FileTextIcon" class="w-6 h-6"></lucide-angular>
+            </div>
+          </div>
+        </div>
+
+        <!-- Total Amount -->
+        <div class="relative overflow-hidden rounded-2xl border border-slate-200/70 dark:border-slate-700/60 bg-white/80 dark:bg-slate-900/60 backdrop-blur shadow-lg p-6">
+          <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-green-500/5"></div>
+          <div class="relative flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-slate-600 dark:text-slate-400">Monto Total</p>
+              <p class="text-2xl font-extrabold text-slate-900 dark:text-white mt-1">{{ formatCurrency(reportData()!.total_amount) }}</p>
+            </div>
+            <div class="p-3 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 text-white shadow">
+              <lucide-angular [img]="DollarSignIcon" class="w-6 h-6"></lucide-angular>
+            </div>
+          </div>
+        </div>
+
+        <!-- Paid Amount -->
+        <div class="relative overflow-hidden rounded-2xl border border-slate-200/70 dark:border-slate-700/60 bg-white/80 dark:bg-slate-900/60 backdrop-blur shadow-lg p-6">
+          <div class="absolute inset-0 bg-gradient-to-br from-green-500/5 to-teal-500/5"></div>
+          <div class="relative flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-slate-600 dark:text-slate-400">Monto Pagado</p>
+              <p class="text-2xl font-extrabold text-green-600 dark:text-green-400 mt-1">{{ formatCurrency(reportData()!.paid_amount) }}</p>
+              <div class="flex items-center mt-1">
+                <lucide-angular [img]="TrendingUpIcon" class="w-3 h-3 text-green-500 mr-1"></lucide-angular>
+                <span class="text-xs font-semibold text-green-600 dark:text-green-400">{{ getPaymentRate() }}%</span>
+              </div>
+            </div>
+            <div class="p-3 rounded-xl bg-gradient-to-br from-green-500 to-teal-600 text-white shadow">
+              <lucide-angular [img]="TrendingUpIcon" class="w-6 h-6"></lucide-angular>
+            </div>
+          </div>
+        </div>
+
+        <!-- Overdue Amount -->
+        <div class="relative overflow-hidden rounded-2xl border border-slate-200/70 dark:border-slate-700/60 bg-white/80 dark:bg-slate-900/60 backdrop-blur shadow-lg p-6">
+          <div class="absolute inset-0 bg-gradient-to-br from-red-500/5 to-rose-500/5"></div>
+          <div class="relative flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-slate-600 dark:text-slate-400">Monto Vencido</p>
+              <p class="text-2xl font-extrabold text-red-600 dark:text-rose-400 mt-1">{{ formatCurrency(reportData()!.overdue_amount) }}</p>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">{{ getOverdueCount() }} cuotas</p>
+            </div>
+            <div class="p-3 rounded-xl bg-gradient-to-br from-red-500 to-rose-600 text-white shadow">
+              <lucide-angular [img]="AlertTriangleIcon" class="w-6 h-6"></lucide-angular>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- Report Results -->
-      @if (reportData()) {
-        <div class="space-y-6">
-          <!-- Summary Cards -->
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <!-- Total Schedules -->
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <div class="flex items-center justify-between">
-                <div>
-                  <p class="text-sm font-medium text-gray-600">Total Cronogramas</p>
-                  <p class="text-2xl font-bold text-gray-900 mt-1">{{ reportData()!.total_schedules }}</p>
-                </div>
-                <div class="bg-blue-500 p-3 rounded-lg">
-                  <lucide-angular [img]="FileTextIcon" class="w-6 h-6 text-white"></lucide-angular>
-                </div>
-              </div>
-            </div>
+      <!-- Status Distribution & Trend -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Status Breakdown -->
+        <div class="relative overflow-hidden rounded-2xl border border-slate-200/70 dark:border-slate-700/60 bg-white/80 dark:bg-slate-900/60 backdrop-blur shadow-lg p-6">
+          <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-purple-500/5"></div>
+          <h3 class="relative text-lg font-bold mb-4 flex items-center gap-2">
+            <lucide-angular [img]="PieChartIcon" class="w-5 h-5 text-indigo-600 dark:text-indigo-400"></lucide-angular>
+            <span>Distribución por Estado</span>
+          </h3>
 
-            <!-- Total Amount -->
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div class="space-y-4 relative">
+            @for (status of getStatusBreakdown(); track status.name) {
               <div class="flex items-center justify-between">
-                <div>
-                  <p class="text-sm font-medium text-gray-600">Monto Total</p>
-                  <p class="text-2xl font-bold text-gray-900 mt-1">{{ formatCurrency(reportData()!.total_amount) }}</p>
+                <div class="flex items-center gap-3">
+                  <div [class]="'w-3.5 h-3.5 rounded ring-1 ring-black/5 ' + status.color"></div>
+                  <span class="text-sm font-medium text-slate-900 dark:text-white">{{ status.label }}</span>
                 </div>
-                <div class="bg-green-500 p-3 rounded-lg">
-                  <lucide-angular [img]="DollarSignIcon" class="w-6 h-6 text-white"></lucide-angular>
+                <div class="text-right">
+                  <p class="text-sm font-semibold text-slate-900 dark:text-white">{{ status.count }}</p>
+                  <p class="text-xs text-slate-500">{{ formatCurrency(status.amount) }}</p>
                 </div>
               </div>
-            </div>
+              <div class="w-full h-2 rounded-full bg-slate-200/80 dark:bg-slate-700/60 overflow-hidden">
+                <div
+                  [class]="'h-2 rounded-full ' + status.color"
+                  [style.width.%]="status.percentage"
+                ></div>
+              </div>
+            }
+          </div>
+        </div>
 
-            <!-- Paid Amount -->
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <div class="flex items-center justify-between">
-                <div>
-                  <p class="text-sm font-medium text-gray-600">Monto Pagado</p>
-                  <p class="text-2xl font-bold text-green-600 mt-1">{{ formatCurrency(reportData()!.paid_amount) }}</p>
-                  <div class="flex items-center mt-1">
-                    <lucide-angular [img]="TrendingUpIcon" class="w-3 h-3 text-green-500 mr-1"></lucide-angular>
-                    <span class="text-xs text-green-600">{{ getPaymentRate() }}%</span>
-                  </div>
-                </div>
-                <div class="bg-green-500 p-3 rounded-lg">
-                  <lucide-angular [img]="TrendingUpIcon" class="w-6 h-6 text-white"></lucide-angular>
-                </div>
-              </div>
-            </div>
+        <!-- Monthly Trend (placeholder) -->
+        <div class="relative overflow-hidden rounded-2xl border border-slate-200/70 dark:border-slate-700/60 bg-white/80 dark:bg-slate-900/60 backdrop-blur shadow-lg p-6">
+          <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-cyan-500/5"></div>
+          <h3 class="relative text-lg font-bold mb-4 flex items-center gap-2">
+            <lucide-angular [img]="BarChart3Icon" class="w-5 h-5 text-blue-600 dark:text-blue-400"></lucide-angular>
+            <span>Tendencia Mensual</span>
+          </h3>
+          <div class="relative text-center py-10 text-slate-500 dark:text-slate-400">
+            Funcionalidad de tendencia mensual próximamente
+          </div>
+        </div>
+      </div>
 
-            <!-- Overdue Amount -->
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <div class="flex items-center justify-between">
-                <div>
-                  <p class="text-sm font-medium text-gray-600">Monto Vencido</p>
-                  <p class="text-2xl font-bold text-red-600 mt-1">{{ formatCurrency(reportData()!.overdue_amount) }}</p>
-                  <p class="text-xs text-gray-500 mt-1">{{ getOverdueCount() }} cuotas</p>
-                </div>
-                <div class="bg-red-500 p-3 rounded-lg">
-                  <lucide-angular [img]="AlertTriangleIcon" class="w-6 h-6 text-white"></lucide-angular>
-                </div>
-              </div>
-            </div>
+      <!-- Detailed Table -->
+      @if (filterForm.get('report_type')?.value === 'detailed' && reportData()!.schedules) {
+        <div class="relative overflow-hidden rounded-2xl border border-slate-200/70 dark:border-slate-700/60 bg-white/80 dark:bg-slate-900/60 backdrop-blur shadow-xl">
+          <div class="px-6 py-4 border-b border-slate-200/70 dark:border-slate-700/60">
+            <h3 class="text-lg font-bold">Detalle de Cronogramas</h3>
           </div>
 
-          <!-- Status Distribution -->
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Status Breakdown -->
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <lucide-angular [img]="PieChartIcon" class="w-5 h-5 mr-2"></lucide-angular>
-                Distribución por Estado
-              </h3>
-              <div class="space-y-4">
-                @for (status of getStatusBreakdown(); track status.name) {
-                  <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-3">
-                      <div [class]="'w-4 h-4 rounded ' + status.color"></div>
-                      <span class="text-sm font-medium text-gray-900">{{ status.label }}</span>
-                    </div>
-                    <div class="text-right">
-                      <p class="text-sm font-semibold text-gray-900">{{ status.count }}</p>
-                      <p class="text-xs text-gray-500">{{ formatCurrency(status.amount) }}</p>
-                    </div>
-                  </div>
-                  <div class="w-full bg-gray-200 rounded-full h-2">
-                    <div 
-                      [class]="'h-2 rounded-full ' + status.color"
-                      [style.width.%]="status.percentage"
-                    ></div>
-                  </div>
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="sticky top-0 z-10 bg-white/95 dark:bg-slate-900/80 backdrop-blur">
+                <tr class="text-left text-[11px] uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                  <th class="px-6 py-3 font-semibold">Contrato</th>
+                  <th class="px-6 py-3 font-semibold">Fecha Vencimiento</th>
+                  <th class="px-6 py-3 font-semibold">Monto</th>
+                  <th class="px-6 py-3 font-semibold">Estado</th>
+                  <th class="px-6 py-3 font-semibold">Días Vencido</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-200/70 dark:divide-slate-700/60">
+                @for (schedule of reportData()!.schedules!; track schedule.schedule_id) {
+                  <tr class="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors">
+                    <td class="px-6 py-4 text-sm font-medium text-slate-900 dark:text-white">{{ schedule.contract_id }}</td>
+                    <td class="px-6 py-4 text-sm text-slate-800 dark:text-slate-200">{{ formatDate(schedule.due_date) }}</td>
+                    <td class="px-6 py-4 text-sm text-slate-900 dark:text-white">{{ formatCurrency(schedule.amount) }}</td>
+                    <td class="px-6 py-4">
+                      <span [class]="getStatusClass(schedule.status)">{{ getStatusLabel(schedule.status) }}</span>
+                    </td>
+                    <td class="px-6 py-4 text-sm">
+                      @if (schedule.status === 'vencido') {
+                        <span class="text-red-600 dark:text-rose-400 font-semibold">{{ getDaysOverdue(schedule.due_date) }} días</span>
+                      } @else {
+                        <span class="text-slate-400">-</span>
+                      }
+                    </td>
+                  </tr>
                 }
-              </div>
-            </div>
-
-            <!-- Monthly Trend -->
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <lucide-angular [img]="BarChart3Icon" class="w-5 h-5 mr-2"></lucide-angular>
-                Tendencia Mensual
-              </h3>
-              <div class="text-center py-8 text-gray-500">
-                <p>Funcionalidad de tendencia mensual próximamente</p>
-              </div>
-            </div>
+              </tbody>
+            </table>
           </div>
-
-          <!-- Detailed Table -->
-          @if (filterForm.get('report_type')?.value === 'detailed' && reportData()!.schedules) {
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
-              <div class="p-6 border-b border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-900">Detalle de Cronogramas</h3>
-              </div>
-              <div class="overflow-x-auto">
-                <table class="w-full">
-                  <thead class="bg-gray-50">
-                    <tr>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contrato</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha Vencimiento</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monto</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Días Vencido</th>
-                    </tr>
-                  </thead>
-                  <tbody class="bg-white divide-y divide-gray-200">
-                    @for (schedule of reportData()!.schedules!; track schedule.schedule_id) {
-                      <tr>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          {{ schedule.contract_id }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {{ formatDate(schedule.due_date) }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {{ formatCurrency(schedule.amount) }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                          <span [class]="getStatusClass(schedule.status)">{{ getStatusLabel(schedule.status) }}</span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          @if (schedule.status === 'vencido') {
-                            <span class="text-red-600 font-medium">{{ getDaysOverdue(schedule.due_date) }} días</span>
-                          } @else {
-                            <span class="text-gray-500">-</span>
-                          }
-                        </td>
-                      </tr>
-                    }
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          }
-        </div>
-      } @else if (!isLoading()) {
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
-          <lucide-angular [img]="BarChart3Icon" class="w-16 h-16 mx-auto mb-4 text-gray-400"></lucide-angular>
-          <h3 class="text-lg font-medium text-gray-900 mb-2">Generar Reporte</h3>
-          <p class="text-gray-600">Configura los filtros y haz clic en "Generar Reporte" para ver los resultados</p>
-        </div>
-      }
-
-      <!-- Error Message -->
-      @if (errorMessage()) {
-        <div class="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center space-x-3">
-          <lucide-angular [img]="AlertTriangleIcon" class="w-5 h-5 text-red-600"></lucide-angular>
-          <p class="text-red-800">{{ errorMessage() }}</p>
         </div>
       }
     </div>
+  } @else if (!isLoading()) {
+    <div class="relative overflow-hidden rounded-2xl border border-slate-200/70 dark:border-slate-700/60 bg-white/80 dark:bg-slate-900/60 backdrop-blur shadow-xl p-12 text-center">
+      <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-indigo-500/5"></div>
+      <lucide-angular [img]="BarChart3Icon" class="w-16 h-16 mx-auto mb-4 text-slate-400"></lucide-angular>
+      <h3 class="text-lg font-bold mb-1">Generar Reporte</h3>
+      <p class="text-slate-600 dark:text-slate-400">Configura los filtros y haz clic en “Generar Reporte” para ver los resultados</p>
+    </div>
+  }
+
+  <!-- Error Message -->
+  @if (errorMessage()) {
+    <div class="relative overflow-hidden rounded-xl border border-red-200/60 dark:border-red-800/50 bg-red-50/80 dark:bg-red-900/20 p-4 flex items-center gap-3 shadow">
+      <div class="absolute inset-0 bg-gradient-to-r from-red-500/10 to-rose-500/10"></div>
+      <lucide-angular [img]="AlertTriangleIcon" class="w-5 h-5 text-red-600 dark:text-rose-400 relative"></lucide-angular>
+      <p class="text-red-800 dark:text-rose-200 font-medium relative">{{ errorMessage() }}</p>
+    </div>
+  }
+</div>
+
   `
 })
 export class CollectionsReportsComponent implements OnInit, OnDestroy {

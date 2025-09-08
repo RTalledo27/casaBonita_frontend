@@ -634,4 +634,30 @@ export class CommissionListComponent implements OnInit {
   hasCommissionsRequiringVerification(commissions: Commission[]): boolean {
     return commissions.some(commission => this.requiresPaymentVerification(commission));
   }
+
+  getPaymentTypeLabel(paymentType: string): string {
+    switch (paymentType) {
+      case 'first_payment':
+        return 'Primer Pago';
+      case 'second_payment':
+        return 'Segundo Pago';
+      case 'full_payment':
+        return 'Pago Completo';
+      default:
+        return paymentType || 'No especificado';
+    }
+  }
+
+  getPaymentStatusClass(status: string): string {
+    switch (status) {
+      case 'pagado':
+        return 'bg-green-100 text-green-800 border-green-200';
+      case 'pendiente':
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'cancelado':
+        return 'bg-red-100 text-red-800 border-red-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  }
 }

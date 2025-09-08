@@ -44,6 +44,10 @@ export class ContractsComponent {
     last_page: 1
   };
 
+  loading = false;
+  createEnabled = true;
+  importEnabled = true;
+
   columns: ColumnDef[] = [
     { field: 'contract_number', header: 'sales.contracts.contractNumber' },
     { field: 'reservation_id', header: 'sales.contracts.reservation' },

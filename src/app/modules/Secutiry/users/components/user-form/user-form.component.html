@@ -59,8 +59,8 @@
                   <span *ngIf="fc('first_name').errors?.['required']">First name is required.</span>
                   <span *ngIf="fc('first_name').errors?.['minlength']">Must be at least 3 characters.</span>
                 </div>
-                <div *ngIf="serverErrors['first_name']" class="error-msg">
-                  {{ serverErrors['first_name'][0] }}
+                <div *ngIf="serverErrors['first_name'] && serverErrors['first_name'].length > 0" class="error-msg">
+                {{ serverErrors['first_name'][0] }}
                 </div>
               </div>
         
@@ -72,8 +72,8 @@
                   <span *ngIf="fc('last_name').errors?.['required']">Last name is required.</span>
                   <span *ngIf="fc('last_name').errors?.['minlength']">Must be at least 3 characters.</span>
                 </div>
-                <div *ngIf="serverErrors['last_name']" class="error-msg">
-                  {{ serverErrors['last_name'][0] }}
+                <div *ngIf="serverErrors['last_name'] && serverErrors['last_name'].length > 0" class="error-msg">
+                {{ serverErrors['last_name'][0] }}
                 </div>
               </div>
         
@@ -85,8 +85,8 @@
                   <span *ngIf="fc('birth_date').errors?.['required']">{{ 'validation.birthDate.required' | translate }}</span>
                   <span *ngIf="fc('birth_date').errors?.['pattern']">Invalid date format.</span>
                 </div>
-                <div *ngIf="serverErrors['birth_date']" class="error-msg">
-                  {{ serverErrors['birth_date'][0] }}
+                <div *ngIf="serverErrors['birth_date'] && serverErrors['birth_date'].length > 0" class="error-msg">
+                {{ serverErrors['birth_date'][0] }}
                 </div>
               </div>
             </div>
@@ -116,7 +116,7 @@
               </div>
         
               <!-- Server-side error -->
-              <div *ngIf="serverErrors['photo_profile']" class="error-msg">
+              <div *ngIf="serverErrors['photo_profile'] && serverErrors['photo_profile'].length > 0" class="error-msg">
                 {{ serverErrors['photo_profile'][0] }}
               </div>
             </div>
@@ -138,7 +138,7 @@
                   Only 7–20 digits allowed.
                 </span>
               </div>
-              <div *ngIf="serverErrors['dni']" class="error-msg">
+              <div *ngIf="serverErrors['dni'] && serverErrors['dni'].length > 0" class="error-msg">
                 {{ serverErrors['dni'][0] }}
               </div>
             </div>
@@ -154,7 +154,7 @@
                   Invalid phone format.
                 </span>
               </div>
-              <div *ngIf="serverErrors['phone']" class="error-msg">
+              <div *ngIf="serverErrors['phone'] && serverErrors['phone'].length > 0" class="error-msg">
                 {{ serverErrors['phone'][0] }}
               </div>
             </div>
@@ -167,7 +167,7 @@
                   Max 255 characters.
                 </span>
               </div>
-              <div *ngIf="serverErrors['address']" class="error-msg">
+              <div *ngIf="serverErrors['address'] && serverErrors['address'].length > 0" class="error-msg">
                 {{ serverErrors['address'][0] }}
               </div>
             </div>
@@ -188,7 +188,7 @@
                   Max 60 characters.
                 </span>
               </div>
-              <div *ngIf="serverErrors['position']" class="error-msg">
+              <div *ngIf="serverErrors['position'] && serverErrors['position'].length > 0" class="error-msg">
                 {{ serverErrors['position'][0] }}
               </div>
             </div>
@@ -204,7 +204,7 @@
                   Max 60 characters.
                 </span>
               </div>
-              <div *ngIf="serverErrors['department']" class="error-msg">
+              <div *ngIf="serverErrors['department'] && serverErrors['department'].length > 0" class="error-msg">
                 {{ serverErrors['department'][0] }}
               </div>
             </div>
@@ -217,7 +217,7 @@
                   Invalid date.
                 </span>
               </div>
-              <div *ngIf="serverErrors['hire_date']" class="error-msg">
+              <div *ngIf="serverErrors['hire_date'] && serverErrors['hire_date'].length > 0" class="error-msg">
                 {{ serverErrors['hire_date'][0] }}
               </div>
               </div>
@@ -231,8 +231,8 @@
                     'common.download' | translate }}</a>
                 </div>
                 <input #cvInput type="file" (change)="onCvChange($event)" class="hidden" />
-                <div *ngIf="serverErrors['cv_file']" class="error-msg">
-                  {{ serverErrors['cv_file'][0] }}
+                <div *ngIf="serverErrors['cv_file'] && serverErrors['cv_file'].length > 0" class="error-msg">
+                {{ serverErrors['cv_file'][0] }}
                 </div>
               </div>
               </div>
@@ -253,7 +253,7 @@
                   Max 60 characters.
                 </span>
               </div>
-              <div *ngIf="serverErrors['username']" class="error-msg">
+              <div *ngIf="serverErrors['username'] && serverErrors['username'].length > 0" class="error-msg">
                 {{ serverErrors['username'][0] }}
               </div>
             </div>
@@ -269,7 +269,7 @@
                   Must be a valid email.
                 </span>
               </div>
-              <div *ngIf="serverErrors['email']" class="error-msg">
+              <div *ngIf="serverErrors['email'] && serverErrors['email'].length > 0" class="error-msg">
                 {{ serverErrors['email'][0] }}
               </div>
             </div>
@@ -312,7 +312,7 @@
                 <option value="active">Active</option>
                 <option value="blocked">Blocked</option>
               </select>
-              <div *ngIf="serverErrors['status']" class="error-msg">
+              <div *ngIf="serverErrors['status'] && serverErrors['status'].length > 0" class="error-msg">
                 {{ serverErrors['status'][0] }}
               </div>
             </div>
@@ -331,8 +331,8 @@
               </label>
             </ng-container>
           </div>
-          <div *ngIf="serverErrors['roles']" class="error-msg">
-            {{ serverErrors['roles'][0] }}
+          <div *ngIf="serverErrors['roles'] && serverErrors['roles'].length > 0" class="error-msg">
+                {{ serverErrors['roles'][0] }}
           </div>
 
           <ng-container *ngIf="selectedPermissions$ | async as perms">

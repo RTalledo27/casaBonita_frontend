@@ -1,38 +1,25 @@
-/* Team List Component Styles */
-.team-card {
-  transition: all 0.2s ease-in-out;
+/* Ajustes finos del dropdown */
+.glass-select {
+  border-radius: 14px;
+  transition: box-shadow .25s, border-color .25s, background-color .25s;
 }
 
-.team-card:hover {
-  transform: translateY(-2px);
+/* Fondo/tono de las opciones */
+.glass-select option {
+  background: #ffffff;         /* light */
+  color: #0f172a;
+  padding: .5rem .75rem;
 }
 
-.status-badge {
-  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+/* Dark mode */
+.dark .glass-select option {
+  background: #0b1220;         /* un azul muy oscuro para matchear el fondo */
+  color: #e5e7eb;
 }
 
-.status-active {
-  @apply bg-green-100 text-green-800;
-}
-
-.status-inactive {
-  @apply bg-red-100 text-red-800;
-}
-
-.action-button {
-  @apply inline-flex items-center justify-center p-2 rounded-md transition-colors;
-}
-
-.action-button:hover {
-  @apply bg-gray-100;
-}
-
-.search-input {
-  @apply w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg;
-  @apply focus:ring-2 focus:ring-blue-500 focus:border-transparent;
-}
-
-.filter-select {
-  @apply w-full px-3 py-2 border border-gray-300 rounded-lg;
-  @apply focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+/* Hover/selección (cuando el motor lo permite) */
+.glass-select option:hover,
+.glass-select option:checked {
+  background: linear-gradient(90deg, #4f46e5 0%, #6366f1 100%) !important;
+  color: #fff !important;
 }

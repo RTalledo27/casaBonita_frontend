@@ -1,243 +1,232 @@
-<div class="bonus-form-container max-w-4xl mx-auto p-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
-  <!-- Header -->
-  <div class="header bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 mb-8">
-    <button class="back-button inline-flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 font-medium mb-4 transition-all duration-200 hover:bg-gray-50 dark:hover:bg-gray-700 px-3 py-2 rounded-lg hover:-translate-x-1" (click)="goBack()">
-      <lucide-angular [img]="ArrowLeft" size="20"></lucide-angular>
-      Volver
-    </button>
-    <div class="header-content">
-      <h1 class="title flex items-center gap-3 text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-        <lucide-angular [img]="Gift" size="28" class="title-icon text-blue-600"></lucide-angular>
-        {{ isEditMode() ? 'Editar Bono' : 'Nuevo Bono' }}
-      </h1>
-      <p class="subtitle text-gray-600 dark:text-gray-400 text-lg">
-        {{ isEditMode() ? 'Modifica los datos del bono' : 'Completa la información para crear un nuevo bono' }}
-      </p>
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-indigo-900/30 relative overflow-hidden">
+  <!-- Background patterns -->
+  <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.10),transparent_50%)] dark:bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.05),transparent_50%)]"></div>
+  <div class="absolute inset-0 bg-[radial-gradient(circle_at_70%_85%,rgba(168,85,247,0.08),transparent_50%)] dark:bg-[radial-gradient(circle_at_70%_85%,rgba(168,85,247,0.04),transparent_50%)]"></div>
+
+  <div class="relative max-w-4xl mx-auto p-6">
+    <!-- Header -->
+    <div class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/50 p-6 mb-8 relative overflow-hidden">
+      <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/5 to-indigo-500/10 dark:from-blue-600/20 dark:via-purple-600/10 dark:to-indigo-600/20"></div>
+      <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500"></div>
+
+      <button class="group relative inline-flex items-center gap-2 text-gray-700 dark:text-gray-300 px-3 py-2 rounded-xl border border-white/40 dark:border-gray-600/60 bg-white/50 dark:bg-gray-700/40 hover:bg-white/70 dark:hover:bg-gray-700/60 transition-all hover:-translate-x-1 mb-4"
+              (click)="goBack()">
+        <lucide-angular [img]="ArrowLeft" size="18" class="group-hover:-translate-x-0.5 transition"></lucide-angular>
+        <span>Volver</span>
+      </button>
+
+      <div class="relative flex items-start gap-4">
+        <div class="bg-gradient-to-br from-blue-600 to-indigo-600 p-3 rounded-2xl shadow-lg">
+          <lucide-angular [img]="Gift" size="28" class="text-white"></lucide-angular>
+        </div>
+        <div>
+          <h1 class="text-3xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-indigo-800 dark:from-white dark:via-blue-200 dark:to-indigo-200 bg-clip-text text-transparent">
+            {{ isEditMode() ? 'Editar Bono' : 'Nuevo Bono' }}
+          </h1>
+          <p class="text-gray-600 dark:text-gray-400 mt-1">
+            {{ isEditMode() ? 'Modifica los datos del bono' : 'Completa la información para crear un nuevo bono' }}
+          </p>
+        </div>
+      </div>
     </div>
-  </div>
 
-  <!-- Loading State -->
-  <div *ngIf="loading()" class="loading-state bg-white dark:bg-gray-800 p-12 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col items-center justify-center">
-    <div class="loading-spinner w-10 h-10 border-4 border-gray-200 dark:border-gray-600 border-t-blue-600 rounded-full animate-spin mb-4"></div>
-    <p class="text-gray-600 dark:text-gray-300">Cargando datos...</p>
-  </div>
-
-  <!-- Error State -->
-  <div *ngIf="error()" class="error-state bg-white dark:bg-gray-800 p-12 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col items-center justify-center text-center">
-    <div class="error-icon text-red-500 mb-4">
-      <lucide-angular [img]="XCircle" size="48"></lucide-angular>
+    <!-- Loading -->
+    <div *ngIf="loading()" class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-xl border border-white/30 dark:border-gray-700/50 p-12 flex flex-col items-center">
+      <div class="w-10 h-10 rounded-full border-4 border-gray-200 dark:border-gray-600 border-t-blue-600 animate-spin mb-4"></div>
+      <p class="text-gray-600 dark:text-gray-300">Cargando datos...</p>
     </div>
-    <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Error al cargar datos</h3>
-    <p class="text-gray-600 dark:text-gray-300 mb-6">{{ error() }}</p>
-    <button class="btn btn-primary bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg font-medium transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/25" (click)="loadData()">
-      Reintentar
-    </button>
-  </div>
 
-  <!-- Form -->
-  <form *ngIf="!loading() && !error()" [formGroup]="bonusForm" (ngSubmit)="onSubmit()" class="form-container">
-    <div class="form-grid space-y-8">
-      <!-- Employee Selection -->
-      <div class="form-section bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow duration-200">
-        <h3 class="section-title flex items-center gap-3 text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6 pb-3 border-b border-gray-100 dark:border-gray-600">
-          <div class="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center">
-            <lucide-angular [img]="User" size="20" class="text-white"></lucide-angular>
-          </div>
-          Información del Empleado
-        </h3>
-        
-        <div class="form-group">
-          <label class="form-label required block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Empleado
-            <span class="text-red-500 ml-1">*</span>
+    <!-- Error -->
+    <div *ngIf="error()" class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-xl border border-white/30 dark:border-gray-700/50 p-10 text-center">
+      <div class="mx-auto w-14 h-14 rounded-2xl bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 flex items-center justify-center mb-4">
+        <lucide-angular [img]="XCircle" size="28"></lucide-angular>
+      </div>
+      <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Error al cargar datos</h3>
+      <p class="text-gray-600 dark:text-gray-300 mb-6">{{ error() }}</p>
+      <button class="px-5 py-2.5 rounded-2xl font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all"
+              (click)="loadData()">
+        Reintentar
+      </button>
+    </div>
+
+    <!-- Form -->
+    <form *ngIf="!loading() && !error()" [formGroup]="bonusForm" (ngSubmit)="onSubmit()">
+      <div class="space-y-8">
+        <!-- Empleado -->
+        <div class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 dark:border-gray-700/50 p-6 hover:shadow-2xl transition-all relative overflow-hidden">
+          <div class="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-purple-500 via-indigo-500 to-blue-500"></div>
+          <h3 class="flex items-center gap-3 text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">
+            <div class="w-8 h-8 bg-purple-600 rounded-lg grid place-items-center">
+              <lucide-angular [img]="User" size="18" class="text-white"></lucide-angular>
+            </div>
+            Información del Empleado
+          </h3>
+
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Empleado <span class="text-red-500">*</span>
           </label>
-          <select 
-            formControlName="employee_id"
-            class="form-select w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-            [class.error]="isFieldInvalid('employee_id')"
-            [ngClass]="{'border-red-300 focus:border-red-500 focus:ring-red-500': isFieldInvalid('employee_id')}">
+          <select formControlName="employee_id"
+                  class="app-select w-full px-4 py-3 rounded-2xl border border-gray-300/70 dark:border-gray-600/60 bg-white/70 dark:bg-gray-700/50 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500/60 focus:border-blue-500/60 transition"
+                  [class.border-red-300]="isFieldInvalid('employee_id')"
+                  [ngClass]="{'focus:border-red-500 focus:ring-red-500': isFieldInvalid('employee_id')}">
             <option value="" class="text-gray-500">Seleccionar empleado</option>
             <option *ngFor="let employee of employees()" [value]="employee.employee_id" class="text-gray-900">
               {{ employee.user?.first_name }} {{ employee.user?.last_name }} - {{ employee.employee_code }}
             </option>
           </select>
-          <div *ngIf="isFieldInvalid('employee_id')" class="error-message text-red-600 text-sm mt-1 flex items-center gap-1">
+          <div *ngIf="isFieldInvalid('employee_id')" class="mt-1 text-sm text-red-600 flex items-center gap-1">
             <lucide-angular [img]="AlertCircle" size="14"></lucide-angular>
             {{ getFieldError('employee_id') }}
           </div>
         </div>
-      </div>
 
-      <!-- Bonus Details -->
-      <div class="form-section bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow duration-200">
-        <h3 class="section-title flex items-center gap-3 text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6 pb-3 border-b border-gray-100 dark:border-gray-600">
-          <div class="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
-            <lucide-angular [img]="Gift" size="20" class="text-white"></lucide-angular>
-          </div>
-          Detalles del Bono
-        </h3>
-        
-        <div class="form-row grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div class="form-group">
-            <label class="form-label required block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Tipo de Bono
-              <span class="text-red-500 ml-1">*</span>
-            </label>
-            <select 
-              formControlName="bonus_type_id"
-              class="form-select w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-              [class.error]="isFieldInvalid('bonus_type_id')"
-              [ngClass]="{'border-red-300 focus:border-red-500 focus:ring-red-500': isFieldInvalid('bonus_type_id')}">
-              <option value="" class="text-gray-500">Seleccionar tipo</option>
-              <option *ngFor="let type of bonusTypes()" [value]="type.bonus_type_id" class="text-gray-900">
-                {{ type.type_name }}
-              </option>
-            </select>
-            <div *ngIf="isFieldInvalid('bonus_type_id')" class="error-message text-red-600 text-sm mt-1 flex items-center gap-1">
-              <lucide-angular [img]="AlertCircle" size="14"></lucide-angular>
-              {{ getFieldError('bonus_type_id') }}
+        <!-- Detalles del bono -->
+        <div class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 dark:border-gray-700/50 p-6 hover:shadow-2xl transition-all relative overflow-hidden">
+          <div class="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-emerald-500 via-blue-500 to-indigo-500"></div>
+          <h3 class="flex items-center gap-3 text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">
+            <div class="w-8 h-8 bg-emerald-600 rounded-lg grid place-items-center">
+              <lucide-angular [img]="Gift" size="18" class="text-white"></lucide-angular>
             </div>
-          </div>
-          
-          <div class="form-group">
-            <label class="form-label required block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Monto
-              <span class="text-red-500 ml-1">*</span>
-            </label>
-            <div class="input-with-icon relative">
-              <div class="input-icon absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500">
-                <lucide-angular [img]="DollarSign" size="16"></lucide-angular>
+            Detalles del Bono
+          </h3>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Tipo de Bono <span class="text-red-500">*</span>
+              </label>
+              <select formControlName="bonus_type_id"
+                      class="app-select w-full px-4 py-3 rounded-2xl border border-gray-300/70 dark:border-gray-600/60 bg-white/70 dark:bg-gray-700/50 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500/60 focus:border-blue-500/60 transition"
+                      [class.border-red-300]="isFieldInvalid('bonus_type_id')"
+                      [ngClass]="{'focus:border-red-500 focus:ring-red-500': isFieldInvalid('bonus_type_id')}">
+                <option value="" class="text-gray-500">Seleccionar tipo</option>
+                <option *ngFor="let type of bonusTypes()" [value]="type.bonus_type_id" class="text-gray-900">
+                  {{ type.type_name }}
+                </option>
+              </select>
+              <div *ngIf="isFieldInvalid('bonus_type_id')" class="mt-1 text-sm text-red-600 flex items-center gap-1">
+                <lucide-angular [img]="AlertCircle" size="14"></lucide-angular>
+                {{ getFieldError('bonus_type_id') }}
               </div>
-              <input 
-                type="number"
-                formControlName="amount"
-                class="form-input w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                [class.error]="isFieldInvalid('amount')"
-                [ngClass]="{'border-red-300 focus:border-red-500 focus:ring-red-500': isFieldInvalid('amount')}"
-                placeholder="0.00">
             </div>
-            <div *ngIf="isFieldInvalid('amount')" class="error-message text-red-600 text-sm mt-1 flex items-center gap-1">
-              <lucide-angular [img]="AlertCircle" size="14"></lucide-angular>
-              {{ getFieldError('amount') }}
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Monto <span class="text-red-500">*</span>
+              </label>
+              <div class="relative">
+                <div class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">
+                  <lucide-angular [img]="DollarSign" size="16"></lucide-angular>
+                </div>
+                <input type="number" formControlName="amount" placeholder="0.00"
+                       class="w-full pl-10 pr-4 py-3 rounded-2xl border border-gray-300/70 dark:border-gray-600/60 bg-white/70 dark:bg-gray-700/50 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500/60 focus:border-blue-500/60 transition"
+                       [class.border-red-300]="isFieldInvalid('amount')"
+                       [ngClass]="{'focus:border-red-500 focus:ring-red-500': isFieldInvalid('amount')}">
+              </div>
+              <div *ngIf="isFieldInvalid('amount')" class="mt-1 text-sm text-red-600 flex items-center gap-1">
+                <lucide-angular [img]="AlertCircle" size="14"></lucide-angular>
+                {{ getFieldError('amount') }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Período -->
+        <div class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 dark:border-gray-700/50 p-6 hover:shadow-2xl transition-all relative overflow-hidden">
+          <div class="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500"></div>
+          <h3 class="flex items-center gap-3 text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">
+            <div class="w-8 h-8 bg-orange-600 rounded-lg grid place-items-center">
+              <lucide-angular [img]="Calendar" size="18" class="text-white"></lucide-angular>
+            </div>
+            Período
+          </h3>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Mes <span class="text-red-500">*</span>
+              </label>
+              <select formControlName="month"
+                      class="app-select w-full px-4 py-3 rounded-2xl border border-gray-300/70 dark:border-gray-600/60 bg-white/70 dark:bg-gray-700/50 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500/60 focus:border-blue-500/60 transition">
+                <option value="">Seleccionar mes</option>
+                <option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option>
+                <option value="4">Abril</option><option value="5">Mayo</option><option value="6">Junio</option>
+                <option value="7">Julio</option><option value="8">Agosto</option><option value="9">Septiembre</option>
+                <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
+              </select>
+              <div *ngIf="isFieldInvalid('month')" class="mt-1 text-sm text-red-600 flex items-center gap-1">
+                <lucide-angular [img]="AlertCircle" size="14"></lucide-angular>
+                {{ getFieldError('month') }}
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Año <span class="text-red-500">*</span>
+              </label>
+              <select formControlName="year"
+                      class="app-select w-full px-4 py-3 rounded-2xl border border-gray-300/70 dark:border-gray-600/60 bg-white/70 dark:bg-gray-700/50 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500/60 focus:border-blue-500/60 transition">
+                <option value="">Seleccionar año</option>
+                <option value="2019">2019</option><option value="2020">2020</option><option value="2021">2021</option>
+                <option value="2022">2022</option><option value="2023">2023</option><option value="2024">2024</option>
+                <option value="2025">2025</option><option value="2026">2026</option><option value="2027">2027</option>
+                <option value="2028">2028</option><option value="2029">2029</option>
+              </select>
+              <div *ngIf="isFieldInvalid('year')" class="mt-1 text-sm text-red-600 flex items-center gap-1">
+                <lucide-angular [img]="AlertCircle" size="14"></lucide-angular>
+                {{ getFieldError('year') }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Información adicional -->
+        <div class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 dark:border-gray-700/50 p-6 hover:shadow-2xl transition-all relative overflow-hidden">
+          <div class="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
+          <h3 class="flex items-center gap-3 text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">
+            <div class="w-8 h-8 bg-indigo-600 rounded-lg grid place-items-center">
+              <lucide-angular [img]="FileText" size="18" class="text-white"></lucide-angular>
+            </div>
+            Información Adicional
+          </h3>
+
+          <div class="space-y-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Descripción</label>
+              <input type="text" formControlName="description"
+                     class="w-full px-4 py-3 rounded-2xl border border-gray-300/70 dark:border-gray-600/60 bg-white/70 dark:bg-gray-700/50 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500/60 focus:border-blue-500/60 transition"
+                     placeholder="Descripción del bono (ej: Bono por cumplimiento de metas)">
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Notas</label>
+              <textarea rows="4" formControlName="notes"
+                        class="w-full px-4 py-3 rounded-2xl border border-gray-300/70 dark:border-gray-600/60 bg-white/70 dark:bg-gray-700/50 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500/60 focus:border-blue-500/60 transition resize-none"
+                        placeholder="Notas adicionales sobre el bono"></textarea>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Period Information -->
-      <div class="form-section bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow duration-200">
-        <h3 class="section-title flex items-center gap-3 text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6 pb-3 border-b border-gray-100 dark:border-gray-600">
-          <div class="w-8 h-8 bg-orange-600 rounded-lg flex items-center justify-center">
-            <lucide-angular [img]="Calendar" size="20" class="text-white"></lucide-angular>
-          </div>
-          Período
-        </h3>
-        
-        <div class="form-row grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div class="form-group">
-            <label class="form-label required block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Mes
-              <span class="text-red-500 ml-1">*</span>
-            </label>
-            <select 
-              formControlName="month"
-              class="form-select w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
-              <option value="">Seleccionar mes</option>
-              <option value="1">Enero</option>
-              <option value="2">Febrero</option>
-              <option value="3">Marzo</option>
-              <option value="4">Abril</option>
-              <option value="5">Mayo</option>
-              <option value="6">Junio</option>
-              <option value="7">Julio</option>
-              <option value="8">Agosto</option>
-              <option value="9">Septiembre</option>
-              <option value="10">Octubre</option>
-              <option value="11">Noviembre</option>
-              <option value="12">Diciembre</option>
-            </select>
-            <div *ngIf="isFieldInvalid('month')" class="error-message text-red-600 text-sm mt-1 flex items-center gap-1">
-              <lucide-angular [img]="AlertCircle" size="14"></lucide-angular>
-              {{ getFieldError('month') }}
-            </div>
-          </div>
-          
-          <div class="form-group">
-            <label class="form-label required block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Año
-              <span class="text-red-500 ml-1">*</span>
-            </label>
-            <select 
-              formControlName="year"
-              class="form-select w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
-              <option value="">Seleccionar año</option>
-              <option value="2019">2019</option>
-              <option value="2020">2020</option>
-              <option value="2021">2021</option>
-              <option value="2022">2022</option>
-              <option value="2023">2023</option>
-              <option value="2024">2024</option>
-              <option value="2025">2025</option>
-              <option value="2026">2026</option>
-              <option value="2027">2027</option>
-              <option value="2028">2028</option>
-              <option value="2029">2029</option>
-            </select>
-            <div *ngIf="isFieldInvalid('year')" class="error-message text-red-600 text-sm mt-1 flex items-center gap-1">
-              <lucide-angular [img]="AlertCircle" size="14"></lucide-angular>
-              {{ getFieldError('year') }}
-            </div>
-          </div>
-        </div>
+      <!-- Actions -->
+      <div class="mt-8 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-xl border border-white/30 dark:border-gray-700/50 p-4 flex flex-col sm:flex-row gap-3 sm:justify-end">
+        <button type="button"
+                class="px-6 py-3 rounded-2xl font-medium text-gray-700 dark:text-gray-300 bg-white/70 dark:bg-gray-700/40 border border-gray-300/70 dark:border-gray-600/60 hover:bg-gray-50 dark:hover:bg-gray-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                (click)="onCancel()" [disabled]="saving()">
+          Cancelar
+        </button>
+        <button type="submit"
+                class="group relative px-6 py-3 rounded-2xl font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition disabled:opacity-50 disabled:cursor-not-allowed"
+                [disabled]="saving() || bonusForm.invalid">
+          <div class="absolute inset-0 rounded-2xl bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition"></div>
+          <span class="inline-flex items-center gap-2 relative z-10">
+            <lucide-angular [img]="Save" size="16"></lucide-angular>
+            {{ saving() ? 'Guardando...' : (isEditMode() ? 'Actualizar Bono' : 'Crear Bono') }}
+          </span>
+        </button>
       </div>
-
-      <!-- Additional Information -->
-      <div class="form-section full-width bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow duration-200">
-        <h3 class="section-title flex items-center gap-3 text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6 pb-3 border-b border-gray-100 dark:border-gray-600">
-          <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
-            <lucide-angular [img]="FileText" size="20" class="text-white"></lucide-angular>
-          </div>
-          Información Adicional
-        </h3>
-        
-        <div class="space-y-6">
-          <div class="form-group">
-            <label class="form-label block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Descripción</label>
-            <input 
-              type="text"
-              formControlName="description"
-              class="form-input w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-              placeholder="Descripción del bono (ej: Bono por cumplimiento de metas)">
-          </div>
-          
-          <div class="form-group">
-            <label class="form-label block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Notas</label>
-            <textarea 
-              formControlName="notes"
-              class="form-textarea w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 resize-none bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-              rows="4"
-              placeholder="Notas adicionales sobre el bono"></textarea>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Form Actions -->
-    <div class="form-actions bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 mt-8 flex flex-col sm:flex-row gap-4 sm:justify-end">
-      <button 
-        type="button"
-        class="btn btn-secondary bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 px-6 py-3 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-2 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
-        (click)="onCancel()"
-        [disabled]="saving()">
-        Cancelar
-      </button>
-      <button 
-        type="submit"
-        class="btn btn-primary bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-blue-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
-        [disabled]="saving() || bonusForm.invalid">
-        <lucide-angular [img]="Save" size="16"></lucide-angular>
-        {{ saving() ? 'Guardando...' : (isEditMode() ? 'Actualizar Bono' : 'Crear Bono') }}
-      </button>
-    </div>
-  </form>
+    </form>
+  </div>
 </div>
+
+

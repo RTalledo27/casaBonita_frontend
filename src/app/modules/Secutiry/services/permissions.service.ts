@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { API_ROUTES } from '../../../core/constants/api.routes';
 import { Permission } from '../users/models/permission';
 
@@ -9,10 +9,22 @@ interface ApiResponse<T> {
 }
 
 
-interface Paginated<T> {
+interface PaginatedResponse<T> {
   data: T[];
-  meta: any;
-  links: any;
+  meta: {
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+    from: number;
+    to: number;
+  };
+  links: {
+    first: string;
+    last: string;
+    prev: string | null;
+    next: string | null;
+  };
 }
 
 @Injectable({
@@ -23,11 +35,15 @@ export class PermissionsService {
 
   private base = API_ROUTES.SECURITY.PERMISSIONS;
 
-  list(): Observable<Permission[]> {
-    return this.http.get<ApiResponse<Permission[]>>(this.base).pipe(
+  list(page: number = 1, perPage: number = 10): Observable<PaginatedResponse<Permission>> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('per_page', perPage.toString());
+
+    return this.http.get<PaginatedResponse<Permission>>(this.base, { params }).pipe(
       map((resp) => {
         console.log('INSIDE MAP:', resp); // <--- Esto debe salir en consola
-        return resp.data;
+        return resp;
       })
     );
   }

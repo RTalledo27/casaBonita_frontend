@@ -15,6 +15,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { PusherListenerService } from '../../../core/services/pusher-listener.service';
 import { PusherService } from '../../../core/services/pusher.service';
 import { ColumnDef, SharedTableComponent } from '../../../shared/components/shared-table/shared-table.component';
+import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 @Component({
   selector: 'app-users',
   standalone: true,
@@ -26,6 +27,7 @@ import { ColumnDef, SharedTableComponent } from '../../../shared/components/shar
     RouterOutlet,
     TranslateModule,
     SharedTableComponent,
+    PaginationComponent,
   ],
   templateUrl: './users.component.html',
   styleUrl: './users.component.scss',
@@ -48,6 +50,14 @@ export class UsersComponent {
     { field: 'primary_phone', header: 'crm.clients.primary_phone' },
     { field: 'type', header: 'crm.clients.type' },
   ];
+
+  // Pagination properties
+  pagination = {
+    currentPage: 1,
+    totalPages: 1,
+    total: 0,
+    perPage: 10
+  };
 
   //pusher
   private usersSubject = new BehaviorSubject<User[]>([]);
@@ -85,11 +95,18 @@ export class UsersComponent {
     }
   }
 
-  getUsers(): void {
+  getUsers(page: number = 1): void {
     this.loading = true;
-    this.userService.list().subscribe({
+    this.userService.list(page, this.pagination.perPage).subscribe({
       next: (res: any) => {
         this.usersSubject.next(res.data);
+        // Actualizar propiedades de paginación desde meta
+        this.pagination = {
+          currentPage: res.meta?.current_page || page,
+          totalPages: res.meta?.last_page || 1,
+          total: res.meta?.total || 0,
+          perPage: res.meta?.per_page || 10
+        };
         this.loading = false;
       },
       error: () => {
@@ -238,6 +255,11 @@ export class UsersComponent {
 
   onView(id: number): void {
     this.router.navigate(['security/users', id]);
+  }
+
+  onPageChange(page: number): void {
+    this.pagination.currentPage = page;
+    this.getUsers(page);
   }
 
   onDelete(id: number): void {

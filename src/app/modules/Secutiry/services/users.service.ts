@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { User } from '../users/models/user';
@@ -6,6 +6,24 @@ import { API_ROUTES } from '../../../core/constants/api.routes';
 
 interface ApiResponse<T> {
   data: T;
+}
+
+interface PaginatedResponse<T> {
+  data: T[];
+  meta: {
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+    from: number;
+    to: number;
+  };
+  links: {
+    first: string;
+    last: string;
+    prev: string | null;
+    next: string | null;
+  };
 }
 
 @Injectable({
@@ -16,8 +34,12 @@ export class UsersService {
 
   private base = API_ROUTES.SECURITY.USERS;
 
-  list(): Observable<User[]> {
-    return this.http.get<User[]>(this.base);
+  list(page: number = 1, perPage: number = 10): Observable<PaginatedResponse<User>> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('per_page', perPage.toString());
+    
+    return this.http.get<PaginatedResponse<User>>(this.base, { params });
   }
   get(id: number): Observable<User> {
     return this.http

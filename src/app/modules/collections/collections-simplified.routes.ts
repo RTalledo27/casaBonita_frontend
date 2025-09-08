@@ -1,7 +1,5 @@
 import { Routes } from '@angular/router';
 import { CollectionsSimplifiedDashboardComponent } from './components/dashboard/collections-simplified-dashboard.component';
-import { ScheduleGeneratorComponent } from './components/generator/schedule-generator.component';
-import { InstallmentManagementComponent } from './components/installments/installment-management.component';
 import { CollectionsReportsComponent } from './components/reports/collections-reports.component';
 
 export const COLLECTIONS_SIMPLIFIED_ROUTES: Routes = [
@@ -21,7 +19,10 @@ export const COLLECTIONS_SIMPLIFIED_ROUTES: Routes = [
   },
   {
     path: 'generator',
-    component: ScheduleGeneratorComponent,
+    loadComponent: () => 
+      import('./components/generator/schedule-generator.component').then(
+        (m) => m.ScheduleGeneratorComponent
+      ),
     data: {
       title: 'Generador de Cronogramas',
       breadcrumb: 'Generador',
@@ -30,7 +31,10 @@ export const COLLECTIONS_SIMPLIFIED_ROUTES: Routes = [
   },
   {
     path: 'schedules',
-    component: InstallmentManagementComponent,
+    loadComponent: () => 
+      import('./components/installments/installment-management.component').then(
+        (m) => m.InstallmentManagementComponent
+      ),
     data: {
       title: 'Gestión de Cuotas',
       breadcrumb: 'Cuotas',
@@ -39,7 +43,10 @@ export const COLLECTIONS_SIMPLIFIED_ROUTES: Routes = [
   },
   {
     path: 'installments',
-    component: InstallmentManagementComponent,
+    loadComponent: () => 
+      import('./components/installments/installment-management.component').then(
+        (m) => m.InstallmentManagementComponent
+      ),
     data: {
       title: 'Gestión de Cuotas',
       breadcrumb: 'Cuotas',
@@ -57,7 +64,10 @@ export const COLLECTIONS_SIMPLIFIED_ROUTES: Routes = [
   },
   {
     path: 'schedules/:id',
-    component: InstallmentManagementComponent,
+    loadComponent: () => 
+      import('./components/installments/installment-management.component').then(
+        (m) => m.InstallmentManagementComponent
+      ),
     data: {
       title: 'Detalle de Cronograma',
       breadcrumb: 'Detalle',

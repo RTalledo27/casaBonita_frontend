@@ -5,7 +5,6 @@ import { HrIntegrationDashboardComponent } from '../components/hr-integration-da
 import { CollectionsDashboardComponent } from '../components/dashboard/collections-dashboard.component';
 import { CollectionsSimplifiedDashboardComponent } from '../components/dashboard/collections-simplified-dashboard.component';
 import { ScheduleGeneratorComponent } from '../components/generator/schedule-generator.component';
-import { InstallmentManagementComponent } from '../components/installments/installment-management.component';
 import { CollectionsReportsComponent } from '../components/reports/collections-reports.component';
 import { AccountsReceivableListComponent } from '../components/accounts-receivable/accounts-receivable-list.component';
 import { AgingReportsComponent } from '../components/aging-reports/aging-reports.component';
@@ -38,7 +37,10 @@ export const collectionsRoutes: Routes = [
   },
   {
     path: 'installments',
-    component: InstallmentManagementComponent,
+    loadComponent: () => 
+      import('../components/installments/installment-management.component').then(
+        (m) => m.InstallmentManagementComponent
+      ),
     data: {
       title: 'Gestión de Cuotas',
       breadcrumb: 'Cuotas',
@@ -56,7 +58,10 @@ export const collectionsRoutes: Routes = [
   },
   {
     path: 'schedules',
-    component: InstallmentManagementComponent,
+    loadComponent: () => 
+      import('../components/installments/installment-management.component').then(
+        (m) => m.InstallmentManagementComponent
+      ),
     data: {
       title: 'Gestión de Cuotas',
       breadcrumb: 'Cuotas',
@@ -65,7 +70,10 @@ export const collectionsRoutes: Routes = [
   },
   {
     path: 'schedules/:id',
-    component: InstallmentManagementComponent,
+    loadComponent: () => 
+      import('../components/installments/installment-management.component').then(
+        (m) => m.InstallmentManagementComponent
+      ),
     data: {
       title: 'Detalle de Cronograma',
       breadcrumb: 'Detalle',

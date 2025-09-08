@@ -1,6 +1,7 @@
-  // src/app/models/role.model.ts
+// src/app/models/role.model.ts
 
 import { Permission } from "./permission";
+import { User } from "./user";
 
   
   export interface Role {
@@ -13,5 +14,8 @@ import { Permission } from "./permission";
   
     // Relación many-to-many (Spatie devuelve un array de permisos)
     permissions : Permission[];
+    
+    // Relación many-to-many con usuarios
+    users?      : User[];
   }
   
