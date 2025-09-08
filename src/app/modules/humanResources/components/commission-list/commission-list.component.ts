@@ -2,7 +2,7 @@ import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { LucideAngularModule, DollarSign, Calendar, Filter, Search, Eye, CheckCircle, XCircle, Clock, TrendingUp, Plus, Edit, Trash2, FileText, ChevronRight, Users, AlertTriangle, Shield, CheckCircle2 } from 'lucide-angular';
+import { LucideAngularModule, DollarSign, Calendar, Filter, Search, Eye, CheckCircle, XCircle, Clock, TrendingUp, Plus, Edit, Trash2, FileText, ChevronRight, Users, AlertTriangle, Shield, CheckCircle2, CreditCard, RefreshCcw, RefreshCw } from 'lucide-angular';
 import { CommissionService } from '../../services/commission.service';
 import { Commission } from '../../models/commission';
 import { ToastService } from '../../../../core/services/toast.service';
@@ -66,6 +66,8 @@ export class CommissionListComponent implements OnInit {
   AlertTriangle = AlertTriangle;
   Shield = Shield;
   CheckCircle2 = CheckCircle2;
+  CreditCard = CreditCard;
+  RefreshCw =  RefreshCw;
 
   // Opciones para filtros
   statusOptions = [
@@ -112,6 +114,20 @@ export class CommissionListComponent implements OnInit {
 
       return matchesSearch && matchesStatus;
     });
+  });
+
+  // Comisiones paginadas
+  paginatedCommissions = computed(() => {
+    const filtered = this.filteredCommissions();
+    const itemsPerPage = 10;
+    const startIndex = (this.currentPage() - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    
+    // Actualizar total de páginas
+    this.totalPages.set(Math.ceil(filtered.length / itemsPerPage));
+    this.totalCommissions.set(filtered.length);
+    
+    return filtered.slice(startIndex, endIndex);
   });
 
   // Computed para comisiones agrupadas por asesor
@@ -352,7 +368,9 @@ export class CommissionListComponent implements OnInit {
     this.router.navigate(['/hr/commissions/split-payment', commission.commission_id]);
   }
 
-  getStatusClass(status: string): string {
+  getStatusClass(status: string | undefined): string {
+    if (!status) return 'bg-gray-100 text-gray-800';
+    
     switch (status) {
       case 'fully_paid':
         return 'bg-green-100 text-green-800';
@@ -367,7 +385,9 @@ export class CommissionListComponent implements OnInit {
     }
   }
 
-  getStatusLabel(status: string): string {
+  getStatusLabel(status: string | undefined): string {
+    if (!status) return 'Sin Estado';
+    
     switch (status) {
       case 'fully_paid':
         return 'Completamente Pagada';
@@ -378,7 +398,7 @@ export class CommissionListComponent implements OnInit {
       case 'cancelled':
         return 'Cancelada';
       default:
-        return status;
+        return status || 'Sin Estado';
     }
   }
 
@@ -635,7 +655,7 @@ export class CommissionListComponent implements OnInit {
     return commissions.some(commission => this.requiresPaymentVerification(commission));
   }
 
-  getPaymentTypeLabel(paymentType: string): string {
+  getPaymentTypeLabel(paymentType: string | undefined): string {
     switch (paymentType) {
       case 'first_payment':
         return 'Primer Pago';
@@ -648,7 +668,7 @@ export class CommissionListComponent implements OnInit {
     }
   }
 
-  getPaymentStatusClass(status: string): string {
+  getPaymentStatusClass(status: string | undefined): string {
     switch (status) {
       case 'pagado':
         return 'bg-green-100 text-green-800 border-green-200';
@@ -659,5 +679,24 @@ export class CommissionListComponent implements OnInit {
       default:
         return 'bg-gray-100 text-gray-800 border-gray-200';
     }
+  }
+
+  formatPeriod(month: number, year: number): string {
+    const monthName = this.monthOptions.find(m => m.value === month)?.label || 'Mes';
+    return `${monthName} ${year}`;
+  }
+
+  getPaymentProgress(commission: Commission): number {
+    if (!commission.child_commissions || commission.child_commissions.length === 0) {
+      return commission.payment_status === 'pagado' ? 100 : 0;
+    }
+    
+    const totalAmount = this.parseAmount(commission.commission_amount);
+    const paidCommissions = commission.child_commissions
+      .filter(child => child.payment_status === 'pagado');
+    const paidAmount = paidCommissions
+      .reduce((sum, child) => sum + this.parseAmount(child.commission_amount), 0);
+    
+    return totalAmount > 0 ? Math.round((paidAmount / totalAmount) * 100) : 0;
   }
 }
