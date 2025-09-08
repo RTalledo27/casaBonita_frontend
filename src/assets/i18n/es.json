@@ -386,8 +386,8 @@
       }
     },
     "reservations": {
-      "title": "Reservas",
-      "create": "Crear Reserva",
+      "title": "Separaciones",
+      "create": "Crear Separación",
       "client": "Cliente",
       "lot": "Lote",
       "date": "Fecha",
