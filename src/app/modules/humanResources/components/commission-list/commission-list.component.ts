@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { LucideAngularModule, DollarSign, Calendar, Filter, Search, Eye, CheckCircle, XCircle, Clock, TrendingUp, Plus, Edit, Trash2, FileText, ChevronRight, Users, AlertTriangle, Shield, CheckCircle2, CreditCard, RefreshCcw, RefreshCw } from 'lucide-angular';
+import { AdvisorCommissionsModalComponent } from '../advisor-commissions-modal/advisor-commissions-modal.component';
 import { CommissionService } from '../../services/commission.service';
 import { Commission } from '../../models/commission';
 import { ToastService } from '../../../../core/services/toast.service';
@@ -24,7 +25,7 @@ interface AdvisorCommissionGroup {
 @Component({
   selector: 'app-commission-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule],
+  imports: [CommonModule, FormsModule, LucideAngularModule, AdvisorCommissionsModalComponent],
   templateUrl: './commission-list.component.html',
   styleUrls: ['./commission-list.component.scss']
 })
@@ -43,9 +44,9 @@ export class CommissionListComponent implements OnInit {
   selectedMonth = signal<number>(new Date().getMonth() + 1);
   selectedYear = signal<number>(new Date().getFullYear());
   currentPage = signal<number>(1);
-  totalPages = signal<number>(1);
-  totalCommissions = signal<number>(0);
   showSplitPayments = signal<boolean>(false);
+  showAdvisorModal = signal<boolean>(false);
+  selectedAdvisorGroup = signal<AdvisorCommissionGroup | null>(null);
 
   // Iconos de Lucide
   DollarSign = DollarSign;
@@ -123,11 +124,18 @@ export class CommissionListComponent implements OnInit {
     const startIndex = (this.currentPage() - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     
-    // Actualizar total de páginas
-    this.totalPages.set(Math.ceil(filtered.length / itemsPerPage));
-    this.totalCommissions.set(filtered.length);
-    
     return filtered.slice(startIndex, endIndex);
+  });
+
+  // Computed separados para total de páginas y comisiones
+  computedTotalPages = computed(() => {
+    const filtered = this.filteredCommissions();
+    const itemsPerPage = 10;
+    return Math.ceil(filtered.length / itemsPerPage);
+  });
+
+  computedTotalCommissions = computed(() => {
+    return this.filteredCommissions().length;
   });
 
   // Computed para comisiones agrupadas por asesor
@@ -245,8 +253,6 @@ export class CommissionListComponent implements OnInit {
       
       if (response) {
         this.commissions.set(response.data);
-        this.totalPages.set(response.meta?.last_page || 1);
-        this.totalCommissions.set(response.meta?.total || 0);
       }
     } catch (error) {
       console.error('Error loading commissions:', error);
@@ -480,31 +486,7 @@ export class CommissionListComponent implements OnInit {
   }
 
   // Funciones para el estado general del asesor
-  getOverallStatusClass(status: string): string {
-    switch (status) {
-      case 'all_paid':
-        return 'bg-green-100 text-green-800 border-green-200';
-      case 'partial_paid':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'all_pending':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
-  }
 
-  getOverallStatusLabel(status: string): string {
-    switch (status) {
-      case 'all_paid':
-        return 'Completamente Pagado';
-      case 'partial_paid':
-        return 'Parcialmente Pagado';
-      case 'all_pending':
-        return 'Pendiente de Pago';
-      default:
-        return 'Estado Desconocido';
-    }
-  }
 
   isParentCommission(commission: Commission): boolean {
     return !commission.parent_commission_id;
@@ -537,28 +519,52 @@ export class CommissionListComponent implements OnInit {
   getOverallStatusIcon(status: string) {
     switch (status) {
       case 'all_paid':
-        return CheckCircle;
+        return CheckCircle2;
       case 'partial_paid':
         return Clock;
       case 'all_pending':
-        return Clock;
+        return AlertTriangle;
       default:
         return Clock;
     }
   }
 
-  // Navegar a la vista de comisiones del asesor
+  getOverallStatusClass(status: string): string {
+    switch (status) {
+      case 'all_paid':
+        return 'bg-green-100 text-green-800';
+      case 'partial_paid':
+        return 'bg-blue-100 text-blue-800';
+      case 'all_pending':
+        return 'bg-yellow-100 text-yellow-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  }
+
+  getOverallStatusLabel(status: string): string {
+    switch (status) {
+      case 'all_paid':
+        return 'Todo Pagado';
+      case 'partial_paid':
+        return 'Parcialmente Pagado';
+      case 'all_pending':
+        return 'Todo Pendiente';
+      default:
+        return 'Sin Estado';
+    }
+  }
+
+  // Abrir modal de comisiones del asesor
   viewAdvisorCommissions(advisorGroup: AdvisorCommissionGroup) {
-    // Navegar a la nueva ruta de comisiones del asesor
-    console.log(advisorGroup);
-    this.router.navigate(['/hr/commissions/advisor-commissions'], {
-      queryParams: {
-        month: this.selectedMonth(),
-        year: this.selectedYear(),
-        employeeId: advisorGroup.employee.employee_id,
-        employee: advisorGroup.employee.full_name,
-      }
-    });
+    this.selectedAdvisorGroup.set(advisorGroup);
+    this.showAdvisorModal.set(true);
+  }
+
+  // Cerrar modal de comisiones del asesor
+  closeAdvisorModal() {
+    this.showAdvisorModal.set(false);
+    this.selectedAdvisorGroup.set(null);
   }
 
   // Métodos para verificación de pagos del cliente

@@ -1,18 +1,34 @@
-<div class="commission-form-container max-w-4xl mx-auto p-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
+<div class="commission-form-container w-full max-w-5xl mx-auto px-6 lg:px-10 pt-10 md:pt-14 xl:pt-16 pb-12
+            bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20
+            dark:from-gray-900 dark:via-slate-900/80 dark:to-indigo-950/30
+            min-h-[100svh] relative overflow-hidden">
+
+  <!-- Blobs decorativos -->
+  <div class="pointer-events-none absolute inset-0 overflow-hidden">
+    <div class="absolute -top-32 -right-32 w-80 h-80 rounded-full blur-3xl bg-gradient-to-br from-blue-400/20 to-purple-600/20 animate-pulse"></div>
+    <div class="absolute -bottom-40 -left-40 w-96 h-96 rounded-full blur-3xl bg-gradient-to-tr from-indigo-400/15 to-cyan-400/15 animate-pulse delay-1000"></div>
+  </div>
+
   <!-- Header -->
-  <div class="header bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 mb-8">
-    <div class="flex items-center gap-4 mb-4">
-      <button 
-        type="button"
-        (click)="goBack()"
-        class="btn-back bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 p-2 rounded-lg transition-colors duration-200">
-        <lucide-angular [img]="ArrowLeft" size="20"></lucide-angular>
+  <div class="relative bg-white/70 dark:bg-gray-800/70 backdrop-blur-2xl p-8 rounded-3xl shadow-2xl
+              border border-white/20 dark:border-gray-700/50 mb-8 overflow-hidden group">
+    <div class="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500"></div>
+
+    <div class="relative flex items-center gap-4">
+      <button type="button" (click)="goBack()"
+              class="group relative w-11 h-11 rounded-2xl bg-white/80 dark:bg-gray-700/80 text-gray-700 dark:text-gray-100
+                     border border-gray-200/50 dark:border-gray-600/50 hover:bg-white dark:hover:bg-gray-600
+                     shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center">
+        <lucide-angular [name]="ArrowLeft" size="20" class="group-hover:-translate-x-0.5 transition-transform duration-300"></lucide-angular>
       </button>
+
       <div>
-        <h1 class="title text-3xl font-bold text-gray-900 dark:text-gray-100">
+        <h1 class="text-3xl md:text-4xl font-black bg-gradient-to-r from-gray-900 via-blue-800 to-indigo-800
+                   dark:from-white dark:via-blue-200 dark:to-indigo-200 bg-clip-text text-transparent tracking-tight">
           {{ isEditMode() ? 'Editar Comisión' : 'Nueva Comisión' }}
         </h1>
-        <p class="subtitle text-gray-600 dark:text-gray-300 text-lg">
+        <p class="text-gray-600 dark:text-gray-300 text-lg font-medium mt-1">
           {{ isEditMode() ? 'Modifica los datos de la comisión' : 'Registra una nueva comisión manualmente' }}
         </p>
       </div>
@@ -20,303 +36,255 @@
   </div>
 
   <!-- Form -->
-  <div class="form-container bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-8">
-    <form [formGroup]="commissionForm" (ngSubmit)="onSubmit()" class="space-y-8">
-      
-      <!-- Employee and Basic Info Section -->
-      <div class="form-section">
-        <div class="section-header flex items-center gap-3 mb-6">
-          <div class="icon bg-blue-100 text-blue-600 w-10 h-10 rounded-lg flex items-center justify-center">
-            <lucide-angular [img]="User" size="20"></lucide-angular>
+  <div class="relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-2xl rounded-3xl shadow-2xl
+              border border-white/30 dark:border-gray-700/50 overflow-hidden">
+    <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500"></div>
+
+    <form [formGroup]="commissionForm" (ngSubmit)="onSubmit()" class="relative p-8 space-y-10">
+      <!-- Información del Empleado -->
+      <section class="bg-white/90 dark:bg-gray-800/90 rounded-2xl border border-white/30 dark:border-gray-700/50 p-6 lg:p-8 hover:shadow-xl transition-shadow duration-300 relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-br from-blue-50/30 via-transparent to-indigo-50/30 dark:from-blue-900/10 dark:to-indigo-900/10"></div>
+
+        <header class="relative flex items-center gap-3 mb-6 border-b border-gray-100/70 dark:border-gray-600/60 pb-4">
+          <div class="bg-blue-100 text-blue-600 w-10 h-10 rounded-xl flex items-center justify-center">
+            <lucide-angular [name]="User" size="20"></lucide-angular>
           </div>
-          <h2 class="section-title text-xl font-semibold text-gray-900 dark:text-gray-100">Información del Empleado</h2>
-        </div>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <!-- Employee -->
-          <div class="form-group">
-            <label for="employee_id" class="form-label block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Empleado *
-            </label>
-            <select 
-              id="employee_id"
-              formControlName="employee_id"
-              class="form-control w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
-              [class.border-red-500]="isFieldInvalid('employee_id')">
+          <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">Información del Empleado</h2>
+        </header>
+
+        <div class="relative grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Empleado -->
+          <div>
+            <label for="employee_id" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Empleado *</label>
+            <select id="employee_id" formControlName="employee_id"
+                    class="app-select w-full px-4 py-3 rounded-xl border border-gray-300/70 dark:border-gray-600/60
+                           bg-white/70 dark:bg-gray-700/50 text-gray-900 dark:text-gray-100
+                           focus:ring-2 focus:ring-blue-500/60 focus:border-blue-500/60 transition-all"
+                    [class.border-red-500]="isFieldInvalid('employee_id')">
               <option value="">Seleccionar empleado</option>
               <option *ngFor="let employee of employees()" [value]="employee.employee_id">
                 {{ employee.user?.first_name }} {{ employee.user?.last_name }} - {{ employee.employee_code }}
               </option>
             </select>
-            <div *ngIf="isFieldInvalid('employee_id')" class="error-message text-red-500 text-sm mt-1">
-              {{ getFieldError('employee_id') }}
-            </div>
+            <p *ngIf="isFieldInvalid('employee_id')" class="mt-2 text-sm text-red-500 font-medium"> {{ getFieldError('employee_id') }} </p>
           </div>
 
-          <!-- Commission Type -->
-          <div class="form-group">
-            <label for="commission_type" class="form-label block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Tipo de Comisión *
-            </label>
-            <select 
-              id="commission_type"
-              formControlName="commission_type"
-              class="form-control w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
-              [class.border-red-500]="isFieldInvalid('commission_type')">
-              <option *ngFor="let type of commissionTypeOptions" [value]="type.value">
-                {{ type.label }}
-              </option>
+          <!-- Tipo de comisión -->
+          <div>
+            <label for="commission_type" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Tipo de Comisión *</label>
+            <select id="commission_type" formControlName="commission_type"
+                    class="app-select w-full px-4 py-3 rounded-xl border border-gray-300/70 dark:border-gray-600/60
+                           bg-white/70 dark:bg-gray-700/50 text-gray-900 dark:text-gray-100
+                           focus:ring-2 focus:ring-blue-500/60 focus:border-blue-500/60 transition-all"
+                    [class.border-red-500]="isFieldInvalid('commission_type')">
+              <option *ngFor="let type of commissionTypeOptions" [value]="type.value">{{ type.label }}</option>
             </select>
-            <div *ngIf="isFieldInvalid('commission_type')" class="error-message text-red-500 text-sm mt-1">
-              {{ getFieldError('commission_type') }}
-            </div>
+            <p *ngIf="isFieldInvalid('commission_type')" class="mt-2 text-sm text-red-500 font-medium"> {{ getFieldError('commission_type') }} </p>
           </div>
         </div>
-      </div>
+      </section>
 
-      <!-- Period Section -->
-      <div class="form-section">
-        <div class="section-header flex items-center gap-3 mb-6">
-          <div class="icon bg-purple-100 text-purple-600 w-10 h-10 rounded-lg flex items-center justify-center">
-            <lucide-angular [img]="Calendar" size="20"></lucide-angular>
+      <!-- Período -->
+      <section class="bg-white/90 dark:bg-gray-800/90 rounded-2xl border border-white/30 dark:border-gray-700/50 p-6 lg:p-8 hover:shadow-xl transition-shadow duration-300 relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-br from-purple-50/30 via-transparent to-pink-50/30 dark:from-purple-900/10 dark:to-pink-900/10"></div>
+
+        <header class="relative flex items-center gap-3 mb-6 border-b border-gray-100/70 dark:border-gray-600/60 pb-4">
+          <div class="bg-purple-100 text-purple-600 w-10 h-10 rounded-xl flex items-center justify-center">
+            <lucide-angular [name]="Calendar" size="20"></lucide-angular>
           </div>
-          <h2 class="section-title text-xl font-semibold text-gray-900 dark:text-gray-100">Período</h2>
-        </div>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <!-- Month -->
-          <div class="form-group">
-            <label for="period_month" class="form-label block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Mes *
-            </label>
-            <select 
-              id="period_month"
-              formControlName="period_month"
-              class="form-control w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
-              [class.border-red-500]="isFieldInvalid('period_month')">
-              <option *ngFor="let month of monthOptions" [value]="month.value">
-                {{ month.label }}
-              </option>
+          <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">Período</h2>
+        </header>
+
+        <div class="relative grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label for="period_month" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Mes *</label>
+            <select id="period_month" formControlName="period_month"
+                    class="app-select w-full px-4 py-3 rounded-xl border border-gray-300/70 dark:border-gray-600/60
+                           bg-white/70 dark:bg-gray-700/50 text-gray-900 dark:text-gray-100
+                           focus:ring-2 focus:ring-blue-500/60 focus:border-blue-500/60 transition-all"
+                    [class.border-red-500]="isFieldInvalid('period_month')">
+              <option *ngFor="let month of monthOptions" [value]="month.value">{{ month.label }}</option>
             </select>
-            <div *ngIf="isFieldInvalid('period_month')" class="error-message text-red-500 text-sm mt-1">
-              {{ getFieldError('period_month') }}
-            </div>
+            <p *ngIf="isFieldInvalid('period_month')" class="mt-2 text-sm text-red-500 font-medium"> {{ getFieldError('period_month') }} </p>
           </div>
 
-          <!-- Year -->
-          <div class="form-group">
-            <label for="period_year" class="form-label block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Año *
-            </label>
-            <input 
-              type="number"
-              id="period_year"
-              formControlName="period_year"
-              min="2020"
-              max="2030"
-              class="form-control w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
-              [class.border-red-500]="isFieldInvalid('period_year')"
-              placeholder="2024">
-            <div *ngIf="isFieldInvalid('period_year')" class="error-message text-red-500 text-sm mt-1">
-              {{ getFieldError('period_year') }}
-            </div>
+          <div>
+            <label for="period_year" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Año *</label>
+            <input id="period_year" type="number" min="2020" max="2030" formControlName="period_year"
+                   class="app-input w-full px-4 py-3 rounded-xl border border-gray-300/70 dark:border-gray-600/60
+                          bg-white/70 dark:bg-gray-700/50 text-gray-900 dark:text-gray-100
+                          focus:ring-2 focus:ring-blue-500/60 focus:border-blue-500/60 transition-all"
+                   [class.border-red-500]="isFieldInvalid('period_year')" placeholder="2025">
+            <p *ngIf="isFieldInvalid('period_year')" class="mt-2 text-sm text-red-500 font-medium"> {{ getFieldError('period_year') }} </p>
           </div>
         </div>
-      </div>
+      </section>
 
-      <!-- Commission Calculation Section -->
-      <div class="form-section">
-        <div class="section-header flex items-center gap-3 mb-6">
-          <div class="icon bg-green-100 text-green-600 w-10 h-10 rounded-lg flex items-center justify-center">
-            <lucide-angular [img]="Calculator" size="20"></lucide-angular>
+      <!-- Cálculo de Comisión -->
+      <section class="bg-white/90 dark:bg-gray-800/90 rounded-2xl border border-white/30 dark:border-gray-700/50 p-6 lg:p-8 hover:shadow-xl transition-shadow duration-300 relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-br from-green-50/30 via-transparent to-emerald-50/30 dark:from-green-900/10 dark:to-emerald-900/10"></div>
+
+        <header class="relative flex items-center gap-3 mb-6 border-b border-gray-100/70 dark:border-gray-600/60 pb-4">
+          <div class="bg-green-100 text-green-600 w-10 h-10 rounded-xl flex items-center justify-center">
+            <lucide-angular [name]="Calculator" size="20"></lucide-angular>
           </div>
-          <h2 class="section-title text-xl font-semibold text-gray-900 dark:text-gray-100">Cálculo de Comisión</h2>
-        </div>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <!-- Sale Amount -->
-          <div class="form-group">
-            <label for="sale_amount" class="form-label block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Monto de Venta
-            </label>
+          <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">Cálculo de Comisión</h2>
+        </header>
+
+        <div class="relative grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Monto de venta -->
+          <div>
+            <label for="sale_amount" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Monto de Venta</label>
             <div class="relative">
-              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <span class="text-gray-500 sm:text-sm">S/</span>
-              </div>
-              <input 
-                type="number"
-                id="sale_amount"
-                formControlName="sale_amount"
-                step="0.01"
-                min="0"
-                class="form-control w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
-                [class.border-red-500]="isFieldInvalid('sale_amount')"
-                placeholder="0.00">
+              <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">S/</span>
+              <input id="sale_amount" type="number" step="0.01" min="0" formControlName="sale_amount"
+                     class="app-input w-full pl-10 pr-4 py-3 rounded-xl border border-gray-300/70 dark:border-gray-600/60"/>
             </div>
-            <div *ngIf="isFieldInvalid('sale_amount')" class="error-message text-red-500 text-sm mt-1">
-              {{ getFieldError('sale_amount') }}
-            </div>
+            <p *ngIf="isFieldInvalid('sale_amount')" class="mt-2 text-sm text-red-500 font-medium"> {{ getFieldError('sale_amount') }} </p>
           </div>
 
-          <!-- Commission Percentage -->
-          <div class="form-group">
-            <label for="commission_percentage" class="form-label block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Porcentaje de Comisión
-            </label>
+          <!-- % comisión -->
+          <div>
+            <label for="commission_percentage" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Porcentaje de Comisión</label>
             <div class="relative">
-              <input 
-                type="number"
-                id="commission_percentage"
-                formControlName="commission_percentage"
-                step="0.01"
-                min="0"
-                max="100"
-                class="form-control w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
-                [class.border-red-500]="isFieldInvalid('commission_percentage')"
-                placeholder="0.00">
-              <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                <span class="text-gray-500 sm:text-sm">%</span>
-              </div>
+              <input id="commission_percentage" type="number" step="0.01" min="0" max="100" formControlName="commission_percentage"
+                     class="app-input w-full px-4 py-3 rounded-xl border border-gray-300/70 dark:border-gray-600/60"/>
+              <span class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500">%</span>
             </div>
-            <div *ngIf="isFieldInvalid('commission_percentage')" class="error-message text-red-500 text-sm mt-1">
-              {{ getFieldError('commission_percentage') }}
-            </div>
+            <p *ngIf="isFieldInvalid('commission_percentage')" class="mt-2 text-sm text-red-500 font-medium"> {{ getFieldError('commission_percentage') }} </p>
           </div>
 
-          <!-- Commission Amount -->
-          <div class="form-group">
-            <label for="commission_amount" class="form-label block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Monto de Comisión *
-            </label>
+          <!-- Monto comisión -->
+          <div>
+            <label for="commission_amount" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Monto de Comisión *</label>
             <div class="relative">
-              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <span class="text-gray-500 sm:text-sm">S/</span>
-              </div>
-              <input 
-                type="number"
-                id="commission_amount"
-                formControlName="commission_amount"
-                step="0.01"
-                min="0"
-                class="form-control w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
-                [class.border-red-500]="isFieldInvalid('commission_amount')"
-                placeholder="0.00">
+              <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">S/</span>
+              <input id="commission_amount" type="number" step="0.01" min="0" formControlName="commission_amount"
+                     class="app-input w-full pl-10 pr-4 py-3 rounded-xl border border-gray-300/70 dark:border-gray-600/60"
+                     [class.border-red-500]="isFieldInvalid('commission_amount')"/>
             </div>
-            <div *ngIf="isFieldInvalid('commission_amount')" class="error-message text-red-500 text-sm mt-1">
-              {{ getFieldError('commission_amount') }}
-            </div>
+            <p *ngIf="isFieldInvalid('commission_amount')" class="mt-2 text-sm text-red-500 font-medium"> {{ getFieldError('commission_amount') }} </p>
           </div>
         </div>
 
-        <!-- Additional Fields -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-          <!-- Contract ID -->
-          <div class="form-group">
-            <label for="contract_id" class="form-label block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              ID del Contrato
-            </label>
-            <input 
-              type="number"
-              id="contract_id"
-              formControlName="contract_id"
-              min="1"
-              class="form-control w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
-              placeholder="Opcional">
+        <!-- Extras -->
+        <div class="relative grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+          <div>
+            <label for="contract_id" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">ID del Contrato</label>
+            <input id="contract_id" type="number" min="1" formControlName="contract_id"
+                   class="app-input w-full px-4 py-3 rounded-xl border border-gray-300/70 dark:border-gray-600/60"
+                   placeholder="Opcional">
           </div>
-
-          <!-- Installment Plan -->
-          <div class="form-group">
-            <label for="installment_plan" class="form-label block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Plan de Cuotas (meses)
-            </label>
-            <input 
-              type="number"
-              id="installment_plan"
-              formControlName="installment_plan"
-              min="1"
-              class="form-control w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
-              placeholder="12, 24, 36...">
+          <div>
+            <label for="installment_plan" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Plan de Cuotas (meses)</label>
+            <input id="installment_plan" type="number" min="1" formControlName="installment_plan"
+                   class="app-input w-full px-4 py-3 rounded-xl border border-gray-300/70 dark:border-gray-600/60"
+                   placeholder="12, 24, 36...">
           </div>
         </div>
-      </div>
+      </section>
 
-      <!-- Payment Section -->
-      <div class="form-section">
-        <div class="section-header flex items-center gap-3 mb-6">
-          <div class="icon bg-yellow-100 text-yellow-600 w-10 h-10 rounded-lg flex items-center justify-center">
-            <lucide-angular [img]="DollarSign" size="20"></lucide-angular>
+      <!-- Estado de pago -->
+      <section class="bg-white/90 dark:bg-gray-800/90 rounded-2xl border border-white/30 dark:border-gray-700/50 p-6 lg:p-8 hover:shadow-xl transition-shadow duration-300 relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-br from-amber-50/30 via-transparent to-orange-50/30 dark:from-amber-900/10 dark:to-orange-900/10"></div>
+
+        <header class="relative flex items-center gap-3 mb-6 border-b border-gray-100/70 dark:border-gray-600/60 pb-4">
+          <div class="bg-yellow-100 text-yellow-600 w-10 h-10 rounded-xl flex items-center justify-center">
+            <lucide-angular [name]="DollarSign" size="20"></lucide-angular>
           </div>
-          <h2 class="section-title text-xl font-semibold text-gray-900 dark:text-gray-100">Estado de Pago</h2>
-        </div>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <!-- Payment Status -->
-          <div class="form-group">
-            <label for="payment_status" class="form-label block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Estado de Pago *
-            </label>
-            <select 
-              id="payment_status"
-              formControlName="payment_status"
-              class="form-control w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
-              [class.border-red-500]="isFieldInvalid('payment_status')">
-              <option *ngFor="let status of statusOptions" [value]="status.value">
-                {{ status.label }}
-              </option>
+          <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">Estado de Pago</h2>
+        </header>
+
+        <div class="relative grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label for="payment_status" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Estado de Pago *</label>
+            <select id="payment_status" formControlName="payment_status"
+                    class="app-select w-full px-4 py-3 rounded-xl border border-gray-300/70 dark:border-gray-600/60
+                           bg-white/70 dark:bg-gray-700/50 text-gray-900 dark:text-gray-100
+                           focus:ring-2 focus:ring-blue-500/60 focus:border-blue-500/60 transition-all"
+                    [class.border-red-500]="isFieldInvalid('payment_status')">
+              <option *ngFor="let status of statusOptions" [value]="status.value">{{ status.label }}</option>
             </select>
-            <div *ngIf="isFieldInvalid('payment_status')" class="error-message text-red-500 text-sm mt-1">
-              {{ getFieldError('payment_status') }}
-            </div>
+            <p *ngIf="isFieldInvalid('payment_status')" class="mt-2 text-sm text-red-500 font-medium"> {{ getFieldError('payment_status') }} </p>
           </div>
 
-          <!-- Payment Date -->
-          <div class="form-group">
-            <label for="payment_date" class="form-label block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Fecha de Pago
-            </label>
-            <input 
-              type="date"
-              id="payment_date"
-              formControlName="payment_date"
-              class="form-control w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
-            <p class="text-sm text-gray-500 mt-1">Solo si el estado es "Pagado"</p>
+          <div>
+            <label for="payment_date" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Fecha de Pago</label>
+            <input id="payment_date" type="date" formControlName="payment_date"
+                   class="app-input w-full px-4 py-3 rounded-xl border border-gray-300/70 dark:border-gray-600/60">
+            <p class="text-sm text-gray-500 mt-1">Solo si el estado es “Pagado”.</p>
           </div>
         </div>
-      </div>
+      </section>
 
-      <!-- Notes Section -->
-      <div class="form-section">
-        <div class="form-group">
-          <label for="notes" class="form-label block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Notas
-          </label>
-          <textarea 
-            id="notes"
-            formControlName="notes"
-            rows="4"
-            class="form-control w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
-            placeholder="Información adicional sobre la comisión..."></textarea>
-        </div>
-      </div>
+      <!-- Notas -->
+      <section class="bg-white/90 dark:bg-gray-800/90 rounded-2xl border border-white/30 dark:border-gray-700/50 p-6 lg:p-8 hover:shadow-xl transition-shadow duration-300">
+        <label for="notes" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Notas</label>
+        <textarea id="notes" rows="4" formControlName="notes"
+                  class="app-input w-full px-4 py-3 rounded-2xl border border-gray-300/70 dark:border-gray-600/60 resize-none"
+                  placeholder="Información adicional sobre la comisión..."></textarea>
+      </section>
 
-      <!-- Form Actions -->
-      <div class="form-actions flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
-        <button 
-          type="submit"
-          [disabled]="loading() || commissionForm.invalid"
-          class="btn btn-primary bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-8 py-3 rounded-lg font-medium transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/25 flex items-center justify-center gap-2">
-          <lucide-angular [img]="Save" size="20"></lucide-angular>
+      <!-- Acciones -->
+      <div class="bg-white/90 dark:bg-gray-800/90 rounded-2xl border border-white/30 dark:border-gray-700/50 p-6 flex flex-col sm:flex-row gap-4 justify-end">
+        <button type="submit" [disabled]="loading() || commissionForm.invalid"
+                class="group relative inline-flex items-center gap-3 px-8 py-3 rounded-2xl font-semibold text-white
+                       bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600
+                       hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700
+                       shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all duration-300
+                       disabled:opacity-60 disabled:cursor-not-allowed">
+          <lucide-angular [name]="Save" size="18" class="group-hover:scale-110 transition-transform duration-300"></lucide-angular>
           <span *ngIf="!loading()">{{ isEditMode() ? 'Actualizar Comisión' : 'Crear Comisión' }}</span>
           <span *ngIf="loading()">Guardando...</span>
         </button>
-        
-        <button 
-          type="button"
-          (click)="goBack()"
-          class="btn btn-secondary bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 px-8 py-3 rounded-lg font-medium transition-colors duration-200">
+
+        <button type="button" (click)="goBack()"
+                class="inline-flex items-center gap-3 px-8 py-3 rounded-2xl font-semibold
+                       bg-white/80 dark:bg-gray-700/80 text-gray-700 dark:text-gray-100
+                       border border-gray-200/50 dark:border-gray-600/50 hover:bg-white dark:hover:bg-gray-600
+                       shadow-lg hover:shadow-xl transition-all duration-300">
           Cancelar
         </button>
       </div>
     </form>
   </div>
 </div>
+
+<style>
+/* Inputs / selects estilo glass consistente */
+:host ::ng-deep .app-input{
+  background-color: rgba(255,255,255,.7);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 1px 1px rgba(0,0,0,.04);
+  transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease, transform .12s ease;
+}
+:host-context(.dark) ::ng-deep .app-input{ background-color: rgba(31,41,55,.5); }
+:host ::ng-deep .app-input:hover{ transform: translateY(-1px); }
+:host ::ng-deep .app-input:focus{
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(59,130,246,.15), inset 0 1px 0 rgba(255,255,255,.15);
+}
+
+/* Select con flecha personalizada */
+:host ::ng-deep .app-select{
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%2399A2FF' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right .9rem center;
+  background-size: 1rem;
+  padding-right: 2.4rem !important;
+  background-color: rgba(255,255,255,.7);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 1px 1px rgba(0,0,0,.04);
+  transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease, transform .12s ease;
+}
+:host-context(.dark) ::ng-deep .app-select{ background-color: rgba(31,41,55,.5); }
+:host ::ng-deep .app-select:hover{ transform: translateY(-1px); }
+:host ::ng-deep .app-select:focus{
+  outline: none;
+  border-color: rgba(99,102,241,.75);
+  box-shadow: 0 0 0 4px rgba(99,102,241,.18), inset 0 1px 0 rgba(255,255,255,.15);
+}
+/* Opcional: estiliza options en navegadores compatibles */
+:host ::ng-deep .app-select option{ background:#0b1220; color:#e5e7eb; }
+:host ::ng-deep .app-select option:checked,
+:host ::ng-deep .app-select option:hover{ background:#4338ca; color:#fff; }
+</style>

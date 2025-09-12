@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterOutlet } from '@angular/router';
 import { Observable } from 'rxjs';
-import { LucideAngularModule, Plus } from 'lucide-angular';
+import { Eraser, LucideAngularModule, Plus, PlusIcon, Search, Users } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { Client } from '../models/client';
@@ -33,6 +33,11 @@ export class ClientsComponent implements OnInit {
   isModalOpen = false;
   plus = Plus;
   idField = 'client_id';
+  Users = Users;
+  Search = Search;
+  Eraser  = Eraser;
+  Plus = PlusIcon;
+
 
   columns: ColumnDef[] = [
     { field: 'first_name', header: 'First Name' },
