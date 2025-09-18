@@ -1,84 +1,59 @@
-import { Component } from '@angular/core';
-import { ContractsService } from '../services/contracts.service';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
-import { ColumnDef, SharedTableComponent } from '../../../shared/components/shared-table/shared-table.component';
+import { Component, OnInit, TemplateRef, ViewChild, ChangeDetectorRef } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { LucideAngularModule, Plus, Upload } from 'lucide-angular';
-import { FormsModule } from '@angular/forms';
-import { ContractFormComponent } from './components/contract-form/contract-form.component';
-import { ContractImportComponent } from './components/contract-import/contract-import.component';
-import { ContractCreationModalComponent } from './contract-creation-modal/contract-creation-modal.component';
-import { AuthService } from '../../../core/services/auth.service';
-import { ModalService } from '../../../core/services/modal.service';
-import { BehaviorSubject } from 'rxjs';
+import { ContractsService } from '../services/contracts.service';
 import { Contract } from '../models/contract';
-import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
+import { SharedTableComponent, ColumnDef } from '../../../shared/components/shared-table/shared-table.component';
+import { ModalService } from '../../../core/services/modal.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { ThemeService } from '../../../core/services/theme.service';
+import { ContractImportComponent } from './components/contract-import/contract-import.component';
+// import { ContractCreationModalComponent } from '../contract-creation-modal/contract-creation-modal.component';
 
 @Component({
   selector: 'app-contracts',
-  standalone:true,
+  standalone: true,
   imports: [
     CommonModule,
-    RouterOutlet,
     SharedTableComponent,
     TranslateModule,
     LucideAngularModule,
     FormsModule,
     ContractImportComponent,
-    ContractCreationModalComponent,
-    PaginationComponent,
+    // ContractCreationModalComponent,
+    // PaginationComponent,
   ],
   templateUrl: './contracts.component.html',
   styleUrl: './contracts.component.scss',
 })
-export class ContractsComponent {
-  private contractsSubject = new BehaviorSubject<Contract[]>([]);
-  contracts$ = this.contractsSubject.asObservable();
-  
-  pagination = {
-    current_page: 1,
-    per_page: 10,
-    total: 0,
-    last_page: 1
-  };
-
+export class ContractsComponent implements OnInit {
+  contracts: Contract[] = [];
   loading = false;
+  currentPage = 1;
+  pageSize = 10;
+  totalItems = 0;
+  searchTerm = '';
+  pagination: any = {
+    current_page: 1,
+    last_page: 1,
+    total: 0,
+    per_page: 10
+  };
+  
   createEnabled = true;
   importEnabled = true;
 
   columns: ColumnDef[] = [
-    { field: 'contract_number', header: 'sales.contracts.contractNumber' },
-    { field: 'reservation_id', header: 'sales.contracts.reservation' },
-    { field: 'sign_date', header: 'sales.contracts.signDate' },
-    {
-      field: 'total_price',
-      header: 'sales.contracts.totalPrice',
-      align: 'right',
-    },
-    {
-      field: 'down_payment',
-      header: 'sales.contracts.downPayment',
-      align: 'right',
-    },
-    {
-      field: 'financing_amount',
-      header: 'sales.contracts.financingAmount',
-      align: 'right',
-    },
-    {
-      field: 'bpp',
-      header: 'sales.contracts.bpp',
-      align: 'right',
-    },
-    {
-      field: 'bfh',
-      header: 'sales.contracts.bfh',
-      align: 'right',
-    },
-    { field: 'currency', header: 'sales.contracts.currency' },
-    { field: 'status', header: 'sales.contracts.status' },
+    { field: 'contract_number', header: 'Número de Contrato' },
+    { field: 'client_name', header: 'Cliente' },
+    { field: 'lot_name', header: 'Lote' },
+    { field: 'advisor', header: 'Asesor', tpl: 'advisor' },
+    { field: 'sign_date', header: 'Fecha de Firma', tpl: 'signDate' },
+    { field: 'total_price', header: 'Precio Total', align: 'right' },
+    { field: 'status', header: 'Estado' }
   ];
   idField = 'contract_id';
   plus = Plus;
@@ -88,90 +63,173 @@ export class ContractsComponent {
   isCreationModalOpen = false;
 
   constructor(
-    private contractService: ContractsService,
+    private contractsService: ContractsService,
     private router: Router,
     private route: ActivatedRoute,
     private modalService: ModalService,
     public authService: AuthService,
-    public theme: ThemeService
+    public theme: ThemeService,
+    private cdr: ChangeDetectorRef
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
+    console.log('ContractsComponent ngOnInit called');
+    const user = this.authService.userSubject.value;
+    console.log('Current user:', user);
+    console.log('User permissions:', user?.permissions);
+    console.log('Has sales.contracts.view permission:', this.authService.hasPermission('sales.contracts.view'));
+    
+    // Verificar si el usuario está autenticado
+    if (!user) {
+      console.log('No user found, redirecting to login');
+      return;
+    }
+    
+    // Verificar permisos específicos
+    if (!this.authService.hasPermission('sales.contracts.view')) {
+      console.log('User does not have sales.contracts.view permission');
+      console.log('Available permissions:', user.permissions);
+      return;
+    }
+    
     this.loadContracts();
   }
 
-  loadContracts() {
-    const params = {
-      page: this.pagination.current_page,
-      per_page: this.pagination.per_page
-    };
+  getAdvisorName(contract: any): string {
+    return contract.advisor?.full_name || 'Sin asesor';
+  }
+
+  getAdvisorInitials(contract: any): string {
+    const name = this.getAdvisorName(contract);
+    if (name === 'Sin asesor') return 'SA';
+    return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+  }
+
+  formatSignDate(date: string): string {
+    if (!date) return 'Sin fecha';
+    return new Date(date).toLocaleDateString('es-ES');
+  }
+
+  getRelativeDate(date: string): string {
+    if (!date) return '';
+    const now = new Date();
+    const signDate = new Date(date);
+    const diffTime = Math.abs(now.getTime() - signDate.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     
-    this.contractService
-      .list(params)
-      .subscribe((response) => {
-        this.contractsSubject.next(response.data);
-        this.pagination = {
-          current_page: response.meta.current_page,
-          per_page: response.meta.per_page,
-          total: response.meta.total,
-          last_page: response.meta.last_page
-        };
+    if (diffDays === 0) return 'Hoy';
+    if (diffDays === 1) return 'Ayer';
+    if (diffDays < 7) return `Hace ${diffDays} días`;
+    if (diffDays < 30) return `Hace ${Math.floor(diffDays / 7)} semanas`;
+    return `Hace ${Math.floor(diffDays / 30)} meses`;
+  }
+
+  loadContracts(): void {
+    this.loading = true;
+    console.log('Loading contracts with params:', {
+      page: this.currentPage,
+      per_page: this.pageSize,
+      search: this.searchTerm
+    });
+    
+    this.contractsService.list({
+      page: this.currentPage,
+      per_page: this.pageSize,
+      search: this.searchTerm
+    })
+      .subscribe((response: any) => {
+        console.log('Full API response:', response);
+        console.log('Response data:', response.data);
+        console.log('Response meta:', response.meta);
+        
+        // Manejar tanto el formato con meta como el formato directo
+        if (response.data) {
+          this.contracts = response.data;
+          this.totalItems = response.meta?.total || response.data.length;
+          this.pagination = response.meta || {
+            current_page: 1,
+            last_page: 1,
+            total: response.data.length,
+            per_page: this.pageSize
+          };
+        } else if (Array.isArray(response)) {
+          // Si la respuesta es directamente un array
+          this.contracts = response;
+          this.totalItems = response.length;
+          this.pagination = {
+            current_page: 1,
+            last_page: 1,
+            total: response.length,
+            per_page: this.pageSize
+          };
+        } else {
+          this.contracts = [];
+          this.totalItems = 0;
+        }
+        
+        this.loading = false;
+        
+        console.log('Contracts assigned:', this.contracts);
+        console.log('Total items:', this.totalItems);
+        console.log('Pagination:', this.pagination);
+        
+        // Forzar detección de cambios
+        this.cdr.detectChanges();
+      }, error => {
+        console.error('Error loading contracts:', error);
+        console.error('Error details:', error.error);
+        this.loading = false;
       });
   }
   
   onPageChange(page: number): void {
-    this.pagination.current_page = page;
+    this.currentPage = page;
     this.loadContracts();
   }
 
-  onCreate() {
+  openEditModal(id: number): void {
+    // Implementar lógica para abrir modal de edición
+    console.log('Edit contract:', id);
+  }
+
+  deleteContract(id: number): void {
+    // Implementar lógica para eliminar contrato
+    console.log('Delete contract:', id);
+  }
+
+  openViewModal(id: number): void {
+    // Implementar lógica para ver detalles del contrato
+    console.log('View contract:', id);
+  }
+
+  onCreate(): void {
+    // Implementar lógica para crear contrato
+    console.log('Create contract');
     this.isCreationModalOpen = true;
   }
 
-  onEdit(id: number) {
-    this.modalService.open([id.toString(), 'edit'], this.route);
-    this.isModalOpen = true;
-  }
-
-  onModalActivate(component: any) {
-    if (component instanceof ContractFormComponent) {
-      component.modalClosed.subscribe(() => {
-        this.isModalOpen = false;
-        this.modalService.close(this.route);
-        this.loadContracts();
-      });
-      component.submitForm.subscribe(() => {
-        this.isModalOpen = false;
-        this.modalService.close(this.route);
-        this.loadContracts();
-      });
-    }
-  }
-
-  onModalDeactivate() {
-    this.isModalOpen = false;
-    this.modalService.close(this.route);
-  }
-
-  onImport() {
+  onImport(): void {
+    // Implementar lógica para importar contratos
+    console.log('Import contracts');
     this.isImportModalOpen = true;
   }
 
-  onImportModalClose() {
+  onImportModalClose(): void {
     this.isImportModalOpen = false;
   }
 
-  onImportCompleted() {
+  onImportCompleted(): void {
+    this.isImportModalOpen = false;
     this.loadContracts();
-    this.isImportModalOpen = false;
   }
 
-  onCreationModalClose() {
+  onCreationModalClose(): void {
     this.isCreationModalOpen = false;
   }
 
-  onContractCreated() {
+  onContractCreated(): void {
+    this.isCreationModalOpen = false;
     this.loadContracts();
-    this.onCreationModalClose();
   }
+
 }

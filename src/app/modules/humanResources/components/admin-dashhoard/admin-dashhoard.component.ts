@@ -276,7 +276,7 @@ export class AdminDashhooardComponent implements OnInit {
       },
       bonuses_summary: bonusesSummary,
       top_performers: topPerformers,
-      employees: employees.map((emp: any, index: number) => {
+      employees: Array.isArray(employees) ? employees.map((emp: any, index: number) => {
         // Calcular comisiones desde las relaciones
         let calculatedCommissions = 0;
         if (emp.commissions && Array.isArray(emp.commissions)) {
@@ -318,7 +318,7 @@ export class AdminDashhooardComponent implements OnInit {
           employee_type: emp.employee_type || 'N/A',
           employment_status: emp.employment_status || 'activo'
         };
-      })
+      }) : []
     };
 
     return transformedData;

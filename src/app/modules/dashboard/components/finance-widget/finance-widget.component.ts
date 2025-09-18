@@ -32,19 +32,25 @@ export class FinanceWidgetComponent {
   loadFinanceData() {
     // Cargar presupuestos activos
     this.budgetService.list().subscribe((budgets) => {
-      this.activeBudgets = budgets.filter((b) => b.status === 'active').length;
+      // Ensure budgets is always an array before using array methods
+      const safeBudgets = Array.isArray(budgets) ? budgets : [];
+      this.activeBudgets = safeBudgets.filter((b) => b.status === 'active').length;
     });
 
     // Cargar cuentas por cobrar
     this.collectionService.listAccountsReceivable().subscribe((accounts) => {
-      this.pendingAmount = accounts
+      // Ensure accounts is always an array before using array methods
+      const safeAccounts = Array.isArray(accounts) ? accounts : [];
+      this.pendingAmount = safeAccounts
         .filter((a) => a.status === 'pending' || a.status === 'partial')
         .reduce((sum, a) => sum + (a.balance || a.amount), 0);
     });
 
     // Cargar pagos vencidos
     this.collectionService.getOverdueAccounts().subscribe((overdue) => {
-      this.overdueCount = overdue.length;
+      // Ensure overdue is always an array before using array methods
+      const safeOverdue = Array.isArray(overdue) ? overdue : [];
+      this.overdueCount = safeOverdue.length;
     });
   }
 }

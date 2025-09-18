@@ -3,9 +3,10 @@ import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { LucideAngularModule, ArrowLeft, User, Calendar, DollarSign, FileText, CheckCircle, Clock, XCircle, Edit, Trash2 } from 'lucide-angular';
 
-import { CommissionService } from '../../services/commission.service';
+import { CommissionService, ContractDetail, PaymentScheduleItem, CommissionWithContractDetails, ChildCommissionPercentage } from '../../services/commission.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { Commission } from '../../models/commission';
+import { Employee } from '../../models/employee';
 
 @Component({
   selector: 'app-commission-detail',
@@ -34,8 +35,12 @@ export class CommissionDetailComponent implements OnInit {
 
   // Signals
   commission = signal<Commission | null>(null);
-  loading = signal(true);
+  contractDetails = signal<ContractDetail | null>(null);
+  paymentSchedule = signal<PaymentScheduleItem[]>([]);
+  childCommissionsPercentage = signal<ChildCommissionPercentage[]>([]);
+  loading = signal<boolean>(true);
   error = signal<string | null>(null);
+  loadingContractDetails = signal<boolean>(false);
 
   // Options
   monthOptions = [
@@ -43,7 +48,7 @@ export class CommissionDetailComponent implements OnInit {
     'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
   ];
 
-  ngOnInit() {
+  ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.loadCommission(+id);
@@ -53,8 +58,28 @@ export class CommissionDetailComponent implements OnInit {
     }
   }
 
-  private loadCommission(id: number) {
+  private loadCommission(id: number): void {
     this.loading.set(true);
+    this.error.set(null);
+    
+    // Cargar información completa de la comisión con detalles del contrato
+    this.commissionService.getCommissionWithContractDetails(id).subscribe({
+      next: (data) => {
+        this.commission.set(data.commission);
+        this.contractDetails.set(data.contract);
+        this.paymentSchedule.set(data.payment_schedule);
+        this.childCommissionsPercentage.set(data.child_commissions_percentage);
+        this.loading.set(false);
+      },
+      error: (error) => {
+        console.error('Error loading commission with contract details:', error);
+        // Fallback: cargar solo la comisión si el endpoint completo falla
+        this.loadBasicCommission(id);
+      }
+    });
+  }
+
+  private loadBasicCommission(id: number): void {
     this.commissionService.getCommission(id).subscribe({
       next: (response) => {
         if (response.success) {
@@ -65,6 +90,11 @@ export class CommissionDetailComponent implements OnInit {
             this.redirectToSalesDetail(response.data);
             return;
           }
+          
+          // Cargar detalles del contrato por separado si existe contract_id
+          if (response.data.contract_id) {
+            this.loadContractDetails(response.data.contract_id);
+          }
         } else {
           this.error.set('No se pudo cargar la comisión');
         }
@@ -74,6 +104,32 @@ export class CommissionDetailComponent implements OnInit {
         console.error('Error loading commission:', error);
         this.error.set('Error al cargar la comisión');
         this.loading.set(false);
+      }
+    });
+  }
+
+  private loadContractDetails(contractId: number): void {
+    this.loadingContractDetails.set(true);
+    
+    // Cargar detalles del contrato
+    this.commissionService.getContractDetails(contractId).subscribe({
+      next: (contract) => {
+        this.contractDetails.set(contract);
+        this.loadingContractDetails.set(false);
+      },
+      error: (error) => {
+        console.error('Error loading contract details:', error);
+        this.loadingContractDetails.set(false);
+      }
+    });
+
+    // Cargar cronograma de pagos
+    this.commissionService.getContractPaymentSchedule(contractId).subscribe({
+      next: (schedule) => {
+        this.paymentSchedule.set(schedule);
+      },
+      error: (error) => {
+        console.error('Error loading payment schedule:', error);
       }
     });
   }
@@ -194,8 +250,52 @@ export class CommissionDetailComponent implements OnInit {
     }).format(amount);
   }
 
+  // Calcular el porcentaje total de comisiones hijas
+  getTotalChildCommissionsPercentage(): number {
+    return this.childCommissionsPercentage().reduce((total, child) => {
+      return total + (child.percentage_of_parent || 0);
+    }, 0);
+  }
+
+  // Verificar si hay información del contrato
+  hasContractDetails(): boolean {
+    return this.contractDetails() !== null;
+  }
+
+  // Verificar si hay cronograma de pagos
+  hasPaymentSchedule(): boolean {
+    return this.paymentSchedule().length > 0;
+  }
+
+  // Verificar si hay comisiones hijas con porcentajes
+  hasChildCommissionsWithPercentages(): boolean {
+    return this.childCommissionsPercentage().length > 0;
+  }
+
+  // Obtener el estado del cronograma de pagos
+  getPaymentScheduleStatusClass(status: string): string {
+    const statusClasses: { [key: string]: string } = {
+      'pending': 'bg-yellow-100 text-yellow-800 border-yellow-200',
+      'paid': 'bg-green-100 text-green-800 border-green-200',
+      'overdue': 'bg-red-100 text-red-800 border-red-200',
+      'partial': 'bg-blue-100 text-blue-800 border-blue-200'
+    };
+    return statusClasses[status] || 'bg-gray-100 text-gray-800 border-gray-200';
+  }
+
+  // Obtener etiqueta del estado del cronograma
+  getPaymentScheduleStatusLabel(status: string): string {
+    const statusLabels: { [key: string]: string } = {
+      'pending': 'Pendiente',
+      'paid': 'Pagado',
+      'overdue': 'Vencido',
+      'partial': 'Pago Parcial'
+    };
+    return statusLabels[status] || status;
+  }
+
   formatDate(date: string): string {
-    return new Date(date).toLocaleDateString('es-PE', {
+    return new Date(date).toLocaleDateString('es-CO', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'

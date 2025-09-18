@@ -81,24 +81,59 @@
           </ng-template>
 
           <app-shared-table
+            [data]="contracts"
             [columns]="columns"
-            [data]="(contracts$ | async) ?? []"
-            [templates]="{ date: dateTpl }"
+            [loading]="loading"
+            [templates]="{ advisor: advisorTpl, signDate: signDateTpl }"
+            [idField]="idField"
+            [permissionPrefix]="'sales'"
             [componentName]="'contracts'"
-            [loading]="loading">
+            (onEdit)="openEditModal($event)"
+            (delete)="deleteContract($event)"
+            (onViewDetails)="openViewModal($event)"
+          >
           </app-shared-table>
+
+          <!-- Template para mostrar el asesor -->
+          <ng-template #advisorTpl let-row>
+            <div class="flex items-center space-x-2">
+              <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
+                <span class="text-xs font-medium text-blue-600 dark:text-blue-400">
+                  {{ getAdvisorInitials(row) }}
+                </span>
+              </div>
+              <span class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                {{ getAdvisorName(row) }}
+              </span>
+            </div>
+          </ng-template>
+
+          <!-- Template para mostrar la fecha de firma mejorada -->
+          <ng-template #signDateTpl let-row>
+            <div class="text-sm">
+              <div class="font-medium text-gray-900 dark:text-gray-100">
+                {{ formatSignDate(row.sign_date) }}
+              </div>
+              <div class="text-xs text-gray-500 dark:text-gray-400" *ngIf="row.sign_date">
+                {{ getRelativeDate(row.sign_date) }}
+              </div>
+            </div>
+          </ng-template>
         </div>
 
         <!-- Modern Pagination -->
         <div class="relative border-t border-gray-200/50 dark:border-gray-700/50 bg-gradient-to-r from-white/70 via-slate-50/50 to-white/70 dark:from-gray-800/70 dark:via-gray-700/50 dark:to-gray-800/70 backdrop-blur-sm">
           <div class="p-6">
-            <app-pagination
+            <!-- <app-pagination
               [currentPage]="pagination.current_page"
               [totalPages]="pagination.last_page"
               [total]="pagination.total"
               [perPage]="pagination.per_page"
               (pageChange)="onPageChange($event)">
-            </app-pagination>
+            </app-pagination> -->
+            <div class="text-center text-gray-500 dark:text-gray-400">
+              Página {{ pagination.current_page }} de {{ pagination.last_page }} - Total: {{ pagination.total }} contratos
+            </div>
           </div>
         </div>
       </div>
@@ -114,8 +149,8 @@
 </app-contract-import>
 
 <!-- Modal de Creación -->
-<app-contract-creation-modal
+<!-- <app-contract-creation-modal
   [isOpen]="isCreationModalOpen"
   (closeModal)="onCreationModalClose()"
   (contractCreated)="onContractCreated()">
-</app-contract-creation-modal>
+</app-contract-creation-modal> -->

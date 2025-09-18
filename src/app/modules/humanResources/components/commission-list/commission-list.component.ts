@@ -2,24 +2,26 @@ import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { LucideAngularModule, DollarSign, Calendar, Filter, Search, Eye, CheckCircle, XCircle, Clock, TrendingUp, Plus, Edit, Trash2, FileText, ChevronRight, Users, AlertTriangle, Shield, CheckCircle2, CreditCard, RefreshCcw, RefreshCw } from 'lucide-angular';
-import { AdvisorCommissionsModalComponent } from '../advisor-commissions-modal/advisor-commissions-modal.component';
+import { LucideAngularModule, DollarSign, Calendar, Filter, Search, Eye, CheckCircle, XCircle, Clock, TrendingUp, Plus, Edit, Trash2, FileText, ChevronRight, Users, AlertTriangle, Shield, CheckCircle2, CreditCard, RefreshCw } from 'lucide-angular';
+import { AdvisorCommissionsModalComponent, AdvisorGroup } from '../advisor-commissions-modal/advisor-commissions-modal.component';
 import { CommissionService } from '../../services/commission.service';
 import { Commission } from '../../models/commission';
 import { ToastService } from '../../../../core/services/toast.service';
 import { Employee } from '../../models/employee';
 
-// Interface para agrupar comisiones por asesor
-interface AdvisorCommissionGroup {
-  employee: Employee;
+// Interface para agrupar comisiones por contrato
+interface ContractGroup {
+  contractId: number | null;
+  contractNumber?: string;
+  clientName?: string;
   commissions: Commission[];
   totalAmount: number;
   paidAmount: number;
   pendingAmount: number;
   paidCount: number;
   pendingCount: number;
-  overallStatus: 'all_paid' | 'partial_paid' | 'all_pending';
   paymentPercentage: number;
+  overallStatus: string;
 }
 
 @Component({
@@ -30,9 +32,16 @@ interface AdvisorCommissionGroup {
   styleUrls: ['./commission-list.component.scss']
 })
 export class CommissionListComponent implements OnInit {
+  
   private commissionService = inject(CommissionService);
   private router = inject(Router);
   private toastService = inject(ToastService);
+
+  constructor() {
+    console.log('🚀 CommissionListComponent constructor ejecutado');
+    // Cargar comisiones al inicializar
+    this.loadCommissions();
+  }
 
   // Señales para el estado del componente
   commissions = signal<Commission[]>([]);
@@ -46,7 +55,7 @@ export class CommissionListComponent implements OnInit {
   currentPage = signal<number>(1);
   showSplitPayments = signal<boolean>(false);
   showAdvisorModal = signal<boolean>(false);
-  selectedAdvisorGroup = signal<AdvisorCommissionGroup | null>(null);
+  selectedAdvisorGroup = signal<AdvisorGroup | null>(null);
 
   // Iconos de Lucide
   DollarSign = DollarSign;
@@ -99,13 +108,16 @@ export class CommissionListComponent implements OnInit {
     return { value: year, label: year.toString() };
   });
 
-  // Computed para comisiones filtradas
+  // Computed para comisiones filtradas - Solo comisiones padre
   filteredCommissions = computed(() => {
     const commissions = this.commissions();
     const search = this.searchTerm().toLowerCase();
     const status = this.selectedStatus();
 
     return commissions.filter(commission => {
+      // Solo incluir comisiones padre (sin parent_commission_id)
+      const isParentCommission = !commission.parent_commission_id;
+      
       const matchesSearch = !search || 
         commission.employee?.user?.first_name?.toLowerCase().includes(search) ||
         commission.employee?.user?.last_name?.toLowerCase().includes(search) ||
@@ -113,7 +125,7 @@ export class CommissionListComponent implements OnInit {
 
       const matchesStatus = !status || commission.status === status;
 
-      return matchesSearch && matchesStatus;
+      return isParentCommission && matchesSearch && matchesStatus;
     });
   });
 
@@ -127,28 +139,45 @@ export class CommissionListComponent implements OnInit {
     return filtered.slice(startIndex, endIndex);
   });
 
-  // Computed separados para total de páginas y comisiones
+  // Computed property for total pages based on advisor groups
   computedTotalPages = computed(() => {
-    const filtered = this.filteredCommissions();
-    const itemsPerPage = 10;
-    return Math.ceil(filtered.length / itemsPerPage);
+    const totalGroups = this.groupedCommissions().length;
+    return Math.ceil(totalGroups / 10); // 10 groups per page
   });
 
   computedTotalCommissions = computed(() => {
     return this.filteredCommissions().length;
   });
 
-  // Computed para comisiones agrupadas por asesor
+  // Computed para comisiones agrupadas por asesor - Solo comisiones padre
   groupedCommissions = computed(() => {
     const commissions = this.filteredCommissions();
-    const grouped = new Map<number, AdvisorCommissionGroup>();
     
-    commissions.forEach((commission) => {
-      console.log("ESTRUCTURA DE COMISION:",commission);
-      const employeeId = commission.employee.employee_id;
-      console.log("IDE DE EMPLEADO:",employeeId);
-      if (!grouped.has(employeeId)) {
-        grouped.set(employeeId, {
+    console.log('=== DEBUG: Procesando groupedCommissions ===');
+    console.log('Comisiones filtradas:', commissions.length);
+    
+    const parentCommissions = commissions.filter(commission => 
+      !commission.parent_commission_id
+    );
+    
+    parentCommissions.forEach(commission => {
+      const advisorId = commission.employee?.employee_id || 'unknown';
+      const advisorName = commission.employee?.user ? 
+        `${commission.employee.user.first_name} ${commission.employee.user.last_name}` : 
+        'Sin nombre';
+      
+      console.log(`Procesando comisión - ID Asesor: ${advisorId}, Nombre: ${advisorName}`);
+    });
+    
+    const groups: { [key: string]: AdvisorGroup } = {};
+    
+    parentCommissions.forEach((commission) => {
+      const employeeId = commission.employee?.employee_id;
+      const advisorName = `${commission.employee?.user?.first_name || ''} ${commission.employee?.user?.last_name || ''}`.trim() || 'Nombre no disponible';
+      const groupKey = employeeId ? `advisor_${employeeId}` : `name_${advisorName}_${commission.commission_id}`;
+      
+      if (!groups[groupKey]) {
+        groups[groupKey] = {
           employee: commission.employee,
           commissions: [],
           totalAmount: 0,
@@ -156,106 +185,149 @@ export class CommissionListComponent implements OnInit {
           pendingAmount: 0,
           paidCount: 0,
           pendingCount: 0,
-          overallStatus: 'all_pending',
-          paymentPercentage: 0
-        });
+          paymentPercentage: 0,
+          overallStatus: 'all_pending'
+        };
       }
-
-      const group = grouped.get(employeeId)!;
-      group.commissions.push(commission);
       
-      const amount = this.parseAmount(commission.commission_amount);
-      group.totalAmount += amount;
+      groups[groupKey].commissions.push(commission);
+      
+      const amount = parseFloat(commission.commission_amount?.toString() || '0');
+      groups[groupKey].totalAmount += amount;
       
       if (commission.payment_status === 'pagado') {
-        group.paidAmount += amount;
-        group.paidCount++;
-      } else if (commission.payment_status === 'pendiente') {
-        group.pendingAmount += amount;
-        group.pendingCount++;
-      }
-    });
-
-    // Calcular estado general y porcentaje de pago
-    grouped.forEach(group => {
-      if (group.paidCount === group.commissions.length) {
-        group.overallStatus = 'all_paid';
-        group.paymentPercentage = 100;
-      } else if (group.paidCount > 0) {
-        group.overallStatus = 'partial_paid';
-        group.paymentPercentage = Math.round((group.paidCount / group.commissions.length) * 100);
+        groups[groupKey].paidAmount += amount;
+        groups[groupKey].paidCount++;
       } else {
-        group.overallStatus = 'all_pending';
-        group.paymentPercentage = 0;
+        groups[groupKey].pendingCount++;
+      }
+      
+      groups[groupKey].pendingAmount = groups[groupKey].totalAmount - groups[groupKey].paidAmount;
+      groups[groupKey].paymentPercentage = groups[groupKey].totalAmount > 0 
+        ? (groups[groupKey].paidAmount / groups[groupKey].totalAmount) * 100 
+        : 0;
+      
+      if (groups[groupKey].paidCount === groups[groupKey].commissions.length) {
+        groups[groupKey].overallStatus = 'all_paid';
+      } else if (groups[groupKey].paidCount > 0) {
+        groups[groupKey].overallStatus = 'partial_paid';
+      } else {
+        groups[groupKey].overallStatus = 'all_pending';
       }
     });
-
-    return Array.from(grouped.values()).sort((a, b) => {
-      // Ordenar por estado (pendientes primero) y luego por nombre
-      if (a.overallStatus !== b.overallStatus) {
-        const statusOrder = { 'all_pending': 0, 'partial_paid': 1, 'all_paid': 2 };
-        return statusOrder[a.overallStatus] - statusOrder[b.overallStatus];
-      }
-      const nameA = `${a.employee?.user?.first_name} ${a.employee?.user?.last_name}`.toLowerCase();
-      const nameB = `${b.employee?.user?.first_name} ${b.employee?.user?.last_name}`.toLowerCase();
-      return nameA.localeCompare(nameB);
-    });
+    
+    const result = Object.values(groups);
+    console.log('Grupos finales:', result.length);
+    return result;
   });
 
-  // Computed para estadísticas
+  // Computed property for paginated grouped commissions
+  paginatedGroupedCommissions = computed(() => {
+    const allGroups = this.groupedCommissions();
+    console.log('=== PAGINATED COMMISSIONS ===');
+    console.log('Filtered commissions count:', allGroups.length);
+    console.log('Current page:', this.currentPage());
+    console.log('Items per page:', 10);
+    const itemsPerPage = 10;
+    const startIndex = (this.currentPage() - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const paginated = allGroups.slice(startIndex, endIndex);
+    console.log('Paginated result count:', paginated.length);
+    console.log('Paginated advisors:', paginated.map(a => a.commissions[0]?.employee?.user?.first_name + ' ' + a.commissions[0]?.employee?.user?.last_name || 'Nombre no disponible'));
+    return paginated;
+  });
+
+  // Computed para estadísticas - Solo comisiones padre
   totalAmount = computed(() => {
-    return this.filteredCommissions().reduce((sum, commission) => sum + (commission.commission_amount || 0), 0);
+    return this.filteredCommissions().reduce((sum, commission) => {
+      // Ya filtrado por comisiones padre en filteredCommissions
+      return sum + this.parseAmount(commission.commission_amount);
+    }, 0);
   });
 
   paidAmount = computed(() => {
     return this.filteredCommissions()
       .filter(c => c.payment_status === 'pagado')
-      .reduce((sum, commission) => sum + (commission.commission_amount || 0), 0);
+      .reduce((sum, commission) => {
+        // Ya filtrado por comisiones padre en filteredCommissions
+        return sum + this.parseAmount(commission.commission_amount);
+      }, 0);
   });
 
   pendingAmount = computed(() => {
-    const filtered = this.filteredCommissions();
-    const pending = filtered.filter(c => c.payment_status === 'pendiente');
-    
-    return pending.reduce((sum, commission) => {
-      const amount = commission.commission_amount;
-      // Convertir a número de forma segura
-      let numericAmount = 0;
-      if (typeof amount === 'string') {
-        numericAmount = parseFloat(amount) || 0;
-      } else if (typeof amount === 'number') {
-        numericAmount = amount;
-      }
-      return sum + numericAmount;
-    }, 0);
+    return this.filteredCommissions()
+      .filter(c => c.payment_status === 'pendiente')
+      .reduce((sum, commission) => {
+        // Ya filtrado por comisiones padre en filteredCommissions
+        return sum + this.parseAmount(commission.commission_amount);
+      }, 0);
   });
 
-  ngOnInit() {
+  ngOnInit(): void {
+    console.log('🚀 COMMISSION LIST COMPONENT LOADED!');
+    console.log('🚀 COMMISSION LIST COMPONENT ngOnInit CALLED');
+    console.log('Component initialized successfully');
     this.loadCommissions();
   }
 
   async loadCommissions() {
+    console.log('📊 Loading commissions...');
     this.loading.set(true);
     this.error.set(null);
 
     try {
-      // Crear el período de comisión en formato YYYY-MM
       const commissionPeriod = `${this.selectedYear()}-${this.selectedMonth().toString().padStart(2, '0')}`;
       
       const response = await this.commissionService.getCommissions({
         commission_period: commissionPeriod,
         status: this.selectedStatus(),
         search: this.searchTerm(),
-        page: this.currentPage(),
-        per_page: 20,
+        per_page: 1000,
         include_split_payments: this.showSplitPayments()
       }).toPromise();
       
-      if (response) {
+      if (response && response.data) {
+        console.log(`✅ Loaded ${response.data.length} commissions`);
+        
+        // Debug logging: mostrar estructura completa de las primeras 2 comisiones
+        console.log('=== DEBUG: Estructura de comisiones recibidas ===');
+        console.log('Total comisiones:', response.data.length);
+        if (response.data.length > 0) {
+          console.log('Primera comisión completa:', JSON.stringify(response.data[0], null, 2));
+          console.log('employee.user de primera comisión:', response.data[0].employee?.user);
+          console.log('Nombre completo primera comisión:', response.data[0].employee?.user?.first_name, response.data[0].employee?.user?.last_name);
+        }
+        if (response.data.length > 1) {
+          console.log('Segunda comisión completa:', JSON.stringify(response.data[1], null, 2));
+          console.log('employee.user de segunda comisión:', response.data[1].employee?.user);
+          console.log('Nombre completo segunda comisión:', response.data[1].employee?.user?.first_name, response.data[1].employee?.user?.last_name);
+        }
+        
+        // Logging detallado de las primeras 2 comisiones
+        if (response.data.length > 0) {
+          console.log('🔍 DETAILED COMMISSION STRUCTURE - First 2 commissions:');
+          const firstTwoCommissions = response.data.slice(0, 2);
+          firstTwoCommissions.forEach((commission, index) => {
+            console.log(`Commission ${index + 1}:`, {
+              commission_id: commission.commission_id,
+              employee: commission.employee,
+              employee_id: commission.employee?.employee_id,
+              employee_code: commission.employee?.employee_code,
+              user_object: commission.employee?.user,
+              first_name: commission.employee?.user?.first_name,
+              last_name: commission.employee?.user?.last_name,
+              full_name_constructed: `${commission.employee?.user?.first_name || ''} ${commission.employee?.user?.last_name || ''}`.trim(),
+              has_employee: !!commission.employee,
+              has_user: !!commission.employee?.user,
+              user_keys: commission.employee?.user ? Object.keys(commission.employee.user) : 'No user object'
+            });
+          });
+        }
+        
         this.commissions.set(response.data);
       }
     } catch (error) {
-      console.error('Error loading commissions:', error);
+      console.error('❌ Error loading commissions:', error);
       this.error.set('Error al cargar las comisiones');
       this.toastService.error('Error al cargar las comisiones');
     } finally {
@@ -281,7 +353,7 @@ export class CommissionListComponent implements OnInit {
 
   onPageChange(page: number) {
     this.currentPage.set(page);
-    this.loadCommissions();
+    // No necesitamos recargar datos, la paginación es local
   }
 
   createCommission() {
@@ -471,8 +543,8 @@ export class CommissionListComponent implements OnInit {
     return commission.commission_id;
   }
 
-  trackByAdvisorId(index: number, advisorGroup: AdvisorCommissionGroup): number {
-    return advisorGroup.employee.employee_id || index;
+  trackByAdvisorId(index: number, item: AdvisorGroup): string {
+    return item.employee?.employee_id?.toString() || item.employee?.user?.email || index.toString();
   }
 
   // Función auxiliar para parsear montos
@@ -519,10 +591,13 @@ export class CommissionListComponent implements OnInit {
   getOverallStatusIcon(status: string) {
     switch (status) {
       case 'all_paid':
+      case 'paid':
         return CheckCircle2;
       case 'partial_paid':
+      case 'partial':
         return Clock;
       case 'all_pending':
+      case 'pending':
         return AlertTriangle;
       default:
         return Clock;
@@ -532,10 +607,13 @@ export class CommissionListComponent implements OnInit {
   getOverallStatusClass(status: string): string {
     switch (status) {
       case 'all_paid':
+      case 'paid':
         return 'bg-green-100 text-green-800';
       case 'partial_paid':
+      case 'partial':
         return 'bg-blue-100 text-blue-800';
       case 'all_pending':
+      case 'pending':
         return 'bg-yellow-100 text-yellow-800';
       default:
         return 'bg-gray-100 text-gray-800';
@@ -545,10 +623,13 @@ export class CommissionListComponent implements OnInit {
   getOverallStatusLabel(status: string): string {
     switch (status) {
       case 'all_paid':
+      case 'paid':
         return 'Todo Pagado';
       case 'partial_paid':
+      case 'partial':
         return 'Parcialmente Pagado';
       case 'all_pending':
+      case 'pending':
         return 'Todo Pendiente';
       default:
         return 'Sin Estado';
@@ -556,9 +637,104 @@ export class CommissionListComponent implements OnInit {
   }
 
   // Abrir modal de comisiones del asesor
-  viewAdvisorCommissions(advisorGroup: AdvisorCommissionGroup) {
-    this.selectedAdvisorGroup.set(advisorGroup);
+  viewAdvisorCommissions(advisorGroup: AdvisorGroup) {
+    alert('¡Botón clickeado! Abriendo modal...');
+    console.log('=== OPENING ADVISOR COMMISSIONS MODAL ===');
+    
+    // Crear una copia del advisorGroup con todas las comisiones (padre + hijas)
+    const allCommissions: Commission[] = [];
+    
+    // Agregar comisiones padre y sus hijas
+    advisorGroup.commissions.forEach(parentCommission => {
+      allCommissions.push(parentCommission);
+      
+      // Agregar child_commissions si existen
+      if (parentCommission.child_commissions && parentCommission.child_commissions.length > 0) {
+        allCommissions.push(...parentCommission.child_commissions);
+      }
+    });
+    
+    // Crear un AdvisorGroup temporal para el modal (mantener compatibilidad)
+    const tempAdvisorGroup: AdvisorGroup = {
+      employee: {
+        employee_id: 0,
+        user_id: 0,
+        employee_code: advisorGroup.commissions[0]?.employee?.employee_code || 'N/A',
+        employee_type: 'asesor_inmobiliario',
+        base_salary: 0,
+        is_commission_eligible: true,
+        is_bonus_eligible: true,
+        hire_date: new Date().toISOString().split('T')[0],
+        employment_status: 'activo',
+        contract_type: 'indefinido',
+        status: 'active',
+        first_name: '',
+        last_name: '',
+        full_name: `${advisorGroup.commissions[0]?.employee?.user?.first_name || ''} ${advisorGroup.commissions[0]?.employee?.user?.last_name || ''}`.trim(),
+        user: { id: 0, username: '', first_name: '', last_name: '', name: '', email: '', status: 'active' as const, roles: [] }
+      },
+      commissions: allCommissions,
+      totalAmount: advisorGroup.totalAmount,
+      paidAmount: advisorGroup.paidAmount,
+      pendingAmount: advisorGroup.pendingAmount,
+      paidCount: advisorGroup.paidCount,
+      pendingCount: advisorGroup.pendingCount,
+      paymentPercentage: advisorGroup.paymentPercentage,
+      overallStatus: advisorGroup.overallStatus
+    };
+    
+    console.log('AdvisorGroup to send to modal (with children):', tempAdvisorGroup);
+    console.log('Advisor data:', `${advisorGroup.commissions[0]?.employee?.user?.first_name || ''} ${advisorGroup.commissions[0]?.employee?.user?.last_name || ''}`.trim());
+    console.log('Total commissions count (parent + children):', allCommissions?.length || 0);
+    console.log('Commissions data (parent + children):', allCommissions);
+    
+    // Log individual commission details
+    if (allCommissions && allCommissions.length > 0) {
+      console.log('=== INDIVIDUAL COMMISSION DETAILS ===');
+      allCommissions.forEach((commission, index) => {
+        console.log(`Commission ${index + 1}:`, {
+          id: commission.commission_id,
+          contract_id: commission.contract?.contract_id || commission.contract_id,
+          contract_number: commission.contract?.contract_number || 'Sin Contrato',
+          amount: commission.commission_amount,
+          payment_status: commission.payment_status,
+          parent_commission_id: commission.parent_commission_id,
+          client_name: commission.contract?.client_name || 'Cliente no especificado',
+          lot_number: commission.contract?.lot_number || 'N/A',
+          full_contract_object: commission.contract,
+          has_contract_object: !!commission.contract,
+          contract_id_type: typeof (commission.contract?.contract_id || commission.contract_id),
+          contract_id_value: commission.contract?.contract_id || commission.contract_id
+        });
+        
+        // Log detallado de la estructura del contrato
+        if (commission.contract) {
+          console.log(`Commission ${index + 1} - Contract details:`, commission.contract);
+        } else {
+          console.log(`Commission ${index + 1} - NO CONTRACT OBJECT FOUND`);
+        }
+      });
+      
+      // Verificar si hay contract_ids únicos
+      const contractIds = allCommissions.map(c => c.contract?.contract_id || c.contract_id).filter(id => id !== null && id !== undefined);
+      const uniqueContractIds = [...new Set(contractIds)];
+      console.log('All contract_ids:', contractIds);
+      console.log('Unique contract_ids:', uniqueContractIds);
+      console.log('Expected contracts count:', uniqueContractIds.length);
+      
+      // Verificar comisiones sin contract_id
+      const commissionsWithoutContract = allCommissions.filter(c => !(c.contract?.contract_id || c.contract_id));
+      console.log('Commissions without contract_id:', commissionsWithoutContract.length);
+      if (commissionsWithoutContract.length > 0) {
+        console.log('Commissions without contract_id details:', commissionsWithoutContract);
+      }
+    }
+    
+    this.selectedAdvisorGroup.set(tempAdvisorGroup);
     this.showAdvisorModal.set(true);
+    
+    console.log('Modal state set to:', this.showAdvisorModal());
+    console.log('Selected advisor group set to:', this.selectedAdvisorGroup());
   }
 
   // Cerrar modal de comisiones del asesor

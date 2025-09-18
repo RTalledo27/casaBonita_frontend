@@ -127,6 +127,13 @@ export const routes: Routes = [
                 (m) => m.UserPermissionsComponent
               ),
           },
+          {
+            path: 'debug-perms-temp',
+            loadComponent: () =>
+              import('./debug-permissions.component').then(
+                (m) => m.DebugPermissionsComponent
+              ),
+          },
 
           { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
           { path: '**', redirectTo: 'dashboard' },

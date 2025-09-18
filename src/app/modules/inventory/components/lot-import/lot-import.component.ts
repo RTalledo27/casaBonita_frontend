@@ -236,10 +236,21 @@ export class LotImportComponent {
   loadImportHistory() {
     this.importService.getImportHistory().subscribe({
       next: (response) => {
-        // Filtrar datos válidos y manejar propiedades null
-        this.importHistory = (response.data || []).filter(log => 
-          log && log.import_id && log.filename
-        );
+        // Handle different response structures
+        if (response.data && response.data.imports && Array.isArray(response.data.imports.data)) {
+          // Paginated response with imports.data
+          this.importHistory = response.data.imports.data.filter((log: any) =>
+            log && log.import_id && log.filename
+          );
+        } else if (response.data && Array.isArray(response.data)) {
+          // Direct array response
+          this.importHistory = response.data.filter((log: any) =>
+            log && log.import_id && log.filename
+          );
+        } else {
+          // Fallback for unexpected structure
+          this.importHistory = [];
+        }
       },
       error: (error) => {
         console.error('Error al obtener el historial:', error);

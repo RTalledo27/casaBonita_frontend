@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy, TemplateRef } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy, TemplateRef, ChangeDetectorRef } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { Database, Edit, Eye, LucideAngularModule, Trash2 } from 'lucide-angular';
@@ -35,10 +35,17 @@ export interface ColumnDef {
 })
 export class SharedTableComponent {
   @Input({ required: true }) columns: ColumnDef[] = [];
-  @Input({ required: true }) data: any[] = [];
+  @Input({ required: true }) set data(value: any[]) {
+    this._data = value;
+    this.cdr.markForCheck();
+  }
+  get data(): any[] {
+    return this._data;
+  }
+  private _data: any[] = [];
   @Input() loading: boolean = false;
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, private cdr: ChangeDetectorRef) {}
 
   //ICONOS LUCIDE:
   eye = Eye;

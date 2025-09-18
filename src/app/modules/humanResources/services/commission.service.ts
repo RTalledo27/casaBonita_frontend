@@ -41,6 +41,58 @@ export interface SalesDetailResponse {
   message: string;
 }
 
+export interface ContractDetail {
+  contract_id: number;
+  contract_number: string;
+  client_id: number;
+  client_name: string;
+  client_email?: string;
+  client_phone?: string;
+  lot_id: number;
+  lot_number: string;
+  lot_area?: number;
+  lot_price_per_m2?: number;
+  total_price: number;
+  down_payment?: number;
+  installment_plan: number;
+  monthly_payment?: number;
+  advisor_id: number;
+  advisor_name: string;
+  status: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PaymentScheduleItem {
+  id: number;
+  contract_id: number;
+  installment_number: number;
+  due_date: string;
+  amount: number;
+  status: 'pending' | 'paid' | 'overdue';
+  paid_date?: string;
+  paid_amount?: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CommissionWithContractDetails {
+  commission: Commission;
+  contract: ContractDetail;
+  payment_schedule: PaymentScheduleItem[];
+  child_commissions_percentage: ChildCommissionPercentage[];
+}
+
+export interface ChildCommissionPercentage {
+  commission_id: number;
+  employee_name: string;
+  commission_amount: number;
+  percentage_of_total: number;
+  percentage_of_parent: number;
+  payment_part: number;
+  payment_status: string;
+}
+
 export interface CommissionFilters {
   employee_id?: number;
   period_year?: number;
@@ -176,6 +228,18 @@ export class CommissionService {
     });
   }
 
+  // Pagar comisión individual por partes
+  payCommissionPart(commissionId: number, paymentPart: number): Observable<any> {
+    return this.http.post(`${API_ROUTES.HR.COMMISSIONS}/${commissionId}/pay-part`, {
+      payment_part: paymentPart
+    });
+  }
+
+  // Verificar si una comisión puede ser pagada según las cuotas del cliente
+  canPayCommissionPart(commissionId: number, paymentPart: number): Observable<{can_pay: boolean; reason?: string}> {
+    return this.http.get<{can_pay: boolean; reason?: string}>(`${API_ROUTES.HR.COMMISSIONS}/${commissionId}/can-pay-part/${paymentPart}`);
+  }
+
   getSalesDetail(employeeId: number, month: number, year: number): Observable<SalesDetailResponse> {
     let params = new HttpParams()
       .set('employee_id', employeeId.toString())
@@ -183,5 +247,20 @@ export class CommissionService {
       .set('year', year.toString());
 
     return this.http.get<SalesDetailResponse>(API_ROUTES.HR.COMMISSIONS_SALES_DETAIL, { params });
+  }
+
+  // Obtener información completa del contrato relacionado a la comisión
+  getContractDetails(contractId: number): Observable<ContractDetail> {
+    return this.http.get<ContractDetail>(`${API_ROUTES.SALES.CONTRACTS}/${contractId}/details`);
+  }
+
+  // Obtener cronograma de pagos del contrato
+  getContractPaymentSchedule(contractId: number): Observable<PaymentScheduleItem[]> {
+    return this.http.get<PaymentScheduleItem[]>(`${API_ROUTES.SALES.CONTRACTS}/${contractId}/payment-schedule`);
+  }
+
+  // Obtener información completa de la comisión con contrato y cronograma
+  getCommissionWithContractDetails(commissionId: number): Observable<CommissionWithContractDetails> {
+    return this.http.get<CommissionWithContractDetails>(`${API_ROUTES.HR.COMMISSIONS}/${commissionId}/with-contract-details`);
   }
 }

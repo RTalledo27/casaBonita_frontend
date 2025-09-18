@@ -100,7 +100,8 @@ export class AdvisorCommissionsComponent implements OnInit {
     this.commissionService.getCommissions().subscribe({
       next: (response) => {
         // Filter commissions by employee ID (more precise) or name, month, and year
-        const filteredCommissions = response.data.filter((commission: Commission) => {
+        const safeData = Array.isArray(response.data) ? response.data : [];
+        const filteredCommissions = safeData.filter((commission: Commission) => {
           let employeeMatch = false;
           
           // Use employee ID if available (more precise)
@@ -122,7 +123,7 @@ export class AdvisorCommissionsComponent implements OnInit {
           employeeName: this.employeeName(),
           month: this.selectedMonth(),
           year: this.selectedYear(),
-          totalCommissions: response.data.length,
+          totalCommissions: safeData.length,
           filteredCommissions: filteredCommissions.length
         });
         

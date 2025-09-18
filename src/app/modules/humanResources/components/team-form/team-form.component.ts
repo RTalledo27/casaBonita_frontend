@@ -67,7 +67,8 @@ export class TeamFormComponent implements OnInit {
     this.employeeService.getAllEmployees({ employment_status: 'activo' }).subscribe({
       next: (response) => {
         // Solo empleados activos para ser líderes
-        const activeEmployees = response.data.filter(emp => emp.employment_status === 'activo');
+        const safeData = Array.isArray(response.data) ? response.data : [];
+        const activeEmployees = safeData.filter(emp => emp.employment_status === 'activo');
         this.employees.set(activeEmployees);
         console.log('Empleados cargados:', activeEmployees);
       },

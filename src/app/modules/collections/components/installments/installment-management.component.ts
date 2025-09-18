@@ -754,7 +754,8 @@ this.collectionsService.getContractsWithSchedulesSummary(paginationFilters)
     }
 
     // Success
-    const contractsWithExpanded = response.data.map((contract: ContractSummary) => ({
+    const safeData = Array.isArray(response.data) ? response.data : [];
+    const contractsWithExpanded = safeData.map((contract: ContractSummary) => ({
       ...contract,
       expanded: false
     }));

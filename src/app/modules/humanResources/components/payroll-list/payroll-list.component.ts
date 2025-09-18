@@ -138,7 +138,8 @@ export class PayrollListComponent implements OnInit {
             this.totalItems.set(response.meta.total || 0);
             this.totalPages.set(response.meta.last_page || 1);
           } else {
-            this.totalItems.set(response.data.length);
+            const safeData = Array.isArray(response.data) ? response.data : [];
+            this.totalItems.set(safeData.length);
             this.totalPages.set(1);
           }
           

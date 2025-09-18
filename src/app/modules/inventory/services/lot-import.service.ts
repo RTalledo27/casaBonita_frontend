@@ -122,8 +122,8 @@ export class LotImportService {
   /**
    * Obtener historial de importaciones
    */
-  getImportHistory(): Observable<{ data: LotImportLog[] }> {
-    return this.http.get<{ data: LotImportLog[] }>(`${this.baseUrl}/history`);
+  getImportHistory(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/history`);
   }
 
   /**

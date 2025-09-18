@@ -143,7 +143,7 @@ export class ManualVerificationModalComponent implements OnInit, OnDestroy {
    */
   getPaymentDescription(payment: CustomerPayment): string {
     const date = new Date(payment.payment_date).toLocaleDateString('es-ES');
-    const amount = payment.amount.toLocaleString('es-PE', {
+    const amount = payment.amount.toLocaleString('es-ES', {
       style: 'currency',
       currency: 'PEN'
     });

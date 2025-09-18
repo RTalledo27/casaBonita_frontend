@@ -54,15 +54,16 @@ export class TeamListComponent implements OnInit {
 
     this.teamService.getTeams().subscribe({
       next: (response) => {
-        console.log('✅ Equipos cargados:', response.data.length);
-        this.teams.set(response.data);
+        const safeData = Array.isArray(response.data) ? response.data : [];
+        console.log('✅ Equipos cargados:', safeData.length);
+        this.teams.set(safeData);
         this.applyFilters();
         this.loading.set(false);
         this.dataLoaded.set(true); // Marcar datos como completamente cargados
         
         // Verificar conteo después de cargar equipos
         console.log('🔍 Verificando conteos después de cargar equipos:');
-        response.data.forEach(team => {
+        safeData.forEach(team => {
           const count = this.getTeamMemberCount(team.team_id);
           console.log(`Team ${team.team_name} (ID: ${team.team_id}): ${count} miembros`);
         });
@@ -81,13 +82,14 @@ export class TeamListComponent implements OnInit {
     this.employeeService.getAllEmployees().subscribe({
       next: (response) => {
         console.log('✅ Respuesta completa de empleados:', response);
-        console.log('📊 Empleados cargados:', response.data.length);
-        console.log('🏢 Empleados con team_id:', response.data.filter(emp => emp.team_id).length);
-        console.log('📋 Primeros 3 empleados:', response.data.slice(0, 3));
+        const safeData = Array.isArray(response.data) ? response.data : [];
+        console.log('📊 Empleados cargados:', safeData.length);
+        console.log('🏢 Empleados con team_id:', safeData.filter(emp => emp.team_id).length);
+        console.log('📋 Primeros 3 empleados:', safeData.slice(0, 3));
         
         // Verificar estructura de datos
-        if (response.data.length > 0) {
-          const firstEmployee = response.data[0];
+        if (safeData.length > 0) {
+          const firstEmployee = safeData[0];
           console.log('🔍 Estructura del primer empleado:', {
             employee_id: firstEmployee.employee_id,
             team_id: firstEmployee.team_id,
@@ -96,7 +98,7 @@ export class TeamListComponent implements OnInit {
           });
         }
         
-        this.employees.set(response.data);
+        this.employees.set(safeData);
         console.log('💾 Empleados guardados en signal:', this.employees().length);
         
         // Cargar equipos después de que los empleados estén listos

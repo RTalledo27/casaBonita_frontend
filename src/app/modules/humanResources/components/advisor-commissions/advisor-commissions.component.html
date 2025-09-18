@@ -175,6 +175,93 @@
         </div>
       </div>
 
+      <!-- Child Commissions (Divisiones de Pago) -->
+      <div *ngIf="commission.child_commissions && commission.child_commissions.length > 0" class="child-commissions border-t border-gray-100 dark:border-gray-700">
+        <div class="p-4 sm:p-6">
+          <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4 flex items-center gap-2">
+            <lucide-angular [img]="Split" size="16"></lucide-angular>
+            Divisiones de Pago ({{ commission.child_commissions.length }})
+          </h4>
+          <div class="space-y-3">
+            <div *ngFor="let childCommission of commission.child_commissions; trackBy: trackByCommissionId" 
+                 class="child-commission bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-700 rounded-lg p-4">
+              
+              <!-- Child Commission Header -->
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
+                <div class="child-info flex-1">
+                  <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+                    <h5 class="text-sm font-semibold text-purple-900 dark:text-purple-100">
+                      División #{{ childCommission.commission_id }}
+                    </h5>
+                    <span class="text-xs bg-purple-100 text-purple-800 dark:bg-purple-800 dark:text-purple-200 px-2 py-1 rounded-full w-fit">
+                      {{ getCommissionHierarchyLabel(childCommission) }}
+                    </span>
+                    <span *ngIf="childCommission.notes" class="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded-full w-fit">
+                      {{ childCommission.notes }}
+                    </span>
+                  </div>
+                </div>
+                <div class="child-status">
+                  <span [class]="'status-badge inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ' + getStatusClass(childCommission.payment_status)">
+                    <lucide-angular [img]="getStatusIcon(childCommission.payment_status)" size="12"></lucide-angular>
+                    {{ getStatusLabel(childCommission.payment_status) }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Child Commission Details -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                <div class="child-info-item">
+                  <label class="text-xs font-medium text-purple-600 dark:text-purple-300 mb-1 block">Monto División</label>
+                  <p class="text-sm font-bold text-purple-800 dark:text-purple-200">{{ formatCurrency(childCommission.commission_amount) }}</p>
+                </div>
+                
+                <div class="child-info-item" *ngIf="childCommission.payment_part">
+                  <label class="text-xs font-medium text-purple-600 dark:text-purple-300 mb-1 block">Parte de Pago</label>
+                  <p class="text-sm text-purple-700 dark:text-purple-300">{{ childCommission.payment_part }}</p>
+                </div>
+                
+                <div class="child-info-item" *ngIf="childCommission.payment_date">
+                  <label class="text-xs font-medium text-purple-600 dark:text-purple-300 mb-1 block">Fecha de Pago</label>
+                  <p class="text-sm text-purple-700 dark:text-purple-300">{{ formatDate(childCommission.payment_date) }}</p>
+                </div>
+              </div>
+
+              <!-- Child Commission Actions -->
+              <div class="flex items-center justify-end gap-2 mt-3 pt-3 border-t border-purple-200 dark:border-purple-700">
+                <button
+                  class="btn-icon btn-icon-primary w-7 h-7 rounded-md bg-blue-50 text-blue-600 hover:bg-blue-100 transition-all duration-200 flex items-center justify-center"
+                  (click)="viewCommissionDetail(childCommission)"
+                  title="Ver detalle">
+                  <lucide-angular [img]="Eye" size="12"></lucide-angular>
+                </button>
+                <button
+                  *ngIf="canEditCommission(childCommission)"
+                  class="btn-icon btn-icon-warning w-7 h-7 rounded-md bg-yellow-50 text-yellow-600 hover:bg-yellow-100 transition-all duration-200 flex items-center justify-center"
+                  (click)="editCommission(childCommission)"
+                  title="Editar">
+                  <lucide-angular [img]="Edit" size="12"></lucide-angular>
+                </button>
+                <button
+                  *ngIf="canPayCommission(childCommission)"
+                  class="btn-icon btn-icon-success w-7 h-7 rounded-md bg-green-50 text-green-600 hover:bg-green-100 transition-all duration-200 flex items-center justify-center"
+                  (click)="payCommission(childCommission)"
+                  title="Marcar como pagada">
+                  <lucide-angular [img]="CheckCircle" size="12"></lucide-angular>
+                </button>
+                <button
+                  *ngIf="canDeleteCommission(childCommission)"
+                  class="btn-icon btn-icon-danger w-7 h-7 rounded-md bg-red-50 text-red-600 hover:bg-red-100 transition-all duration-200 flex items-center justify-center"
+                  (click)="deleteCommission(childCommission)"
+                  title="Eliminar">
+                  <lucide-angular [img]="Trash2" size="12"></lucide-angular>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Card Footer -->
       <div class="card-footer p-4 sm:p-6 bg-gray-50 dark:bg-gray-700 rounded-b-xl">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">

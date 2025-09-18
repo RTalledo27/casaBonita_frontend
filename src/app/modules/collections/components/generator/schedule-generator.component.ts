@@ -120,7 +120,7 @@ import { GenerateScheduleRequest, GenerateScheduleResponse } from '../../models/
                           <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">Lote: {{ contract.lot_name }}</p>
                         </div>
                         <div class="text-right space-y-1">
-                          <p class="text-sm font-bold text-gray-900 dark:text-white">{{ formatCurrency(contract.financing_amount || 0) }}</p>
+                          <p class="text-sm font-bold text-gray-900 dark:text-white">{{ formatCurrency(+(contract.financing_amount ?? 0)) }}</p>
                           <p class="text-xs text-emerald-600 dark:text-emerald-400 font-semibold">{{ contract.term_months || 0 }} meses</p>
                         </div>
                       </div>
@@ -178,7 +178,7 @@ import { GenerateScheduleRequest, GenerateScheduleResponse } from '../../models/
                       </div>
                       <div class="space-y-1">
                         <span class="text-blue-600 dark:text-blue-400 font-semibold">Monto a Financiar:</span>
-                        <p class="font-bold text-blue-900 dark:text-blue-100">{{ formatCurrency(selectedContract()!.financing_amount || 0) }}</p>
+                        <p class="font-bold text-blue-900 dark:text-blue-100">{{ formatCurrency(+(selectedContract()!.financing_amount ?? 0)) }}</p>
                       </div>
                       <div class="space-y-1">
                         <span class="text-blue-600 dark:text-blue-400 font-semibold">Plazo:</span>
@@ -386,7 +386,10 @@ export class ScheduleGeneratorComponent implements OnInit {
     const contract = this.selectedContract();
     if (!contract || !contract.financing_amount || !contract.term_months) return 0;
     
-    return contract.financing_amount / contract.term_months;
+    const financingAmount = Number(contract.financing_amount);
+    const termMonths = Number(contract.term_months);
+    
+    return financingAmount / termMonths;
   });
 
   constructor() {

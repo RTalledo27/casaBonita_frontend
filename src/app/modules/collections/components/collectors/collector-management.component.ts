@@ -437,7 +437,8 @@ export class CollectorManagementComponent implements OnInit, OnDestroy {
        .pipe(takeUntil(this.destroy$))
        .subscribe({
          next: (response) => {
-           this.collectors.set(response.data);
+           const safeData = Array.isArray(response.data) ? response.data : [];
+           this.collectors.set(safeData);
            this.loading.set(false);
          },
          error: (error) => {
@@ -481,7 +482,8 @@ export class CollectorManagementComponent implements OnInit, OnDestroy {
        .pipe(takeUntil(this.destroy$))
        .subscribe({
          next: (response) => {
-           this.currentAssignments.set(response.data);
+           const safeData = Array.isArray(response.data) ? response.data : [];
+           this.currentAssignments.set(safeData);
          },
          error: (error) => {
            console.error('Error loading assignments:', error);
@@ -493,7 +495,8 @@ export class CollectorManagementComponent implements OnInit, OnDestroy {
        .pipe(takeUntil(this.destroy$))
        .subscribe({
          next: (response) => {
-           this.availableAccounts.set(response.data);
+           const safeData = Array.isArray(response.data) ? response.data : [];
+           this.availableAccounts.set(safeData);
          },
          error: (error) => {
            console.error('Error loading available accounts:', error);
