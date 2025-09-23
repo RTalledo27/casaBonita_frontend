@@ -107,6 +107,10 @@ export const routes: Routes = [
             canActivateChild: [permissionGuard],
           },
           {
+            path: 'settings',
+            loadComponent: () => import('./modules/settings/settings.component').then(m => m.SettingsComponent),
+          },
+          {
             path: 'unauthorized',
             loadComponent: () =>
               import(
