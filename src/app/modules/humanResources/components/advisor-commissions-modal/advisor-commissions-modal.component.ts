@@ -40,6 +40,7 @@ export class AdvisorCommissionsModalComponent implements OnInit, OnChanges {
   @Input() isOpen: boolean = false;
   @Input() advisorGroup: AdvisorGroup | null = null;
   @Output() closeModal = new EventEmitter<void>();
+  @Output() paymentSuccess = new EventEmitter<void>();
 
   // Lucide icons
   User = User;
@@ -440,7 +441,8 @@ export class AdvisorCommissionsModalComponent implements OnInit, OnChanges {
   // Recargar datos de comisiones
   private reloadCommissionData(): void {
     // Emitir evento para que el componente padre recargue los datos
-    // Por ahora solo limpiamos los estados de pago para forzar una nueva verificación
+    this.paymentSuccess.emit();
+    // Limpiar los estados de pago para forzar una nueva verificación
     this.paymentStates.clear();
     this.checkPaymentStates();
   }

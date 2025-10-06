@@ -743,6 +743,12 @@ export class CommissionListComponent implements OnInit {
     this.selectedAdvisorGroup.set(null);
   }
 
+  // Manejar pago exitoso desde el modal
+  onPaymentSuccess() {
+    console.log('💰 Payment success event received, reloading commissions...');
+    this.loadCommissions();
+  }
+
   // Métodos para verificación de pagos del cliente
   requiresPaymentVerification(commission: Commission): boolean {
     return commission.requires_client_payment_verification === true;

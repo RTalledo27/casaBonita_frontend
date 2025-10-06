@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
@@ -17,15 +17,38 @@ import {
   PieChart,
   ArrowLeft,
   FileText,
-  AlertTriangle
+  AlertTriangle,
+  Activity,
+  Target,
+  Users,
+  Settings,
+  Eye,
+  FileSpreadsheet,
+  Image
 } from 'lucide-angular';
 import { CollectionsSimplifiedService, PaymentScheduleReport } from '../../services/collections-simplified.service';
+import { AdvancedReportsService } from '../../services/advanced-reports.service';
+import { ExportService } from '../../services/export.service';
 import { PaymentSchedule } from '../../models/payment-schedule';
+import { Chart, ChartConfiguration, ChartType, registerables } from 'chart.js';
+import { AdvancedFiltersComponent, AdvancedFilters as FilterOptions } from '../advanced-filters/advanced-filters.component';
+import { CollectionsDashboardComponent } from '../dashboard/collections-dashboard.component';
+
+interface AdvancedFilters {
+  collector_id?: number;
+  amount_min?: number;
+  amount_max?: number;
+  compare_period?: boolean;
+  period_type?: 'month' | 'quarter' | 'year';
+}
+
+// Register Chart.js components
+Chart.register(...registerables);
 
 @Component({
   selector: 'app-collections-reports',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, ReactiveFormsModule, LucideAngularModule],
+  imports: [CommonModule, RouterModule, FormsModule, ReactiveFormsModule, LucideAngularModule, AdvancedFiltersComponent, CollectionsDashboardComponent],
   template: `
    <div class="p-6 space-y-6">
   <!-- Header -->
@@ -50,15 +73,57 @@ import { PaymentSchedule } from '../../models/payment-schedule';
       </div>
 
       <div class="flex gap-3">
+        <!-- Dashboard Toggle -->
         <button
-          (click)="exportReport()"
-          [disabled]="isLoading()"
-          class="group relative inline-flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-white bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition"
+          (click)="toggleDashboard()"
+          class="group relative inline-flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-slate-700 dark:text-slate-300 bg-white/60 dark:bg-slate-800/60 hover:bg-white dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600 shadow-lg hover:shadow-xl transition"
         >
-          <div class="absolute inset-0 opacity-0 group-hover:opacity-100 bg-white/20 rounded-xl transition"></div>
-          <lucide-angular [img]="DownloadIcon" class="w-4 h-4 relative z-10"></lucide-angular>
-          <span class="relative z-10">Exportar Reporte</span>
+          <lucide-angular [img]="EyeIcon" class="w-4 h-4"></lucide-angular>
+          <span>{{ showDashboard() ? 'Ocultar' : 'Mostrar' }} Dashboard</span>
         </button>
+
+        <!-- Advanced Filters Toggle -->
+        <button
+          (click)="toggleAdvancedFilters()"
+          class="group relative inline-flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-slate-700 dark:text-slate-300 bg-white/60 dark:bg-slate-800/60 hover:bg-white dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600 shadow-lg hover:shadow-xl transition"
+        >
+          <lucide-angular [img]="SettingsIcon" class="w-4 h-4"></lucide-angular>
+          <span>Filtros Avanzados</span>
+        </button>
+
+        <!-- Export Dropdown -->
+        <div class="relative">
+          <button
+            (click)="exportReport()"
+            [disabled]="isLoading()"
+            class="group relative inline-flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-white bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition"
+          >
+            <div class="absolute inset-0 opacity-0 group-hover:opacity-100 bg-white/20 rounded-xl transition"></div>
+            <lucide-angular [img]="DownloadIcon" class="w-4 h-4 relative z-10"></lucide-angular>
+            <span class="relative z-10">Exportar CSV</span>
+          </button>
+        </div>
+
+        <!-- Advanced Export Options -->
+        <div class="flex gap-2">
+          <button
+            (click)="exportToExcel()"
+            [disabled]="isLoading() || !reportData()"
+            class="group relative inline-flex items-center gap-2 px-3 py-2 rounded-xl font-medium text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 border border-blue-200 dark:border-blue-700 shadow hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition"
+            title="Exportar a Excel"
+          >
+            <lucide-angular [img]="FileSpreadsheetIcon" class="w-4 h-4"></lucide-angular>
+          </button>
+
+          <button
+            (click)="exportChartsAsImages()"
+            [disabled]="isLoading() || !reportData()"
+            class="group relative inline-flex items-center gap-2 px-3 py-2 rounded-xl font-medium text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-900/30 hover:bg-purple-100 dark:hover:bg-purple-900/50 border border-purple-200 dark:border-purple-700 shadow hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition"
+            title="Exportar Gráficos"
+          >
+            <lucide-angular [img]="ImageIcon" class="w-4 h-4"></lucide-angular>
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -169,6 +234,22 @@ import { PaymentSchedule } from '../../models/payment-schedule';
     </div>
   </div>
 
+  <!-- Dashboard -->
+  @if (showDashboard()) {
+    <div class="animate-in slide-in-from-top-4 duration-300">
+      <app-collections-dashboard></app-collections-dashboard>
+    </div>
+  }
+
+  <!-- Advanced Filters -->
+  @if (showAdvancedFilters()) {
+    <div class="animate-in slide-in-from-top-4 duration-300">
+      <app-advanced-filters
+        (filtersChange)="onAdvancedFiltersChange($event)"
+      ></app-advanced-filters>
+    </div>
+  }
+
   <!-- Report Results -->
   @if (reportData()) {
     <div class="space-y-6">
@@ -236,47 +317,41 @@ import { PaymentSchedule } from '../../models/payment-schedule';
         </div>
       </div>
 
-      <!-- Status Distribution & Trend -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Status Breakdown -->
+      <!-- Interactive Charts -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+        <!-- Status Distribution Chart -->
         <div class="relative overflow-hidden rounded-2xl border border-slate-200/70 dark:border-slate-700/60 bg-white/80 dark:bg-slate-900/60 backdrop-blur shadow-lg p-6">
           <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-purple-500/5"></div>
           <h3 class="relative text-lg font-bold mb-4 flex items-center gap-2">
             <lucide-angular [img]="PieChartIcon" class="w-5 h-5 text-indigo-600 dark:text-indigo-400"></lucide-angular>
             <span>Distribución por Estado</span>
           </h3>
-
-          <div class="space-y-4 relative">
-            @for (status of getStatusBreakdown(); track status.name) {
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                  <div [class]="'w-3.5 h-3.5 rounded ring-1 ring-black/5 ' + status.color"></div>
-                  <span class="text-sm font-medium text-slate-900 dark:text-white">{{ status.label }}</span>
-                </div>
-                <div class="text-right">
-                  <p class="text-sm font-semibold text-slate-900 dark:text-white">{{ status.count }}</p>
-                  <p class="text-xs text-slate-500">{{ formatCurrency(status.amount) }}</p>
-                </div>
-              </div>
-              <div class="w-full h-2 rounded-full bg-slate-200/80 dark:bg-slate-700/60 overflow-hidden">
-                <div
-                  [class]="'h-2 rounded-full ' + status.color"
-                  [style.width.%]="status.percentage"
-                ></div>
-              </div>
-            }
+          <div class="relative h-64">
+            <canvas #statusChart class="w-full h-full"></canvas>
           </div>
         </div>
 
-        <!-- Monthly Trend (placeholder) -->
+        <!-- Trends Chart -->
         <div class="relative overflow-hidden rounded-2xl border border-slate-200/70 dark:border-slate-700/60 bg-white/80 dark:bg-slate-900/60 backdrop-blur shadow-lg p-6">
           <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-cyan-500/5"></div>
           <h3 class="relative text-lg font-bold mb-4 flex items-center gap-2">
-            <lucide-angular [img]="BarChart3Icon" class="w-5 h-5 text-blue-600 dark:text-blue-400"></lucide-angular>
+            <lucide-angular [img]="ActivityIcon" class="w-5 h-5 text-blue-600 dark:text-blue-400"></lucide-angular>
             <span>Tendencia Mensual</span>
           </h3>
-          <div class="relative text-center py-10 text-slate-500 dark:text-slate-400">
-            Funcionalidad de tendencia mensual próximamente
+          <div class="relative h-64">
+            <canvas #trendsChart class="w-full h-full"></canvas>
+          </div>
+        </div>
+
+        <!-- Amount Comparison Chart -->
+        <div class="relative overflow-hidden rounded-2xl border border-slate-200/70 dark:border-slate-700/60 bg-white/80 dark:bg-slate-900/60 backdrop-blur shadow-lg p-6 lg:col-span-2 xl:col-span-1">
+          <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-green-500/5"></div>
+          <h3 class="relative text-lg font-bold mb-4 flex items-center gap-2">
+            <lucide-angular [img]="BarChart3Icon" class="w-5 h-5 text-emerald-600 dark:text-emerald-400"></lucide-angular>
+            <span>Comparación de Montos</span>
+          </h3>
+          <div class="relative h-64">
+            <canvas #amountChart class="w-full h-full"></canvas>
           </div>
         </div>
       </div>
@@ -344,10 +419,22 @@ import { PaymentSchedule } from '../../models/payment-schedule';
 
   `
 })
-export class CollectionsReportsComponent implements OnInit, OnDestroy {
+export class CollectionsReportsComponent implements OnInit, OnDestroy, AfterViewInit {
   private readonly collectionsService = inject(CollectionsSimplifiedService);
+  private readonly advancedReportsService = inject(AdvancedReportsService);
+  private readonly exportService = inject(ExportService);
   private readonly fb = inject(FormBuilder);
   private readonly destroy$ = new Subject<void>();
+
+  // Chart ViewChildren
+  @ViewChild('statusChart', { static: false }) statusChartRef!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('trendsChart', { static: false }) trendsChartRef!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('amountChart', { static: false }) amountChartRef!: ElementRef<HTMLCanvasElement>;
+
+  // Chart instances
+  private statusChart: Chart | null = null;
+  private trendsChart: Chart | null = null;
+  private amountChart: Chart | null = null;
 
   // Icons
   FilterIcon = Filter;
@@ -361,11 +448,21 @@ export class CollectionsReportsComponent implements OnInit, OnDestroy {
   ArrowLeftIcon = ArrowLeft;
   FileTextIcon = FileText;
   AlertTriangleIcon = AlertTriangle;
+  ActivityIcon = Activity;
+  TargetIcon = Target;
+  UsersIcon = Users;
+  SettingsIcon = Settings;
+  EyeIcon = Eye;
+  FileSpreadsheetIcon = FileSpreadsheet;
+  ImageIcon = Image;
 
   // Signals
   reportData = signal<PaymentScheduleReport | null>(null);
   isLoading = signal(false);
   errorMessage = signal<string | null>(null);
+  showAdvancedFilters = signal(false);
+  showDashboard = signal(true);
+  advancedFilters = signal<FilterOptions | null>(null);
 
   // Form
   filterForm: FormGroup;
@@ -397,7 +494,27 @@ export class CollectionsReportsComponent implements OnInit, OnDestroy {
       });
   }
 
+  ngAfterViewInit() {
+    // Initialize charts after view is ready
+    setTimeout(() => {
+      if (this.reportData()) {
+        this.createCharts();
+      }
+    }, 100);
+  }
+
   ngOnDestroy() {
+    // Destroy chart instances
+    if (this.statusChart) {
+      this.statusChart.destroy();
+    }
+    if (this.trendsChart) {
+      this.trendsChart.destroy();
+    }
+    if (this.amountChart) {
+      this.amountChart.destroy();
+    }
+    
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -446,6 +563,11 @@ export class CollectionsReportsComponent implements OnInit, OnDestroy {
           }
           this.reportData.set(report);
           this.isLoading.set(false);
+          
+          // Create charts after data is loaded
+          setTimeout(() => {
+            this.createCharts();
+          }, 100);
         },
         error: () => {
           this.isLoading.set(false);
@@ -625,5 +747,364 @@ export class CollectionsReportsComponent implements OnInit, OnDestroy {
     const due = new Date(dueDate);
     const diffTime = today.getTime() - due.getTime();
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  }
+
+  // Chart creation methods
+  createCharts() {
+    if (!this.reportData()) return;
+    
+    this.createStatusChart();
+    this.createTrendsChart();
+    this.createAmountChart();
+  }
+
+  createStatusChart() {
+    if (!this.statusChartRef?.nativeElement) return;
+    
+    const breakdown = this.getStatusBreakdown();
+    const ctx = this.statusChartRef.nativeElement.getContext('2d');
+    if (!ctx) return;
+    
+    if (this.statusChart) {
+      this.statusChart.destroy();
+    }
+    
+    this.statusChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: breakdown.map(item => item.label),
+        datasets: [{
+          data: breakdown.map(item => item.count),
+          backgroundColor: [
+            '#10B981', // green for paid
+            '#F59E0B', // yellow for pending
+            '#EF4444'  // red for overdue
+          ],
+          borderWidth: 2,
+          borderColor: '#ffffff'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              padding: 20,
+              usePointStyle: true
+            }
+          },
+          tooltip: {
+            callbacks: {
+              label: (context) => {
+                const item = breakdown[context.dataIndex];
+                return `${item.label}: ${item.count} (${item.percentage.toFixed(1)}%)`;
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  createTrendsChart() {
+    if (!this.trendsChartRef?.nativeElement) return;
+    
+    const ctx = this.trendsChartRef.nativeElement.getContext('2d');
+    if (!ctx) return;
+    
+    if (this.trendsChart) {
+      this.trendsChart.destroy();
+    }
+    
+    // Mock data for trends - in real implementation, this would come from the backend
+    const months = ['Ene', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+    const paidData = [65, 59, 80, 81, 56, 55];
+    const overdueData = [28, 48, 40, 19, 86, 27];
+    
+    this.trendsChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: months,
+        datasets: [
+          {
+            label: 'Pagados',
+            data: paidData,
+            borderColor: '#10B981',
+            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+            tension: 0.4,
+            fill: true
+          },
+          {
+            label: 'Vencidos',
+            data: overdueData,
+            borderColor: '#EF4444',
+            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+            tension: 0.4,
+            fill: true
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'top'
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: {
+              color: 'rgba(0, 0, 0, 0.1)'
+            }
+          },
+          x: {
+            grid: {
+              display: false
+            }
+          }
+        }
+      }
+    });
+  }
+
+  createAmountChart() {
+    if (!this.amountChartRef?.nativeElement) return;
+    
+    const report = this.reportData();
+    if (!report) return;
+    
+    const ctx = this.amountChartRef.nativeElement.getContext('2d');
+    if (!ctx) return;
+    
+    if (this.amountChart) {
+      this.amountChart.destroy();
+    }
+    
+    this.amountChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['Total', 'Pagado', 'Pendiente', 'Vencido'],
+        datasets: [{
+          label: 'Monto (S/.)',
+          data: [
+            report.total_amount,
+            report.paid_amount,
+            report.pending_amount,
+            report.overdue_amount
+          ],
+          backgroundColor: [
+            '#6B7280', // gray for total
+            '#10B981', // green for paid
+            '#F59E0B', // yellow for pending
+            '#EF4444'  // red for overdue
+          ],
+          borderRadius: 4,
+          borderSkipped: false
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          },
+          tooltip: {
+            callbacks: {
+              label: (context) => {
+                return `${context.label}: ${this.formatCurrency(context.parsed.y)}`;
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: (value) => {
+                return this.formatCurrency(Number(value));
+              }
+            },
+            grid: {
+              color: 'rgba(0, 0, 0, 0.1)'
+            }
+          },
+          x: {
+            grid: {
+              display: false
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // Advanced filters methods
+  toggleAdvancedFilters() {
+    this.showAdvancedFilters.set(!this.showAdvancedFilters());
+  }
+
+  onAdvancedFiltersChange(filters: FilterOptions) {
+    this.advancedFilters.set(filters);
+    // Regenerate report with advanced filters
+    this.generateAdvancedReport();
+  }
+
+  generateAdvancedReport() {
+    if (!this.advancedFilters()) return;
+    
+    this.isLoading.set(true);
+    this.errorMessage.set(null);
+    
+    const filters = {
+      ...this.filterForm.value,
+      ...this.advancedFilters()
+    };
+    
+    this.advancedReportsService.getCollectorEfficiency(filters)
+      .pipe(
+        takeUntil(this.destroy$),
+        catchError(error => {
+          console.error('Error generating advanced report:', error);
+          this.errorMessage.set('Error al generar el reporte avanzado');
+          return of(null);
+        })
+      )
+      .subscribe({
+        next: (response: any) => {
+          this.reportData.set(response);
+          this.isLoading.set(false);
+          setTimeout(() => {
+            this.createCharts();
+          }, 100);
+        },
+        error: () => {
+          this.isLoading.set(false);
+        }
+      });
+  }
+
+  // Enhanced export methods
+  async exportToExcel() {
+    if (!this.reportData()) return;
+    
+    try {
+      await this.exportService.exportToExcel({
+        filename: 'reporte-cobranzas',
+        format: 'excel',
+        sheets: [{
+           name: 'Datos',
+           data: this.reportData()!.schedules || [],
+           headers: this.reportData()!.schedules?.length > 0 ? Object.keys(this.reportData()!.schedules[0]) : []
+         }]
+      });
+    } catch (error) {
+      console.error('Error exporting to Excel:', error);
+      this.errorMessage.set('Error al exportar a Excel');
+    }
+  }
+
+  async exportChartsAsImages() {
+    try {
+      const charts = [this.statusChart, this.trendsChart, this.amountChart].filter(chart => chart !== null);
+      if (charts.length === 0) return;
+      
+      const chartExports = charts.map((chart, index) => ({
+        chart: chart as Chart,
+        filename: `grafico_${index + 1}`
+      }));
+      await this.exportService.exportChartsAsZip(chartExports, 'graficos-reportes');
+    } catch (error) {
+      console.error('Error exporting charts:', error);
+      this.errorMessage.set('Error al exportar gráficos');
+    }
+  }
+
+  async exportComprehensiveReport() {
+    if (!this.reportData()) return;
+    
+    try {
+      const charts = [this.statusChart, this.trendsChart, this.amountChart].filter(chart => chart !== null);
+      await this.exportService.exportComprehensiveReport(
+        {
+          title: 'Reporte Completo de Cobranzas',
+          summary: this.reportData()!.schedules?.slice(0, 10) || [],
+           details: this.reportData()!.schedules || [],
+          charts: charts.map((chart, index) => ({
+            chart: chart as Chart,
+            title: `Gráfico ${index + 1}`
+          }))
+        },
+        'reporte-completo-cobranzas'
+      );
+    } catch (error) {
+      console.error('Error exporting comprehensive report:', error);
+      this.errorMessage.set('Error al exportar reporte completo');
+    }
+  }
+
+  // Dashboard methods
+  toggleDashboard() {
+    this.showDashboard.set(!this.showDashboard());
+  }
+
+  // Prediction methods
+  generatePredictions() {
+    this.isLoading.set(true);
+    
+    const filters = this.filterForm.value;
+    
+    this.advancedReportsService.getCollectionPredictions(3, filters)
+      .pipe(
+        takeUntil(this.destroy$),
+        catchError(error => {
+          console.error('Error generating predictions:', error);
+          this.errorMessage.set('Error al generar predicciones');
+          return of(null);
+        })
+      )
+      .subscribe({
+        next: (response: any) => {
+          // Handle prediction data
+          console.log('Predictions:', response);
+          this.isLoading.set(false);
+        },
+        error: () => {
+          this.isLoading.set(false);
+        }
+      });
+  }
+
+  // Aging analysis
+  generateAgingAnalysis() {
+    this.isLoading.set(true);
+    
+    const filters = this.filterForm.value;
+    
+    this.advancedReportsService.getAgingAnalysis(filters)
+      .pipe(
+        takeUntil(this.destroy$),
+        catchError(error => {
+          console.error('Error generating aging analysis:', error);
+          this.errorMessage.set('Error al generar análisis de antigüedad');
+          return of(null);
+        })
+      )
+      .subscribe({
+        next: (response: any) => {
+          this.reportData.set(response);
+          this.isLoading.set(false);
+          setTimeout(() => {
+            this.createCharts();
+          }, 100);
+        },
+        error: () => {
+          this.isLoading.set(false);
+        }
+      });
   }
 }

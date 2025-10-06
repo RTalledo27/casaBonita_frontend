@@ -34,6 +34,7 @@ export interface CollectionsSimplifiedDashboard {
 }
 
 export interface ContractWithSchedules extends Contract {
+  id?: number; // Alias for contract_id for compatibility
   payment_schedules?: PaymentSchedule[];
   schedule_count?: number;
   paid_count?: number;
@@ -236,6 +237,48 @@ export class CollectionsSimplifiedService {
         schedules: PaymentSchedule[];
       };
     }>(`${this.baseUrl}/collections/contracts/${contractId}/generate-schedule`, request);
+  }
+
+  // Bulk schedule generation
+  generateBulkSchedules(request: {
+    contract_ids: string[];
+    start_date: string;
+    frequency?: 'monthly' | 'biweekly' | 'weekly';
+    notes?: string;
+  }): Observable<{
+    success: boolean;
+    message: string;
+    data: {
+      total_contracts: number;
+      successful: number;
+      failed: number;
+      results: Array<{
+        contract_id: string;
+        contract_number?: string;
+        client_name?: string;
+        success: boolean;
+        message?: string;
+        schedules?: PaymentSchedule[];
+      }>;
+    };
+  }> {
+    return this.http.post<{
+      success: boolean;
+      message: string;
+      data: {
+        total_contracts: number;
+        successful: number;
+        failed: number;
+        results: Array<{
+          contract_id: string;
+          contract_number?: string;
+          client_name?: string;
+          success: boolean;
+          message?: string;
+          schedules?: PaymentSchedule[];
+        }>;
+      };
+    }>(`${this.baseUrl}/collections/contracts/generate-bulk-schedules`, request);
   }
 
   // Installment Management

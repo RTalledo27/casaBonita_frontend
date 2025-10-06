@@ -1,311 +1,142 @@
-import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { environment } from '../../../../environments/environment';
-import {
-  Collector,
-  CollectorAssignment,
-  CollectorMetrics,
-  CollectorWorkload,
-  AssignmentRequest,
-  ReassignmentRequest,
-  CollectorAction
-} from '../models/collector';
+import { Injectable, signal } from '@angular/core';
+import { Observable, of } from 'rxjs';
+
+export interface Collector {
+  id: number;
+  name: string;
+  email: string;
+  phone?: string;
+  active: boolean;
+  efficiency_rate?: number;
+  total_collections?: number;
+  assigned_contracts?: number;
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class CollectorsService {
-  private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${environment.URL_BACKEND}/v1/collections/collectors`;
-
-  /**
-   * Obtiene todos los cobradores
-   */
-  getAll(activeOnly: boolean = true): Observable<{ data: Collector[] }> {
-    const params = new HttpParams().set('active_only', activeOnly.toString());
-    return this.http.get<{ data: Collector[] }>(`${this.baseUrl}`, { params });
-  }
-
-  /**
-   * Obtiene un cobrador por ID
-   */
-  getById(id: number): Observable<{ data: Collector }> {
-    return this.http.get<{ data: Collector }>(`${this.baseUrl}/${id}`);
-  }
-
-  /**
-   * Crea un nuevo cobrador
-   */
-  create(collectorData: {
-    employee_id: number;
-    collection_target: number;
-    currency: 'PEN';
-  }): Observable<{ data: Collector }> {
-    return this.http.post<{ data: Collector }>(`${this.baseUrl}`, collectorData);
-  }
-
-  /**
-   * Actualiza un cobrador
-   */
-  update(id: number, collectorData: Partial<Collector>): Observable<{ data: Collector }> {
-    return this.http.put<{ data: Collector }>(`${this.baseUrl}/${id}`, collectorData);
-  }
-
-  /**
-   * Desactiva un cobrador
-   */
-  deactivate(id: number, reason?: string): Observable<{ message: string }> {
-    return this.http.patch<{ message: string }>(`${this.baseUrl}/${id}/deactivate`, { reason });
-  }
-
-  /**
-   * Activa un cobrador
-   */
-  activate(id: number): Observable<{ message: string }> {
-    return this.http.patch<{ message: string }>(`${this.baseUrl}/${id}/activate`, {});
-  }
-
-  /**
-   * Obtiene métricas de un cobrador
-   */
-  getMetrics(collectorId: number, period?: string): Observable<{ data: CollectorMetrics }> {
-    let params = new HttpParams();
-    if (period) {
-      params = params.set('period', period);
+  private collectors = signal<Collector[]>([
+    {
+      id: 1,
+      name: 'María González',
+      email: 'maria.gonzalez@casabonita.com',
+      phone: '+1234567890',
+      active: true,
+      efficiency_rate: 85.5,
+      total_collections: 125000,
+      assigned_contracts: 45
+    },
+    {
+      id: 2,
+      name: 'Carlos Rodríguez',
+      email: 'carlos.rodriguez@casabonita.com',
+      phone: '+1234567891',
+      active: true,
+      efficiency_rate: 92.3,
+      total_collections: 180000,
+      assigned_contracts: 38
+    },
+    {
+      id: 3,
+      name: 'Ana Martínez',
+      email: 'ana.martinez@casabonita.com',
+      phone: '+1234567892',
+      active: true,
+      efficiency_rate: 78.9,
+      total_collections: 95000,
+      assigned_contracts: 52
+    },
+    {
+      id: 4,
+      name: 'Luis Fernández',
+      email: 'luis.fernandez@casabonita.com',
+      phone: '+1234567893',
+      active: false,
+      efficiency_rate: 65.2,
+      total_collections: 75000,
+      assigned_contracts: 28
     }
-    return this.http.get<{ data: CollectorMetrics }>(`${this.baseUrl}/${collectorId}/metrics`, { params });
+  ]);
+
+  getCollectors(): Observable<Collector[]> {
+    return of(this.collectors());
   }
 
-  /**
-   * Obtiene la carga de trabajo de todos los cobradores
-   */
-  getWorkload(): Observable<{ data: CollectorWorkload[] }> {
-    return this.http.get<{ data: CollectorWorkload[] }>(`${this.baseUrl}/workload`);
+  getActiveCollectors(): Observable<Collector[]> {
+    return of(this.collectors().filter(c => c.active));
   }
 
-  /**
-   * Obtiene la carga de trabajo de un cobrador específico
-   */
-  getCollectorWorkload(collectorId: number): Observable<{ data: CollectorWorkload }> {
-    return this.http.get<{ data: CollectorWorkload }>(`${this.baseUrl}/${collectorId}/workload`);
+  getCollectorById(id: number): Observable<Collector | undefined> {
+    return of(this.collectors().find(c => c.id === id));
   }
 
-  /**
-   * Obtiene asignaciones de un cobrador
-   */
-  getAssignments(collectorId: number, status?: string): Observable<{ data: CollectorAssignment[] }> {
-    let params = new HttpParams();
-    if (status) {
-      params = params.set('status', status);
-    }
-    return this.http.get<{ data: CollectorAssignment[] }>(`${this.baseUrl}/${collectorId}/assignments`, { params });
-  }
-
-  /**
-   * Asigna cuentas a un cobrador
-   */
-  assignAccounts(assignmentData: AssignmentRequest): Observable<{ message: string; assignments_created: number }> {
-    return this.http.post<{ message: string; assignments_created: number }>(`${this.baseUrl}/assign`, assignmentData);
-  }
-
-  /**
-   * Reasigna una cuenta a otro cobrador
-   */
-  reassignAccount(reassignmentData: ReassignmentRequest): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>(`${this.baseUrl}/reassign`, reassignmentData);
-  }
-
-  /**
-   * Asignación automática basada en carga de trabajo
-   */
-  autoAssign(accountIds: number[], criteria?: {
-    balance_workload?: boolean;
-    consider_expertise?: boolean;
-    priority_first?: boolean;
-  }): Observable<{ message: string; assignments: { account_id: number; collector_id: number }[] }> {
-    return this.http.post<{ message: string; assignments: { account_id: number; collector_id: number }[] }>(`${this.baseUrl}/auto-assign`, {
-      account_ids: accountIds,
-      criteria
-    });
-  }
-
-  /**
-   * Completa una asignación
-   */
-  completeAssignment(assignmentId: number, result: {
-    status: 'completed' | 'cancelled';
-    amount_collected?: number;
-    notes?: string;
-  }): Observable<{ data: CollectorAssignment }> {
-    return this.http.patch<{ data: CollectorAssignment }>(`${this.baseUrl}/assignments/${assignmentId}/complete`, result);
-  }
-
-  /**
-   * Registra una acción de cobranza
-   */
-  recordAction(assignmentId: number, actionData: {
-    action_type: 'call' | 'email' | 'visit' | 'letter' | 'legal' | 'payment_plan' | 'other';
-    description: string;
-    result: 'successful' | 'unsuccessful' | 'partial' | 'pending';
-    amount_collected?: number;
-    next_action_date?: string;
-    notes?: string;
-  }): Observable<{ data: CollectorAction }> {
-    return this.http.post<{ data: CollectorAction }>(`${this.baseUrl}/assignments/${assignmentId}/actions`, actionData);
-  }
-
-  /**
-   * Obtiene historial de acciones de una asignación
-   */
-  getActionHistory(assignmentId: number): Observable<{ data: CollectorAction[] }> {
-    return this.http.get<{ data: CollectorAction[] }>(`${this.baseUrl}/assignments/${assignmentId}/actions`);
-  }
-
-  /**
-   * Obtiene ranking de cobradores
-   */
-  getCollectorRanking(period?: string, metric: 'collection_rate' | 'amount_collected' | 'efficiency' = 'collection_rate'): Observable<{
-    data: {
-      collector_id: number;
-      collector_name: string;
-      rank: number;
-      metric_value: number;
-      change_from_previous: number;
-    }[]
+  getCollectorEfficiency(collectorId: number): Observable<{
+    efficiency_rate: number;
+    collections_this_month: number;
+    target_amount: number;
+    recovered_amount: number;
+    pending_amount: number;
   }> {
-    let params = new HttpParams().set('metric', metric);
-    if (period) {
-      params = params.set('period', period);
-    }
-    return this.http.get<{
-      data: {
-        collector_id: number;
-        collector_name: string;
-        rank: number;
-        metric_value: number;
-        change_from_previous: number;
-      }[]
-    }>(`${this.baseUrl}/ranking`, { params });
-  }
-
-  /**
-   * Obtiene comparación de rendimiento entre cobradores
-   */
-  getPerformanceComparison(collectorIds: number[], period?: string): Observable<{
-    data: {
-      collector_id: number;
-      collector_name: string;
-      metrics: CollectorMetrics;
-    }[]
-  }> {
-    let params = new HttpParams();
-    collectorIds.forEach(id => {
-      params = params.append('collector_ids[]', id.toString());
-    });
-    if (period) {
-      params = params.set('period', period);
-    }
-    return this.http.get<{
-      data: {
-        collector_id: number;
-        collector_name: string;
-        metrics: CollectorMetrics;
-      }[]
-    }>(`${this.baseUrl}/performance-comparison`, { params });
-  }
-
-  /**
-   * Actualiza meta de cobranza de un cobrador
-   */
-  updateTarget(collectorId: number, targetAmount: number, period?: string): Observable<{ message: string }> {
-    return this.http.patch<{ message: string }>(`${this.baseUrl}/${collectorId}/target`, {
-      target_amount: targetAmount,
-      period
-    });
-  }
-
-  /**
-   * Obtiene historial de metas de un cobrador
-   */
-  getTargetHistory(collectorId: number): Observable<{
-    data: {
-      period: string;
-      target_amount: number;
-      achieved_amount: number;
-      achievement_percentage: number;
-    }[]
-  }> {
-    return this.http.get<{
-      data: {
-        period: string;
-        target_amount: number;
-        achieved_amount: number;
-        achievement_percentage: number;
-      }[]
-    }>(`${this.baseUrl}/${collectorId}/target-history`);
-  }
-
-  /**
-   * Exporta datos de cobradores
-   */
-  exportCollectorData(format: 'excel' | 'pdf', collectorIds?: number[], period?: string): Observable<Blob> {
-    let params = new HttpParams().set('format', format);
+    const collector = this.collectors().find(c => c.id === collectorId);
     
-    if (collectorIds && collectorIds.length > 0) {
-      collectorIds.forEach(id => {
-        params = params.append('collector_ids[]', id.toString());
-      });
+    // Mock data for efficiency metrics
+    return of({
+      efficiency_rate: collector?.efficiency_rate || 0,
+      collections_this_month: Math.floor(Math.random() * 50) + 10,
+      target_amount: 150000,
+      recovered_amount: collector?.total_collections || 0,
+      pending_amount: Math.floor(Math.random() * 50000) + 10000
+    });
+  }
+
+  getCollectorProductivity(collectorId: number, dateFrom: string, dateTo: string): Observable<{
+    calls_made: number;
+    successful_contacts: number;
+    payments_received: number;
+    amount_collected: number;
+    contracts_resolved: number;
+    average_call_duration: number;
+  }> {
+    // Mock productivity data
+    return of({
+      calls_made: Math.floor(Math.random() * 200) + 50,
+      successful_contacts: Math.floor(Math.random() * 100) + 25,
+      payments_received: Math.floor(Math.random() * 30) + 5,
+      amount_collected: Math.floor(Math.random() * 100000) + 20000,
+      contracts_resolved: Math.floor(Math.random() * 15) + 3,
+      average_call_duration: Math.floor(Math.random() * 300) + 120 // seconds
+    });
+  }
+
+  updateCollector(collector: Collector): Observable<Collector> {
+    const currentCollectors = this.collectors();
+    const index = currentCollectors.findIndex(c => c.id === collector.id);
+    
+    if (index !== -1) {
+      currentCollectors[index] = collector;
+      this.collectors.set([...currentCollectors]);
     }
     
-    if (period) {
-      params = params.set('period', period);
-    }
-
-    return this.http.get(`${this.baseUrl}/export`, {
-      params,
-      responseType: 'blob'
-    });
+    return of(collector);
   }
 
-  /**
-   * Obtiene sugerencias de asignación para una cuenta
-   */
-  getAssignmentSuggestions(accountId: number): Observable<{
-    data: {
-      collector_id: number;
-      collector_name: string;
-      score: number;
-      reasons: string[];
-      current_workload: number;
-      estimated_success_rate: number;
-    }[]
-  }> {
-    return this.http.get<{
-      data: {
-        collector_id: number;
-        collector_name: string;
-        score: number;
-        reasons: string[];
-        current_workload: number;
-        estimated_success_rate: number;
-      }[]
-    }>(`${this.baseUrl}/assignment-suggestions/${accountId}`);
+  addCollector(collector: Omit<Collector, 'id'>): Observable<Collector> {
+    const currentCollectors = this.collectors();
+    const newId = Math.max(...currentCollectors.map(c => c.id)) + 1;
+    const newCollector = { ...collector, id: newId };
+    
+    this.collectors.set([...currentCollectors, newCollector]);
+    
+    return of(newCollector);
   }
 
-  /**
-   * Delete a collector
-   */
-  delete(collectorId: number): Observable<{ message: string }> {
-    return this.http.delete<{ message: string }>(`${this.baseUrl}/${collectorId}`);
-  }
-
-  /**
-   * Export collectors data to Excel
-   */
-  exportToExcel(): Observable<Blob> {
-    return this.http.get(`${this.baseUrl}/export/excel`, {
-      responseType: 'blob'
-    });
+  deleteCollector(id: number): Observable<boolean> {
+    const currentCollectors = this.collectors();
+    const filteredCollectors = currentCollectors.filter(c => c.id !== id);
+    
+    this.collectors.set(filteredCollectors);
+    
+    return of(true);
   }
 }

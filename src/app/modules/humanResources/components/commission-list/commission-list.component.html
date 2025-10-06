@@ -360,6 +360,7 @@
   <app-advisor-commissions-modal
     [isOpen]="showAdvisorModal()"
     [advisorGroup]="selectedAdvisorGroup()"
-    (closeModal)="closeAdvisorModal()">
+    (closeModal)="closeAdvisorModal()"
+    (paymentSuccess)="onPaymentSuccess()">
   </app-advisor-commissions-modal>
 </section>

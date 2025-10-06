@@ -683,6 +683,8 @@ export class InstallmentManagementComponent implements OnInit, OnDestroy {
   });
 
   Math = Math;
+  currentDate =  new Date();
+  currentDateFormat = this.currentDate.toISOString().split('T')[0];
 
   constructor() {
     this.filterForm = this.fb.group({
@@ -701,6 +703,8 @@ export class InstallmentManagementComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.loadContracts();
+
+
     
     // Setup filter changes
     this.filterForm.valueChanges.pipe(
@@ -868,6 +872,9 @@ this.collectionsService.getContractsWithSchedulesSummary(paginationFilters)
     // TODO: Implement export functionality
   }
 
+  //calcular dias vencidos
+ 
+
   // Pagination methods
   previousPage() {
     if (this.currentPage() > 1) {
@@ -965,7 +972,41 @@ getStatusClass(status: string): string {
   getDaysOverdue(dueDate: string): number {
     const due = new Date(dueDate);
     const now = new Date();
+    
+    // Normalizar las fechas al inicio del día para evitar problemas de zona horaria
+    due.setHours(0, 0, 0, 0);
+    now.setHours(0, 0, 0, 0);
+    
+    // Si no está vencido, retornar 0
+    if (now <= due) {
+      return 0;
+    }
+    
+    // Calcular días exactos sin decimales
     const diffTime = now.getTime() - due.getTime();
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  }
+
+  // Función adicional para mostrar días y horas de forma más detallada
+  getOverdueDisplay(dueDate: string): string {
+    const due = new Date(dueDate);
+    const now = new Date();
+    
+    // Si no está vencido
+    if (now <= due) {
+      return '';
+    }
+    
+    const diffTime = now.getTime() - due.getTime();
+    const days = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diffTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    
+    if (days === 0) {
+      return `${hours}h`;
+    } else if (days === 1) {
+      return '1 día';
+    } else {
+      return `${days} días`;
+    }
   }
 }

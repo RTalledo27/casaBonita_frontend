@@ -36,33 +36,59 @@ import { GenerateScheduleRequest, GenerateScheduleResponse } from '../../models/
           <div class="absolute inset-0 bg-gradient-to-r from-blue-400/8 via-purple-400/4 to-indigo-400/8 dark:from-blue-500/15 dark:via-purple-500/8 dark:to-indigo-500/15"></div>
           <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 via-purple-400 to-indigo-400"></div>
           
-          <div class="relative flex items-center space-x-6">
-            <button 
-              routerLink="/collections/dashboard"
-              class="group relative p-3 bg-gradient-to-br from-gray-100/80 to-white/80 dark:from-gray-700/80 dark:to-gray-600/80 hover:from-blue-100/80 hover:to-indigo-100/80 dark:hover:from-blue-800/50 dark:hover:to-indigo-800/50 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-white/30 dark:border-gray-600/30"
-            >
-              <div class="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
-              <lucide-angular [img]="ArrowLeftIcon" class="w-6 h-6 text-gray-600 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 relative z-10 transition-colors duration-300"></lucide-angular>
-            </button>
-            
-            <div class="flex items-center space-x-4">
-              <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-4 rounded-2xl shadow-lg">
-                <lucide-angular [img]="CalendarIcon" class="w-8 h-8 text-white"></lucide-angular>
+          <div class="relative flex items-center justify-between">
+            <div class="flex items-center space-x-6">
+              <button 
+                routerLink="/collections/dashboard"
+                class="group relative p-3 bg-gradient-to-br from-gray-100/80 to-white/80 dark:from-gray-700/80 dark:to-gray-600/80 hover:from-blue-100/80 hover:to-indigo-100/80 dark:hover:from-blue-800/50 dark:hover:to-indigo-800/50 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-white/30 dark:border-gray-600/30"
+              >
+                <div class="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
+                <lucide-angular [img]="ArrowLeftIcon" class="w-6 h-6 text-gray-600 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 relative z-10 transition-colors duration-300"></lucide-angular>
+              </button>
+              
+              <div class="flex items-center space-x-4">
+                <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-4 rounded-2xl shadow-lg">
+                  <lucide-angular [img]="CalendarIcon" class="w-8 h-8 text-white"></lucide-angular>
+                </div>
+                <div>
+                  <h1 class="text-3xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-indigo-800 dark:from-white dark:via-blue-200 dark:to-indigo-200 bg-clip-text text-transparent">
+                    Generador de Cronogramas
+                  </h1>
+                  <p class="text-gray-600 dark:text-gray-400 mt-1 font-medium">Crear cronogramas de pago para contratos</p>
+                </div>
               </div>
-              <div>
-                <h1 class="text-3xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-indigo-800 dark:from-white dark:via-blue-200 dark:to-indigo-200 bg-clip-text text-transparent">
-                  Generador de Cronogramas
-                </h1>
-                <p class="text-gray-600 dark:text-gray-400 mt-1 font-medium">Crear cronogramas de pago para contratos</p>
-              </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="flex bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm rounded-2xl p-2 shadow-lg border border-white/30 dark:border-gray-600/30">
+              <button
+                (click)="switchTab('individual')"
+                [class]="activeTab() === 'individual' ? 
+                  'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg' : 
+                  'text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400'"
+                class="px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105"
+              >
+                Individual
+              </button>
+              <button
+                (click)="switchTab('mass')"
+                [class]="activeTab() === 'mass' ? 
+                  'bg-gradient-to-r from-purple-500 to-pink-600 text-white shadow-lg' : 
+                  'text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400'"
+                class="px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105"
+              >
+                Masivo
+              </button>
             </div>
           </div>
         </div>
 
-        <!-- Contenedor de ambas secciones -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 xl:gap-8">
-          <!-- Seleccionar Contrato (izquierda) -->
-          <section class="lg:col-span-5">
+        <!-- Contenido condicional según el tab activo -->
+        @if (activeTab() === 'individual') {
+          <!-- Contenedor de ambas secciones - Individual -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 xl:gap-8">
+            <!-- Seleccionar Contrato (izquierda) -->
+            <section class="lg:col-span-5">
             <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/30 dark:border-gray-700/50 p-8 relative overflow-hidden h-fit">
             <!-- Card Header Gradient -->
             <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/8 via-green-500/4 to-teal-500/8 dark:from-emerald-600/15 dark:via-green-600/8 dark:to-teal-600/15"></div>
@@ -296,6 +322,262 @@ import { GenerateScheduleRequest, GenerateScheduleResponse } from '../../models/
             </div>
           </section>
         </div>
+        } @else {
+          <!-- Sección de Generación Masiva -->
+          <div class="space-y-6">
+            <!-- Lista de contratos con selección múltiple -->
+            <section>
+              <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/30 dark:border-gray-700/50 p-8 relative overflow-hidden">
+                <!-- Card Header Gradient -->
+                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-violet-400 via-purple-400 to-indigo-400"></div>
+                <div class="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-indigo-500/5 rounded-3xl"></div>
+                
+                <div class="relative z-10">
+                  <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center space-x-3">
+                      <div class="bg-gradient-to-br from-violet-500 to-indigo-600 p-3 rounded-2xl shadow-lg">
+                        <lucide-angular [img]="FileTextIcon" class="w-6 h-6 text-white"></lucide-angular>
+                      </div>
+                      <span>Seleccionar Contratos</span>
+                    </h3>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">
+                      {{ getSelectedContractsCount() }} de {{ filteredContracts().length }} seleccionados
+                    </div>
+                  </div>
+
+                  <!-- Búsqueda -->
+                  <div class="relative mb-6">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                      <lucide-angular [img]="SearchIcon" class="w-5 h-5 text-gray-400"></lucide-angular>
+                    </div>
+                    <input
+                      type="text"
+                      placeholder="Buscar por número de contrato, cliente o lote..."
+                      (input)="onSearchChange($event)"
+                      class="w-full pl-12 pr-4 py-4 bg-white/90 dark:bg-gray-700/90 backdrop-blur-sm border border-gray-200/50 dark:border-gray-600/50 rounded-2xl shadow-lg focus:shadow-xl focus:border-violet-300/50 dark:focus:border-violet-500/50 focus:outline-none text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 font-medium transition-all duration-300"
+                    />
+                  </div>
+
+                  <!-- Acciones de selección -->
+                  <div class="flex space-x-4 mb-6">
+                    <button
+                      type="button"
+                      (click)="selectAllContracts()"
+                      class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-medium transition-colors duration-200"
+                    >
+                      Seleccionar Todos
+                    </button>
+                    <button
+                      type="button"
+                      (click)="clearBulkSelection()"
+                      class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-xl font-medium transition-colors duration-200"
+                    >
+                      Limpiar Selección
+                    </button>
+                  </div>
+
+                  <!-- Lista de contratos -->
+                  @if (isLoadingContracts()) {
+                    <div class="text-center py-12">
+                      <div class="animate-spin rounded-full h-12 w-12 border-4 border-violet-200 border-t-violet-600 mx-auto mb-4"></div>
+                      <p class="text-gray-600 dark:text-gray-400 font-medium">Cargando contratos...</p>
+                    </div>
+                  } @else if (filteredContracts().length === 0) {
+                    <div class="text-center py-12 text-gray-500">
+                      <lucide-angular [img]="FileTextIcon" class="w-12 h-12 mx-auto mb-4 text-gray-400"></lucide-angular>
+                      <p class="text-lg font-medium">No se encontraron contratos</p>
+                      <p class="text-sm">Intenta ajustar los filtros de búsqueda</p>
+                    </div>
+                  } @else {
+                    <div class="max-h-96 overflow-y-auto space-y-3">
+                      @for (contract of filteredContracts(); track contract.contract_id) {
+                        <div 
+                          class="group relative bg-white/60 dark:bg-gray-700/60 hover:bg-white/80 dark:hover:bg-gray-700/80 backdrop-blur-sm border border-gray-200/30 dark:border-gray-600/30 hover:border-violet-300/50 dark:hover:border-violet-500/50 rounded-2xl p-4 cursor-pointer transition-all duration-300 hover:shadow-lg"
+                          (click)="toggleContractSelection(contract.contract_id)"
+                        >
+                          <div class="flex items-center space-x-4">
+                            <div class="flex-shrink-0">
+                              <input
+                                type="checkbox"
+                                [checked]="isContractSelected(contract.contract_id)"
+                                class="w-5 h-5 text-violet-600 bg-white border-gray-300 rounded focus:ring-violet-500 focus:ring-2"
+                                (click)="$event.stopPropagation()"
+                                (change)="toggleContractSelection(contract.contract_id)"
+                              />
+                            </div>
+                            <div class="flex-1 min-w-0">
+                              <div class="flex items-center justify-between">
+                                <h4 class="text-lg font-bold text-gray-900 dark:text-white truncate">
+                                  {{ contract.contract_number }}
+                                </h4>
+                                <span class="text-sm font-medium text-violet-600 dark:text-violet-400">
+                                  {{ formatCurrency(+(contract.financing_amount || 0)) }}
+                                </span>
+                              </div>
+                              <p class="text-gray-600 dark:text-gray-400 font-medium truncate">{{ contract.client_name }}</p>
+                              <p class="text-sm text-gray-500 dark:text-gray-500 truncate">{{ contract.lot_name }}</p>
+                            </div>
+                          </div>
+                        </div>
+                      }
+                    </div>
+                  }
+                </div>
+              </div>
+            </section>
+
+            <!-- Configuración global -->
+            <section>
+              <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/30 dark:border-gray-700/50 p-8 relative overflow-hidden">
+                <!-- Card Header Gradient -->
+                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400"></div>
+                <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 rounded-3xl"></div>
+                
+                <div class="relative z-10">
+                  <h3 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center space-x-3 mb-6">
+                    <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-3 rounded-2xl shadow-lg">
+                      <lucide-angular [img]="CalculatorIcon" class="w-6 h-6 text-white"></lucide-angular>
+                    </div>
+                    <span>Configuración Global</span>
+                  </h3>
+
+                  <form [formGroup]="bulkScheduleForm" class="space-y-6">
+                    <!-- Fecha de inicio -->
+                    <div>
+                      <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-3">
+                        Fecha de Inicio
+                      </label>
+                      <input
+                        type="date"
+                        formControlName="start_date"
+                        class="w-full px-4 py-4 bg-white/90 dark:bg-gray-700/90 backdrop-blur-sm border border-gray-200/50 dark:border-gray-600/50 rounded-2xl shadow-lg focus:shadow-xl focus:border-blue-300/50 dark:focus:border-blue-500/50 focus:outline-none text-gray-900 dark:text-white font-medium transition-all duration-300"
+                      />
+                    </div>
+
+                    <!-- Frecuencia de pago -->
+                    <div>
+                      <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-3">
+                        Frecuencia de Pago
+                      </label>
+                      <select
+                        formControlName="frequency"
+                        class="w-full px-4 py-4 bg-white/90 dark:bg-gray-700/90 backdrop-blur-sm border border-gray-200/50 dark:border-gray-600/50 rounded-2xl shadow-lg focus:shadow-xl focus:border-blue-300/50 dark:focus:border-blue-500/50 focus:outline-none text-gray-900 dark:text-white font-medium transition-all duration-300"
+                      >
+                        <option value="monthly">Mensual</option>
+                        <option value="biweekly">Quincenal</option>
+                        <option value="weekly">Semanal</option>
+                      </select>
+                    </div>
+
+                    <!-- Notas -->
+                    <div>
+                      <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-3">
+                        Notas (Opcional)
+                      </label>
+                      <textarea
+                        formControlName="notes"
+                        rows="3"
+                        placeholder="Agregar notas para todos los cronogramas..."
+                        class="w-full px-4 py-4 bg-white/90 dark:bg-gray-700/90 backdrop-blur-sm border border-gray-200/50 dark:border-gray-600/50 rounded-2xl shadow-lg focus:shadow-xl focus:border-blue-300/50 dark:focus:border-blue-500/50 focus:outline-none text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 font-medium transition-all duration-300 resize-none"
+                      ></textarea>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </section>
+
+            <!-- Botón de generación masiva -->
+            <section>
+              <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/30 dark:border-gray-700/50 p-8 relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-400 via-emerald-400 to-teal-400"></div>
+                <div class="absolute inset-0 bg-gradient-to-br from-green-500/5 to-teal-500/5 rounded-3xl"></div>
+                
+                <div class="relative z-10">
+                  @if (isBulkGenerating()) {
+                    <!-- Progreso de generación -->
+                    <div class="text-center">
+                      <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Generando Cronogramas...</h3>
+                      <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4 mb-4">
+                        <div 
+                          class="bg-gradient-to-r from-green-500 to-emerald-600 h-4 rounded-full transition-all duration-300"
+                          [style.width.%]="bulkProgress()"
+                        ></div>
+                      </div>
+                      <p class="text-gray-600 dark:text-gray-400">{{ bulkProgress() }}% completado</p>
+                    </div>
+                  } @else {
+                    <!-- Botón de generación -->
+                    <div class="text-center">
+                      <button
+                        type="button"
+                        (click)="generateBulkSchedules()"
+                        [disabled]="getSelectedContractsCount() === 0 || bulkScheduleForm.invalid"
+                        class="group relative bg-gradient-to-br from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 disabled:from-gray-400 disabled:to-gray-500 text-white py-4 px-8 rounded-2xl shadow-xl hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-3 font-semibold text-lg transition-all duration-300 transform hover:scale-[1.02] disabled:hover:scale-100 mx-auto"
+                      >
+                        <div class="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 group-disabled:opacity-0 transition-opacity duration-300 rounded-2xl"></div>
+                        <lucide-angular [img]="CalendarIcon" class="w-5 h-5 relative z-10"></lucide-angular>
+                        <span class="relative z-10">Generar {{ getSelectedContractsCount() }} Cronogramas</span>
+                      </button>
+                      @if (getSelectedContractsCount() === 0) {
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Selecciona al menos un contrato para continuar</p>
+                      }
+                    </div>
+                  }
+                </div>
+              </div>
+            </section>
+
+            <!-- Resultados de generación masiva -->
+            @if (bulkResults()) {
+              <section>
+                <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/30 dark:border-gray-700/50 p-8 relative overflow-hidden">
+                  <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400"></div>
+                  <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 rounded-3xl"></div>
+                  
+                  <div class="relative z-10">
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center space-x-3">
+                      <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-3 rounded-2xl shadow-lg">
+                        <lucide-angular [img]="CheckCircleIcon" class="w-6 h-6 text-white"></lucide-angular>
+                      </div>
+                      <span>Resultados de Generación</span>
+                    </h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                      <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-2xl p-6 text-center">
+                        <div class="text-3xl font-bold text-blue-600 dark:text-blue-400">{{ bulkResults()?.total_contracts }}</div>
+                        <div class="text-sm text-blue-600 dark:text-blue-400 font-medium">Total Procesados</div>
+                      </div>
+                      <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-2xl p-6 text-center">
+                        <div class="text-3xl font-bold text-green-600 dark:text-green-400">{{ bulkResults()?.successful }}</div>
+                        <div class="text-sm text-green-600 dark:text-green-400 font-medium">Exitosos</div>
+                      </div>
+                      <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-2xl p-6 text-center">
+                        <div class="text-3xl font-bold text-red-600 dark:text-red-400">{{ bulkResults()?.failed }}</div>
+                        <div class="text-sm text-red-600 dark:text-red-400 font-medium">Fallidos</div>
+                      </div>
+                    </div>
+
+                    @if (bulkResults()?.results && bulkResults()!.results.length > 0) {
+                      <div class="max-h-64 overflow-y-auto">
+                        <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Detalles:</h4>
+                        @for (detail of bulkResults()?.results; track detail.contract_id) {
+                          <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl mb-2">
+                            <span class="text-sm font-medium text-gray-900 dark:text-white">{{ detail.contract_number }}</span>
+                            @if (detail.success) {
+                              <span class="text-sm text-green-600 dark:text-green-400 font-medium">✓ Exitoso</span>
+                            } @else {
+                              <span class="text-sm text-red-600 dark:text-red-400 font-medium">✗ {{ detail.error }}</span>
+                            }
+                          </div>
+                        }
+                      </div>
+                    }
+                  </div>
+                </div>
+              </section>
+            }
+          </div>
+        }
 
         <!-- Success/Error Messages -->
       @if (successMessage()) {
@@ -364,8 +646,16 @@ export class ScheduleGeneratorComponent implements OnInit {
   searchTerm = signal('');
   generatedScheduleId: string | null = null;
 
-  // Form
+  // Mass generation signals
+  activeTab = signal<'individual' | 'mass'>('individual');
+  selectedContracts = signal<Set<string>>(new Set());
+  isBulkGenerating = signal(false);
+  bulkProgress = signal(0);
+  bulkResults = signal<{ total_contracts: number; successful: number; failed: number; results: any[] } | null>(null);
+
+  // Forms
   scheduleForm: FormGroup;
+  bulkScheduleForm: FormGroup;
 
   // Computed
   filteredContracts = computed(() => {
@@ -394,6 +684,12 @@ export class ScheduleGeneratorComponent implements OnInit {
 
   constructor() {
     this.scheduleForm = this.fb.group({
+      start_date: [this.getDefaultStartDate(), Validators.required],
+      frequency: ['monthly', Validators.required],
+      notes: ['']
+    });
+
+    this.bulkScheduleForm = this.fb.group({
       start_date: [this.getDefaultStartDate(), Validators.required],
       frequency: ['monthly', Validators.required],
       notes: ['']
@@ -532,6 +828,96 @@ export class ScheduleGeneratorComponent implements OnInit {
   private clearMessages() {
     this.successMessage.set(null);
     this.errorMessage.set(null);
+  }
+
+  // Mass generation methods
+  switchTab(tab: 'individual' | 'mass') {
+    this.activeTab.set(tab);
+    this.clearMessages();
+    this.clearSelection();
+    this.clearBulkSelection();
+  }
+
+  toggleContractSelection(contractId: number) {
+    const contractIdStr = contractId.toString();
+    const selected = new Set(this.selectedContracts());
+    if (selected.has(contractIdStr)) {
+      selected.delete(contractIdStr);
+    } else {
+      selected.add(contractIdStr);
+    }
+    this.selectedContracts.set(selected);
+  }
+
+  selectAllContracts() {
+    const allIds = new Set(this.filteredContracts().map(c => c.contract_id.toString()));
+    this.selectedContracts.set(allIds);
+  }
+
+  clearBulkSelection() {
+    this.selectedContracts.set(new Set());
+    this.bulkResults.set(null);
+    this.bulkProgress.set(0);
+  }
+
+  generateBulkSchedules() {
+    if (this.bulkScheduleForm.invalid || this.selectedContracts().size === 0) {
+      return;
+    }
+
+    this.isBulkGenerating.set(true);
+    this.clearMessages();
+    this.bulkProgress.set(0);
+    this.bulkResults.set(null);
+
+    const formValue = this.bulkScheduleForm.value;
+    const contractIds = Array.from(this.selectedContracts());
+
+    // NO enviar frequency para que el backend use los lot financial templates
+    const request = {
+      contract_ids: contractIds,
+      start_date: formValue.start_date,
+      notes: formValue.notes
+    };
+
+    this.collectionsService.generateBulkSchedules(request)
+      .pipe(
+        takeUntil(this.destroy$),
+        catchError(error => {
+          console.error('Error generating bulk schedules:', error);
+          this.errorMessage.set('Error al generar los cronogramas masivamente');
+          return of(null);
+        })
+      )
+      .subscribe(
+        (response) => {
+          if (response && response.success) {
+            this.bulkResults.set(response.data);
+            this.successMessage.set(`Generación masiva completada: ${response.data.successful}/${response.data.total_contracts} cronogramas generados exitosamente`);
+            // Reload contracts to get updated data
+            this.loadContracts();
+            // Clear selection
+            this.clearBulkSelection();
+            this.bulkScheduleForm.patchValue({
+              start_date: this.getDefaultStartDate(),
+              frequency: 'monthly',
+              notes: ''
+            });
+          }
+          this.isBulkGenerating.set(false);
+        },
+        () => {
+          this.isBulkGenerating.set(false);
+        }
+      );
+  }
+
+  isContractSelected(contractId: number): boolean {
+    return this.selectedContracts().has(contractId.toString());
+  }
+
+  getSelectedContractsCount(): number {
+    return this.selectedContracts().size;
   }
 
   formatCurrency(amount: number): string {
