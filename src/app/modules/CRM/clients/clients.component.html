@@ -131,7 +131,7 @@
               rounded-3xl shadow-2xl">
     <div class="sticky top-0 z-10 h-1 w-full bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500 rounded-t-3xl"></div>
     <div class="p-6 md:p-8">
-      <router-outlet name="modal" (activate)="onModalActivate($event)"></router-outlet>
+      <router-outlet name="modal" (activate)="onModalActivate($event)" (deactivate)="onModalDeactivate()"></router-outlet>
     </div>
   </div>
 </div>

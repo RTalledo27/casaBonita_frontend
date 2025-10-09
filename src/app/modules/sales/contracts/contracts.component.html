@@ -149,8 +149,15 @@
 </app-contract-import>
 
 <!-- Modal de Creación -->
-<!-- <app-contract-creation-modal
+<app-contract-creation-modal
   [isOpen]="isCreationModalOpen"
   (closeModal)="onCreationModalClose()"
   (contractCreated)="onContractCreated()">
-</app-contract-creation-modal> -->
+</app-contract-creation-modal>
+
+<!-- Modal de Detalles del Contrato -->
+<app-contract-details-modal
+  [isOpen]="isDetailsModalOpen"
+  [contractId]="selectedContractId"
+  (closeModal)="onDetailsModalClose()">
+</app-contract-details-modal>

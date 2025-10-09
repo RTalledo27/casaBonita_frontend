@@ -26,6 +26,10 @@ export class ContractsService {
     return this.http.get<Contract>(`${this.base}/${id}`);
   }
 
+  getdetails(id: number): Observable<any> {
+    return this.http.get<any>(`${this.base}/${id}/details`);
+  }
+
   create(data: any): Observable<Contract> {
     return this.http.post<Contract>(this.base, data);
   }

@@ -11,7 +11,8 @@ import { ModalService } from '../../../core/services/modal.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ThemeService } from '../../../core/services/theme.service';
 import { ContractImportComponent } from './components/contract-import/contract-import.component';
-// import { ContractCreationModalComponent } from '../contract-creation-modal/contract-creation-modal.component';
+import { ContractCreationModalComponent } from './contract-creation-modal/contract-creation-modal.component';
+import { ContractDetailsModalComponent } from './components/contract-details-modal/contract-details-modal.component';
 
 @Component({
   selector: 'app-contracts',
@@ -23,7 +24,8 @@ import { ContractImportComponent } from './components/contract-import/contract-i
     LucideAngularModule,
     FormsModule,
     ContractImportComponent,
-    // ContractCreationModalComponent,
+    ContractCreationModalComponent,
+    ContractDetailsModalComponent,
     // PaginationComponent,
   ],
   templateUrl: './contracts.component.html',
@@ -61,6 +63,8 @@ export class ContractsComponent implements OnInit {
   isModalOpen = false;
   isImportModalOpen = false;
   isCreationModalOpen = false;
+  isDetailsModalOpen = false;
+  selectedContractId: number | null = null;
 
   constructor(
     private contractsService: ContractsService,
@@ -70,10 +74,18 @@ export class ContractsComponent implements OnInit {
     public authService: AuthService,
     public theme: ThemeService,
     private cdr: ChangeDetectorRef
-  ) {}
+  ) {
+    console.log('🚀 ContractsComponent constructor called');
+    console.log('🔍 Current URL:', window.location.href);
+    console.log('🔍 Router URL:', this.router.url);
+  }
 
   ngOnInit(): void {
     console.log('ContractsComponent ngOnInit called');
+    console.log('Auth service permissions check:', {
+      hasViewPermission: this.authService.hasPermission('sales.contracts.view'),
+      userPermissions: this.authService.userSubject.value?.permissions || []
+    });
     const user = this.authService.userSubject.value;
     console.log('Current user:', user);
     console.log('User permissions:', user?.permissions);
@@ -197,9 +209,49 @@ export class ContractsComponent implements OnInit {
     console.log('Delete contract:', id);
   }
 
-  openViewModal(id: number): void {
-    // Implementar lógica para ver detalles del contrato
-    console.log('View contract:', id);
+  openViewModal(contractId: number) {
+    console.log('=== MODAL DEBUG START ===');
+    console.log('openViewModal called with contractId:', contractId);
+    console.log('Before - isDetailsModalOpen:', this.isDetailsModalOpen);
+    console.log('Before - selectedContractId:', this.selectedContractId);
+    
+    this.selectedContractId = contractId;
+    this.isDetailsModalOpen = true;
+    
+    console.log('After - isDetailsModalOpen:', this.isDetailsModalOpen);
+    console.log('After - selectedContractId:', this.selectedContractId);
+    
+    // Force change detection multiple times
+    this.cdr.detectChanges();
+    this.cdr.markForCheck();
+    console.log('Change detection triggered');
+    
+    // Check DOM after a delay
+    setTimeout(() => {
+      console.log('=== DOM CHECK ===');
+      const modalElement = document.querySelector('app-contract-details-modal');
+      console.log('Modal element found in DOM:', !!modalElement);
+      console.log('Modal element:', modalElement);
+      
+      if (modalElement) {
+        console.log('Modal innerHTML length:', modalElement.innerHTML.length);
+        const modalBackdrop = modalElement.querySelector('div[class*="fixed"]');
+        console.log('Modal backdrop found:', !!modalBackdrop);
+        
+        if (modalBackdrop) {
+          const computedStyle = window.getComputedStyle(modalBackdrop);
+          console.log('Modal styles:', {
+            display: computedStyle.display,
+            visibility: computedStyle.visibility,
+            opacity: computedStyle.opacity,
+            zIndex: computedStyle.zIndex
+          });
+        } else {
+          console.log('No backdrop div found, modal content:', modalElement.innerHTML.substring(0, 200));
+        }
+      }
+      console.log('=== MODAL DEBUG END ===');
+    }, 200);
   }
 
   onCreate(): void {
@@ -230,6 +282,11 @@ export class ContractsComponent implements OnInit {
   onContractCreated(): void {
     this.isCreationModalOpen = false;
     this.loadContracts();
+  }
+
+  onDetailsModalClose(): void {
+    this.isDetailsModalOpen = false;
+    this.selectedContractId = null;
   }
 
 }

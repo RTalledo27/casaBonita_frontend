@@ -96,6 +96,7 @@ export class SharedTableComponent {
   }
 
   onViewClick(id: number) {
+    console.log('onViewClick called with id:', id);
     this.onViewDetails.emit(id);
   }
 
@@ -110,9 +111,16 @@ export class SharedTableComponent {
   }
 
   canViewDetails() {
-    return this.authService.hasPermission(
+    const hasPermission = this.authService.hasPermission(
       `${this.permissionPrefix}.${this.componentName}.view`
     );
+    console.log('canViewDetails() called:', {
+      permissionPrefix: this.permissionPrefix,
+      componentName: this.componentName,
+      fullPermission: `${this.permissionPrefix}.${this.componentName}.view`,
+      hasPermission: hasPermission
+    });
+    return hasPermission;
   }
 
   canDelete(): boolean {

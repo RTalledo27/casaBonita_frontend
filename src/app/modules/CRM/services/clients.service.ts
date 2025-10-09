@@ -45,4 +45,10 @@ export class ClientsService {
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.base}/${id}`);
   }
+
+  searchByName(name: string): Observable<Client[]> {
+    return this.http.get<Paginated<Client>>(`${this.base}?search=${encodeURIComponent(name)}`).pipe(
+      map((resp) => resp.data)
+    );
+  }
 }

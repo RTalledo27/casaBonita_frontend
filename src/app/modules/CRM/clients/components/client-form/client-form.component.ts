@@ -3,6 +3,7 @@ import {
   Component,
   EventEmitter,
   Input,
+  OnInit,
   Output,
 } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
@@ -46,7 +47,7 @@ import { ClientType, DocType, MaritalStatus } from '../../../models/enum';
   templateUrl: './client-form.component.html',
   styleUrl: './client-form.component.scss',
 })
-export class ClientFormComponent {
+export class ClientFormComponent implements OnInit {
   @Input() serverErrors: Record<string, string[]> = {};
   @Output() submitForm = new EventEmitter<{ data: any; isEdit: boolean }>();
   @Output() modalClosed = new EventEmitter<boolean>();

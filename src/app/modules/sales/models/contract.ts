@@ -44,47 +44,53 @@ export interface Advisor {
   };
 }
 
+export interface PaymentSchedule {
+  schedule_id: number;
+  contract_id: number;
+  installment_number: number;
+  due_date: string;
+  amount: string;
+  amount_paid?: string | null;
+  status: string;
+  payment_date?: string | null;
+  payment_method?: string | null;
+  notes?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+}
+
 export interface Contract {
   contract_id: number;
-  reservation_id?: number;
+  reservation_id?: number | null;
   advisor_id: number;
   contract_number: string;
-  client_name: string;
-  lot_name: string;
   sign_date: string;
   total_price: string;
+  down_payment: string;
+  financing_amount: string;
+  interest_rate: string;
+  term_months: number;
+  monthly_payment: string;
+  currency: string;
   status: string;
+  pdf_path?: string | null;
+  previous_contract_id?: number | null;
+  transferred_amount_from_previous_contract?: string | null;
+  financing_type?: string | null;
+  with_financing: boolean;
+  funding: string;
+  bpp: string;
+  bfh: string;
+  initial_quota: string;
+  
+  // Campos directos de la API
+  client_name: string;
+  lot_name: string;
   
   // Información del asesor
   advisor?: Advisor;
   
-  // Campos financieros
-  down_payment?: string;
-  financing_amount?: string;
-  interest_rate?: string;
-  term_months?: number;
-  monthly_payment?: string;
-  currency?: string;
-  pdf_path?: string;
-  previous_contract_id?: number;
-  transferred_amount_from_previous_contract?: string;
-  financing_type?: string;
-  with_financing?: boolean;
-  
-  // Campos financieros migrados desde Lot
-  funding?: string;
-  bpp?: string;
-  bfh?: string;
-  initial_quota?: string;
-  
   // Relaciones
-  reservation?: any;
-  schedules?: any[];
-  approvals?: any[];
-  financial_summary?: {
-    down_payment_percentage: number;
-    financing_percentage: number;
-    total_interest: number;
-    total_to_pay: number;
-  };
+  reservation?: any | null;
+  schedules?: PaymentSchedule[];
 }
