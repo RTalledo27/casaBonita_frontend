@@ -1,122 +1,170 @@
-<div class="w-full max-w-md sm:max-w-xl p-6 bg-gray-900 text-white rounded-2xl shadow-2xl overflow-y-auto">
-    <!-- header -->
-  <div class="flex justify-between items-start mb-6">
-    <div>
-      <h3 class="text-2xl font-bold">
-        {{ (isEditMode ? 'users.createUser.titleEdit' : 'users.createUser.titleCreate') | translate }}
-      </h3>
-      <!-- progress bar -->
-      <div class="mt-2 h-1 w-full bg-gray-800 rounded">
-        <div class="bg-blue-600 h-1 rounded transition-all duration-300"
-          [style.width.%]="(currentStep / sections.length) * 100"></div>
-      </div>
-      <p class="mt-1 text-xs text-gray-400">
-        Step {{ currentStep }} of {{ sections.length }}
-      </p>
-    </div>
-    <button type="button" class="flex items-center gap-1 text-sm bg-gray-800 hover:bg-gray-700 px-3 py-2 rounded shadow"
-      (click)="onCancel()">
-      <lucide-icon [name]="X" class="w-4 h-4"></lucide-icon> Cancel
-    </button>
-  </div>
-
-  <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-4">
-    <div *ngFor="let s of sections; let i = index" [ngClass]="
-        s.expanded
-          ? 'ring-2 ring-blue-600/40 shadow-2xl'
-          : 'border border-gray-700'
-      " class="rounded-lg overflow-hidden transition-colors duration-300">
-      <!-- section header -->
-      <button type="button"
-        class="w-full flex justify-between items-center px-4 py-3 bg-gradient-to-r from-gray-800 to-gray-850 hover:to-gray-800 select-none transition-colors"
-        (click)="toggleSection(i)">
-        <div class="flex items-center gap-3">
-          <span
-            class="h-5 w-5 flex items-center justify-center rounded-full text-[11px] font-semibold transition-colors duration-200"
-            [ngClass]="
-              s.expanded ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300'
-            ">
-            {{ i + 1 }}
-          </span>
-          <lucide-icon [name]="s.icon" class="w-4 h-4"
-            [ngClass]="s.expanded ? 'text-blue-400' : 'text-gray-400'"></lucide-icon>
-          <span class="font-medium text-sm">{{'users.createUser.'+s.title|translate }}</span>
+<div class="w-full max-w-md sm:max-w-2xl p-8 bg-gradient-to-br from-white via-blue-50 to-purple-50 dark:bg-gradient-to-br dark:from-gray-900 dark:via-blue-900 dark:to-purple-900 text-gray-900 dark:text-white rounded-2xl shadow-2xl overflow-y-auto animate-fade-in">
+    <!-- Header mejorado con gradiente -->
+    <div class="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-6 text-white shadow-lg gradient-animate hover-lift mb-8">
+      <div class="flex justify-between items-start">
+        <div class="flex items-center space-x-3 animate-slide-in-right">
+          <div class="bg-white/20 p-3 rounded-lg animate-bounce-in">
+            <lucide-icon [name]="UserPlus" class="w-6 h-6 text-glow" />
+          </div>
+          <div>
+            <h3 class="text-3xl font-bold text-glow">
+              {{ (isEditMode ? 'users.createUser.titleEdit' : 'users.createUser.titleCreate') | translate }}
+            </h3>
+            <p class="text-blue-100 mt-1">Complete la información del usuario paso a paso</p>
+          </div>
         </div>
-        <lucide-icon [name]="s.expanded ? ChevronUp : ChevronDown" class="w-4 h-4 text-gray-400"></lucide-icon>
+        <button type="button" class="bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/30 text-white px-4 py-2 rounded-lg flex items-center gap-2 smooth-transition hover:scale-105 shadow-lg micro-bounce focus-ring"
+          (click)="onCancel()">
+          <lucide-icon [name]="X" class="w-4 h-4"></lucide-icon>
+          <span class="font-medium">Cancelar</span>
+        </button>
+      </div>
+      
+      <!-- Progress bar mejorada -->
+      <div class="mt-6">
+        <div class="flex justify-between items-center mb-2">
+          <span class="text-sm font-medium text-blue-100">Progreso</span>
+          <span class="text-sm font-medium text-blue-100">Paso {{ currentStep }} de {{ sections.length }}</span>
+        </div>
+        <div class="h-3 w-full bg-white/20 rounded-full overflow-hidden">
+          <div class="bg-gradient-to-r from-green-400 to-blue-400 h-full rounded-full transition-all duration-500 shadow-lg"
+            [style.width.%]="(currentStep / sections.length) * 100"></div>
+        </div>
+      </div>
+    </div>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-6">
+    <div *ngFor="let s of sections; let i = index" 
+         class="bg-gradient-to-br from-white via-blue-50 to-indigo-50 dark:bg-gradient-to-br dark:from-slate-800 dark:via-blue-900 dark:to-indigo-900 rounded-xl shadow-lg hover-lift transition-all duration-300 border border-blue-200 dark:border-blue-700 overflow-hidden"
+         [ngClass]="s.expanded ? 'ring-2 ring-blue-500/40 shadow-2xl' : ''">
+      
+      <!-- Section header mejorado -->
+      <button type="button"
+        class="w-full flex justify-between items-center px-6 py-4 bg-gradient-to-r from-blue-100 via-indigo-100 to-purple-100 dark:from-slate-700 dark:via-blue-800 dark:to-indigo-800 hover:from-blue-200 hover:via-indigo-200 hover:to-purple-200 dark:hover:from-slate-600 dark:hover:via-blue-700 dark:hover:to-indigo-700 select-none transition-all duration-300"
+        (click)="toggleSection(i)">
+        <div class="flex items-center gap-4">
+          <div class="relative">
+            <span
+              class="h-8 w-8 flex items-center justify-center rounded-full text-sm font-bold transition-all duration-300 shadow-lg"
+              [ngClass]="s.expanded 
+                ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white transform scale-110' 
+                : 'bg-gradient-to-r from-orange-400 to-pink-400 text-white'">
+              {{ i + 1 }}
+            </span>
+            <div *ngIf="s.expanded" class="absolute -inset-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full opacity-20 animate-pulse"></div>
+          </div>
+          <lucide-icon [name]="s.icon" class="w-5 h-5 transition-all duration-300"
+            [ngClass]="s.expanded ? 'text-blue-500 transform scale-110' : 'text-indigo-600 dark:text-indigo-400'"></lucide-icon>
+          <span class="font-semibold text-lg text-slate-800 dark:text-white">{{'users.createUser.'+s.title|translate }}</span>
+        </div>
+        <lucide-icon [name]="s.expanded ? ChevronUp : ChevronDown" 
+                     class="w-5 h-5 text-indigo-600 dark:text-indigo-400 transition-transform duration-300"
+                     [ngClass]="s.expanded ? 'transform rotate-180' : ''"></lucide-icon>
       </button>
 
-      <!-- section body -->
-      <div *ngIf="s.expanded" class="p-5 bg-gray-950 space-y-6" [@expandCollapse]>
+      <!-- Section body mejorado -->
+      <div *ngIf="s.expanded" class="p-6 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-slate-900 dark:via-blue-900 dark:to-indigo-900 space-y-6" [@expandCollapse]>
         <ng-container *ngIf="s.key === 'personal'">
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 items-start">
-            <!-- Columna izquierda: Nombre, Apellidos y Fecha de nacimiento -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:col-span-2">
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+            <!-- Columna izquierda: Información personal -->
+            <div class="lg:col-span-2 space-y-6">
               <!-- First Name -->
-              <div class="sm:col-span-2 field">
-                <label class="label">{{'users.createUser.firstName'|translate}}</label>
-                <input class="input" placeholder="John" formControlName="first_name" />
-                 <div *ngIf="fc('first_name').touched && fc('first_name').invalid" class="error-msg">
-                  <span *ngIf="fc('first_name').errors?.['required']">First name is required.</span>
-                  <span *ngIf="fc('first_name').errors?.['minlength']">Must be at least 3 characters.</span>
+              <div class="space-y-2">
+                <label class="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300">
+                  <lucide-icon [name]="User" class="w-4 h-4 text-blue-500" />
+                  {{'users.createUser.firstName'|translate}}
+                </label>
+                <input class="w-full bg-gradient-to-r from-white to-blue-50 dark:bg-gradient-to-r dark:from-slate-700 dark:to-blue-800 border border-blue-300 dark:border-blue-600 rounded-lg px-4 py-3 text-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 shadow-sm" 
+                       placeholder="John" formControlName="first_name" />
+                <div *ngIf="fc('first_name').touched && fc('first_name').invalid" class="text-red-500 text-sm mt-1">
+                  <span *ngIf="fc('first_name').errors?.['required']">El nombre es requerido.</span>
+                  <span *ngIf="fc('first_name').errors?.['minlength']">Debe tener al menos 3 caracteres.</span>
                 </div>
-                <div *ngIf="serverErrors['first_name'] && serverErrors['first_name'].length > 0" class="error-msg">
-                {{ serverErrors['first_name'][0] }}
+                <div *ngIf="serverErrors['first_name'] && serverErrors['first_name'].length > 0" class="text-red-500 text-sm mt-1">
+                  {{ serverErrors['first_name'][0] }}
                 </div>
               </div>
         
               <!-- Last Name -->
-              <div class="sm:col-span-2 field">
-                <label class="label">{{'users.createUser.lastName'|translate}}</label>
-                <input class="input" placeholder="Doe" formControlName="last_name" />
-                 <div *ngIf="fc('last_name').touched && fc('last_name').invalid" class="error-msg">
-                  <span *ngIf="fc('last_name').errors?.['required']">Last name is required.</span>
-                  <span *ngIf="fc('last_name').errors?.['minlength']">Must be at least 3 characters.</span>
+              <div class="space-y-2">
+                <label class="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300">
+                  <lucide-icon [name]="User" class="w-4 h-4 text-green-500" />
+                  {{'users.createUser.lastName'|translate}}
+                </label>
+                <input class="w-full bg-gradient-to-r from-white to-green-50 dark:bg-gradient-to-r dark:from-slate-700 dark:to-green-800 border border-green-300 dark:border-green-600 rounded-lg px-4 py-3 text-slate-800 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300 shadow-sm" 
+                       placeholder="Doe" formControlName="last_name" />
+                <div *ngIf="fc('last_name').touched && fc('last_name').invalid" class="text-red-500 text-sm mt-1">
+                  <span *ngIf="fc('last_name').errors?.['required']">El apellido es requerido.</span>
+                  <span *ngIf="fc('last_name').errors?.['minlength']">Debe tener al menos 3 caracteres.</span>
                 </div>
-                <div *ngIf="serverErrors['last_name'] && serverErrors['last_name'].length > 0" class="error-msg">
-                {{ serverErrors['last_name'][0] }}
+                <div *ngIf="serverErrors['last_name'] && serverErrors['last_name'].length > 0" class="text-red-500 text-sm mt-1">
+                  {{ serverErrors['last_name'][0] }}
                 </div>
               </div>
         
-              <!-- Birth Date (ocupa 2 columnas) -->
-              <div class="sm:col-span-4 field">
-                <label class="label">{{'users.createUser.birthDate'|translate}}</label>
-                <input type="date" class="input" formControlName="birth_date" />
-                 <div *ngIf="fc('birth_date').touched && fc('birth_date').invalid" class="error-msg">
+              <!-- Birth Date -->
+              <div class="space-y-2">
+                <label class="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300">
+                  <lucide-icon [name]="Calendar" class="w-4 h-4 text-pink-500" />
+                  {{'users.createUser.birthDate'|translate}}
+                </label>
+                <input type="date" class="w-full bg-gradient-to-r from-white to-pink-50 dark:bg-gradient-to-r dark:from-slate-700 dark:to-pink-800 border border-pink-300 dark:border-pink-600 rounded-lg px-4 py-3 text-slate-800 dark:text-white focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-300 shadow-sm" 
+                       formControlName="birth_date" />
+                <div *ngIf="fc('birth_date').touched && fc('birth_date').invalid" class="text-red-500 text-sm mt-1">
                   <span *ngIf="fc('birth_date').errors?.['required']">{{ 'validation.birthDate.required' | translate }}</span>
-                  <span *ngIf="fc('birth_date').errors?.['pattern']">Invalid date format.</span>
+                  <span *ngIf="fc('birth_date').errors?.['pattern']">Formato de fecha inválido.</span>
                 </div>
-                <div *ngIf="serverErrors['birth_date'] && serverErrors['birth_date'].length > 0" class="error-msg">
-                {{ serverErrors['birth_date'][0] }}
+                <div *ngIf="serverErrors['birth_date'] && serverErrors['birth_date'].length > 0" class="text-red-500 text-sm mt-1">
+                  {{ serverErrors['birth_date'][0] }}
                 </div>
               </div>
             </div>
         
             <!-- Columna derecha: Foto de perfil -->
-            <div class="field flex flex-col items-center">
-              <label class="label text-center">{{'users.createUser.profilePicture'|translate}}<br /><span class="text-xs">(optional)</span></label>
-              <div class="w-20 h-20 mb-2 rounded-full overflow-hidden border-2 border-blue-600 shadow">
-                <img *ngIf="photoPreview; else placeholder" [src]="photoPreview" class="object-cover w-full h-full" />
-                <ng-template #placeholder>
-                  <div class="flex items-center justify-center bg-gray-800 w-full h-full text-gray-500">
-                    <lucide-icon [name]="User" class="w-6 h-6" />
+            <div class="lg:col-span-1 flex flex-col items-center space-y-4">
+              <div class="relative group">
+                <div class="w-32 h-32 rounded-full overflow-hidden border-4 border-gradient-to-r from-blue-400 to-purple-400 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+                  <img *ngIf="photoPreview" [src]="photoPreview" alt="Vista previa" class="w-full h-full object-cover">
+                  <div *ngIf="!photoPreview" class="w-full h-full bg-gradient-to-br from-blue-200 via-indigo-200 to-purple-200 dark:from-blue-700 dark:via-indigo-700 dark:to-purple-700 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                    <lucide-icon [name]="User" class="w-12 h-12" />
                   </div>
-                </ng-template>
+                </div>
+                <label for="photo" class="absolute -bottom-2 -right-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white p-2 rounded-full cursor-pointer shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 group-hover:animate-bounce">
+                  <lucide-icon [name]="Camera" class="w-4 h-4" />
+                </label>
+                <input type="file" id="photo" accept="image/*" (change)="onPhotoChange($event)" class="hidden" />
               </div>
-              <button type="button" class="px-2 py-1 bg-gray-800 hover:bg-gray-700 rounded text-sm transition"
+              <div class="text-center">
+                <p class="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                  <lucide-icon [name]="Camera" class="w-4 h-4 text-purple-500" />
+                  {{'users.createUser.profilePhoto'|translate}} <span class="text-slate-500 dark:text-slate-400">(opcional)</span>
+                </p>
+              </div>
+              
+              <div class="relative group">
+                <div class="w-32 h-32 rounded-full border-4 border-gradient-to-r from-blue-500 to-purple-600 overflow-hidden shadow-xl hover-lift transition-all duration-300">
+                  <img *ngIf="photoPreview; else placeholder" [src]="photoPreview" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
+                  <ng-template #placeholder>
+                    <div class="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center text-gray-500 dark:text-gray-400">
+                      <lucide-icon [name]="User" class="w-8 h-8 animate-pulse" />
+                    </div>
+                  </ng-template>
+                </div>
+              </div>
+              
+              <button type="button" class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
                 (click)="fileInput.click()">
-                Seleccionar
+                <lucide-icon [name]="Upload" class="w-4 h-4" />
+                <span class="text-sm font-medium">Seleccionar</span>
               </button>
               <input #fileInput type="file" accept="image/*" (change)="onPhotoChange($event)" class="hidden" />
         
-              <!-- Client-side errors (si los tuvieras) -->
-              <div *ngIf="fc('photo_profile').touched && fc('photo_profile').invalid" class="error-msg">
-                <!-- ejemplo de validación custom -->
-                <span *ngIf="fc('photo_profile').errors?.['maxSize']">File too large (max 2 MB).</span>
-                <span *ngIf="fc('photo_profile').errors?.['image']">Must be a valid image.</span>
+              <!-- Errores -->
+              <div *ngIf="fc('photo_profile').touched && fc('photo_profile').invalid" class="text-red-500 text-sm text-center">
+                <span *ngIf="fc('photo_profile').errors?.['maxSize']">Archivo muy grande (máx 2 MB).</span>
+                <span *ngIf="fc('photo_profile').errors?.['image']">Debe ser una imagen válida.</span>
               </div>
-        
-              <!-- Server-side error -->
-              <div *ngIf="serverErrors['photo_profile'] && serverErrors['photo_profile'].length > 0" class="error-msg">
+              <div *ngIf="serverErrors['photo_profile'] && serverErrors['photo_profile'].length > 0" class="text-red-500 text-sm text-center">
                 {{ serverErrors['photo_profile'][0] }}
               </div>
             </div>
@@ -126,48 +174,60 @@
 
         <!-- CONTACT -->
         <ng-container *ngIf="s.key === 'contact'">
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            <div class="field">
-              <label class="label">DNI</label>
-              <input class="input" placeholder="01234567" formControlName="dni" />
-              <div *ngIf="fc('dni').touched && fc('dni').invalid" class="error-msg">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-2">
+              <label class="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300">
+                <lucide-icon [name]="CreditCard" class="w-4 h-4 text-purple-500" />
+                DNI
+              </label>
+              <input class="w-full bg-gradient-to-r from-white to-purple-50 dark:bg-gradient-to-r dark:from-slate-700 dark:to-purple-800 border border-purple-300 dark:border-purple-600 rounded-lg px-4 py-3 text-slate-800 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 shadow-sm" 
+                     placeholder="01234567" formControlName="dni" />
+              <div *ngIf="fc('dni').touched && fc('dni').invalid" class="text-red-500 text-sm mt-1">
                 <span *ngIf="fc('dni').errors?.['required']">
-                  DNI is required.
+                  El DNI es requerido.
                 </span>
                 <span *ngIf="fc('dni').errors?.['pattern']">
-                  Only 7–20 digits allowed.
+                  Solo se permiten 7-20 dígitos.
                 </span>
               </div>
-              <div *ngIf="serverErrors['dni'] && serverErrors['dni'].length > 0" class="error-msg">
+              <div *ngIf="serverErrors['dni'] && serverErrors['dni'].length > 0" class="text-red-500 text-sm mt-1">
                 {{ serverErrors['dni'][0] }}
               </div>
             </div>
 
-            <div class="field">
-              <label class="label">Phone</label>
-              <input class="input" placeholder="+51 987-654-321" formControlName="phone" />
-              <div *ngIf="fc('phone').touched && fc('phone').invalid" class="error-msg">
+            <div class="space-y-2">
+              <label class="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300">
+                <lucide-icon [name]="Phone" class="w-4 h-4 text-orange-500" />
+                {{'users.createUser.phone'|translate}}
+              </label>
+              <input class="w-full bg-gradient-to-r from-white to-orange-50 dark:bg-gradient-to-r dark:from-slate-700 dark:to-orange-800 border border-orange-300 dark:border-orange-600 rounded-lg px-4 py-3 text-slate-800 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 shadow-sm" 
+                     placeholder="+1234567890" formControlName="phone" />
+              <div *ngIf="fc('phone').touched && fc('phone').invalid" class="text-red-500 text-sm mt-1">
                 <span *ngIf="fc('phone').errors?.['required']">
-                  Phone is required.
+                  El teléfono es requerido.
                 </span>
                 <span *ngIf="fc('phone').errors?.['pattern']">
-                  Invalid phone format.
+                  Formato de teléfono inválido.
                 </span>
               </div>
-              <div *ngIf="serverErrors['phone'] && serverErrors['phone'].length > 0" class="error-msg">
+              <div *ngIf="serverErrors['phone'] && serverErrors['phone'].length > 0" class="text-red-500 text-sm mt-1">
                 {{ serverErrors['phone'][0] }}
               </div>
             </div>
 
-            <div class="field sm:col-span-2">
-              <label class="label">Address</label>
-              <input class="input" placeholder="Street 123, City" formControlName="address" />
-              <div *ngIf="fc('address').touched && fc('address').invalid" class="error-msg">
+            <div class="md:col-span-2 space-y-2">
+              <label class="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300">
+                <lucide-icon [name]="MapPin" class="w-4 h-4 text-teal-500" />
+                {{'users.createUser.address'|translate}}
+              </label>
+              <input class="w-full bg-gradient-to-r from-white to-teal-50 dark:bg-gradient-to-r dark:from-slate-700 dark:to-teal-800 border border-teal-300 dark:border-teal-600 rounded-lg px-4 py-3 text-slate-800 dark:text-white focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-300 shadow-sm" 
+                     placeholder="Calle 123, Ciudad" formControlName="address" />
+              <div *ngIf="fc('address').touched && fc('address').invalid" class="text-red-500 text-sm mt-1">
                 <span *ngIf="fc('address').errors?.['maxlength']">
-                  Max 255 characters.
+                  Máximo 255 caracteres.
                 </span>
               </div>
-              <div *ngIf="serverErrors['address'] && serverErrors['address'].length > 0" class="error-msg">
+              <div *ngIf="serverErrors['address'] && serverErrors['address'].length > 0" class="text-red-500 text-sm mt-1">
                 {{ serverErrors['address'][0] }}
               </div>
             </div>
@@ -176,190 +236,296 @@
 
         <!-- WORK -->
         <ng-container *ngIf="s.key === 'work'">
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            <div class="field">
-              <label class="label">Position</label>
-              <input class="input" placeholder="Developer" formControlName="position" />
-              <div *ngIf="fc('position').touched && fc('position').invalid" class="error-msg">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-2">
+              <label class="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300">
+                <lucide-icon [name]="Award" class="w-4 h-4 text-yellow-500" />
+                Cargo
+              </label>
+              <input class="w-full bg-gradient-to-r from-white to-yellow-50 dark:bg-gradient-to-r dark:from-slate-700 dark:to-yellow-800 border border-yellow-300 dark:border-yellow-600 rounded-lg px-4 py-3 text-slate-800 dark:text-white focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all duration-300 shadow-sm" 
+                     placeholder="Desarrollador" formControlName="position" />
+              <div *ngIf="fc('position').touched && fc('position').invalid" class="text-red-500 text-sm mt-1">
                 <span *ngIf="fc('position').errors?.['required']">
-                  Position is required.
+                  El cargo es requerido.
                 </span>
                 <span *ngIf="fc('position').errors?.['maxlength']">
-                  Max 60 characters.
+                  Máximo 60 caracteres.
                 </span>
               </div>
-              <div *ngIf="serverErrors['position'] && serverErrors['position'].length > 0" class="error-msg">
+              <div *ngIf="serverErrors['position'] && serverErrors['position'].length > 0" class="text-red-500 text-sm mt-1">
                 {{ serverErrors['position'][0] }}
               </div>
             </div>
 
-            <div class="field">
-              <label class="label">Department</label>
-              <input class="input" placeholder="IT" formControlName="department" />
-              <div *ngIf="fc('department').touched && fc('department').invalid" class="error-msg">
+            <div class="space-y-2">
+              <label class="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300">
+                <lucide-icon [name]="Building" class="w-4 h-4 text-indigo-500" />
+                Departamento
+              </label>
+              <input class="w-full bg-gradient-to-r from-white to-indigo-50 dark:bg-gradient-to-r dark:from-slate-700 dark:to-indigo-800 border border-indigo-300 dark:border-indigo-600 rounded-lg px-4 py-3 text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300 shadow-sm" 
+                     placeholder="Tecnología" formControlName="department" />
+              <div *ngIf="fc('department').touched && fc('department').invalid" class="text-red-500 text-sm mt-1">
                 <span *ngIf="fc('department').errors?.['required']">
-                  Department is required.
+                  El departamento es requerido.
                 </span>
                 <span *ngIf="fc('department').errors?.['maxlength']">
-                  Max 60 characters.
+                  Máximo 60 caracteres.
                 </span>
               </div>
-              <div *ngIf="serverErrors['department'] && serverErrors['department'].length > 0" class="error-msg">
+              <div *ngIf="serverErrors['department'] && serverErrors['department'].length > 0" class="text-red-500 text-sm mt-1">
                 {{ serverErrors['department'][0] }}
               </div>
             </div>
 
-            <div class="field">
-              <label class="label">Hire Date</label>
-              <input type="date" class="input" formControlName="hire_date" />
-                <div *ngIf="fc('hire_date').touched && fc('hire_date').invalid" class="error-msg">
+            <div class="space-y-2">
+              <label class="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300">
+                <lucide-icon [name]="CalendarCheck" class="w-4 h-4 text-teal-500" />
+                Fecha de Contratación
+              </label>
+              <input type="date" class="w-full bg-gradient-to-r from-white to-teal-50 dark:bg-gradient-to-r dark:from-slate-700 dark:to-teal-800 border border-teal-300 dark:border-teal-600 rounded-lg px-4 py-3 text-slate-800 dark:text-white focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-300 shadow-sm" 
+                     formControlName="hire_date" />
+              <div *ngIf="fc('hire_date').touched && fc('hire_date').invalid" class="text-red-500 text-sm mt-1">
                 <span *ngIf="fc('hire_date').errors?.['pattern']">
-                  Invalid date.
+                  Fecha inválida.
                 </span>
               </div>
-              <div *ngIf="serverErrors['hire_date'] && serverErrors['hire_date'].length > 0" class="error-msg">
+              <div *ngIf="serverErrors['hire_date'] && serverErrors['hire_date'].length > 0" class="text-red-500 text-sm mt-1">
                 {{ serverErrors['hire_date'][0] }}
               </div>
-              </div>
-              <div class="field sm:col-span-2">
-                <label class="label">{{'users.createUser.cvFile'|translate}}</label>
-                <div class="flex items-center gap-2">
-                  <button type="button" class="px-2 py-1 bg-gray-800 hover:bg-gray-700 rounded text-sm" (click)="cvInput.click()">{{
-                    'common.select' | translate }}</button>
-                  <span class="text-sm" *ngIf="cvName">{{ cvName }}</span>
-                  <a *ngIf="!cvName && cvUrl" [href]="cvUrl" target="_blank" class="text-blue-400 underline text-sm">{{
-                    'common.download' | translate }}</a>
+            </div>
+            
+            <div class="space-y-2">
+              <label class="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300">
+                <lucide-icon [name]="FileText" class="w-4 h-4 text-cyan-500" />
+                {{'users.createUser.cvFile'|translate}}
+              </label>
+              <div class="relative">
+                <input type="file" accept=".pdf,.doc,.docx" (change)="onCvChange($event)" 
+                       class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+                <div class="w-full bg-gradient-to-r from-white to-cyan-50 dark:bg-gradient-to-r dark:from-slate-700 dark:to-cyan-800 border border-cyan-300 dark:border-cyan-600 rounded-lg px-4 py-3 text-slate-800 dark:text-white transition-all duration-300 shadow-sm flex items-center justify-between hover:border-cyan-400 dark:hover:border-cyan-500">
+                  <span class="text-slate-600 dark:text-slate-300">
+                    {{ cvFileName || 'Seleccionar archivo CV' }}
+                  </span>
+                  <lucide-icon [name]="Upload" class="w-4 h-4 text-cyan-500" />
                 </div>
-                <input #cvInput type="file" (change)="onCvChange($event)" class="hidden" />
-                <div *ngIf="serverErrors['cv_file'] && serverErrors['cv_file'].length > 0" class="error-msg">
+              </div>
+              <div *ngIf="serverErrors['cv_file'] && serverErrors['cv_file'].length > 0" class="text-red-500 text-sm mt-1">
                 {{ serverErrors['cv_file'][0] }}
-                </div>
               </div>
-              </div>
-              </ng-container>
+            </div>
+          </div>
+        </ng-container>
 
 
-        <!-- ACCESS -->
-        <ng-container *ngIf="s.key === 'access'">
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            <div class="field">
-              <label class="label">Username</label>
-              <input class="input" formControlName="username" />
-              <div *ngIf="fc('username').touched && fc('username').invalid" class="error-msg">
+        <!-- ACCOUNT -->
+        <ng-container *ngIf="s.key === 'account'">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-2">
+              <label class="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300">
+                <lucide-icon [name]="User" class="w-4 h-4 text-blue-500" />
+                Usuario
+              </label>
+              <input class="w-full bg-gradient-to-r from-white to-blue-50 dark:bg-gradient-to-r dark:from-slate-700 dark:to-blue-800 border border-blue-300 dark:border-blue-600 rounded-lg px-4 py-3 text-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 shadow-sm" 
+                     placeholder="usuario123" formControlName="username" />
+              <div *ngIf="fc('username').touched && fc('username').invalid" class="text-red-500 text-sm mt-1">
                 <span *ngIf="fc('username').errors?.['required']">
-                  Username is required.
+                  El usuario es requerido.
                 </span>
                 <span *ngIf="fc('username').errors?.['maxlength']">
-                  Max 60 characters.
+                  Máximo 60 caracteres.
                 </span>
               </div>
-              <div *ngIf="serverErrors['username'] && serverErrors['username'].length > 0" class="error-msg">
+              <div *ngIf="serverErrors['username'] && serverErrors['username'].length > 0" class="text-red-500 text-sm mt-1">
                 {{ serverErrors['username'][0] }}
               </div>
             </div>
 
-            <div class="field">
-              <label class="label">Email</label>
-              <input class="input" type="email" formControlName="email" />
-              <div *ngIf="fc('email').touched && fc('email').invalid" class="error-msg">
+            <div class="space-y-2">
+              <label class="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300">
+                <lucide-icon [name]="Mail" class="w-4 h-4 text-green-500" />
+                Email
+              </label>
+              <input class="w-full bg-gradient-to-r from-white to-green-50 dark:bg-gradient-to-r dark:from-slate-700 dark:to-green-800 border border-green-300 dark:border-green-600 rounded-lg px-4 py-3 text-slate-800 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300 shadow-sm" 
+                     type="email" placeholder="usuario@ejemplo.com" formControlName="email" />
+              <div *ngIf="fc('email').touched && fc('email').invalid" class="text-red-500 text-sm mt-1">
                 <span *ngIf="fc('email').errors?.['required']">
-                  Email is required.
+                  El email es requerido.
                 </span>
                 <span *ngIf="fc('email').errors?.['email']">
-                  Must be a valid email.
+                  Debe ser un email válido.
                 </span>
               </div>
-              <div *ngIf="serverErrors['email'] && serverErrors['email'].length > 0" class="error-msg">
+              <div *ngIf="serverErrors['email'] && serverErrors['email'].length > 0" class="text-red-500 text-sm mt-1">
                 {{ serverErrors['email'][0] }}
               </div>
             </div>
 
-            <div class="field">
-              <label class="label">Password</label>
-              <input class="input" type="password" formControlName="password" (focus)="showPassRules = true" />
-              <div *ngIf="fc('password').touched && fc('password').invalid" class="error-msg">
+            <div class="space-y-2">
+              <label class="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300">
+                <lucide-icon [name]="Lock" class="w-4 h-4 text-red-500" />
+                Contraseña
+              </label>
+              <input class="w-full bg-gradient-to-r from-white to-red-50 dark:bg-gradient-to-r dark:from-slate-700 dark:to-red-800 border border-red-300 dark:border-red-600 rounded-lg px-4 py-3 text-slate-800 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-300 shadow-sm" 
+                     type="password" placeholder="••••••••" formControlName="password" (focus)="showPassRules = true" />
+              <div *ngIf="fc('password').touched && fc('password').invalid" class="text-red-500 text-sm mt-1">
                 <span *ngIf="fc('password').errors?.['required']">
-                  Password is required.
+                  La contraseña es requerida.
                 </span>
                 <span *ngIf="fc('password').errors?.['minlength']">
-                  At least 8 characters.
+                  Al menos 8 caracteres.
                 </span>
               </div>
             </div>
 
-            <div class="field">
-              <label class="label">Confirm Password</label>
-              <input class="input" type="password" formControlName="password_confirmation" />
-              <div *ngIf="form.errors?.['mismatch']" class="error-msg">
-                Passwords must match.
+            <div class="space-y-2">
+              <label class="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300">
+                <lucide-icon [name]="Lock" class="w-4 h-4 text-orange-500" />
+                Confirmar Contraseña
+              </label>
+              <input class="w-full bg-gradient-to-r from-white to-orange-50 dark:bg-gradient-to-r dark:from-slate-700 dark:to-orange-800 border border-orange-300 dark:border-orange-600 rounded-lg px-4 py-3 text-slate-800 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 shadow-sm" 
+                     type="password" placeholder="••••••••" formControlName="password_confirmation" />
+              <div *ngIf="form.errors?.['mismatch']" class="text-red-500 text-sm mt-1">
+                Las contraseñas deben coincidir.
               </div>
             </div>
 
-            <div *ngIf="showPassRules" class="sm:col-span-2 mt-2 space-y-1 text-sm">
-              <ul>
-                <li *ngFor="let rule of passRules" [ngClass]="{
-                    'text-green-400': rule.valid,
-                    'text-gray-500': !rule.valid
-                  }">
-                  • {{ rule.label }}
-                </li>
-              </ul>
-            </div>
-
-            <div class="field">
-              <label class="label">Status</label>
-              <select class="input" formControlName="status">
-                <option value="active">Active</option>
-                <option value="blocked">Blocked</option>
+            <div class="space-y-2">
+              <label class="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300">
+                <lucide-icon [name]="Shield" class="w-4 h-4 text-purple-500" />
+                Estado
+              </label>
+              <select class="w-full bg-gradient-to-r from-white to-purple-50 dark:bg-gradient-to-r dark:from-slate-700 dark:to-purple-800 border border-purple-300 dark:border-purple-600 rounded-lg px-4 py-3 text-slate-800 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 shadow-sm" 
+                      formControlName="status">
+                <option value="active">Activo</option>
+                <option value="blocked">Bloqueado</option>
               </select>
-              <div *ngIf="serverErrors['status'] && serverErrors['status'].length > 0" class="error-msg">
+              <div *ngIf="serverErrors['status'] && serverErrors['status'].length > 0" class="text-red-500 text-sm mt-1">
                 {{ serverErrors['status'][0] }}
               </div>
+            </div>
+
+            <!-- Password Rules -->
+            <div *ngIf="showPassRules" class="md:col-span-2 bg-gradient-to-r from-blue-50 to-indigo-50 dark:bg-gradient-to-r dark:from-slate-800 dark:to-blue-900 rounded-lg p-4 border border-blue-200 dark:border-blue-700 shadow-sm">
+              <h4 class="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
+                <lucide-icon [name]="Info" class="w-4 h-4 text-blue-500" />
+                Requisitos de contraseña
+              </h4>
+              <ul class="space-y-2">
+                <li *ngFor="let rule of passRules" class="flex items-center gap-2 text-sm transition-colors duration-300"
+                    [ngClass]="rule.valid ? 'text-green-600 dark:text-green-400' : 'text-slate-500 dark:text-slate-400'">
+                  <lucide-icon [name]="rule.valid ? 'CheckCircle' : 'Circle'" class="w-4 h-4" />
+                  {{ rule.label }}
+                </li>
+              </ul>
             </div>
           </div>
         </ng-container>
 
         <!-- ROLES -->
         <ng-container *ngIf="s.key === 'roles'">
-          <label class="label">Roles</label>
-          <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
-            <ng-container *ngIf="rolesList.length">
-              <label *ngFor="let r of rolesList" class="flex items-center gap-2">
-                <input type="checkbox" [checked]="form.value.roles.includes(r.name)"
-                  (change)="onRoleChange($event, r.name)" class="accent-blue-600 w-4 h-4 rounded" />
-                {{ r.name | titlecase }}
-              </label>
-            </ng-container>
-          </div>
-          <div *ngIf="serverErrors['roles'] && serverErrors['roles'].length > 0" class="error-msg">
-                {{ serverErrors['roles'][0] }}
-          </div>
-
-          <ng-container *ngIf="selectedPermissions$ | async as perms">
-            <label *ngIf="perms.length" class="label">Permissions</label>
-            <div class="flex flex-wrap gap-2">
-              <span *ngFor="let p of perms" class="text-xs px-2 py-1 bg-gray-800 rounded-full whitespace-nowrap">
-                {{ p | translate }}
-              </span>
+          <div class="space-y-4">
+            <div class="text-center">
+              <h4 class="text-lg font-semibold text-slate-800 dark:text-white mb-2">Asignar Roles</h4>
+              <p class="text-slate-600 dark:text-slate-300 text-sm">Selecciona los roles que tendrá este usuario</p>
             </div>
-          </ng-container>
+            
+            <div *ngFor="let role of roles" class="bg-gradient-to-r from-white via-blue-50 to-indigo-50 dark:bg-gradient-to-r dark:from-slate-800 dark:via-blue-900 dark:to-indigo-900 border border-blue-200 dark:border-blue-700 rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 hover:border-blue-300 dark:hover:border-blue-600">
+              <div class="flex items-center space-x-4">
+                <div class="relative">
+                  <input
+                    type="checkbox"
+                    [id]="'role-' + role.role_id"
+                    [value]="role.role_id"
+                    (change)="onRoleChange($event, role.name)"
+                    class="h-5 w-5 text-blue-600 focus:ring-2 focus:ring-blue-500 border-gray-300 dark:border-gray-600 rounded-md transition-all duration-300"
+                  />
+                </div>
+                <div class="flex-1">
+                  <label [for]="'role-' + role.role_id" class="flex items-center gap-3 cursor-pointer">
+                    <lucide-icon [name]="Shield" class="w-5 h-5 text-indigo-500" />
+                    <span class="text-base font-semibold text-gray-800 dark:text-white">{{ role.name }}</span>
+                  </label>
+                </div>
+              </div>
+              
+              <div *ngIf="role.permissions && role.permissions.length > 0" class="mt-4 pl-9">
+                <div class="flex items-center gap-2 mb-3">
+                  <lucide-icon [name]="Key" class="w-4 h-4 text-amber-500" />
+                  <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Permisos asociados:</p>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                  <span
+                    *ngFor="let permission of role.permissions"
+                    class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700 transition-all duration-300 hover:shadow-sm"
+                  >
+                    <lucide-icon [name]="CheckCircle" class="w-3 h-3" />
+                    {{ permission.name }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
         </ng-container>
 
         <!-- buttons -->
         <div class="pt-4 text-right">
           <button *ngIf="i < sections.length - 1" type="button"
-            class="bg-blue-600 hover:bg-blue-500 text-sm px-5 py-2 rounded shadow-lg transition disabled:opacity-40"
+            class="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white text-sm px-6 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 font-medium disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none"
             (click)="next()" [disabled]="!isSectionValid(s.key)">
-            Next
+            Siguiente
           </button>
 
           <button *ngIf="i === sections.length - 1"  type="submit"  
-            class="bg-green-600 hover:bg-green-500 text-sm px-5 py-2 rounded shadow-lg transition disabled:opacity-40" 
+            class="group relative inline-flex items-center gap-3 px-8 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl hover:from-green-600 hover:to-emerald-600 disabled:from-slate-400 disabled:to-slate-500 disabled:cursor-not-allowed disabled:hover:shadow-lg transform transition-all duration-300 hover:scale-105 disabled:hover:scale-100" 
             [disabled]="form.invalid">
-            {{ isEditMode ? 'Update' : 'Create' }}
-             </button>
+            <lucide-icon [name]="isSubmitting ? 'Loader2' : (isEditMode ? 'Save' : 'UserPlus')" 
+                         class="w-5 h-5 transition-transform duration-300"
+                         [ngClass]="{'animate-spin': isSubmitting}" />
+            <span *ngIf="!isSubmitting">{{ isEditMode ? 'Actualizar Usuario' : 'Crear Usuario' }}</span>
+            <span *ngIf="isSubmitting">{{ isEditMode ? 'Actualizando...' : 'Creando...' }}</span>
+            
+            <!-- Shine effect -->
+            <div class="absolute inset-0 rounded-xl bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 group-hover:animate-pulse transition-opacity duration-300"></div>
+          </button>
         </div>
       </div>
     </div>
   </form>
+</div>
+
+
+<!-- Action buttons mejorados -->
+<div class="flex justify-between items-center mt-8 pt-6 border-t border-blue-200 dark:border-blue-700">
+  <button type="button" 
+          class="bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white px-6 py-3 rounded-lg flex items-center gap-2 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl font-medium"
+          (click)="onCancel()">
+    <lucide-icon [name]="X" class="w-4 h-4"></lucide-icon>
+    Cancelar
+  </button>
+
+  <div class="flex gap-3">
+    <button type="button" 
+            *ngIf="currentStep > 1"
+            class="bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-white px-6 py-3 rounded-lg flex items-center gap-2 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl font-medium"
+            (click)="previousStep()">
+      <lucide-icon [name]="ChevronDown" class="w-4 h-4 transform rotate-90"></lucide-icon>
+      Anterior
+    </button>
+
+    <button type="button" 
+            *ngIf="currentStep < sections.length"
+            class="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white px-6 py-3 rounded-lg flex items-center gap-2 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl font-medium"
+            (click)="nextStep()">
+      Siguiente
+      <lucide-icon [name]="ChevronDown" class="w-4 h-4 transform -rotate-90"></lucide-icon>
+    </button>
+
+    <button type="submit" 
+            *ngIf="currentStep === sections.length"
+            [disabled]="form.invalid || isSubmitting"
+            class="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 disabled:from-slate-400 disabled:to-slate-500 text-white px-8 py-3 rounded-lg flex items-center gap-2 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl font-medium disabled:cursor-not-allowed disabled:transform-none">
+      <lucide-icon [name]="isSubmitting ? Loader2 : Save" class="w-4 h-4" [ngClass]="{'animate-spin': isSubmitting}"></lucide-icon>
+      {{ isSubmitting ? 'Guardando...' : (isEditMode ? 'Actualizar' : 'Crear Usuario') }}
+    </button>
+  </div>
 </div>

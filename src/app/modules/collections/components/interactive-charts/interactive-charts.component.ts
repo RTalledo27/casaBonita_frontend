@@ -1,487 +1,431 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef, inject, signal, computed, input } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed, ViewChild, ElementRef, AfterViewInit, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LucideAngularModule } from 'lucide-angular';
-import { BarChart3, PieChart, TrendingUp, Download, Maximize2, RefreshCw } from 'lucide-angular';
 import { Subject, takeUntil } from 'rxjs';
-import {
-  Chart,
-  ChartConfiguration,
-  ChartType,
-  registerables,
-  TooltipItem,
-  ChartEvent,
-  ActiveElement
-} from 'chart.js';
-import 'chartjs-adapter-date-fns';
-import { AdvancedReportsService, TrendData, CollectorEfficiency } from '../../services/advanced-reports.service';
+import { 
+  LucideAngularModule, 
+  BarChart3, 
+  PieChart, 
+  TrendingUp, 
+  Activity,
+  DollarSign,
+  Calendar,
+  Target,
+  Maximize2,
+  Download,
+  RefreshCw
+} from 'lucide-angular';
+import { Chart, ChartConfiguration, ChartType, registerables } from 'chart.js';
+import { PaymentScheduleReport } from '../../models/payment-schedule';
+import { CollectionsSimplifiedService } from '../../services/collections-simplified.service';
 
 // Register Chart.js components
 Chart.register(...registerables);
 
-interface ChartConfig {
-  id: string;
-  title: string;
-  type: ChartType;
-  data: any;
-  options: ChartConfiguration['options'];
-  height?: number;
+export interface ChartData {
+  labels: string[];
+  datasets: any[];
+}
+
+export interface ChartMetrics {
+  totalSchedules: number;
+  paidAmount: number;
+  pendingAmount: number;
+  overdueAmount: number;
+  paymentRate: number;
+  monthlyTrends: { month: string; paid: number; pending: number; overdue: number }[];
 }
 
 @Component({
   selector: 'app-interactive-charts',
   standalone: true,
-  imports: [
-    CommonModule,
-    LucideAngularModule
-  ],
+  imports: [CommonModule, LucideAngularModule],
   template: `
-<div class="space-y-6 p-6">
-  <!-- Charts Header -->
-  <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-    <div>
-      <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-2">
-        Análisis Gráfico Interactivo
-      </h2>
-      <p class="text-slate-600 dark:text-slate-300">
-        Visualización avanzada de datos de cobranza
-      </p>
-    </div>
-    
-    <div class="flex items-center gap-3">
-      <button 
-        (click)="refreshCharts()"
-        [disabled]="loading()"
-        class="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg transition-colors"
-      >
-        <lucide-angular [img]="RefreshCwIcon" class="w-4 h-4" [class.animate-spin]="loading()"></lucide-angular>
-        Actualizar
-      </button>
-      
-      <button 
-        (click)="exportAllCharts()"
-        class="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
-      >
-        <lucide-angular [img]="DownloadIcon" class="w-4 h-4"></lucide-angular>
-        Exportar
-      </button>
-    </div>
-  </div>
-
-  <!-- Charts Grid -->
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-    <!-- Collection Trends Chart -->
-    <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
-      <div class="flex items-center justify-between mb-6">
-        <div class="flex items-center gap-2">
-          <lucide-angular [img]="TrendingUpIcon" class="w-5 h-5 text-blue-500"></lucide-angular>
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Tendencias de Cobranza</h3>
-        </div>
-        <button 
-          (click)="toggleChartSize('trends')"
-          class="p-2 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
-        >
-          <lucide-angular [img]="Maximize2Icon" class="w-4 h-4"></lucide-angular>
-        </button>
-      </div>
-      
-      <div class="relative" [style.height.px]="getChartHeight('trends')">
-        <canvas #trendsChart></canvas>
-      </div>
-      
-      <div class="mt-4 grid grid-cols-3 gap-4 text-center">
+    <div class="space-y-6">
+      <!-- Charts Header -->
+      <div class="flex items-center justify-between">
         <div>
-          <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ trendsMetrics().totalCollected | currency:'MXN':'symbol':'1.0-0' }}</div>
-          <div class="text-sm text-slate-600 dark:text-slate-400">Total Cobrado</div>
+          <h2 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 via-blue-800 to-indigo-800 dark:from-white dark:via-blue-200 dark:to-indigo-200">
+            Análisis Visual de Cronogramas
+          </h2>
+          <p class="text-slate-600 dark:text-slate-400 mt-1">Métricas interactivas y tendencias de pago</p>
         </div>
-        <div>
-          <div class="text-2xl font-bold text-green-600 dark:text-green-400">{{ trendsMetrics().avgRate }}%</div>
-          <div class="text-sm text-slate-600 dark:text-slate-400">Tasa Promedio</div>
-        </div>
-        <div>
-          <div class="text-2xl font-bold text-purple-600 dark:text-purple-400">{{ trendsMetrics().bestMonth }}</div>
-          <div class="text-sm text-slate-600 dark:text-slate-400">Mejor Mes</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Portfolio Distribution Chart -->
-    <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
-      <div class="flex items-center justify-between mb-6">
-        <div class="flex items-center gap-2">
-          <lucide-angular [img]="PieChartIcon" class="w-5 h-5 text-green-500"></lucide-angular>
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Distribución de Cartera</h3>
-        </div>
-        <button 
-          (click)="toggleChartSize('distribution')"
-          class="p-2 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
-        >
-          <lucide-angular [img]="Maximize2Icon" class="w-4 h-4"></lucide-angular>
-        </button>
-      </div>
-      
-      <div class="relative" [style.height.px]="getChartHeight('distribution')">
-        <canvas #distributionChart></canvas>
-      </div>
-      
-      <div class="mt-4 space-y-2">
-        @for (item of distributionLegend(); track item.label) {
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2">
-              <div class="w-3 h-3 rounded-full" [style.background-color]="item.color"></div>
-              <span class="text-sm text-slate-700 dark:text-slate-300">{{ item.label }}</span>
-            </div>
-            <div class="text-sm font-medium text-slate-900 dark:text-white">
-              {{ item.value | currency:'MXN':'symbol':'1.0-0' }} ({{ item.percentage }}%)
-            </div>
-          </div>
-        }
-      </div>
-    </div>
-
-    <!-- Collector Performance Chart -->
-    <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
-      <div class="flex items-center justify-between mb-6">
-        <div class="flex items-center gap-2">
-          <lucide-angular [img]="BarChart3Icon" class="w-5 h-5 text-purple-500"></lucide-angular>
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Rendimiento por Cobrador</h3>
-        </div>
-        <button 
-          (click)="toggleChartSize('performance')"
-          class="p-2 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
-        >
-          <lucide-angular [img]="Maximize2Icon" class="w-4 h-4"></lucide-angular>
-        </button>
-      </div>
-      
-      <div class="relative" [style.height.px]="getChartHeight('performance')">
-        <canvas #performanceChart></canvas>
-      </div>
-      
-      <div class="mt-4 text-center">
-        <div class="text-sm text-slate-600 dark:text-slate-400 mb-2">Top 3 Performers</div>
-        <div class="flex justify-center gap-6">
-          @for (top of topPerformers(); track top.name; let i = $index) {
-            <div class="text-center">
-              <div class="w-8 h-8 mx-auto mb-1 rounded-full flex items-center justify-center text-white text-sm font-bold"
-                   [class]="i === 0 ? 'bg-yellow-500' : i === 1 ? 'bg-gray-400' : 'bg-orange-600'">
-                {{ i + 1 }}
-              </div>
-              <div class="text-xs font-medium text-slate-900 dark:text-white">{{ top.name }}</div>
-              <div class="text-xs text-slate-600 dark:text-slate-400">{{ top.efficiency }}%</div>
-            </div>
-          }
-        </div>
-      </div>
-    </div>
-
-    <!-- Collection Heatmap -->
-    <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
-      <div class="flex items-center justify-between mb-6">
-        <div class="flex items-center gap-2">
-          <lucide-angular [img]="BarChart3Icon" class="w-5 h-5 text-red-500"></lucide-angular>
-          <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Mapa de Calor - Vencimientos</h3>
-        </div>
-        <button 
-          (click)="toggleChartSize('heatmap')"
-          class="p-2 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
-        >
-          <lucide-angular [img]="Maximize2Icon" class="w-4 h-4"></lucide-angular>
-        </button>
-      </div>
-      
-      <div class="relative" [style.height.px]="getChartHeight('heatmap')">
-        <canvas #heatmapChart></canvas>
-      </div>
-      
-      <div class="mt-4">
-        <div class="flex items-center justify-between text-sm">
-          <span class="text-slate-600 dark:text-slate-400">Menor actividad</span>
-          <div class="flex items-center gap-1">
-            <div class="w-3 h-3 bg-green-200 rounded"></div>
-            <div class="w-3 h-3 bg-yellow-300 rounded"></div>
-            <div class="w-3 h-3 bg-orange-400 rounded"></div>
-            <div class="w-3 h-3 bg-red-500 rounded"></div>
-          </div>
-          <span class="text-slate-600 dark:text-slate-400">Mayor actividad</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Chart Modal for Expanded View -->
-  @if (expandedChart()) {
-    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div class="bg-white dark:bg-slate-800 rounded-xl max-w-6xl w-full max-h-[90vh] overflow-auto">
-        <div class="p-6">
-          <div class="flex items-center justify-between mb-6">
-            <h3 class="text-xl font-semibold text-slate-900 dark:text-white">{{ getExpandedChartTitle() }}</h3>
-            <button 
-              (click)="closeExpandedChart()"
-              class="p-2 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
-            >
-              ✕
-            </button>
-          </div>
+        
+        <div class="flex gap-2">
+          <button
+            (click)="refreshCharts()"
+            [disabled]="isLoading()"
+            class="group relative inline-flex items-center gap-2 px-3 py-2 rounded-xl font-medium text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 border border-blue-200 dark:border-blue-700 shadow hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition"
+            title="Actualizar Gráficos"
+          >
+            <lucide-angular [img]="RefreshCwIcon" [class]="isLoading() ? 'w-4 h-4 animate-spin' : 'w-4 h-4'"></lucide-angular>
+          </button>
           
-          <div class="relative h-96">
-            <canvas #expandedChartCanvas></canvas>
+          <button
+            (click)="exportChartsAsImages()"
+            [disabled]="isLoading()"
+            class="group relative inline-flex items-center gap-2 px-3 py-2 rounded-xl font-medium text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-900/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 border border-emerald-200 dark:border-emerald-700 shadow hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition"
+            title="Exportar Gráficos"
+          >
+            <lucide-angular [img]="DownloadIcon" class="w-4 h-4"></lucide-angular>
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Charts Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+        
+        <!-- Status Distribution Chart -->
+        <div class="relative overflow-hidden rounded-2xl border border-slate-200/70 dark:border-slate-700/60 bg-white/80 dark:bg-slate-900/60 backdrop-blur shadow-lg">
+          <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-purple-500/5"></div>
+          
+          <div class="relative p-6">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg font-bold flex items-center gap-2">
+                <div class="p-2 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow">
+                  <lucide-angular [img]="PieChartIcon" class="w-4 h-4"></lucide-angular>
+                </div>
+                <span>Distribución por Estado</span>
+              </h3>
+              
+              <button
+                (click)="toggleChartFullscreen('status')"
+                class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-white/60 dark:hover:bg-white/10 rounded-lg transition"
+                title="Pantalla Completa"
+              >
+                <lucide-angular [img]="Maximize2Icon" class="w-4 h-4"></lucide-angular>
+              </button>
+            </div>
+            
+            <div class="relative h-64">
+              <canvas #statusChart class="w-full h-full"></canvas>
+            </div>
+            
+            <!-- Status Legend -->
+            <div class="mt-4 grid grid-cols-3 gap-2 text-sm">
+              <div class="flex items-center gap-2">
+                <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                <span class="text-slate-600 dark:text-slate-400">Pagado</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                <span class="text-slate-600 dark:text-slate-400">Pendiente</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                <span class="text-slate-600 dark:text-slate-400">Vencido</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Monthly Trends Chart -->
+        <div class="relative overflow-hidden rounded-2xl border border-slate-200/70 dark:border-slate-700/60 bg-white/80 dark:bg-slate-900/60 backdrop-blur shadow-lg">
+          <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-cyan-500/5"></div>
+          
+          <div class="relative p-6">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg font-bold flex items-center gap-2">
+                <div class="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-600 text-white shadow">
+                  <lucide-angular [img]="ActivityIcon" class="w-4 h-4"></lucide-angular>
+                </div>
+                <span>Tendencia Mensual</span>
+              </h3>
+              
+              <button
+                (click)="toggleChartFullscreen('trends')"
+                class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-white/60 dark:hover:bg-white/10 rounded-lg transition"
+                title="Pantalla Completa"
+              >
+                <lucide-angular [img]="Maximize2Icon" class="w-4 h-4"></lucide-angular>
+              </button>
+            </div>
+            
+            <div class="relative h-64">
+              <canvas #trendsChart class="w-full h-full"></canvas>
+            </div>
+            
+            <!-- Trend Indicators -->
+            <div class="mt-4 flex items-center justify-between text-sm">
+              <div class="flex items-center gap-2">
+                <lucide-angular [img]="TrendingUpIcon" class="w-4 h-4 text-green-500"></lucide-angular>
+                <span class="text-slate-600 dark:text-slate-400">Tasa de Cobro: {{ getPaymentRate() }}%</span>
+              </div>
+              <div class="text-slate-500 dark:text-slate-400">
+                Últimos 6 meses
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Amount Comparison Chart -->
+        <div class="relative overflow-hidden rounded-2xl border border-slate-200/70 dark:border-slate-700/60 bg-white/80 dark:bg-slate-900/60 backdrop-blur shadow-lg lg:col-span-2 xl:col-span-1">
+          <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-green-500/5"></div>
+          
+          <div class="relative p-6">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg font-bold flex items-center gap-2">
+                <div class="p-2 rounded-lg bg-gradient-to-br from-emerald-500 to-green-600 text-white shadow">
+                  <lucide-angular [img]="BarChart3Icon" class="w-4 h-4"></lucide-angular>
+                </div>
+                <span>Comparación de Montos</span>
+              </h3>
+              
+              <button
+                (click)="toggleChartFullscreen('amounts')"
+                class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-white/60 dark:hover:bg-white/10 rounded-lg transition"
+                title="Pantalla Completa"
+              >
+                <lucide-angular [img]="Maximize2Icon" class="w-4 h-4"></lucide-angular>
+              </button>
+            </div>
+            
+            <div class="relative h-64">
+              <canvas #amountChart class="w-full h-full"></canvas>
+            </div>
+            
+            <!-- Amount Summary -->
+            <div class="mt-4 grid grid-cols-2 gap-4 text-sm">
+              <div class="text-center p-3 rounded-lg bg-green-50 dark:bg-green-900/20">
+                <div class="text-green-600 dark:text-green-400 font-semibold">{{ formatCurrency(metrics()?.paidAmount || 0) }}</div>
+                <div class="text-slate-600 dark:text-slate-400">Cobrado</div>
+              </div>
+              <div class="text-center p-3 rounded-lg bg-red-50 dark:bg-red-900/20">
+                <div class="text-red-600 dark:text-red-400 font-semibold">{{ formatCurrency(metrics()?.overdueAmount || 0) }}</div>
+                <div class="text-slate-600 dark:text-slate-400">Vencido</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  }
 
-  <!-- Loading Overlay -->
-  @if (loading()) {
-    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40">
-      <div class="bg-white dark:bg-slate-800 rounded-lg p-6 flex items-center gap-3">
-        <lucide-angular [img]="RefreshCwIcon" class="w-6 h-6 text-blue-500 animate-spin"></lucide-angular>
-        <span class="text-slate-900 dark:text-white font-medium">Actualizando gráficos...</span>
+      <!-- Performance Metrics Row -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <!-- Payment Performance Chart -->
+        <div class="relative overflow-hidden rounded-2xl border border-slate-200/70 dark:border-slate-700/60 bg-white/80 dark:bg-slate-900/60 backdrop-blur shadow-lg">
+          <div class="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5"></div>
+          
+          <div class="relative p-6">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg font-bold flex items-center gap-2">
+                <div class="p-2 rounded-lg bg-gradient-to-br from-purple-500 to-pink-600 text-white shadow">
+                  <lucide-angular [img]="TargetIcon" class="w-4 h-4"></lucide-angular>
+                </div>
+                <span>Rendimiento de Cobros</span>
+              </h3>
+            </div>
+            
+            <div class="relative h-64">
+              <canvas #performanceChart class="w-full h-full"></canvas>
+            </div>
+            
+            <!-- Performance Indicators -->
+            <div class="mt-4 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-sm text-slate-600 dark:text-slate-400">Eficiencia de Cobro</span>
+                <span class="text-sm font-semibold text-purple-600 dark:text-purple-400">{{ getCollectionEfficiency() }}%</span>
+              </div>
+              <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+                <div 
+                  class="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all duration-500"
+                  [style.width.%]="getCollectionEfficiency()"
+                ></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Aging Analysis Chart -->
+        <div class="relative overflow-hidden rounded-2xl border border-slate-200/70 dark:border-slate-700/60 bg-white/80 dark:bg-slate-900/60 backdrop-blur shadow-lg">
+          <div class="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-red-500/5"></div>
+          
+          <div class="relative p-6">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg font-bold flex items-center gap-2">
+                <div class="p-2 rounded-lg bg-gradient-to-br from-orange-500 to-red-600 text-white shadow">
+                  <lucide-angular [img]="CalendarIcon" class="w-4 h-4"></lucide-angular>
+                </div>
+                <span>Análisis de Antigüedad</span>
+              </h3>
+            </div>
+            
+            <div class="relative h-64">
+              <canvas #agingChart class="w-full h-full"></canvas>
+            </div>
+            
+            <!-- Aging Legend -->
+            <div class="mt-4 grid grid-cols-2 gap-2 text-xs">
+              <div class="flex items-center gap-2">
+                <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                <span class="text-slate-600 dark:text-slate-400">0-30 días</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                <span class="text-slate-600 dark:text-slate-400">31-60 días</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="w-3 h-3 rounded-full bg-orange-500"></div>
+                <span class="text-slate-600 dark:text-slate-400">61-90 días</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                <span class="text-slate-600 dark:text-slate-400">+90 días</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
+
+      <!-- Loading Overlay -->
+      @if (isLoading()) {
+        <div class="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-2xl">
+            <div class="flex items-center gap-3">
+              <div class="animate-spin rounded-full h-6 w-6 border-2 border-blue-500 border-t-transparent"></div>
+              <span class="text-slate-700 dark:text-slate-300 font-medium">Actualizando gráficos...</span>
+            </div>
+          </div>
+        </div>
+      }
     </div>
-  }
-</div>
   `
 })
-export class InteractiveChartsComponent implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
-  private advancedReportsService = inject(AdvancedReportsService);
+export class InteractiveChartsComponent implements OnInit, OnDestroy, AfterViewInit {
+  private readonly collectionsService = inject(CollectionsSimplifiedService);
+  private readonly destroy$ = new Subject<void>();
+
+  // Input data
+  @Input() reportData: PaymentScheduleReport | null = null;
+  @Input() refreshTrigger: number = 0;
 
   // Chart references
-  @ViewChild('trendsChart', { static: true }) trendsChartRef!: ElementRef<HTMLCanvasElement>;
-  @ViewChild('distributionChart', { static: true }) distributionChartRef!: ElementRef<HTMLCanvasElement>;
-  @ViewChild('performanceChart', { static: true }) performanceChartRef!: ElementRef<HTMLCanvasElement>;
-  @ViewChild('heatmapChart', { static: true }) heatmapChartRef!: ElementRef<HTMLCanvasElement>;
-  @ViewChild('expandedChartCanvas', { static: false }) expandedChartCanvasRef!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('statusChart', { static: false }) statusChartRef!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('trendsChart', { static: false }) trendsChartRef!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('amountChart', { static: false }) amountChartRef!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('performanceChart', { static: false }) performanceChartRef!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('agingChart', { static: false }) agingChartRef!: ElementRef<HTMLCanvasElement>;
 
   // Chart instances
-  private trendsChart?: Chart;
-  private distributionChart?: Chart;
-  private performanceChart?: Chart;
-  private heatmapChart?: Chart;
-  private expandedChartInstance?: Chart;
+  private statusChart: Chart | null = null;
+  private trendsChart: Chart | null = null;
+  private amountChart: Chart | null = null;
+  private performanceChart: Chart | null = null;
+  private agingChart: Chart | null = null;
 
   // Icons
   BarChart3Icon = BarChart3;
   PieChartIcon = PieChart;
   TrendingUpIcon = TrendingUp;
-  DownloadIcon = Download;
+  ActivityIcon = Activity;
+  DollarSignIcon = DollarSign;
+  CalendarIcon = Calendar;
+  TargetIcon = Target;
   Maximize2Icon = Maximize2;
+  DownloadIcon = Download;
   RefreshCwIcon = RefreshCw;
 
   // Signals
-  loading = signal(false);
-  trendData = signal<TrendData[]>([]);
-  collectorEfficiency = signal<CollectorEfficiency[]>([]);
-  expandedChart = signal<string | null>(null);
-  chartSizes = signal<Record<string, 'normal' | 'expanded'>>({
-    trends: 'normal',
-    distribution: 'normal',
-    performance: 'normal',
-    heatmap: 'normal'
-  });
-
-  // Computed properties
-  trendsMetrics = computed(() => {
-    const data = this.trendData();
-    if (!data.length) return { totalCollected: 0, avgRate: 0, bestMonth: 'N/A' };
-
-    const totalCollected = data.reduce((sum, item) => sum + item.collected_amount, 0);
-    const avgRate = data.reduce((sum, item) => sum + item.collection_rate, 0) / data.length;
-    const bestMonth = data.reduce((best, current) => 
-      current.collection_rate > best.collection_rate ? current : best
-    ).period;
-
-    return {
-      totalCollected,
-      avgRate: Math.round(avgRate),
-      bestMonth
-    };
-  });
-
-  distributionLegend = signal([
-    { label: 'Al Día', value: 2500000, percentage: 45, color: '#10b981' },
-    { label: '1-30 días', value: 1800000, percentage: 32, color: '#f59e0b' },
-    { label: '31-60 días', value: 800000, percentage: 15, color: '#f97316' },
-    { label: '60+ días', value: 450000, percentage: 8, color: '#ef4444' }
-  ]);
-
-  topPerformers = computed(() => {
-    return this.collectorEfficiency()
-      .sort((a, b) => b.efficiency_score - a.efficiency_score)
-      .slice(0, 3)
-      .map(collector => ({
-        name: collector.collector_name,
-        efficiency: collector.efficiency_score
-      }));
-  });
+  isLoading = signal(false);
+  metrics = signal<ChartMetrics | null>(null);
 
   ngOnInit() {
-    this.loadChartsData();
+    this.loadMetrics();
+  }
+
+  ngAfterViewInit() {
+    setTimeout(() => {
+      this.initializeCharts();
+    }, 100);
   }
 
   ngOnDestroy() {
-    this.destroyCharts();
     this.destroy$.next();
     this.destroy$.complete();
+    this.destroyCharts();
   }
 
-  loadChartsData() {
-    this.loading.set(true);
+  private async loadMetrics() {
+    this.isLoading.set(true);
     
-    const filters = {
-      dateFrom: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      dateTo: new Date().toISOString().split('T')[0]
-    };
-
-    // Load trend data
-    this.advancedReportsService.getTrendAnalysis('monthly', filters)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (data) => {
-          this.trendData.set(data);
-          this.createTrendsChart();
-        },
-        error: (error) => console.error('Error loading trend data:', error)
-      });
-
-    // Load collector efficiency
-    this.advancedReportsService.getCollectorEfficiency(filters)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (data) => {
-          this.collectorEfficiency.set(data);
-          this.createPerformanceChart();
-        },
-        error: (error) => console.error('Error loading collector efficiency:', error)
-      });
-
-    // Create other charts with mock data for now
-    setTimeout(() => {
-      this.createDistributionChart();
-      this.createHeatmapChart();
-      this.loading.set(false);
-    }, 1000);
-  }
-
-  createTrendsChart() {
-    const ctx = this.trendsChartRef.nativeElement.getContext('2d');
-    if (!ctx) return;
-
-    if (this.trendsChart) {
-      this.trendsChart.destroy();
-    }
-
-    const data = this.trendData();
-    
-    this.trendsChart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: data.map(item => item.period),
-        datasets: [
-          {
-            label: 'Monto Cobrado',
-            data: data.map(item => item.collected_amount),
-            borderColor: '#3b82f6',
-            backgroundColor: 'rgba(59, 130, 246, 0.1)',
-            fill: true,
-            tension: 0.4,
-            yAxisID: 'y'
-          },
-          {
-            label: 'Tasa de Cobranza (%)',
-            data: data.map(item => item.collection_rate),
-            borderColor: '#10b981',
-            backgroundColor: 'rgba(16, 185, 129, 0.1)',
-            fill: false,
-            tension: 0.4,
-            yAxisID: 'y1'
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        interaction: {
-          mode: 'index',
-          intersect: false
-        },
-        plugins: {
-          legend: {
-            position: 'top'
-          },
-          tooltip: {
-            callbacks: {
-              label: (context: TooltipItem<'line'>) => {
-                const label = context.dataset.label || '';
-                const value = context.parsed.y;
-                if (label.includes('Monto')) {
-                  return `${label}: ${this.formatCurrency(value)}`;
-                }
-                return `${label}: ${value}%`;
-              }
-            }
-          }
-        },
-        scales: {
-          x: {
-            display: true,
-            title: {
-              display: true,
-              text: 'Período'
-            }
-          },
-          y: {
-            type: 'linear',
-            display: true,
-            position: 'left',
-            title: {
-              display: true,
-              text: 'Monto (MXN)'
-            },
-            ticks: {
-              callback: (value) => this.formatCurrency(Number(value))
-            }
-          },
-          y1: {
-            type: 'linear',
-            display: true,
-            position: 'right',
-            title: {
-              display: true,
-              text: 'Tasa (%)'
-            },
-            grid: {
-              drawOnChartArea: false
-            },
-            ticks: {
-              callback: (value) => `${value}%`
-            }
-          }
-        }
+    try {
+      const dashboardData = await this.collectionsService.getDashboardData().toPromise();
+      
+      if (dashboardData) {
+        this.metrics.set({
+          totalSchedules: dashboardData.active_schedules,
+          paidAmount: dashboardData.paid_this_month,
+          pendingAmount: dashboardData.pending_amount,
+          overdueAmount: dashboardData.overdue_amount,
+          paymentRate: dashboardData.payment_rate,
+          monthlyTrends: this.generateMonthlyTrends(dashboardData)
+        });
+        
+        // Reinitialize charts with new data
+        setTimeout(() => {
+          this.initializeCharts();
+        }, 100);
       }
-    });
+    } catch (error) {
+      console.error('Error loading metrics:', error);
+    } finally {
+      this.isLoading.set(false);
+    }
   }
 
-  createDistributionChart() {
-    const ctx = this.distributionChartRef.nativeElement.getContext('2d');
+  private generateMonthlyTrends(data: any): { month: string; paid: number; pending: number; overdue: number }[] {
+    // Generate mock monthly trends data - in real app this would come from API
+    const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'];
+    return months.map((month, index) => ({
+      month,
+      paid: Math.random() * 50000 + 20000,
+      pending: Math.random() * 30000 + 10000,
+      overdue: Math.random() * 15000 + 5000
+    }));
+  }
+
+  private initializeCharts() {
+    this.destroyCharts();
+    
+    if (this.metrics()) {
+      this.createStatusChart();
+      this.createTrendsChart();
+      this.createAmountChart();
+      this.createPerformanceChart();
+      this.createAgingChart();
+    }
+  }
+
+  private createStatusChart() {
+    if (!this.statusChartRef?.nativeElement || !this.metrics()) return;
+
+    const ctx = this.statusChartRef.nativeElement.getContext('2d');
     if (!ctx) return;
 
-    if (this.distributionChart) {
-      this.distributionChart.destroy();
-    }
+    const metrics = this.metrics()!;
+    const total = metrics.paidAmount + metrics.pendingAmount + metrics.overdueAmount;
 
-    const legend = this.distributionLegend();
-    
-    this.distributionChart = new Chart(ctx, {
+    this.statusChart = new Chart(ctx, {
       type: 'doughnut',
       data: {
-        labels: legend.map(item => item.label),
+        labels: ['Pagado', 'Pendiente', 'Vencido'],
         datasets: [{
-          data: legend.map(item => item.value),
-          backgroundColor: legend.map(item => item.color),
+          data: [
+            (metrics.paidAmount / total) * 100,
+            (metrics.pendingAmount / total) * 100,
+            (metrics.overdueAmount / total) * 100
+          ],
+          backgroundColor: [
+            'rgba(34, 197, 94, 0.8)',
+            'rgba(234, 179, 8, 0.8)',
+            'rgba(239, 68, 68, 0.8)'
+          ],
+          borderColor: [
+            'rgba(34, 197, 94, 1)',
+            'rgba(234, 179, 8, 1)',
+            'rgba(239, 68, 68, 1)'
+          ],
           borderWidth: 2,
-          borderColor: '#ffffff'
+          hoverOffset: 4
         }]
       },
       options: {
@@ -493,11 +437,9 @@ export class InteractiveChartsComponent implements OnInit, OnDestroy {
           },
           tooltip: {
             callbacks: {
-              label: (context: TooltipItem<'doughnut'>) => {
-                const label = context.label || '';
+              label: (context) => {
                 const value = context.parsed;
-                const percentage = legend[context.dataIndex].percentage;
-                return `${label}: ${this.formatCurrency(value)} (${percentage}%)`;
+                return `${context.label}: ${value.toFixed(1)}%`;
               }
             }
           }
@@ -507,35 +449,42 @@ export class InteractiveChartsComponent implements OnInit, OnDestroy {
     });
   }
 
-  createPerformanceChart() {
-    const ctx = this.performanceChartRef.nativeElement.getContext('2d');
+  private createTrendsChart() {
+    if (!this.trendsChartRef?.nativeElement || !this.metrics()) return;
+
+    const ctx = this.trendsChartRef.nativeElement.getContext('2d');
     if (!ctx) return;
 
-    if (this.performanceChart) {
-      this.performanceChart.destroy();
-    }
+    const metrics = this.metrics()!;
 
-    const data = this.collectorEfficiency().slice(0, 10); // Top 10
-    
-    this.performanceChart = new Chart(ctx, {
-      type: 'bar',
+    this.trendsChart = new Chart(ctx, {
+      type: 'line',
       data: {
-        labels: data.map(item => item.collector_name),
+        labels: metrics.monthlyTrends.map(t => t.month),
         datasets: [
           {
-            label: 'Eficiencia (%)',
-            data: data.map(item => item.efficiency_score),
-            backgroundColor: 'rgba(147, 51, 234, 0.8)',
-            borderColor: '#9333ea',
-            borderWidth: 1
+            label: 'Pagado',
+            data: metrics.monthlyTrends.map(t => t.paid),
+            borderColor: 'rgba(34, 197, 94, 1)',
+            backgroundColor: 'rgba(34, 197, 94, 0.1)',
+            fill: true,
+            tension: 0.4
           },
           {
-            label: 'Cuentas Asignadas',
-            data: data.map(item => item.total_assigned),
-            backgroundColor: 'rgba(59, 130, 246, 0.8)',
-            borderColor: '#3b82f6',
-            borderWidth: 1,
-            yAxisID: 'y1'
+            label: 'Pendiente',
+            data: metrics.monthlyTrends.map(t => t.pending),
+            borderColor: 'rgba(234, 179, 8, 1)',
+            backgroundColor: 'rgba(234, 179, 8, 0.1)',
+            fill: true,
+            tension: 0.4
+          },
+          {
+            label: 'Vencido',
+            data: metrics.monthlyTrends.map(t => t.overdue),
+            borderColor: 'rgba(239, 68, 68, 1)',
+            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+            fill: true,
+            tension: 0.4
           }
         ]
       },
@@ -544,37 +493,14 @@ export class InteractiveChartsComponent implements OnInit, OnDestroy {
         maintainAspectRatio: false,
         plugins: {
           legend: {
-            position: 'top'
+            display: false
           }
         },
         scales: {
-          x: {
-            display: true,
-            title: {
-              display: true,
-              text: 'Cobradores'
-            }
-          },
           y: {
-            type: 'linear',
-            display: true,
-            position: 'left',
-            title: {
-              display: true,
-              text: 'Eficiencia (%)'
-            },
-            max: 100
-          },
-          y1: {
-            type: 'linear',
-            display: true,
-            position: 'right',
-            title: {
-              display: true,
-              text: 'Cuentas'
-            },
-            grid: {
-              drawOnChartArea: false
+            beginAtZero: true,
+            ticks: {
+              callback: (value) => this.formatCurrency(Number(value))
             }
           }
         }
@@ -582,41 +508,33 @@ export class InteractiveChartsComponent implements OnInit, OnDestroy {
     });
   }
 
-  createHeatmapChart() {
-    const ctx = this.heatmapChartRef.nativeElement.getContext('2d');
+  private createAmountChart() {
+    if (!this.amountChartRef?.nativeElement || !this.metrics()) return;
+
+    const ctx = this.amountChartRef.nativeElement.getContext('2d');
     if (!ctx) return;
 
-    if (this.heatmapChart) {
-      this.heatmapChart.destroy();
-    }
+    const metrics = this.metrics()!;
 
-    // Mock heatmap data - in real implementation, this would come from the service
-    const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'];
-    const days = Array.from({ length: 31 }, (_, i) => i + 1);
-    
-    const heatmapData = months.flatMap((month, monthIndex) => 
-      days.map((day, dayIndex) => ({
-        x: day,
-        y: monthIndex,
-        v: Math.floor(Math.random() * 100) // Mock intensity value
-      }))
-    );
-
-    this.heatmapChart = new Chart(ctx, {
-      type: 'scatter',
+    this.amountChart = new Chart(ctx, {
+      type: 'bar',
       data: {
+        labels: ['Pagado', 'Pendiente', 'Vencido'],
         datasets: [{
-          label: 'Actividad de Cobranza',
-          data: heatmapData.map(point => ({ x: point.x, y: point.y })),
-          backgroundColor: (context) => {
-            const value = heatmapData[context.dataIndex]?.v || 0;
-            const intensity = value / 100;
-            if (intensity < 0.25) return 'rgba(34, 197, 94, 0.6)';
-            if (intensity < 0.5) return 'rgba(234, 179, 8, 0.6)';
-            if (intensity < 0.75) return 'rgba(249, 115, 22, 0.6)';
-            return 'rgba(239, 68, 68, 0.8)';
-          },
-          pointRadius: 8
+          data: [metrics.paidAmount, metrics.pendingAmount, metrics.overdueAmount],
+          backgroundColor: [
+            'rgba(34, 197, 94, 0.8)',
+            'rgba(234, 179, 8, 0.8)',
+            'rgba(239, 68, 68, 0.8)'
+          ],
+          borderColor: [
+            'rgba(34, 197, 94, 1)',
+            'rgba(234, 179, 8, 1)',
+            'rgba(239, 68, 68, 1)'
+          ],
+          borderWidth: 2,
+          borderRadius: 8,
+          borderSkipped: false
         }]
       },
       options: {
@@ -625,42 +543,13 @@ export class InteractiveChartsComponent implements OnInit, OnDestroy {
         plugins: {
           legend: {
             display: false
-          },
-          tooltip: {
-            callbacks: {
-              title: () => '',
-              label: (context) => {
-                const point = heatmapData[context.dataIndex];
-                const month = months[point.y];
-                return `${month} ${point.x}: ${point.v}% actividad`;
-              }
-            }
           }
         },
         scales: {
-          x: {
-            type: 'linear',
-            position: 'bottom',
-            title: {
-              display: true,
-              text: 'Día del Mes'
-            },
-            min: 1,
-            max: 31,
-            ticks: {
-              stepSize: 5
-            }
-          },
           y: {
-            type: 'linear',
-            title: {
-              display: true,
-              text: 'Mes'
-            },
-            min: -0.5,
-            max: months.length - 0.5,
+            beginAtZero: true,
             ticks: {
-              callback: (value) => months[Math.round(Number(value))] || ''
+              callback: (value) => this.formatCurrency(Number(value))
             }
           }
         }
@@ -668,67 +557,158 @@ export class InteractiveChartsComponent implements OnInit, OnDestroy {
     });
   }
 
-  refreshCharts() {
-    this.loadChartsData();
-  }
+  private createPerformanceChart() {
+    if (!this.performanceChartRef?.nativeElement || !this.metrics()) return;
 
-  exportAllCharts() {
-    const charts = [
-      { name: 'tendencias-cobranza', chart: this.trendsChart },
-      { name: 'distribucion-cartera', chart: this.distributionChart },
-      { name: 'rendimiento-cobradores', chart: this.performanceChart },
-      { name: 'mapa-calor-vencimientos', chart: this.heatmapChart }
+    const ctx = this.performanceChartRef.nativeElement.getContext('2d');
+    if (!ctx) return;
+
+    const metrics = this.metrics()!;
+    const performanceData = [
+      metrics.paymentRate,
+      100 - metrics.paymentRate
     ];
 
-    charts.forEach(({ name, chart }) => {
+    this.performanceChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Cobrado', 'Pendiente'],
+        datasets: [{
+          data: performanceData,
+          backgroundColor: [
+            'rgba(147, 51, 234, 0.8)',
+            'rgba(203, 213, 225, 0.3)'
+          ],
+          borderColor: [
+            'rgba(147, 51, 234, 1)',
+            'rgba(203, 213, 225, 0.5)'
+          ],
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          }
+        },
+        cutout: '70%'
+      }
+    });
+  }
+
+  private createAgingChart() {
+    if (!this.agingChartRef?.nativeElement) return;
+
+    const ctx = this.agingChartRef.nativeElement.getContext('2d');
+    if (!ctx) return;
+
+    // Mock aging data - in real app this would come from API
+    const agingData = [40, 25, 20, 15]; // percentages for each aging bucket
+
+    this.agingChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['0-30 días', '31-60 días', '61-90 días', '+90 días'],
+        datasets: [{
+          data: agingData,
+          backgroundColor: [
+            'rgba(34, 197, 94, 0.8)',
+            'rgba(234, 179, 8, 0.8)',
+            'rgba(249, 115, 22, 0.8)',
+            'rgba(239, 68, 68, 0.8)'
+          ],
+          borderColor: [
+            'rgba(34, 197, 94, 1)',
+            'rgba(234, 179, 8, 1)',
+            'rgba(249, 115, 22, 1)',
+            'rgba(239, 68, 68, 1)'
+          ],
+          borderWidth: 2,
+          borderRadius: 8,
+          borderSkipped: false
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: (value) => `${value}%`
+            }
+          }
+        }
+      }
+    });
+  }
+
+  private destroyCharts() {
+    [this.statusChart, this.trendsChart, this.amountChart, this.performanceChart, this.agingChart].forEach(chart => {
+      if (chart) {
+        chart.destroy();
+      }
+    });
+  }
+
+  // Public methods
+  refreshCharts() {
+    this.loadMetrics();
+  }
+
+  toggleChartFullscreen(chartType: string) {
+    // Implementation for fullscreen chart view
+    console.log(`Toggle fullscreen for ${chartType} chart`);
+  }
+
+  exportChartsAsImages() {
+    // Implementation for exporting charts as images
+    const charts = [
+      { chart: this.statusChart, name: 'status-distribution' },
+      { chart: this.trendsChart, name: 'monthly-trends' },
+      { chart: this.amountChart, name: 'amount-comparison' },
+      { chart: this.performanceChart, name: 'payment-performance' },
+      { chart: this.agingChart, name: 'aging-analysis' }
+    ];
+
+    charts.forEach(({ chart, name }) => {
       if (chart) {
         const url = chart.toBase64Image();
         const link = document.createElement('a');
-        link.download = `${name}.png`;
+        link.download = `${name}-chart.png`;
         link.href = url;
         link.click();
       }
     });
   }
 
-  toggleChartSize(chartId: string) {
-    this.expandedChart.set(chartId);
-  }
-
-  closeExpandedChart() {
-    if (this.expandedChartInstance) {
-      this.expandedChartInstance.destroy();
-      this.expandedChartInstance = undefined;
-    }
-    this.expandedChart.set(null);
-  }
-
-  getExpandedChartTitle(): string {
-    const titles: Record<string, string> = {
-      trends: 'Tendencias de Cobranza - Vista Expandida',
-      distribution: 'Distribución de Cartera - Vista Expandida',
-      performance: 'Rendimiento por Cobrador - Vista Expandida',
-      heatmap: 'Mapa de Calor de Vencimientos - Vista Expandida'
-    };
-    return titles[this.expandedChart() || ''] || '';
-  }
-
-  getChartHeight(chartId: string): number {
-    const sizes = this.chartSizes();
-    return sizes[chartId] === 'expanded' ? 400 : 300;
-  }
-
-  private destroyCharts() {
-    [this.trendsChart, this.distributionChart, this.performanceChart, this.heatmapChart, this.expandedChartInstance]
-      .forEach(chart => chart?.destroy());
-  }
-
-  private formatCurrency(amount: number): string {
-    return new Intl.NumberFormat('es-MX', {
+  // Utility methods
+  formatCurrency(amount: number): string {
+    return new Intl.NumberFormat('es-PE', {
       style: 'currency',
-      currency: 'MXN',
+      currency: 'PEN',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
     }).format(amount);
+  }
+
+  getPaymentRate(): number {
+    return this.metrics()?.paymentRate || 0;
+  }
+
+  getCollectionEfficiency(): number {
+    const metrics = this.metrics();
+    if (!metrics) return 0;
+    
+    const total = metrics.paidAmount + metrics.pendingAmount + metrics.overdueAmount;
+    return total > 0 ? Math.round((metrics.paidAmount / total) * 100) : 0;
   }
 }

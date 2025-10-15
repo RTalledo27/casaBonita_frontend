@@ -132,12 +132,9 @@ export class UsersComponent {
     this.isModalOpen = true;
   }
 
-  onEdit(event: any) {
-    /* this.isModalOpen = true;
-    this.router.navigate(
-      [{ outlets: { modal: [user.id.toString(), 'edit'] } }],
-      { relativeTo: this.route }
-    ); */
+  onEdit(userId: number) {
+    // Navegar al detalle del usuario para editar
+    this.router.navigate(['security/users', userId]);
   }
 
   //MOSTRAR Y SUPERPONER DIV CONTENEDOR DE FORM(EDIT-CREATE)

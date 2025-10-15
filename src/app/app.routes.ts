@@ -88,6 +88,7 @@ export const routes: Routes = [
               import('./modules/collections/collections-simplified.routes').then(
                 (m) => m.COLLECTIONS_SIMPLIFIED_ROUTES
               ),
+              
             canActivateChild: [permissionGuard],
           },
           {

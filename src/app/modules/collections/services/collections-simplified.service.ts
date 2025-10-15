@@ -21,12 +21,15 @@ export type { PaymentScheduleReport } from '../models/payment-schedule';
 
 export interface CollectionsSimplifiedDashboard {
   total_contracts: number;
+  active_contracts: number;
   active_schedules: number;
   pending_amount: number;
   overdue_amount: number;
   paid_this_month: number;
   overdue_count: number;
   payment_rate: number;
+  average_payment_time: number;
+  monthly_growth: number;
   recent_created_schedules: RecentContract[];
   recent_schedules: PaymentSchedule[];
   overdue_schedules: PaymentSchedule[];
@@ -63,12 +66,15 @@ export class CollectionsSimplifiedService {
             
             return {
               total_contracts: contractMetrics.contracts_with_schedules || 0,
+              active_contracts: contractMetrics.active_contracts || 0,
               active_schedules: scheduleMetrics.total_schedules || 0,
               pending_amount: scheduleMetrics.pending_amount || 0,
               overdue_amount: scheduleMetrics.overdue_amount || 0,
               paid_this_month: scheduleMetrics.paid_amount || 0,
               overdue_count: scheduleMetrics.overdue_schedules || 0,
               payment_rate: scheduleMetrics.collection_rate || 0,
+              average_payment_time: scheduleMetrics.average_payment_time || 0,
+              monthly_growth: scheduleMetrics.monthly_growth || 0,
               recent_created_schedules: data.recent_created_schedules || [],
               recent_schedules: data.upcoming_schedules || [],
               overdue_schedules: data.overdue_schedules || [],

@@ -1,4 +1,4 @@
-<div class="h-full flex flex-col sidebar-container">
+<div class="h-full flex flex-col sidebar-container" *ngIf="isAuthenticated()">
   <!-- Header fijo -->
   <div class="flex-shrink-0 sidebar-header">
     <h1>CASA BONITA</h1>
@@ -7,18 +7,22 @@
   <!-- Contenedor scrolleable para la navegación -->
   <div class="flex-1 overflow-y-auto px-6 pb-6 sidebar-scroll">
     <nav class="mt-6">
-      <ng-container *ngFor="let item of navItems">
+      <ng-container *ngFor="let item of navItems()">
         <div class="mb-2 sidebar-item sidebar-hover" [class.sidebar-active]="item.active">
-          <a *ngIf="!item.children" [routerLink]="item.route"
+          <!-- Elemento sin hijos (enlace directo) -->
+          <a *ngIf="!item.children || item.children.length === 0" 
+             [routerLink]="item.route"
              routerLinkActive="sidebar-active">
             <lucide-icon [name]="item.icon"></lucide-icon>
-            <span>{{'sidebar.'+item.label+'.title'|translate}}</span>
+            <span>{{item.label|translate}}</span>
           </a>
 
-          <div *ngIf="item.children">
-            <a (click)="toggle(item)">
+          <!-- Elemento con hijos (expandible) -->
+          <div *ngIf="item.children && item.children.length > 0">
+            
+            <a (click)="toggle(item)" class="cursor-pointer">
               <lucide-icon [name]="item.icon"></lucide-icon>
-              <span>{{'sidebar.'+item.label+'.title'|translate }}</span>
+              <span>{{item.label|translate}}</span>
               <lucide-icon [name]="chevronDown[0].icon" class="chevron-rotate"
                           [class.rotate-180]="item.expanded"></lucide-icon>
             </a>
@@ -28,7 +32,7 @@
               <ng-container *ngFor="let child of item.children">
                 <div class="sidebar-item sidebar-hover submenu-item" [class.sidebar-active]="child.active">
                   <a [routerLink]="child.route" routerLinkActive="sidebar-active">
-                    {{ 'sidebar.' + item.label + '.' + child.label + '.title' | translate }}
+                    {{ child.label | translate }}
                   </a>
                 </div>
               </ng-container>
@@ -37,5 +41,18 @@
         </div>
       </ng-container>
     </nav>
+
+    <!-- Debug info (solo en desarrollo) -->
+    <div class="mt-6 p-3 bg-gray-100 dark:bg-gray-800 rounded text-xs" *ngIf="false">
+      <h4 class="font-semibold mb-2">Sidebar Stats:</h4>
+      <p>Módulos visibles: {{ sidebarStats().totalModules }}</p>
+      <p>Items de menú: {{ sidebarStats().totalMenuItems }}</p>
+      <p>Módulos: {{ sidebarStats().moduleNames.join(', ') }}</p>
+      
+      <h4 class="font-semibold mb-2 mt-4">NavItems Debug:</h4>
+      @for (item of navItems(); track item.label) {
+        <p>{{ $index }}: {{ item.label }} - Children: {{ item.children?.length || 0 }}</p>
+      }
+    </div>
   </div>
 </div>

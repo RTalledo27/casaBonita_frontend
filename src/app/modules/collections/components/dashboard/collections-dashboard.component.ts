@@ -311,8 +311,8 @@ export class CollectionsDashboardComponent implements OnInit, OnDestroy {
     if (trends.length >= 2) {
       const current = trends[trends.length - 1];
       const previous = trends[trends.length - 2];
-      if (previous.collection_rate > 0) {
-        monthlyGrowth = ((current.collection_rate - previous.collection_rate) / previous.collection_rate) * 100;
+      if (previous.predicted > 0) {
+        monthlyGrowth = ((current.predicted - previous.predicted) / previous.predicted) * 100;
       }
     }
 
@@ -320,9 +320,9 @@ export class CollectionsDashboardComponent implements OnInit, OnDestroy {
     let topCollector = 'N/A';
     if (collectors.length > 0) {
       const top = collectors.reduce((prev, current) => 
-        (prev.efficiency_score > current.efficiency_score) ? prev : current
+        (prev.efficiency > current.efficiency) ? prev : current
       );
-      topCollector = top.collector_name;
+      topCollector = top.topPerformers?.[0]?.name || 'N/A';
     }
 
     return {
@@ -388,7 +388,13 @@ export class CollectionsDashboardComponent implements OnInit, OnDestroy {
       next: (data) => {
         this.rawData.set(data.summary);
         this.collectorData.set(data.collectors);
-        this.trendData.set(data.trends);
+        // Convert MonthlyTrend to TrendData format
+        const trendData: TrendData[] = data.trends.map(trend => ({
+          month: trend.month,
+          predicted: trend.paidAmount,
+          confidence: 0.85 // Default confidence
+        }));
+        this.trendData.set(trendData);
         this.isLoading.set(false);
       },
       error: (error) => {

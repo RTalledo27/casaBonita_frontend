@@ -1,8 +1,9 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, signal, computed } from '@angular/core';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { API_ROUTES } from '../constants/api.routes';
 import { User } from '../../modules/Secutiry/users/models/user';
+import { Permission, Role, User as UserType } from '../../../types/permissions';
 
 export interface UserResource {
   id: number;
@@ -27,12 +28,30 @@ export class AuthService {
   private mustChangePasswordSubject = new BehaviorSubject<boolean>(false);
   mustChangePassword$ = this.mustChangePasswordSubject.asObservable();
 
+  // Signals para manejo reactivo de permisos
+  private userSignal = signal<UserResource | null>(null);
+  private permissionsSignal = signal<string[]>([]);
+  private rolesSignal = signal<string[]>([]);
+
+  // Computed signals para acceso reactivo
+  user = this.userSignal.asReadonly();
+  permissions = this.permissionsSignal.asReadonly();
+  roles = this.rolesSignal.asReadonly();
+  isAuthenticated = computed(() => !!this.userSignal());
+  isAdmin = computed(() => this.rolesSignal().includes('admin'));
+
   constructor(private http: HttpClient) {
     const stored = localStorage.getItem('user');
     const mustChangePassword = localStorage.getItem('must_change_password');
     if (stored) {
-      this.userSubject.next(JSON.parse(stored));
+      const user = JSON.parse(stored);
+      this.userSubject.next(user);
       this.mustChangePasswordSubject.next(mustChangePassword === 'true');
+      
+      // Actualizar signals
+      this.userSignal.set(user);
+      this.permissionsSignal.set(user.permissions || []);
+      this.rolesSignal.set(user.roles || []);
     }
   }
 
@@ -46,6 +65,11 @@ export class AuthService {
           localStorage.setItem('must_change_password', String(!!res.must_change_password));
           this.userSubject.next(res.user);
           this.mustChangePasswordSubject.next(!!res.must_change_password);
+          
+          // Actualizar signals
+          this.userSignal.set(res.user);
+          this.permissionsSignal.set(res.user.permissions || []);
+          this.rolesSignal.set(res.user.roles || []);
         })
       );
   }
@@ -56,6 +80,11 @@ export class AuthService {
     localStorage.removeItem('must_change_password');
     this.userSubject.next(null);
     this.mustChangePasswordSubject.next(false);
+    
+    // Limpiar signals
+    this.userSignal.set(null);
+    this.permissionsSignal.set([]);
+    this.rolesSignal.set([]);
   }
 
   get token(): string | null {
@@ -91,12 +120,17 @@ export class AuthService {
           };
           localStorage.setItem('user', JSON.stringify(updatedUser));
           this.userSubject.next(updatedUser);
+          
+          // Actualizar signals
+          this.userSignal.set(updatedUser);
+          this.permissionsSignal.set(updatedUser.permissions || []);
+          this.rolesSignal.set(updatedUser.roles || []);
         }
       })
     );
   }
 
-  isAdmin(): boolean {
+  isAdminMethod(): boolean {
     return this.hasRole('admin');
   }
 
@@ -117,4 +151,46 @@ export class AuthService {
       })
     );
   }
+
+  // Métodos adicionales para manejo de permisos con signals
+  hasPermissionSignal = computed(() => {
+    return (permission: string): boolean => {
+      return this.permissionsSignal().includes(permission);
+    };
+  });
+
+  hasRoleSignal = computed(() => {
+    return (role: string): boolean => {
+      return this.rolesSignal().includes(role);
+    };
+  });
+
+  hasAnyPermission = computed(() => {
+    return (permissions: string[]): boolean => {
+      const userPermissions = this.permissionsSignal();
+      return permissions.some(permission => userPermissions.includes(permission));
+    };
+  });
+
+  hasAllPermissions = computed(() => {
+    return (permissions: string[]): boolean => {
+      const userPermissions = this.permissionsSignal();
+      return permissions.every(permission => userPermissions.includes(permission));
+    };
+  });
+
+  hasAnyRole = computed(() => {
+    return (roles: string[]): boolean => {
+      const userRoles = this.rolesSignal();
+      return roles.some(role => userRoles.includes(role));
+    };
+  });
+
+  // Método para verificar permisos de módulo
+  hasModuleAccess = computed(() => {
+    return (module: string): boolean => {
+      const userPermissions = this.permissionsSignal();
+      return userPermissions.some(permission => permission.startsWith(`${module}.`));
+    };
+  });
 }

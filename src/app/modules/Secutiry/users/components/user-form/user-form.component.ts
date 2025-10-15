@@ -24,6 +24,25 @@ import {
   ChevronUp,
   ChevronDown,
   X,
+  Mail,
+  MapPin,
+  Briefcase,
+  Calendar,
+  FileText,
+  Shield,
+  Key,
+  CheckCircle,
+  Circle,
+  Info,
+  UserPlus,
+  Loader2,
+  Save,
+  Upload,
+  Camera,
+  CreditCard,
+  Award,
+  CalendarCheck,
+  Download,
 } from 'lucide-angular';
 import {
   trigger,
@@ -108,6 +127,9 @@ export class UserFormComponent {
   isEditMode = false;
   private editingId!: number;
 
+  // Propiedad para el nombre del archivo CV
+  cvFileName: string | null = null;
+
   // 1. roles$
   roles$!: Observable<Role[]>;
 
@@ -123,8 +145,9 @@ export class UserFormComponent {
 
   /* ───────────── form ──────────────── */
   form: FormGroup;
-  roles: string[] = ['admin', 'editor', 'viewer'];
+  roles: Role[] = [];
   rolesList: Role[] = [];
+  isSubmitting = false;
 
   sections = [
     { title: 'personalInfo', icon: User, key: 'personal', expanded: true },
@@ -138,6 +161,28 @@ export class UserFormComponent {
   ChevronDown = ChevronDown;
   X = X;
   User = User;
+  Mail = Mail;
+  MapPin = MapPin;
+  Briefcase = Briefcase;
+  Calendar = Calendar;
+  FileText = FileText;
+  Shield = Shield;
+  Key = Key;
+  CheckCircle = CheckCircle;
+  Circle = Circle;
+  Info = Info;
+  UserPlus = UserPlus;
+  Loader2 = Loader2;
+  Save = Save;
+  Upload = Upload;
+  Camera = Camera;
+  CreditCard = CreditCard;
+  Phone = Phone;
+  Award = Award;
+  Building = Building;
+  CalendarCheck = CalendarCheck;
+  Download = Download;
+  Lock = Lock;
   showPassRules = false;
 
   passRules: PassRule[] = [
@@ -229,7 +274,10 @@ export class UserFormComponent {
   ngOnInit(): void {
     // 1) Cargo roles
     this.roles$ = this.roleService.getAllRoles();
-    this.roles$.subscribe((list) => (this.rolesList = list));
+    this.roles$.subscribe((list) => {
+      this.rolesList = list;
+      this.roles = list; // Asignar también a la propiedad roles para el template
+    });
 
     // 2) Permisos dinámicos
     this.selectedPermissions$ = this.selectedRolesSubject.pipe(
@@ -283,6 +331,35 @@ export class UserFormComponent {
     }
   }
 
+  // Método para ir al paso anterior
+  previousStep(): void {
+    const idx = this.sections.findIndex((s) => s.expanded);
+    if (idx > 0) {
+      this.sections[idx].expanded = false;
+      this.sections[idx - 1].expanded = true;
+      this.cdr.detectChanges();
+    }
+  }
+
+  // Método para ir al siguiente paso
+  nextStep(): void {
+    const idx = this.sections.findIndex((s) => s.expanded);
+    if (!this.isSectionValid(this.sections[idx].key)) {
+      return;
+    }
+    
+    this.sections[idx].expanded = false;
+    if (idx + 1 < this.sections.length) {
+      this.sections[idx + 1].expanded = true;
+      this.cdr.detectChanges();
+    }
+
+    // GENERAR NOMBRE DE USUARIO SI LA SECCION ES ACCESO(ACCESS INFO)
+    if (this.sections[idx + 1]?.key === 'access') {
+      this.generateUsername();
+    }
+  }
+
   next(): void {
     const idx = this.sections.findIndex((s) => s.expanded);
     if (!this.isSectionValid(this.sections[idx].key)) {
@@ -299,7 +376,7 @@ export class UserFormComponent {
 
     console.log(this.form.value);
     //GENERAR NOMBRE DE USUARIO SI LA SECCION ES ACCESO(ACCESS INFO)
-    if (this.sections[idx + 1].key === 'access') {
+    if (this.sections[idx + 1]?.key === 'access') {
       this.generateUsername();
     }
   }
@@ -360,10 +437,17 @@ export class UserFormComponent {
     this.photoPreview = file ? URL.createObjectURL(file) : null;
   }
 
-  onCvChange(e: Event): void {
-    const file = (e.target as HTMLInputElement).files?.[0] ?? null;
-    this.fc('cv_file').setValue(file);
-    this.cvName = file ? file.name : null;
+  /*────────────── onCvChange ──────────────*/
+  onCvChange(evt: Event): void {
+    const input = evt.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (file) {
+      this.form.get('cv_file')!.setValue(file);
+      this.cvFileName = file.name;
+    } else {
+      this.form.get('cv_file')!.setValue(null);
+      this.cvFileName = null;
+    }
   }
 
   ngOnDestroy() {
@@ -378,6 +462,8 @@ export class UserFormComponent {
       this.toast.show('Revisa los campos marcados en rojo', 'error');
       return;
     }
+
+    this.isSubmitting = true;
 
     // 1) Armar FormData igual que en onFormSubmit
     const raw = this.form.getRawValue();
@@ -405,6 +491,7 @@ export class UserFormComponent {
     // 3) Suscribirse y manejar toast + cierre modal
     req$.subscribe({
       next: (user) => {
+        this.isSubmitting = false;
         this.toast.show(
           this.isEditMode ? 'Usuario actualizado' : 'Usuario creado',
           'success'
@@ -419,6 +506,7 @@ export class UserFormComponent {
         this.submitForm.emit({ data: user, isEdit: this.isEditMode });
       },
       error: (err) => {
+        this.isSubmitting = false;
         console.log(err);
         const errors: Record<string, string[]> = err.error?.errors || {};
         // 1) Guárdalos para pintarlos inline
@@ -478,3 +566,5 @@ export class UserFormComponent {
     });
   }
 }
+
+// ...

@@ -21,8 +21,16 @@ export interface PaymentScheduleFilters {
   status?: 'pendiente' | 'pagado' | 'vencido';
   due_date_from?: string;
   due_date_to?: string;
+  date_from?: string;
+  date_to?: string;
   amount_from?: number;
   amount_to?: number;
+  amount_min?: number;
+  amount_max?: number;
+  client_id?: string;
+  contract_type?: string;
+  search?: string;
+  overdue_days?: string;
   page?: number;
   per_page?: number;
 }

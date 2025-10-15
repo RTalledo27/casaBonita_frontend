@@ -71,6 +71,8 @@ export class RoleFormComponent {
   ChevronUp = ChevronUp;
   ChevronDown = ChevronDown;
   X = X;
+  Settings = Settings;
+  Key = Key;
 
   form: FormGroup;
 
