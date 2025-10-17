@@ -12,47 +12,57 @@ export const SALES_ROUTES: Route[] = [
     path: 'reservations',
     component: ReservationsComponent,
     data: { permission: 'sales.reservations.view' },
-  },
-  {
-    path: 'reservations/create',
-    component: ReservationFormComponent,
-    data: { permission: 'sales.reservations.store' },
-  },
-  {
-    path: 'reservations/:id/edit',
-    component: ReservationFormComponent,
-    data: { permission: 'sales.reservations.update' },
+    children: [
+      {
+        path: 'create',
+        component: ReservationFormComponent,
+        outlet: 'modal',
+        data: { permission: 'sales.reservations.store' },
+      },
+      {
+        path: ':id/edit',
+        component: ReservationFormComponent,
+        outlet: 'modal',
+        data: { permission: 'sales.reservations.update' },
+      },
+    ]
   },
   {
     path: 'contracts',
     component: ContractsComponent,
     data: { permission: 'sales.contracts.view' },
-  },
-  {
-    path: 'contracts/create',
-    component: ContractFormComponent,
-    data: { permission: 'sales.contracts.store' },
-  },
-  {
-    path: 'contracts/:id/edit',
-    component: ContractFormComponent,
-    data: { permission: 'sales.contracts.update' },
+    children: [
+      {
+        path: 'create',
+        component: ContractFormComponent,
+        outlet: 'modal',
+        data: { permission: 'sales.contracts.store' },
+      },
+      {
+        path: ':id/edit',
+        component: ContractFormComponent,
+        outlet: 'modal',
+        data: { permission: 'sales.contracts.update' },
+      },
+    ]
   },
   {
     path: 'payments',
     component: PaymentsComponent,
     data: { permission: 'sales.payments.view' },
-  },
-  {
-    path: 'payments/create',
-    component: PaymentFormComponent,
-    outlet: 'modal',
-    data: { permission: 'sales.payments.store' },
-  },
-  {
-    path: 'payments/:id/edit',
-    component: PaymentFormComponent,
-    outlet: 'modal',
-    data: { permission: 'sales.payments.update' },
+    children: [
+      {
+        path: 'create',
+        component: PaymentFormComponent,
+        outlet: 'modal',
+        data: { permission: 'sales.payments.store' },
+      },
+      {
+        path: ':id/edit',
+        component: PaymentFormComponent,
+        outlet: 'modal',
+        data: { permission: 'sales.payments.update' },
+      },
+    ]
   },
 ];

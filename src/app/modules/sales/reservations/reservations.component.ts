@@ -70,17 +70,26 @@ export class ReservationsComponent {
   }
 
   onModalActivate(component: any) {
+    console.log('🟢 onModalActivate called with component:', component);
     if (component instanceof ReservationFormComponent) {
+      console.log('🟢 Component is ReservationFormComponent, setting up subscriptions');
       component.modalClosed.subscribe(() => {
+        console.log('🟢 modalClosed event received in parent component');
         this.isModalOpen = false;
+        console.log('🟢 isModalOpen set to false');
         this.modalService.close(this.route);
+        console.log('🟢 modalService.close called from parent');
         this.loadReservations();
+        console.log('🟢 loadReservations called');
       });
       component.submitForm.subscribe(() => {
+        console.log('🟢 submitForm event received in parent component');
         this.isModalOpen = false;
         this.modalService.close(this.route);
         this.loadReservations();
       });
+    } else {
+      console.log('🟢 Component is NOT ReservationFormComponent:', typeof component);
     }
   }
 
