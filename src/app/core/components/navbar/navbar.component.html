@@ -1,49 +1,77 @@
 
-<nav class="flex items-center justify-between h-full text-gray-800 dark:text-blue-100">
+<nav class="flex items-center justify-between h-full px-4 text-gray-800 dark:text-white">
+    <!-- Bienvenida con estilo mejorado -->
     <div class="flex items-center">
-        <span class="text-sm font-medium">{{'navbar.welcome'|translate}}, {{ user?.name || 'Usuario'
-            }}</span>
+        <div class="flex items-center space-x-3">
+            <div class="h-8 w-1 bg-gradient-to-b from-amber-400 to-yellow-500 rounded-full"></div>
+            <div>
+                <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">{{'navbar.welcome'|translate}}</p>
+                <p class="text-sm font-bold text-gray-800 dark:text-white">{{ user?.name || 'Usuario' }}</p>
+            </div>
+        </div>
     </div>
 
-    <div class="relative flex items-center gap-6">
-        <!-- Notificaciones -->
-        <button aria-label="Notificaciones" 
-            class="text-gray-500 hover:text-gray-700 dark:text-blue-200 dark:hover:text-white focus:outline-none relative transition-colors">
-            <div class="relative">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path
-                        d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
-                </svg>
-                <span *ngIf="unreadCount>0"
-                    class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full text-xs h-4 w-4 flex items-center justify-center">
-                    {{ unreadCount }}
-                </span>
-            </div>
-        </button>
+    <div class="relative flex items-center gap-3">
+        <!-- Panel de Notificaciones -->
+        <app-notifications-panel></app-notifications-panel>
 
-        <!-- Refresh Permissions -->
+        <!-- Separador -->
+        <div class="h-8 w-px bg-gray-200 dark:bg-gray-700"></div>
+
+        <!-- Refresh Permissions con tooltip visual -->
         <button (click)="refreshPermissions()" aria-label="Actualizar permisos" 
             [disabled]="refreshingPermissions"
-            class="text-gray-500 hover:text-gray-700 dark:text-blue-200 dark:hover:text-white focus:outline-none relative transition-colors disabled:opacity-50">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" [class.animate-spin]="refreshingPermissions" viewBox="0 0 20 20" fill="currentColor">
+            title="Actualizar permisos"
+            class="relative p-2 rounded-xl text-gray-600 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed group">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transform group-hover:scale-110 transition-transform" [class.animate-spin]="refreshingPermissions" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" />
             </svg>
         </button>
 
-        <!-- Cambio de idioma -->
-        <app-lang-switcher></app-lang-switcher>
-        <app-theme-switcher></app-theme-switcher>
+        <!-- Separador -->
+        <div class="h-8 w-px bg-gray-200 dark:bg-gray-700"></div>
+
+        <!-- Cambio de idioma y tema con mejor espaciado -->
+        <div class="flex items-center gap-2">
+            <app-lang-switcher></app-lang-switcher>
+            <app-theme-switcher></app-theme-switcher>
+        </div>
+
+        <!-- Separador -->
+        <div class="h-8 w-px bg-gray-200 dark:bg-gray-700"></div>
+
+        <!-- Widget de Tiempo Activo -->
+        @if (sessionService.isTracking() && sessionService.activeSession() && sessionService.sessionDuration()) {
+        <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border border-emerald-200 dark:border-emerald-800 animate-scale-in"
+             title="Tiempo activo en el sistema"
+             style="animation-duration: 0.8s; animation-timing-function: ease-out;">
+            <lucide-icon [img]="ClockIcon" class="h-4 w-4 text-emerald-600 dark:text-emerald-400"></lucide-icon>
+            <span class="text-sm font-semibold text-emerald-700 dark:text-emerald-300">
+                {{ sessionService.sessionDuration() }}
+            </span>
+            @if (sessionService.isPaused()) {
+                <span class="w-2 h-2 rounded-full bg-yellow-500 animate-pulse" title="Pausado"></span>
+            } @else if (sessionService.isActive()) {
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" title="Activo"></span>
+            }
+        </div>
+        }
+
+        <!-- Separador -->
+        <div class="h-8 w-px bg-gray-200 dark:bg-gray-700"></div>
         
-        <!-- Perfil / Logout -->
+        <!-- Perfil / Logout con diseño mejorado -->
         <div class="relative">
             <button (click)="toggleMenu()" aria-label="Perfil"
-                class="flex items-center space-x-2 focus:outline-none group">
-                <div
-                    class="w-8 h-8 rounded-full bg-gradient-to-r from-amber-400 to-yellow-500 flex items-center justify-center text-blue-900 font-bold">
-                    {{ user?.name?.charAt(0) || 'U' }}
+                class="flex items-center space-x-3 px-3 py-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none transition-all duration-200 group">
+                <div class="relative">
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 via-yellow-500 to-amber-600 flex items-center justify-center text-white font-bold text-sm shadow-lg transform group-hover:scale-105 transition-transform">
+                        {{ user?.name?.charAt(0) || 'U' }}
+                    </div>
+                    <div class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-white dark:border-gray-800 rounded-full"></div>
                 </div>
                 <svg xmlns="http://www.w3.org/2000/svg"
-                    class="h-4 w-4 text-blue-200 group-hover:text-white transition-colors" viewBox="0 0 20 20"
+                    class="h-4 w-4 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors" viewBox="0 0 20 20"
                     fill="currentColor">
                     <path fill-rule="evenodd"
                         d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
@@ -51,27 +79,49 @@
                 </svg>
             </button>
 
+            <!-- Menú desplegable mejorado -->
             <div *ngIf="menuOpen" 
-                class="absolute right-0 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-2xl py-2 w-48 z-50 border border-gray-200 dark:border-gray-700">
-                <div class="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
-                    <p class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{{ user?.name || 'Usuario' }}</p>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ user?.email || 'usuario@ejemplo.com' }}</p>
+                class="absolute right-0 mt-3 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl py-2 w-64 z-50 border border-gray-200 dark:border-gray-700 animate-fadeIn">
+                <!-- Header del menú con avatar grande -->
+                <div class="px-5 py-4 border-b border-gray-100 dark:border-gray-700">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-400 via-yellow-500 to-amber-600 flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                            {{ user?.name?.charAt(0) || 'U' }}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-bold text-gray-900 dark:text-white truncate">{{ user?.name || 'Usuario' }}</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ user?.email || 'usuario@ejemplo.com' }}</p>
+                        </div>
+                    </div>
                 </div>
-                <ul>
+                
+                <!-- Opciones del menú -->
+                <ul class="py-2">
+                    <li>
+                        <button (click)="goToProfile()" 
+                            class="w-full text-left px-5 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 dark:hover:from-gray-700 dark:hover:to-gray-700 transition-all flex items-center group">
+                            <div class="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center mr-3 group-hover:bg-blue-200 dark:group-hover:bg-blue-900/40 transition-colors">
+                                <lucide-icon [img]="UserIcon" class="h-4 w-4 text-blue-600 dark:text-blue-400"></lucide-icon>
+                            </div>
+                            <span class="font-medium">Mi perfil</span>
+                        </button>
+                    </li>
                     <li>
                         <button (click)="logout()" 
-                            class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 transition flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-gray-500"
-                                viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd"
-                                    d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            {{'navbar.logout' | translate }}
+                            class="w-full text-left px-5 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 dark:hover:from-gray-700 dark:hover:to-gray-700 transition-all flex items-center group">
+                            <div class="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/20 flex items-center justify-center mr-3 group-hover:bg-red-200 dark:group-hover:bg-red-900/40 transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-600 dark:text-red-400"
+                                    viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <span class="font-medium">{{'navbar.logout' | translate }}</span>
                         </button>
                     </li>
                 </ul>
             </div>
         </div>
     </div>
-    </nav>
+</nav>

@@ -106,6 +106,14 @@ export const PERMISSIONS = {
   SERVICEDESK_TICKETS_CREATE: 'servicedesk.tickets.create',
   SERVICEDESK_TICKETS_UPDATE: 'servicedesk.tickets.update',
   
+  // Reports
+  REPORTS_VIEW: 'reports.view',
+  REPORTS_VIEW_DASHBOARD: 'reports.view_dashboard',
+  REPORTS_VIEW_SALES: 'reports.view_sales',
+  REPORTS_VIEW_PAYMENTS: 'reports.view_payments',
+  REPORTS_VIEW_PROJECTIONS: 'reports.view_projections',
+  REPORTS_EXPORT: 'reports.export',
+  
   // Audit
   AUDIT_LOGS_VIEW: 'audit.logs.view',
   

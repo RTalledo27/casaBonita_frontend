@@ -1,15 +1,20 @@
 <button (click)="switchLang(currentLang === 'es' ? 'en' : 'es')" 
         aria-label="Cambiar idioma"
-        class="icon-btn bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200">
+        title="Cambiar idioma"
+        class="p-2 rounded-xl text-gray-600 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none transition-all duration-200 group">
   
   <!-- Bandera de Perú -->
-  <svg *ngIf="currentLang === 'es'" width="16" height="16" viewBox="0 0 24 16" class="rounded">
-    <rect width="24" height="16" fill="#D91E36"/>
-    <rect x="0" y="5.33" width="24" height="5.33" fill="white"/>
+  <svg *ngIf="currentLang === 'es'" width="20" height="20" viewBox="0 0 24 16" class="rounded transform group-hover:scale-110 transition-transform">
+    <!-- Rojo izquierdo -->
+    <rect x="0" y="0" width="8" height="16" fill="#D91023"/>
+    <!-- Blanco centro -->
+    <rect x="8" y="0" width="8" height="16" fill="white"/>
+    <!-- Rojo derecho -->
+    <rect x="16" y="0" width="8" height="16" fill="#D91023"/>
   </svg>
   
   <!-- Bandera de USA -->
-  <svg *ngIf="currentLang !== 'es'" width="16" height="16" viewBox="0 0 24 16" class="rounded">
+  <svg *ngIf="currentLang !== 'es'" width="20" height="20" viewBox="0 0 24 16" class="rounded transform group-hover:scale-110 transition-transform">
     <rect width="24" height="16" fill="#B22234"/>
     <rect x="0" y="1.23" width="24" height="1.23" fill="white"/>
     <rect x="0" y="3.69" width="24" height="1.23" fill="white"/>

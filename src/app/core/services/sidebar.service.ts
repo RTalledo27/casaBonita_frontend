@@ -178,6 +178,51 @@ export class SidebarService {
           ]
         },
         {
+          name: 'reports',
+          label: 'sidebar.reports.title',
+          icon: 'bar-chart-3',
+          baseRoute: '/reports',
+          requiredPermissions: [PERMISSIONS.REPORTS_VIEW],
+          menuItems: [
+            {
+              id: 'reports-dashboard',
+              label: 'Dashboard',
+              icon: 'layout-dashboard',
+              route: '/reports/dashboard',
+              requiredPermissions: [PERMISSIONS.REPORTS_VIEW_DASHBOARD],
+              module: 'reports',
+              order: 1
+            },
+            {
+              id: 'reports-sales',
+              label: 'Reportes de Ventas',
+              icon: 'trending-up',
+              route: '/reports/sales',
+              requiredPermissions: [PERMISSIONS.REPORTS_VIEW_SALES],
+              module: 'reports',
+              order: 2
+            },
+            {
+              id: 'reports-payments',
+              label: 'Cronogramas de Pagos',
+              icon: 'calendar-clock',
+              route: '/reports/payment-schedule',
+              requiredPermissions: [PERMISSIONS.REPORTS_VIEW_PAYMENTS],
+              module: 'reports',
+              order: 3
+            },
+            {
+              id: 'reports-projections',
+              label: 'Reportes Proyectados',
+              icon: 'line-chart',
+              route: '/reports/projected',
+              requiredPermissions: [PERMISSIONS.REPORTS_VIEW_PROJECTIONS],
+              module: 'reports',
+              order: 4
+            }
+          ]
+        },
+        {
           name: 'audit',
           label: 'sidebar.audit.title',
           icon: 'shield',
@@ -229,13 +274,11 @@ export class SidebarService {
   // Computed signal que filtra los módulos basado en permisos del usuario
   visibleModules = computed(() => {
     const config = this.sidebarConfigSignal();
-    const hasAnyPermission = this.authService.hasAnyPermission();
-    const hasModuleAccess = this.authService.hasModuleAccess();
     
     return config.modules.filter((module: ModuleConfig) => {
       // Verificar si el usuario tiene acceso al módulo
-      const hasModulePermission = hasModuleAccess(module.name);
-      const hasRequiredPermissions = hasAnyPermission(module.requiredPermissions);
+      const hasModulePermission = this.authService.hasModuleAccess(module.name);
+      const hasRequiredPermissions = this.authService.hasAnyPermission(module.requiredPermissions);
       
       return hasModulePermission || hasRequiredPermissions;
     }).map((module: ModuleConfig) => ({
@@ -253,10 +296,8 @@ export class SidebarService {
 
   // Método para filtrar elementos de menú basado en permisos
   private filterMenuItems(menuItems: MenuItem[]): MenuItem[] {
-    const hasAnyPermission = this.authService.hasAnyPermission();
-    
     return menuItems.filter((item: MenuItem) => {
-      const hasPermission = hasAnyPermission(item.requiredPermissions);
+      const hasPermission = this.authService.hasAnyPermission(item.requiredPermissions);
       
       // Si tiene elementos hijos, filtrarlos recursivamente
       if (item.children) {

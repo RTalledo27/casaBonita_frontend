@@ -5,7 +5,6 @@ import { authGuard } from './core/guards/auth.guard';
 import { permissionGuard } from './modules/Secutiry/users/guards/permission.guard';
 import { roleRoutes } from './modules/Secutiry/roles/routes/role.routes';
 import { permissionRoutes } from './modules/Secutiry/permissions/routes/permission.routes';
-import {clientRoutes} from './modules/CRM/routes/client.routes'
 export const routes: Routes = [
   {
     path: 'auth',
@@ -108,8 +107,24 @@ export const routes: Routes = [
             canActivateChild: [permissionGuard],
           },
           {
+            path: 'reports',
+            loadChildren: () =>
+              import('./modules/reports/routes/reports.routes').then(
+                (m) => m.REPORTS_ROUTES
+              ),
+            canActivateChild: [permissionGuard],
+          },
+          {
             path: 'settings',
             loadComponent: () => import('./modules/settings/settings.component').then(m => m.SettingsComponent),
+          },
+          {
+            path: 'notifications',
+            loadComponent: () => import('./features/notifications/notifications-page.component').then(m => m.NotificationsPageComponent),
+          },
+          {
+            path: 'profile',
+            loadComponent: () => import('./features/profile/user-profile.component').then(m => m.UserProfileComponent),
           },
           {
             path: 'unauthorized',

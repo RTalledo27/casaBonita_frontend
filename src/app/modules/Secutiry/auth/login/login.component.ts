@@ -48,10 +48,10 @@ export class LoginComponent {
     if (this.loginForm.invalid) return;
     this.loading = true;
     const { username, password, remember } = this.loginForm.value;
-    this.auth.login(username, password).subscribe({
+    this.auth.login({ username: username, password }).subscribe({
       next: (res: LoginResponse) => {
         // aquí podrías usar `remember` para storage
-        if (res.must_change_password) {
+        if ((res.user as any).must_change_password) {
           this.router.navigate(['/change-password']);
         } else {
           this.router.navigateByUrl(this.returnUrl || '/dashboard');

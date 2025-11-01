@@ -74,10 +74,22 @@ export class ChangePasswordComponent {
     this.loading = true;
     const { currentPassword, newPassword, confirmPassword } = this.changePasswordForm.value;
 
-    this.authService.changePassword(currentPassword, newPassword, confirmPassword).subscribe({
+    this.authService.changePassword(currentPassword, newPassword).subscribe({
       next: (response) => {
+        this.loading = false;
         toast.success('Contraseña cambiada exitosamente');
-        this.router.navigate(['/dashboard']);
+        
+        // Update user's must_change_password status in localStorage
+        const currentUser = this.authService.getCurrentUser();
+        if (currentUser) {
+          currentUser.must_change_password = false;
+          localStorage.setItem('user', JSON.stringify(currentUser));
+        }
+        
+        // Navigate to dashboard
+        setTimeout(() => {
+          this.router.navigate(['/dashboard']);
+        }, 500);
       },
       error: (error) => {
         this.loading = false;

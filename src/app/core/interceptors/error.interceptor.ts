@@ -7,6 +7,12 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const toast = inject(ToastService);
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
+      // No mostrar toasts para errores de autenticación (401)
+      // Estos son manejados por el sistema de autenticación
+      if (error.status === 401) {
+        return throwError(() => error);
+      }
+
       let messages: string[] = [];
       if (error.error?.errors) {
         messages = (Object.values(error.error.errors) as string[]).flat();

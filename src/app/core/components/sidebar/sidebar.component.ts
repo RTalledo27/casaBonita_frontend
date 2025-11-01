@@ -1,10 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, OnDestroy, OnInit } from '@angular/core';
 import { RouterLink, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { LucideAngularModule, Home, User, ShieldCheck, Package, Layers, DollarSign, HelpCircle, Settings, ChevronDown, Users, TrendingUp, CreditCard, MessageCircle, FileText, Map as MapIcon, Calendar, CalendarDays, MapPin, BarChart, Receipt, Headphones, Ticket, FileSearch, UserCheck, Calculator, Percent, ShoppingCart, Shield, Lock } from 'lucide-angular';
+import { LucideAngularModule, Home, User, ShieldCheck, Package, Layers, DollarSign, HelpCircle, Settings, ChevronDown, Users, TrendingUp, CreditCard, MessageCircle, FileText, Map as MapIcon, Calendar, CalendarDays, MapPin, BarChart, BarChart3, Receipt, Headphones, Ticket, FileSearch, UserCheck, Calculator, Percent, Shield, Lock, ShoppingCart } from 'lucide-angular';
 import { SidebarService } from '../../services/sidebar.service';
 import { AuthService } from '../../services/auth.service';
+import { NavigationService } from '../../services/navigation.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-sidebar',
@@ -19,9 +21,40 @@ import { AuthService } from '../../services/auth.service';
   styleUrl: './sidebar.component.scss',
   standalone: true, // <--- Componente standalone
 })
-export class SidebarComponent {
+export class SidebarComponent implements OnInit, OnDestroy {
   private sidebarService = inject(SidebarService);
   private authService = inject(AuthService);
+  private navigationService = inject(NavigationService);
+  private expandSubscription?: Subscription;
+
+  ngOnInit() {
+    // Suscribirse al servicio de navegación para expandir módulos
+    this.expandSubscription = this.navigationService.expandModule$.subscribe((moduleName: string) => {
+      this.expandModuleByName(moduleName);
+    });
+  }
+
+  ngOnDestroy() {
+    // Limpiar la suscripción
+    if (this.expandSubscription) {
+      this.expandSubscription.unsubscribe();
+    }
+  }
+
+  private expandModuleByName(moduleName: string) {
+    const item = this.navItems().find(item => item.name === moduleName);
+    if (item && item.children && item.children.length > 0) {
+      // Cerrar todos los demás módulos primero (opcional)
+      this.navItems().forEach(navItem => {
+        if (navItem.name !== moduleName && navItem.children) {
+          navItem.expanded = false;
+        }
+      });
+      
+      // Expandir el módulo solicitado
+      item.expanded = true;
+    }
+  }
 
   // Mapeo de iconos para los módulos y elementos de menú
   private iconMap: { [key: string]: any } = {
@@ -163,6 +196,20 @@ export class SidebarComponent {
     },
     { name: 'accounting', label: 'sidebar.accounting.title', icon: DollarSign, route: '/accounting', active: false },
     {
+      name: 'reports',
+      label: 'sidebar.reports.title',
+      icon: BarChart3,
+      route: '/reports',
+      expanded: false,
+      active: false,
+      children: [
+        { name: 'dashboard', label: 'sidebar.reports.dashboard.title', route: '/reports/dashboard', active: false },
+        { name: 'sales', label: 'sidebar.reports.sales.title', route: '/reports/sales', active: false },
+        { name: 'payments', label: 'sidebar.reports.payments.title', route: '/reports/payments', active: false },
+        { name: 'projections', label: 'sidebar.reports.projections.title', route: '/reports/projections', active: false },
+      ],
+    },
+    {
       name: 'service-desk',
       label: 'sidebar.service-desk.title',
       icon: HelpCircle,
@@ -189,7 +236,8 @@ export class SidebarComponent {
     'service-desk': 'service-desk',
     'accounting': 'accounting',
     'audit': 'audit',
-    'hr': 'hr'
+    'hr': 'hr',
+    'reports': 'reports'
   };
 
   // Elementos que siempre son visibles (no dependen de permisos de módulos)
