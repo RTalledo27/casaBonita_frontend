@@ -48,6 +48,20 @@ export class PermissionsService {
     );
   }
 
+  // Método para obtener TODOS los permisos sin paginación
+  listAll(): Observable<PaginatedResponse<Permission>> {
+    let params = new HttpParams()
+      .set('page', '1')
+      .set('per_page', '500'); // Suficiente para todos los permisos
+
+    return this.http.get<PaginatedResponse<Permission>>(this.base, { params }).pipe(
+      map((resp) => {
+        console.log('ALL PERMISSIONS LOADED:', resp.data.length);
+        return resp;
+      })
+    );
+  }
+
   get(id: number): Observable<Permission> {
     return this.http
       .get<ApiResponse<Permission>>(`${this.base}/${id}`)

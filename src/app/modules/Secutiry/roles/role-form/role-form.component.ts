@@ -63,6 +63,89 @@ export class RoleFormComponent {
   permissionsList: Permission[] = [];
   selectedPermissions$ = new BehaviorSubject<string[]>([]);
 
+  // Módulos con sus permisos organizados
+  permissionModules = [
+    {
+      name: 'Security',
+      key: 'security',
+      accessPermission: 'security.access',
+      permissions: [] as string[],
+      icon: 'shield'
+    },
+    {
+      name: 'CRM',
+      key: 'crm',
+      accessPermission: 'crm.access',
+      permissions: [] as string[],
+      icon: 'users'
+    },
+    {
+      name: 'Inventory',
+      key: 'inventory',
+      accessPermission: 'inventory.access',
+      permissions: [] as string[],
+      icon: 'package'
+    },
+    {
+      name: 'Sales',
+      key: 'sales',
+      accessPermission: 'sales.access',
+      permissions: [] as string[],
+      icon: 'shopping-cart'
+    },
+    {
+      name: 'Finance',
+      key: 'finance',
+      accessPermission: 'finance.access',
+      permissions: [] as string[],
+      icon: 'trending-up'
+    },
+    {
+      name: 'Collections',
+      key: 'collections',
+      accessPermission: 'collections.access',
+      permissions: [] as string[],
+      icon: 'credit-card'
+    },
+    {
+      name: 'HR',
+      key: 'hr',
+      accessPermission: 'hr.access',
+      permissions: [] as string[],
+      icon: 'users'
+    },
+    {
+      name: 'Accounting',
+      key: 'accounting',
+      accessPermission: 'accounting.access',
+      permissions: [] as string[],
+      icon: 'calculator'
+    },
+    {
+      name: 'Reports',
+      key: 'reports',
+      accessPermission: 'reports.access',
+      permissions: [] as string[],
+      icon: 'bar-chart'
+    },
+    {
+      name: 'Service Desk',
+      key: 'service-desk',
+      accessPermission: 'service-desk.access',
+      permissions: [] as string[],
+      icon: 'headphones'
+    },
+    {
+      name: 'Audit',
+      key: 'audit',
+      accessPermission: 'audit.access',
+      permissions: [] as string[],
+      icon: 'file-search'
+    }
+  ];
+
+  currentModuleIndex = 0;
+
   sections = [
     { title: 'general', icon: Settings, key: 'general', expanded: true },
     { title: 'permissions', icon: Key, key: 'permissions', expanded: false },
@@ -98,15 +181,36 @@ export class RoleFormComponent {
   }
 
   private loadPermissions(): void {
-    this.permissionsService.list().subscribe({
+    this.permissionsService.listAll().subscribe({
       next: (response) => {
         console.log('Raw response:', response);
         console.log('Type of response:', typeof response);
         console.log('Is Array?', Array.isArray(response.data));
-        console.log('First item:', response.data[0]);
+        console.log('Total permissions loaded:', response.data?.length);
+        
+        // Contar permisos de security
+        const securityPerms = response.data?.filter((p: any) => p.name.startsWith('security.'));
+        console.log('Security permissions found:', securityPerms?.length, securityPerms);
+        
         this.permissionsList = response.data;
+        this.organizePermissionsByModule();
       },
       error: () => this.toast.show('Error loading permissions', 'error'),
+    });
+  }
+
+  private organizePermissionsByModule(): void {
+    this.permissionModules.forEach(module => {
+      module.permissions = this.permissionsList
+        .filter(p => {
+          // Filtrar permisos que empiezan con el módulo y no son el .access
+          const belongsToModule = p.name.startsWith(module.key + '.');
+          const isNotAccessPermission = p.name !== module.accessPermission;
+          return belongsToModule && isNotAccessPermission;
+        })
+        .map(p => p.name);
+      
+      console.log(`Module ${module.key}: ${module.permissions.length} permissions`, module.permissions);
     });
   }
 
@@ -183,6 +287,96 @@ export class RoleFormComponent {
 
     this.form.patchValue({ permissions: updated });
     this.selectedPermissions$.next(updated);
+  }
+
+  // Navegación del wizard de módulos
+  nextModule(): void {
+    if (this.currentModuleIndex < this.permissionModules.length - 1) {
+      this.currentModuleIndex++;
+      this.cdr.detectChanges();
+    }
+  }
+
+  previousModule(): void {
+    if (this.currentModuleIndex > 0) {
+      this.currentModuleIndex--;
+      this.cdr.detectChanges();
+    }
+  }
+
+  get currentModule() {
+    return this.permissionModules[this.currentModuleIndex];
+  }
+
+  // Verificar si el .access está seleccionado
+  isAccessPermissionSelected(moduleKey: string): boolean {
+    const module = this.permissionModules.find(m => m.key === moduleKey);
+    if (!module) return false;
+    return this.form.value.permissions.includes(module.accessPermission);
+  }
+
+  // Toggle del permiso .access
+  toggleAccessPermission(moduleKey: string, event: Event): void {
+    const checked = (event.target as HTMLInputElement).checked;
+    const module = this.permissionModules.find(m => m.key === moduleKey);
+    if (!module) return;
+
+    const permissions = [...this.form.value.permissions];
+    
+    if (checked) {
+      // Agregar el permiso .access
+      if (!permissions.includes(module.accessPermission)) {
+        permissions.push(module.accessPermission);
+      }
+    } else {
+      // Quitar el permiso .access y todos los permisos del módulo
+      const updated = permissions.filter(p => 
+        !p.startsWith(module.key + '.') && p !== module.accessPermission
+      );
+      this.form.patchValue({ permissions: updated });
+      this.selectedPermissions$.next(updated);
+      return;
+    }
+
+    this.form.patchValue({ permissions });
+    this.selectedPermissions$.next(permissions);
+  }
+
+  // Toggle de un permiso específico del módulo
+  toggleModulePermission(permissionName: string, event: Event): void {
+    const checked = (event.target as HTMLInputElement).checked;
+    const permissions = [...this.form.value.permissions];
+
+    if (checked) {
+      if (!permissions.includes(permissionName)) {
+        permissions.push(permissionName);
+      }
+    } else {
+      const index = permissions.indexOf(permissionName);
+      if (index > -1) {
+        permissions.splice(index, 1);
+      }
+    }
+
+    this.form.patchValue({ permissions });
+    this.selectedPermissions$.next(permissions);
+  }
+
+  // Verificar si un permiso específico está seleccionado
+  isPermissionSelected(permissionName: string): boolean {
+    return this.form.value.permissions.includes(permissionName);
+  }
+
+  // Finalizar wizard de permisos
+  finishPermissionsWizard(): void {
+    // Cerrar la sección de permisos
+    const permissionsSection = this.sections.find(s => s.key === 'permissions');
+    if (permissionsSection) {
+      permissionsSection.expanded = false;
+    }
+    
+    // Ejecutar el submit automáticamente
+    this.submit();
   }
 
   get currentStep(): number {

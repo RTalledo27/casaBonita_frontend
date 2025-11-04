@@ -6,6 +6,36 @@ import { permissionGuard } from './modules/Secutiry/users/guards/permission.guar
 import { roleRoutes } from './modules/Secutiry/roles/routes/role.routes';
 import { permissionRoutes } from './modules/Secutiry/permissions/routes/permission.routes';
 export const routes: Routes = [
+  // Rutas directas para auth (sin prefijo /auth)
+  {
+    path: 'login',
+    loadComponent: () =>
+      import('./modules/Secutiry/auth/login/login.component').then(
+        (m) => m.LoginComponent
+      ),
+  },
+  {
+    path: 'forgot-password',
+    loadComponent: () =>
+      import('./modules/Secutiry/auth/forgot-password/forgot-password.component').then(
+        (m) => m.ForgotPasswordComponent
+      ),
+  },
+  {
+    path: 'reset-password',
+    loadComponent: () =>
+      import('./modules/Secutiry/auth/reset-password/reset-password.component').then(
+        (m) => m.ResetPasswordComponent
+      ),
+  },
+  {
+    path: 'change-password',
+    loadComponent: () =>
+      import('./modules/Secutiry/auth/change-password/change-password.component').then(
+        (m) => m.ChangePasswordComponent
+      ),
+  },
+  // Rutas con prefijo /auth (por compatibilidad)
   {
     path: 'auth',
     children: [
@@ -14,6 +44,20 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./modules/Secutiry/auth/login/login.component').then(
             (m) => m.LoginComponent
+          ),
+      },
+      {
+        path: 'forgot-password',
+        loadComponent: () =>
+          import('./modules/Secutiry/auth/forgot-password/forgot-password.component').then(
+            (m) => m.ForgotPasswordComponent
+          ),
+      },
+      {
+        path: 'reset-password',
+        loadComponent: () =>
+          import('./modules/Secutiry/auth/reset-password/reset-password.component').then(
+            (m) => m.ResetPasswordComponent
           ),
       },
       {

@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { NotificationService } from '../../services/notification.service';
 import { ToastService } from '../../services/toast.service';
 import { UserSessionService } from '../../services/user-session.service';
+import { PermissionSyncService } from '../../services/permission-sync.service';
 import { CommonModule } from '@angular/common';
 import { LangSwitcherComponent } from '../../../shared/components/lang-switcher/lang-switcher.component';
 import { TranslateModule } from '@ngx-translate/core';
@@ -36,7 +37,8 @@ export class NavbarComponent {
     private router: Router,
     public notifications: NotificationService,
     private toast: ToastService,
-    public sessionService: UserSessionService
+    public sessionService: UserSessionService,
+    private permissionSync: PermissionSyncService
   ) {}
 
   ngOnInit(): void {
@@ -92,18 +94,15 @@ export class NavbarComponent {
     
   }
 
-  async refreshPermissions(): Promise<void> {
+  refreshPermissions(): void {
     if (this.refreshingPermissions) return;
     
     this.refreshingPermissions = true;
-    try {
-      await this.auth.refreshUser();
-      this.toast.success('Permisos actualizados correctamente');
-    } catch (error) {
-      console.error('Error refreshing permissions:', error);
-      this.toast.error('Error al actualizar permisos');
-    } finally {
+    this.permissionSync.forceSync();
+    
+    // Reset flag after a short delay
+    setTimeout(() => {
       this.refreshingPermissions = false;
-    }
+    }, 1000);
   }
 }

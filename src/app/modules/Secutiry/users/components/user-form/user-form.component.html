@@ -1,80 +1,78 @@
-<div class="w-full max-w-md sm:max-w-2xl p-8 bg-gradient-to-br from-white via-blue-50 to-purple-50 dark:bg-gradient-to-br dark:from-gray-900 dark:via-blue-900 dark:to-purple-900 text-gray-900 dark:text-white rounded-2xl shadow-2xl overflow-y-auto animate-fade-in">
-    <!-- Header mejorado con gradiente -->
-    <div class="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-6 text-white shadow-lg gradient-animate hover-lift mb-8">
-      <div class="flex justify-between items-start">
-        <div class="flex items-center space-x-3 animate-slide-in-right">
-          <div class="bg-white/20 p-3 rounded-lg animate-bounce-in">
-            <lucide-icon [name]="UserPlus" class="w-6 h-6 text-glow" />
+<div class="w-full p-8 bg-white dark:bg-slate-900 text-gray-900 dark:text-white">
+    <!-- Header limpio -->
+    <div class="flex justify-between items-start mb-8 pb-6 border-b border-slate-200 dark:border-slate-700">
+      <div class="flex-1 pr-4">
+        <div class="flex items-center gap-3 mb-2">
+          <div class="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+            <lucide-icon [name]="UserPlus" class="w-5 h-5 text-blue-600 dark:text-blue-400" />
           </div>
-          <div>
-            <h3 class="text-3xl font-bold text-glow">
-              {{ (isEditMode ? 'users.createUser.titleEdit' : 'users.createUser.titleCreate') | translate }}
-            </h3>
-            <p class="text-blue-100 mt-1">Complete la información del usuario paso a paso</p>
-          </div>
+          <h3 class="text-2xl font-bold text-slate-900 dark:text-white">
+            {{ (isEditMode ? 'users.createUser.titleEdit' : 'users.createUser.titleCreate') | translate }}
+          </h3>
         </div>
-        <button type="button" class="bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/30 text-white px-4 py-2 rounded-lg flex items-center gap-2 smooth-transition hover:scale-105 shadow-lg micro-bounce focus-ring"
-          (click)="onCancel()">
-          <lucide-icon [name]="X" class="w-4 h-4"></lucide-icon>
-          <span class="font-medium">Cancelar</span>
-        </button>
-      </div>
-      
-      <!-- Progress bar mejorada -->
-      <div class="mt-6">
+        <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Complete la información paso a paso</p>
+        
+        <!-- Progress bar -->
         <div class="flex justify-between items-center mb-2">
-          <span class="text-sm font-medium text-blue-100">Progreso</span>
-          <span class="text-sm font-medium text-blue-100">Paso {{ currentStep }} de {{ sections.length }}</span>
+          <span class="text-xs font-medium text-slate-600 dark:text-slate-400">Paso {{ currentStep }} de {{ sections.length }}</span>
+          <span class="text-xs font-medium text-slate-600 dark:text-slate-400">{{ ((currentStep / sections.length) * 100) | number:'1.0-0' }}% completado</span>
         </div>
-        <div class="h-3 w-full bg-white/20 rounded-full overflow-hidden">
-          <div class="bg-gradient-to-r from-green-400 to-blue-400 h-full rounded-full transition-all duration-500 shadow-lg"
+        <div class="bg-slate-100 dark:bg-slate-800 rounded-full h-1.5">
+          <div class="bg-gradient-to-r from-blue-500 to-blue-600 h-1.5 rounded-full transition-all duration-500"
             [style.width.%]="(currentStep / sections.length) * 100"></div>
         </div>
       </div>
+      
+      <!-- Botón Cancelar -->
+      <button type="button" 
+        class="flex items-center gap-2 px-4 py-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all"
+        (click)="onCancel()">
+        <lucide-icon [name]="X" class="w-5 h-5"></lucide-icon>
+        <span class="font-medium">Cancelar</span>
+      </button>
     </div>
 
-  <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-6">
+  <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-5">
     <div *ngFor="let s of sections; let i = index" 
-         class="bg-gradient-to-br from-white via-blue-50 to-indigo-50 dark:bg-gradient-to-br dark:from-slate-800 dark:via-blue-900 dark:to-indigo-900 rounded-xl shadow-lg hover-lift transition-all duration-300 border border-blue-200 dark:border-blue-700 overflow-hidden"
-         [ngClass]="s.expanded ? 'ring-2 ring-blue-500/40 shadow-2xl' : ''">
+         class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden transition-all duration-300"
+         [ngClass]="s.expanded ? 'ring-1 ring-blue-500/20' : ''">
       
-      <!-- Section header mejorado -->
+      <!-- Section header -->
       <button type="button"
-        class="w-full flex justify-between items-center px-6 py-4 bg-gradient-to-r from-blue-100 via-indigo-100 to-purple-100 dark:from-slate-700 dark:via-blue-800 dark:to-indigo-800 hover:from-blue-200 hover:via-indigo-200 hover:to-purple-200 dark:hover:from-slate-600 dark:hover:via-blue-700 dark:hover:to-indigo-700 select-none transition-all duration-300"
+        class="w-full flex justify-between items-center px-6 py-4 select-none transition-all duration-300"
+        [ngClass]="s.expanded ? 'bg-slate-50 dark:bg-slate-800' : 'bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700'"
         (click)="toggleSection(i)">
         <div class="flex items-center gap-4">
-          <div class="relative">
-            <span
-              class="h-8 w-8 flex items-center justify-center rounded-full text-sm font-bold transition-all duration-300 shadow-lg"
-              [ngClass]="s.expanded 
-                ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white transform scale-110' 
-                : 'bg-gradient-to-r from-orange-400 to-pink-400 text-white'">
-              {{ i + 1 }}
-            </span>
-            <div *ngIf="s.expanded" class="absolute -inset-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full opacity-20 animate-pulse"></div>
-          </div>
+          <span
+            class="h-8 w-8 flex items-center justify-center rounded-lg text-sm font-bold transition-all duration-300"
+            [ngClass]="s.expanded 
+              ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' 
+              : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400'">
+            {{ i + 1 }}
+          </span>
           <lucide-icon [name]="s.icon" class="w-5 h-5 transition-all duration-300"
-            [ngClass]="s.expanded ? 'text-blue-500 transform scale-110' : 'text-indigo-600 dark:text-indigo-400'"></lucide-icon>
-          <span class="font-semibold text-lg text-slate-800 dark:text-white">{{'users.createUser.'+s.title|translate }}</span>
+            [ngClass]="s.expanded ? 'text-blue-600 dark:text-blue-400' : 'text-slate-500 dark:text-slate-400'"></lucide-icon>
+          <span class="font-semibold text-base transition-all duration-300"
+            [ngClass]="s.expanded ? 'text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'">{{'users.createUser.'+s.title|translate }}</span>
         </div>
         <lucide-icon [name]="s.expanded ? ChevronUp : ChevronDown" 
-                     class="w-5 h-5 text-indigo-600 dark:text-indigo-400 transition-transform duration-300"
-                     [ngClass]="s.expanded ? 'transform rotate-180' : ''"></lucide-icon>
+                     class="w-5 h-5 transition-all duration-300"
+                     [ngClass]="s.expanded ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500'"></lucide-icon>
       </button>
 
-      <!-- Section body mejorado -->
-      <div *ngIf="s.expanded" class="p-6 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-slate-900 dark:via-blue-900 dark:to-indigo-900 space-y-6" [@expandCollapse]>
+      <!-- Section body -->
+      <div *ngIf="s.expanded" class="p-6 bg-slate-50 dark:bg-slate-900/50 space-y-6 border-t border-slate-200 dark:border-slate-700" [@expandCollapse]>
         <ng-container *ngIf="s.key === 'personal'">
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
             <!-- Columna izquierda: Información personal -->
-            <div class="lg:col-span-2 space-y-6">
+            <div class="lg:col-span-2 space-y-4">
               <!-- First Name -->
               <div class="space-y-2">
                 <label class="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300">
                   <lucide-icon [name]="User" class="w-4 h-4 text-blue-500" />
                   {{'users.createUser.firstName'|translate}}
                 </label>
-                <input class="w-full bg-gradient-to-r from-white to-blue-50 dark:bg-gradient-to-r dark:from-slate-700 dark:to-blue-800 border border-blue-300 dark:border-blue-600 rounded-lg px-4 py-3 text-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 shadow-sm" 
+                <input class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg px-4 py-2.5 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" 
                        placeholder="John" formControlName="first_name" />
                 <div *ngIf="fc('first_name').touched && fc('first_name').invalid" class="text-red-500 text-sm mt-1">
                   <span *ngIf="fc('first_name').errors?.['required']">El nombre es requerido.</span>
@@ -88,10 +86,10 @@
               <!-- Last Name -->
               <div class="space-y-2">
                 <label class="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300">
-                  <lucide-icon [name]="User" class="w-4 h-4 text-green-500" />
+                  <lucide-icon [name]="User" class="w-4 h-4 text-blue-500" />
                   {{'users.createUser.lastName'|translate}}
                 </label>
-                <input class="w-full bg-gradient-to-r from-white to-green-50 dark:bg-gradient-to-r dark:from-slate-700 dark:to-green-800 border border-green-300 dark:border-green-600 rounded-lg px-4 py-3 text-slate-800 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300 shadow-sm" 
+                <input class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg px-4 py-2.5 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" 
                        placeholder="Doe" formControlName="last_name" />
                 <div *ngIf="fc('last_name').touched && fc('last_name').invalid" class="text-red-500 text-sm mt-1">
                   <span *ngIf="fc('last_name').errors?.['required']">El apellido es requerido.</span>
@@ -105,10 +103,10 @@
               <!-- Birth Date -->
               <div class="space-y-2">
                 <label class="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300">
-                  <lucide-icon [name]="Calendar" class="w-4 h-4 text-pink-500" />
+                  <lucide-icon [name]="Calendar" class="w-4 h-4 text-blue-500" />
                   {{'users.createUser.birthDate'|translate}}
                 </label>
-                <input type="date" class="w-full bg-gradient-to-r from-white to-pink-50 dark:bg-gradient-to-r dark:from-slate-700 dark:to-pink-800 border border-pink-300 dark:border-pink-600 rounded-lg px-4 py-3 text-slate-800 dark:text-white focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-300 shadow-sm" 
+                <input type="date" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg px-4 py-2.5 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" 
                        formControlName="birth_date" />
                 <div *ngIf="fc('birth_date').touched && fc('birth_date').invalid" class="text-red-500 text-sm mt-1">
                   <span *ngIf="fc('birth_date').errors?.['required']">{{ 'validation.birthDate.required' | translate }}</span>
@@ -123,41 +121,22 @@
             <!-- Columna derecha: Foto de perfil -->
             <div class="lg:col-span-1 flex flex-col items-center space-y-4">
               <div class="relative group">
-                <div class="w-32 h-32 rounded-full overflow-hidden border-4 border-gradient-to-r from-blue-400 to-purple-400 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+                <div class="w-32 h-32 rounded-full overflow-hidden border-4 border-blue-200 dark:border-blue-800 hover:border-blue-300 dark:hover:border-blue-700 transition-all">
                   <img *ngIf="photoPreview" [src]="photoPreview" alt="Vista previa" class="w-full h-full object-cover">
-                  <div *ngIf="!photoPreview" class="w-full h-full bg-gradient-to-br from-blue-200 via-indigo-200 to-purple-200 dark:from-blue-700 dark:via-indigo-700 dark:to-purple-700 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                  <div *ngIf="!photoPreview" class="w-full h-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 dark:text-slate-500">
                     <lucide-icon [name]="User" class="w-12 h-12" />
                   </div>
                 </div>
-                <label for="photo" class="absolute -bottom-2 -right-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white p-2 rounded-full cursor-pointer shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 group-hover:animate-bounce">
+                <label for="photo" class="absolute -bottom-2 -right-2 bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full cursor-pointer transition-all">
                   <lucide-icon [name]="Camera" class="w-4 h-4" />
                 </label>
                 <input type="file" id="photo" accept="image/*" (change)="onPhotoChange($event)" class="hidden" />
               </div>
               <div class="text-center">
-                <p class="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2">
-                  <lucide-icon [name]="Camera" class="w-4 h-4 text-purple-500" />
+                <p class="text-sm font-medium text-slate-700 dark:text-slate-300">
                   {{'users.createUser.profilePhoto'|translate}} <span class="text-slate-500 dark:text-slate-400">(opcional)</span>
                 </p>
               </div>
-              
-              <div class="relative group">
-                <div class="w-32 h-32 rounded-full border-4 border-gradient-to-r from-blue-500 to-purple-600 overflow-hidden shadow-xl hover-lift transition-all duration-300">
-                  <img *ngIf="photoPreview; else placeholder" [src]="photoPreview" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
-                  <ng-template #placeholder>
-                    <div class="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center text-gray-500 dark:text-gray-400">
-                      <lucide-icon [name]="User" class="w-8 h-8 animate-pulse" />
-                    </div>
-                  </ng-template>
-                </div>
-              </div>
-              
-              <button type="button" class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
-                (click)="fileInput.click()">
-                <lucide-icon [name]="Upload" class="w-4 h-4" />
-                <span class="text-sm font-medium">Seleccionar</span>
-              </button>
-              <input #fileInput type="file" accept="image/*" (change)="onPhotoChange($event)" class="hidden" />
         
               <!-- Errores -->
               <div *ngIf="fc('photo_profile').touched && fc('photo_profile').invalid" class="text-red-500 text-sm text-center">
@@ -174,21 +153,17 @@
 
         <!-- CONTACT -->
         <ng-container *ngIf="s.key === 'contact'">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="space-y-2">
               <label class="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300">
-                <lucide-icon [name]="CreditCard" class="w-4 h-4 text-purple-500" />
+                <lucide-icon [name]="CreditCard" class="w-4 h-4 text-blue-500" />
                 DNI
               </label>
-              <input class="w-full bg-gradient-to-r from-white to-purple-50 dark:bg-gradient-to-r dark:from-slate-700 dark:to-purple-800 border border-purple-300 dark:border-purple-600 rounded-lg px-4 py-3 text-slate-800 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 shadow-sm" 
+              <input class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg px-4 py-2.5 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" 
                      placeholder="01234567" formControlName="dni" />
               <div *ngIf="fc('dni').touched && fc('dni').invalid" class="text-red-500 text-sm mt-1">
-                <span *ngIf="fc('dni').errors?.['required']">
-                  El DNI es requerido.
-                </span>
-                <span *ngIf="fc('dni').errors?.['pattern']">
-                  Solo se permiten 7-20 dígitos.
-                </span>
+                <span *ngIf="fc('dni').errors?.['required']">El DNI es requerido.</span>
+                <span *ngIf="fc('dni').errors?.['pattern']">Solo se permiten 7-20 dígitos.</span>
               </div>
               <div *ngIf="serverErrors['dni'] && serverErrors['dni'].length > 0" class="text-red-500 text-sm mt-1">
                 {{ serverErrors['dni'][0] }}
@@ -197,18 +172,14 @@
 
             <div class="space-y-2">
               <label class="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300">
-                <lucide-icon [name]="Phone" class="w-4 h-4 text-orange-500" />
+                <lucide-icon [name]="Phone" class="w-4 h-4 text-blue-500" />
                 {{'users.createUser.phone'|translate}}
               </label>
-              <input class="w-full bg-gradient-to-r from-white to-orange-50 dark:bg-gradient-to-r dark:from-slate-700 dark:to-orange-800 border border-orange-300 dark:border-orange-600 rounded-lg px-4 py-3 text-slate-800 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 shadow-sm" 
+              <input class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg px-4 py-2.5 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" 
                      placeholder="+1234567890" formControlName="phone" />
               <div *ngIf="fc('phone').touched && fc('phone').invalid" class="text-red-500 text-sm mt-1">
-                <span *ngIf="fc('phone').errors?.['required']">
-                  El teléfono es requerido.
-                </span>
-                <span *ngIf="fc('phone').errors?.['pattern']">
-                  Formato de teléfono inválido.
-                </span>
+                <span *ngIf="fc('phone').errors?.['required']">El teléfono es requerido.</span>
+                <span *ngIf="fc('phone').errors?.['pattern']">Formato de teléfono inválido.</span>
               </div>
               <div *ngIf="serverErrors['phone'] && serverErrors['phone'].length > 0" class="text-red-500 text-sm mt-1">
                 {{ serverErrors['phone'][0] }}
@@ -217,15 +188,13 @@
 
             <div class="md:col-span-2 space-y-2">
               <label class="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300">
-                <lucide-icon [name]="MapPin" class="w-4 h-4 text-teal-500" />
+                <lucide-icon [name]="MapPin" class="w-4 h-4 text-blue-500" />
                 {{'users.createUser.address'|translate}}
               </label>
-              <input class="w-full bg-gradient-to-r from-white to-teal-50 dark:bg-gradient-to-r dark:from-slate-700 dark:to-teal-800 border border-teal-300 dark:border-teal-600 rounded-lg px-4 py-3 text-slate-800 dark:text-white focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-300 shadow-sm" 
+              <input class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg px-4 py-2.5 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" 
                      placeholder="Calle 123, Ciudad" formControlName="address" />
               <div *ngIf="fc('address').touched && fc('address').invalid" class="text-red-500 text-sm mt-1">
-                <span *ngIf="fc('address').errors?.['maxlength']">
-                  Máximo 255 caracteres.
-                </span>
+                <span *ngIf="fc('address').errors?.['maxlength']">Máximo 255 caracteres.</span>
               </div>
               <div *ngIf="serverErrors['address'] && serverErrors['address'].length > 0" class="text-red-500 text-sm mt-1">
                 {{ serverErrors['address'][0] }}
@@ -236,21 +205,17 @@
 
         <!-- WORK -->
         <ng-container *ngIf="s.key === 'work'">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="space-y-2">
               <label class="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300">
-                <lucide-icon [name]="Award" class="w-4 h-4 text-yellow-500" />
+                <lucide-icon [name]="Award" class="w-4 h-4 text-blue-500" />
                 Cargo
               </label>
-              <input class="w-full bg-gradient-to-r from-white to-yellow-50 dark:bg-gradient-to-r dark:from-slate-700 dark:to-yellow-800 border border-yellow-300 dark:border-yellow-600 rounded-lg px-4 py-3 text-slate-800 dark:text-white focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all duration-300 shadow-sm" 
+              <input class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg px-4 py-2.5 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" 
                      placeholder="Desarrollador" formControlName="position" />
               <div *ngIf="fc('position').touched && fc('position').invalid" class="text-red-500 text-sm mt-1">
-                <span *ngIf="fc('position').errors?.['required']">
-                  El cargo es requerido.
-                </span>
-                <span *ngIf="fc('position').errors?.['maxlength']">
-                  Máximo 60 caracteres.
-                </span>
+                <span *ngIf="fc('position').errors?.['required']">El cargo es requerido.</span>
+                <span *ngIf="fc('position').errors?.['maxlength']">Máximo 60 caracteres.</span>
               </div>
               <div *ngIf="serverErrors['position'] && serverErrors['position'].length > 0" class="text-red-500 text-sm mt-1">
                 {{ serverErrors['position'][0] }}
@@ -259,18 +224,14 @@
 
             <div class="space-y-2">
               <label class="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300">
-                <lucide-icon [name]="Building" class="w-4 h-4 text-indigo-500" />
+                <lucide-icon [name]="Building" class="w-4 h-4 text-blue-500" />
                 Departamento
               </label>
-              <input class="w-full bg-gradient-to-r from-white to-indigo-50 dark:bg-gradient-to-r dark:from-slate-700 dark:to-indigo-800 border border-indigo-300 dark:border-indigo-600 rounded-lg px-4 py-3 text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300 shadow-sm" 
+              <input class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg px-4 py-2.5 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" 
                      placeholder="Tecnología" formControlName="department" />
               <div *ngIf="fc('department').touched && fc('department').invalid" class="text-red-500 text-sm mt-1">
-                <span *ngIf="fc('department').errors?.['required']">
-                  El departamento es requerido.
-                </span>
-                <span *ngIf="fc('department').errors?.['maxlength']">
-                  Máximo 60 caracteres.
-                </span>
+                <span *ngIf="fc('department').errors?.['required']">El departamento es requerido.</span>
+                <span *ngIf="fc('department').errors?.['maxlength']">Máximo 60 caracteres.</span>
               </div>
               <div *ngIf="serverErrors['department'] && serverErrors['department'].length > 0" class="text-red-500 text-sm mt-1">
                 {{ serverErrors['department'][0] }}
@@ -279,15 +240,13 @@
 
             <div class="space-y-2">
               <label class="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300">
-                <lucide-icon [name]="CalendarCheck" class="w-4 h-4 text-teal-500" />
+                <lucide-icon [name]="CalendarCheck" class="w-4 h-4 text-blue-500" />
                 Fecha de Contratación
               </label>
-              <input type="date" class="w-full bg-gradient-to-r from-white to-teal-50 dark:bg-gradient-to-r dark:from-slate-700 dark:to-teal-800 border border-teal-300 dark:border-teal-600 rounded-lg px-4 py-3 text-slate-800 dark:text-white focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-300 shadow-sm" 
+              <input type="date" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg px-4 py-2.5 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" 
                      formControlName="hire_date" />
               <div *ngIf="fc('hire_date').touched && fc('hire_date').invalid" class="text-red-500 text-sm mt-1">
-                <span *ngIf="fc('hire_date').errors?.['pattern']">
-                  Fecha inválida.
-                </span>
+                <span *ngIf="fc('hire_date').errors?.['pattern']">Fecha inválida.</span>
               </div>
               <div *ngIf="serverErrors['hire_date'] && serverErrors['hire_date'].length > 0" class="text-red-500 text-sm mt-1">
                 {{ serverErrors['hire_date'][0] }}
@@ -296,17 +255,17 @@
             
             <div class="space-y-2">
               <label class="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300">
-                <lucide-icon [name]="FileText" class="w-4 h-4 text-cyan-500" />
+                <lucide-icon [name]="FileText" class="w-4 h-4 text-blue-500" />
                 {{'users.createUser.cvFile'|translate}}
               </label>
               <div class="relative">
                 <input type="file" accept=".pdf,.doc,.docx" (change)="onCvChange($event)" 
                        class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
-                <div class="w-full bg-gradient-to-r from-white to-cyan-50 dark:bg-gradient-to-r dark:from-slate-700 dark:to-cyan-800 border border-cyan-300 dark:border-cyan-600 rounded-lg px-4 py-3 text-slate-800 dark:text-white transition-all duration-300 shadow-sm flex items-center justify-between hover:border-cyan-400 dark:hover:border-cyan-500">
-                  <span class="text-slate-600 dark:text-slate-300">
+                <div class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg px-4 py-2.5 text-slate-900 dark:text-white transition-all flex items-center justify-between hover:border-blue-500">
+                  <span class="text-slate-600 dark:text-slate-400 text-sm">
                     {{ cvFileName || 'Seleccionar archivo CV' }}
                   </span>
-                  <lucide-icon [name]="Upload" class="w-4 h-4 text-cyan-500" />
+                  <lucide-icon [name]="Upload" class="w-4 h-4 text-blue-500" />
                 </div>
               </div>
               <div *ngIf="serverErrors['cv_file'] && serverErrors['cv_file'].length > 0" class="text-red-500 text-sm mt-1">
@@ -317,23 +276,19 @@
         </ng-container>
 
 
-        <!-- ACCOUNT -->
-        <ng-container *ngIf="s.key === 'account'">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- ACCESS -->
+        <ng-container *ngIf="s.key === 'access'">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="space-y-2">
               <label class="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300">
                 <lucide-icon [name]="User" class="w-4 h-4 text-blue-500" />
                 Usuario
               </label>
-              <input class="w-full bg-gradient-to-r from-white to-blue-50 dark:bg-gradient-to-r dark:from-slate-700 dark:to-blue-800 border border-blue-300 dark:border-blue-600 rounded-lg px-4 py-3 text-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 shadow-sm" 
+              <input class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg px-4 py-2.5 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" 
                      placeholder="usuario123" formControlName="username" />
               <div *ngIf="fc('username').touched && fc('username').invalid" class="text-red-500 text-sm mt-1">
-                <span *ngIf="fc('username').errors?.['required']">
-                  El usuario es requerido.
-                </span>
-                <span *ngIf="fc('username').errors?.['maxlength']">
-                  Máximo 60 caracteres.
-                </span>
+                <span *ngIf="fc('username').errors?.['required']">El usuario es requerido.</span>
+                <span *ngIf="fc('username').errors?.['maxlength']">Máximo 60 caracteres.</span>
               </div>
               <div *ngIf="serverErrors['username'] && serverErrors['username'].length > 0" class="text-red-500 text-sm mt-1">
                 {{ serverErrors['username'][0] }}
@@ -342,18 +297,14 @@
 
             <div class="space-y-2">
               <label class="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300">
-                <lucide-icon [name]="Mail" class="w-4 h-4 text-green-500" />
+                <lucide-icon [name]="Mail" class="w-4 h-4 text-blue-500" />
                 Email
               </label>
-              <input class="w-full bg-gradient-to-r from-white to-green-50 dark:bg-gradient-to-r dark:from-slate-700 dark:to-green-800 border border-green-300 dark:border-green-600 rounded-lg px-4 py-3 text-slate-800 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300 shadow-sm" 
+              <input class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg px-4 py-2.5 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" 
                      type="email" placeholder="usuario@ejemplo.com" formControlName="email" />
               <div *ngIf="fc('email').touched && fc('email').invalid" class="text-red-500 text-sm mt-1">
-                <span *ngIf="fc('email').errors?.['required']">
-                  El email es requerido.
-                </span>
-                <span *ngIf="fc('email').errors?.['email']">
-                  Debe ser un email válido.
-                </span>
+                <span *ngIf="fc('email').errors?.['required']">El email es requerido.</span>
+                <span *ngIf="fc('email').errors?.['email']">Debe ser un email válido.</span>
               </div>
               <div *ngIf="serverErrors['email'] && serverErrors['email'].length > 0" class="text-red-500 text-sm mt-1">
                 {{ serverErrors['email'][0] }}
@@ -362,27 +313,23 @@
 
             <div class="space-y-2">
               <label class="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300">
-                <lucide-icon [name]="Lock" class="w-4 h-4 text-red-500" />
+                <lucide-icon [name]="Lock" class="w-4 h-4 text-blue-500" />
                 Contraseña
               </label>
-              <input class="w-full bg-gradient-to-r from-white to-red-50 dark:bg-gradient-to-r dark:from-slate-700 dark:to-red-800 border border-red-300 dark:border-red-600 rounded-lg px-4 py-3 text-slate-800 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-300 shadow-sm" 
+              <input class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg px-4 py-2.5 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" 
                      type="password" placeholder="••••••••" formControlName="password" (focus)="showPassRules = true" />
               <div *ngIf="fc('password').touched && fc('password').invalid" class="text-red-500 text-sm mt-1">
-                <span *ngIf="fc('password').errors?.['required']">
-                  La contraseña es requerida.
-                </span>
-                <span *ngIf="fc('password').errors?.['minlength']">
-                  Al menos 8 caracteres.
-                </span>
+                <span *ngIf="fc('password').errors?.['required']">La contraseña es requerida.</span>
+                <span *ngIf="fc('password').errors?.['minlength']">Al menos 8 caracteres.</span>
               </div>
             </div>
 
             <div class="space-y-2">
               <label class="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300">
-                <lucide-icon [name]="Lock" class="w-4 h-4 text-orange-500" />
+                <lucide-icon [name]="Lock" class="w-4 h-4 text-blue-500" />
                 Confirmar Contraseña
               </label>
-              <input class="w-full bg-gradient-to-r from-white to-orange-50 dark:bg-gradient-to-r dark:from-slate-700 dark:to-orange-800 border border-orange-300 dark:border-orange-600 rounded-lg px-4 py-3 text-slate-800 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 shadow-sm" 
+              <input class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg px-4 py-2.5 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" 
                      type="password" placeholder="••••••••" formControlName="password_confirmation" />
               <div *ngIf="form.errors?.['mismatch']" class="text-red-500 text-sm mt-1">
                 Las contraseñas deben coincidir.
@@ -391,10 +338,10 @@
 
             <div class="space-y-2">
               <label class="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300">
-                <lucide-icon [name]="Shield" class="w-4 h-4 text-purple-500" />
+                <lucide-icon [name]="Shield" class="w-4 h-4 text-blue-500" />
                 Estado
               </label>
-              <select class="w-full bg-gradient-to-r from-white to-purple-50 dark:bg-gradient-to-r dark:from-slate-700 dark:to-purple-800 border border-purple-300 dark:border-purple-600 rounded-lg px-4 py-3 text-slate-800 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 shadow-sm" 
+              <select class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg px-4 py-2.5 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" 
                       formControlName="status">
                 <option value="active">Activo</option>
                 <option value="blocked">Bloqueado</option>
@@ -405,7 +352,7 @@
             </div>
 
             <!-- Password Rules -->
-            <div *ngIf="showPassRules" class="md:col-span-2 bg-gradient-to-r from-blue-50 to-indigo-50 dark:bg-gradient-to-r dark:from-slate-800 dark:to-blue-900 rounded-lg p-4 border border-blue-200 dark:border-blue-700 shadow-sm">
+            <div *ngIf="showPassRules" class="md:col-span-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
               <h4 class="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
                 <lucide-icon [name]="Info" class="w-4 h-4 text-blue-500" />
                 Requisitos de contraseña
@@ -424,39 +371,37 @@
         <!-- ROLES -->
         <ng-container *ngIf="s.key === 'roles'">
           <div class="space-y-4">
-            <div class="text-center">
+            <div class="text-center mb-4">
               <h4 class="text-lg font-semibold text-slate-800 dark:text-white mb-2">Asignar Roles</h4>
-              <p class="text-slate-600 dark:text-slate-300 text-sm">Selecciona los roles que tendrá este usuario</p>
+              <p class="text-slate-600 dark:text-slate-400 text-sm">Selecciona los roles que tendrá este usuario</p>
             </div>
             
-            <div *ngFor="let role of roles" class="bg-gradient-to-r from-white via-blue-50 to-indigo-50 dark:bg-gradient-to-r dark:from-slate-800 dark:via-blue-900 dark:to-indigo-900 border border-blue-200 dark:border-blue-700 rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 hover:border-blue-300 dark:hover:border-blue-600">
+            <div *ngFor="let role of roles" class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-5 hover:border-blue-300 dark:hover:border-blue-700 transition-all">
               <div class="flex items-center space-x-4">
-                <div class="relative">
-                  <input
-                    type="checkbox"
-                    [id]="'role-' + role.role_id"
-                    [value]="role.role_id"
-                    (change)="onRoleChange($event, role.name)"
-                    class="h-5 w-5 text-blue-600 focus:ring-2 focus:ring-blue-500 border-gray-300 dark:border-gray-600 rounded-md transition-all duration-300"
-                  />
-                </div>
+                <input
+                  type="checkbox"
+                  [id]="'role-' + role.role_id"
+                  [value]="role.role_id"
+                  (change)="onRoleChange($event, role.name)"
+                  class="h-5 w-5 text-blue-600 focus:ring-2 focus:ring-blue-500/20 border-slate-300 dark:border-slate-600 rounded transition-all"
+                />
                 <div class="flex-1">
                   <label [for]="'role-' + role.role_id" class="flex items-center gap-3 cursor-pointer">
-                    <lucide-icon [name]="Shield" class="w-5 h-5 text-indigo-500" />
-                    <span class="text-base font-semibold text-gray-800 dark:text-white">{{ role.name }}</span>
+                    <lucide-icon [name]="Shield" class="w-5 h-5 text-blue-500" />
+                    <span class="text-base font-semibold text-slate-900 dark:text-white">{{ role.name }}</span>
                   </label>
                 </div>
               </div>
               
               <div *ngIf="role.permissions && role.permissions.length > 0" class="mt-4 pl-9">
                 <div class="flex items-center gap-2 mb-3">
-                  <lucide-icon [name]="Key" class="w-4 h-4 text-amber-500" />
-                  <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Permisos asociados:</p>
+                  <lucide-icon [name]="Key" class="w-4 h-4 text-blue-500" />
+                  <p class="text-sm font-medium text-slate-600 dark:text-slate-400">Permisos asociados:</p>
                 </div>
                 <div class="flex flex-wrap gap-2">
                   <span
                     *ngFor="let permission of role.permissions"
-                    class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700 transition-all duration-300 hover:shadow-sm"
+                    class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800"
                   >
                     <lucide-icon [name]="CheckCircle" class="w-3 h-3" />
                     {{ permission.name }}
@@ -468,64 +413,24 @@
         </ng-container>
 
         <!-- buttons -->
-        <div class="pt-4 text-right">
+        <div class="pt-4 flex justify-end">
           <button *ngIf="i < sections.length - 1" type="button"
-            class="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white text-sm px-6 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 font-medium disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none"
+            class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white font-medium rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             (click)="next()" [disabled]="!isSectionValid(s.key)">
             Siguiente
           </button>
 
           <button *ngIf="i === sections.length - 1"  type="submit"  
-            class="group relative inline-flex items-center gap-3 px-8 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl hover:from-green-600 hover:to-emerald-600 disabled:from-slate-400 disabled:to-slate-500 disabled:cursor-not-allowed disabled:hover:shadow-lg transform transition-all duration-300 hover:scale-105 disabled:hover:scale-100" 
+            class="inline-flex items-center gap-2 px-8 py-2.5 bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white font-semibold rounded-lg disabled:bg-slate-400 disabled:cursor-not-allowed transform transition-all" 
             [disabled]="form.invalid">
             <lucide-icon [name]="isSubmitting ? 'Loader2' : (isEditMode ? 'Save' : 'UserPlus')" 
-                         class="w-5 h-5 transition-transform duration-300"
+                         class="w-5 h-5 transition-transform"
                          [ngClass]="{'animate-spin': isSubmitting}" />
             <span *ngIf="!isSubmitting">{{ isEditMode ? 'Actualizar Usuario' : 'Crear Usuario' }}</span>
             <span *ngIf="isSubmitting">{{ isEditMode ? 'Actualizando...' : 'Creando...' }}</span>
-            
-            <!-- Shine effect -->
-            <div class="absolute inset-0 rounded-xl bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 group-hover:animate-pulse transition-opacity duration-300"></div>
           </button>
         </div>
       </div>
     </div>
   </form>
-</div>
-
-
-<!-- Action buttons mejorados -->
-<div class="flex justify-between items-center mt-8 pt-6 border-t border-blue-200 dark:border-blue-700">
-  <button type="button" 
-          class="bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white px-6 py-3 rounded-lg flex items-center gap-2 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl font-medium"
-          (click)="onCancel()">
-    <lucide-icon [name]="X" class="w-4 h-4"></lucide-icon>
-    Cancelar
-  </button>
-
-  <div class="flex gap-3">
-    <button type="button" 
-            *ngIf="currentStep > 1"
-            class="bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-white px-6 py-3 rounded-lg flex items-center gap-2 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl font-medium"
-            (click)="previousStep()">
-      <lucide-icon [name]="ChevronDown" class="w-4 h-4 transform rotate-90"></lucide-icon>
-      Anterior
-    </button>
-
-    <button type="button" 
-            *ngIf="currentStep < sections.length"
-            class="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white px-6 py-3 rounded-lg flex items-center gap-2 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl font-medium"
-            (click)="nextStep()">
-      Siguiente
-      <lucide-icon [name]="ChevronDown" class="w-4 h-4 transform -rotate-90"></lucide-icon>
-    </button>
-
-    <button type="submit" 
-            *ngIf="currentStep === sections.length"
-            [disabled]="form.invalid || isSubmitting"
-            class="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 disabled:from-slate-400 disabled:to-slate-500 text-white px-8 py-3 rounded-lg flex items-center gap-2 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl font-medium disabled:cursor-not-allowed disabled:transform-none">
-      <lucide-icon [name]="isSubmitting ? Loader2 : Save" class="w-4 h-4" [ngClass]="{'animate-spin': isSubmitting}"></lucide-icon>
-      {{ isSubmitting ? 'Guardando...' : (isEditMode ? 'Actualizar' : 'Crear Usuario') }}
-    </button>
-  </div>
 </div>

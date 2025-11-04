@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService, LoginResponse } from '../../../../core/services/auth.service';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { LangSwitcherComponent } from "../../../../shared/components/lang-switcher/lang-switcher.component";
 import { TranslateModule } from '@ngx-translate/core';
 import { ThemeSwitcherComponent } from '../../../../shared/components/theme-switcher/theme-switcher.component';
@@ -16,11 +16,12 @@ import { ThemeService } from '../../../../core/services/theme.service';
     LangSwitcherComponent,
     ThemeSwitcherComponent,
     TranslateModule,
+    RouterLink,
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   loginForm: FormGroup;
   loading = false;
   errorMsg: string | null = null;
@@ -44,13 +45,31 @@ export class LoginComponent {
       this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
   }
 
+  ngOnInit(): void {
+    // Cargar credenciales guardadas si existen
+    const savedUsername = localStorage.getItem('rememberedUsername');
+    if (savedUsername) {
+      this.loginForm.patchValue({
+        username: savedUsername,
+        remember: true
+      });
+    }
+  }
+
   onSubmit(): void {
     if (this.loginForm.invalid) return;
     this.loading = true;
     const { username, password, remember } = this.loginForm.value;
+    
     this.auth.login({ username: username, password }).subscribe({
       next: (res: LoginResponse) => {
-        // aquí podrías usar `remember` para storage
+        // Guardar o eliminar username según "Recuérdame"
+        if (remember) {
+          localStorage.setItem('rememberedUsername', username);
+        } else {
+          localStorage.removeItem('rememberedUsername');
+        }
+        
         if ((res.user as any).must_change_password) {
           this.router.navigate(['/change-password']);
         } else {

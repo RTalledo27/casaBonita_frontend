@@ -181,10 +181,8 @@
     role="dialog"
     aria-modal="true"
   >
-    <div class="w-full max-w-3xl max-h-[80vh] overflow-y-auto rounded-3xl border border-white/20 dark:border-gray-700/50 bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl shadow-2xl animate-fade-in-up">
+    <div class="w-full max-w-5xl max-h-[90vh] overflow-y-auto rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-2xl">
       <router-outlet name="modal" (activate)="onModalActivate($event)"></router-outlet>
-      <!-- opcional: borde superior -->
-      <div class="h-1 w-full bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500"></div>
     </div>
   </div>
 </div>

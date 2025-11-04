@@ -3,7 +3,7 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
-import { LucideAngularModule, Eye, EyeOff, Lock, AlertCircle } from 'lucide-angular';
+import { LucideAngularModule, Eye, EyeOff, Lock, AlertCircle, CheckCircle, Circle } from 'lucide-angular';
 import { toast } from 'ngx-sonner';
 
 @Component({
@@ -26,6 +26,18 @@ export class ChangePasswordComponent {
   readonly EyeOff = EyeOff;
   readonly Lock = Lock;
   readonly AlertCircle = AlertCircle;
+  readonly CheckCircle = CheckCircle;
+  readonly Circle = Circle;
+
+  // Reglas de validación de contraseña
+  passwordRules = {
+    minLength: false,
+    hasUpperCase: false,
+    hasLowerCase: false,
+    hasNumber: false,
+    hasSpecialChar: false,
+    passwordsMatch: false
+  };
 
   constructor(
     private fb: FormBuilder,
@@ -34,9 +46,33 @@ export class ChangePasswordComponent {
   ) {
     this.changePasswordForm = this.fb.group({
       currentPassword: ['', [Validators.required]],
-      newPassword: ['', [Validators.required, Validators.minLength(6)]],
+      newPassword: ['', [Validators.required, Validators.minLength(8)]],
       confirmPassword: ['', [Validators.required]]
     }, { validators: this.passwordMatchValidator });
+
+    // Escuchar cambios en el campo newPassword
+    this.changePasswordForm.get('newPassword')?.valueChanges.subscribe((password: string) => {
+      this.validatePasswordRules(password || '');
+    });
+
+    // Escuchar cambios en el campo confirmPassword
+    this.changePasswordForm.get('confirmPassword')?.valueChanges.subscribe(() => {
+      const newPassword = this.changePasswordForm.get('newPassword')?.value || '';
+      const confirmPassword = this.changePasswordForm.get('confirmPassword')?.value || '';
+      this.passwordRules.passwordsMatch = newPassword.length > 0 && newPassword === confirmPassword;
+    });
+  }
+
+  validatePasswordRules(password: string) {
+    this.passwordRules.minLength = password.length >= 8;
+    this.passwordRules.hasUpperCase = /[A-Z]/.test(password);
+    this.passwordRules.hasLowerCase = /[a-z]/.test(password);
+    this.passwordRules.hasNumber = /[0-9]/.test(password);
+    this.passwordRules.hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+    
+    // Actualizar también la validación de contraseñas coincidentes
+    const confirmPassword = this.changePasswordForm.get('confirmPassword')?.value || '';
+    this.passwordRules.passwordsMatch = password.length > 0 && password === confirmPassword;
   }
 
   passwordMatchValidator(form: FormGroup) {

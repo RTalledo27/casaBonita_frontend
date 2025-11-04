@@ -88,9 +88,16 @@ export class SidebarComponent implements OnInit, OnDestroy {
     'help-circle': HelpCircle
   };
 
-  // Estructura estática completa de navegación
+  // Estructura estática completa de navegación con permisos requeridos
   private staticNavItems = [
-    { name: 'dashboard', label: 'sidebar.dashboard.title', icon: Home, route: '/dashboard', active: false },
+    { 
+      name: 'dashboard', 
+      label: 'sidebar.dashboard.title', 
+      icon: Home, 
+      route: '/dashboard', 
+      active: false,
+      permission: null // Dashboard siempre visible
+    },
     {
       name: 'crm',
       label: 'sidebar.crm.title',
@@ -98,7 +105,10 @@ export class SidebarComponent implements OnInit, OnDestroy {
       route: '/crm',
       expanded: false,
       active: false,
-      children: [{ name: 'clients', label: 'sidebar.crm.clients.title', route: '/crm/clients', active: false }],
+      permission: 'crm.access',
+      children: [
+        { name: 'clients', label: 'sidebar.crm.clients.title', route: '/crm/clients', active: false, permission: 'crm.clients.view' }
+      ],
     },
     {
       name: 'security',
@@ -106,13 +116,21 @@ export class SidebarComponent implements OnInit, OnDestroy {
       icon: ShieldCheck,
       expanded: false,
       active: false,
+      permission: 'security.access',
       children: [
-        { name: 'users', label: 'sidebar.security.users.title', route: '/security/users', active: false },
-        { name: 'roles', label: 'sidebar.security.roles.title', route: '/security/roles', active: false },
-        { name: 'permissions', label: 'sidebar.security.permissions.title', route: '/security/permissions', active: false },
+        { name: 'users', label: 'sidebar.security.users.title', route: '/security/users', active: false, permission: 'security.users.index' },
+        { name: 'roles', label: 'sidebar.security.roles.title', route: '/security/roles', active: false, permission: 'security.roles.view' },
+        { name: 'permissions', label: 'sidebar.security.permissions.title', route: '/security/permissions', active: false, permission: 'security.permissions.view' },
       ],
     },
-    { name: 'inventory', label: 'sidebar.inventory.title', icon: Package, route: '/inventory', active: false },
+    { 
+      name: 'inventory', 
+      label: 'sidebar.inventory.title', 
+      icon: Package, 
+      route: '/inventory', 
+      active: false,
+      permission: 'inventory.access'
+    },
     {
       name: 'sales',
       label: 'sidebar.sales.title',
@@ -120,11 +138,12 @@ export class SidebarComponent implements OnInit, OnDestroy {
       route: '/sales',
       expanded: false,
       active: false,
+      permission: 'sales.access',
       children: [
-        { name: 'reservations', label: 'sidebar.sales.reservations.title', route: '/sales/reservations', active: false },
-        { name: 'contracts', label: 'sidebar.sales.contracts.title', route: '/sales/contracts', active: false },
-        { name: 'invoices', label: 'sidebar.sales.invoices.title', route: '/sales/invoices', active: false },
-        { name: 'payments', label: 'sidebar.sales.payments.title', route: '/sales/payments', active: false },
+        { name: 'reservations', label: 'sidebar.sales.reservations.title', route: '/sales/reservations', active: false, permission: 'sales.reservations.access' },
+        { name: 'contracts', label: 'sidebar.sales.contracts.title', route: '/sales/contracts', active: false, permission: 'sales.contracts.view' },
+        { name: 'invoices', label: 'sidebar.sales.invoices.title', route: '/sales/invoices', active: false, permission: 'sales.access' },
+        { name: 'payments', label: 'sidebar.sales.payments.title', route: '/sales/payments', active: false, permission: 'sales.access' },
       ],
     },
     {
@@ -134,43 +153,49 @@ export class SidebarComponent implements OnInit, OnDestroy {
       route: '/finance',
       expanded: false,
       active: false,
+      permission: 'finance.access', // Agregar al seeder si no existe
       children: [
-        { name: 'budgets', label: 'sidebar.finance.budgets.title', route: '/finance/budgets', active: false },
-        { name: 'cash-flows', label: 'sidebar.finance.cash-flows.title', route: '/finance/cash-flows', active: false },
-        { name: 'cost-centers', label: 'sidebar.finance.cost-centers.title', route: '/finance/cost-centers', active: false },
+        { name: 'budgets', label: 'sidebar.finance.budgets.title', route: '/finance/budgets', active: false, permission: 'finance.access' },
+        { name: 'cash-flows', label: 'sidebar.finance.cash-flows.title', route: '/finance/cash-flows', active: false, permission: 'finance.access' },
+        { name: 'cost-centers', label: 'sidebar.finance.cost-centers.title', route: '/finance/cost-centers', active: false, permission: 'finance.access' },
       ],
     },
     {
-      name: 'collections-simplified',
+      name: 'collections',
       label: 'sidebar.collections-simplified.title',
       icon: CreditCard,
       route: '/collections-simplified',
       expanded: false,
       active: false,
+      permission: 'collections.access',
       children: [
         {
           name: 'dashboard',
           label: 'sidebar.collections-simplified.dashboard.title',
           route: '/collections-simplified/dashboard',
           active: false,
+          permission: 'collections.view'
         },
         {
           name: 'schedule-generator',
           label: 'sidebar.collections-simplified.schedule-generator.title',
           route: '/collections-simplified/generator',
           active: false,
+          permission: 'collections.create'
         },
         {
           name: 'installment-management',
           label: 'sidebar.collections-simplified.installment-management.title',
           route: '/collections-simplified/installments',
           active: false,
+          permission: 'collections.view'
         },
         {
           name: 'reports',
           label: 'sidebar.collections-simplified.reports.title',
           route: '/collections-simplified/reports',
           active: false,
+          permission: 'collections.reports'
         },
       ],
     },
@@ -181,20 +206,28 @@ export class SidebarComponent implements OnInit, OnDestroy {
       route: '/hr',
       expanded: false,
       active: false,
+      permission: 'hr.access',
       children: [
-        { name: 'adminDashboard', label: 'sidebar.hr.adminDashboard.title', route: '/hr/admin-dashboard', active: false },
-        { name: 'dashboard', label: 'sidebar.hr.dashboard.title', route: '/hr/employees/dashboard/:id', active: false },
-        { name: 'employees', label: 'sidebar.hr.employees.title', route: '/hr/employees', active: false },
-        { name: 'teams', label: 'sidebar.hr.teams.title', route: '/hr/teams', active: false },
-        { name: 'bonuses', label: 'sidebar.hr.bonuses.title', route: '/hr/bonuses', active: false },
-        { name: 'bonus-types', label: 'sidebar.hr.bonus-types.title', route: '/hr/bonus-types', active: false },
-        { name: 'bonus-goals', label: 'sidebar.hr.bonus-goals.title', route: '/hr/bonus-goals', active: false },
-        { name: 'commissions', label: 'sidebar.hr.commissions.title', route: '/hr/commissions', active: false },
-        { name: 'payroll', label: 'sidebar.hr.payroll.title', route: '/hr/payroll', active: false },
-        { name: 'attendance', label: 'sidebar.hr.attendance.title', route: '/hr/attendance', active: false },
+        { name: 'adminDashboard', label: 'sidebar.hr.adminDashboard.title', route: '/hr/admin-dashboard', active: false, permission: 'hr.access' },
+        { name: 'dashboard', label: 'sidebar.hr.dashboard.title', route: '/hr/employees/dashboard/:id', active: false, permission: 'hr.employees.dashboard' },
+        { name: 'employees', label: 'sidebar.hr.employees.title', route: '/hr/employees', active: false, permission: 'hr.employees.view' },
+        { name: 'teams', label: 'sidebar.hr.teams.title', route: '/hr/teams', active: false, permission: 'hr.teams.view' },
+        { name: 'bonuses', label: 'sidebar.hr.bonuses.title', route: '/hr/bonuses', active: false, permission: 'hr.bonuses.view' },
+        { name: 'bonus-types', label: 'sidebar.hr.bonus-types.title', route: '/hr/bonus-types', active: false, permission: 'hr.bonus-types.view' },
+        { name: 'bonus-goals', label: 'sidebar.hr.bonus-goals.title', route: '/hr/bonus-goals', active: false, permission: 'hr.bonus-goals.view' },
+        { name: 'commissions', label: 'sidebar.hr.commissions.title', route: '/hr/commissions', active: false, permission: 'hr.commissions.view' },
+        { name: 'payroll', label: 'sidebar.hr.payroll.title', route: '/hr/payroll', active: false, permission: 'hr.payroll.view' },
+        { name: 'attendance', label: 'sidebar.hr.attendance.title', route: '/hr/attendance', active: false, permission: 'hr.access' },
       ],
     },
-    { name: 'accounting', label: 'sidebar.accounting.title', icon: DollarSign, route: '/accounting', active: false },
+    { 
+      name: 'accounting', 
+      label: 'sidebar.accounting.title', 
+      icon: DollarSign, 
+      route: '/accounting', 
+      active: false,
+      permission: 'accounting.access' // Agregar al seeder si no existe
+    },
     {
       name: 'reports',
       label: 'sidebar.reports.title',
@@ -202,11 +235,12 @@ export class SidebarComponent implements OnInit, OnDestroy {
       route: '/reports',
       expanded: false,
       active: false,
+      permission: 'reports.access',
       children: [
-        { name: 'dashboard', label: 'sidebar.reports.dashboard.title', route: '/reports/dashboard', active: false },
-        { name: 'sales', label: 'sidebar.reports.sales.title', route: '/reports/sales', active: false },
-        { name: 'payments', label: 'sidebar.reports.payments.title', route: '/reports/payments', active: false },
-        { name: 'projections', label: 'sidebar.reports.projections.title', route: '/reports/projections', active: false },
+        { name: 'dashboard', label: 'sidebar.reports.dashboard.title', route: '/reports/dashboard', active: false, permission: 'reports.view_dashboard' },
+        { name: 'sales', label: 'sidebar.reports.sales.title', route: '/reports/sales', active: false, permission: 'reports.view_sales' },
+        { name: 'payments', label: 'sidebar.reports.payments.title', route: '/reports/payment-schedule', active: false, permission: 'reports.view_payments' },
+        { name: 'projections', label: 'sidebar.reports.projections.title', route: '/reports/projected', active: false, permission: 'reports.view_projections' },
       ],
     },
     {
@@ -216,53 +250,97 @@ export class SidebarComponent implements OnInit, OnDestroy {
       route: '/service-desk',
       expanded: false,
       active: false,
+      permission: 'service-desk.access', // Agregar al seeder si no existe
       children: [
-        { name: 'dashboard', label: 'sidebar.service-desk.dashboard.title', route: '/service-desk/dashboard', active: false },
-        { name: 'tickets', label: 'sidebar.service-desk.tickets.title', route: '/service-desk/tickets', active: false },
-        { name: 'reportes', label: 'sidebar.service-desk.reportes.title', route: '/service-desk/reportes', active: false },
+        { name: 'dashboard', label: 'sidebar.service-desk.dashboard.title', route: '/service-desk/dashboard', active: false, permission: 'service-desk.tickets.view' },
+        { name: 'tickets', label: 'sidebar.service-desk.tickets.title', route: '/service-desk/tickets', active: false, permission: 'service-desk.tickets.view' },
+        { name: 'reportes', label: 'sidebar.service-desk.reportes.title', route: '/service-desk/reportes', active: false, permission: 'service-desk.tickets.view' },
       ],
     },
-    { name: 'audit', label: 'sidebar.audit.title', icon: ShieldCheck, route: '/audit', active: false },
-    { name: 'settings', label: 'sidebar.settings.title', icon: Settings, route: '/settings', active: false },
+    { 
+      name: 'audit', 
+      label: 'sidebar.audit.title', 
+      icon: ShieldCheck, 
+      route: '/audit', 
+      active: false,
+      permission: 'audit.access' // Agregar al seeder si no existe
+    },
+    { 
+      name: 'settings', 
+      label: 'sidebar.settings.title', 
+      icon: Settings, 
+      route: '/settings', 
+      active: false,
+      permission: null // Settings siempre visible
+    },
   ];
 
-  // Mapeo entre nombres de módulos del servicio y elementos del navItems
-  private moduleMapping: { [key: string]: string } = {
-    'crm': 'crm',
-    'security': 'security',
-    'sales': 'sales',
-    'finance': 'finance',
-    'collections': 'collections-simplified',
-    'service-desk': 'service-desk',
-    'accounting': 'accounting',
-    'audit': 'audit',
-    'hr': 'hr',
-    'reports': 'reports'
-  };
-
-  // Elementos que siempre son visibles (no dependen de permisos de módulos)
-  private alwaysVisibleItems = ['dashboard', 'inventory', 'settings', 'collections-simplified', 'hr'];
-
-  // Computed signal que filtra los elementos según los módulos visibles
+  // Computed signal que filtra los elementos según los permisos del usuario
   navItems = computed(() => {
-    const visibleModules = this.sidebarService.visibleModules();
+    // IMPORTANTE: Usar SOLO signals reactivos - NO getCurrentUser()
+    const userPermissions = this.sidebarService.userPermissionsSignal();
+    const userRole = this.sidebarService.userRoleSignal();
     
-    // Crear un conjunto de nombres de módulos visibles, usando el mapeo cuando sea necesario
-    const visibleModuleNames = new Set(
-      visibleModules.map(module => {
-        // Usar el mapeo si existe, de lo contrario usar el nombre del módulo directamente
-        return this.moduleMapping[module.name] || module.name;
-      })
-    );
+    console.log('🔄 SidebarComponent: Re-computing navItems');
+    console.log('  📊 Signal permissions:', userPermissions.length);
+    console.log('  👤 Signal role:', userRole);
     
-    return this.staticNavItems.filter(item => {
-      // Siempre mostrar elementos que no dependen de permisos de módulos
-      if (this.alwaysVisibleItems.includes(item.name)) {
+    // Si no hay permisos, mostrar solo dashboard y settings
+    if (userPermissions.length === 0) {
+      console.log('  ⚠️ No permissions in signal, showing only public modules');
+      return this.staticNavItems.filter(item => item.permission === null);
+    }
+    
+    console.log('  🔐 Using ONLY real permissions (no admin bypass). Role:', userRole);
+    
+    const filteredItems = this.staticNavItems.filter(item => {
+      // Si no requiere permiso (null), siempre mostrar (dashboard, settings)
+      if (item.permission === null) {
+        console.log('    ✅', item.name, '- No permission required');
         return true;
       }
       
-      // Filtrar elementos basándose en los módulos visibles
-      return visibleModuleNames.has(item.name);
+      // USAR PERMISOS DEL SIGNAL - Sin bypass de admin
+      // Si tiene el permiso específico del módulo, mostrar
+      if (item.permission && userPermissions.includes(item.permission)) {
+        console.log('    ✅', item.name, '- Has permission:', item.permission);
+        return true;
+      }
+      
+      // Si no tiene el permiso .access pero tiene algún permiso del módulo, mostrar también
+      const modulePrefix = item.name.toLowerCase();
+      const hasAnyModulePermission = userPermissions.some(p => 
+        p.startsWith(`${modulePrefix}.`)
+      );
+      
+      if (hasAnyModulePermission) {
+        console.log('    ✅', item.name, '- Has module permission');
+      } else {
+        console.log('    ❌', item.name, '- No permission');
+      }
+      
+      return hasAnyModulePermission;
+    });
+    
+    console.log('  📋 Total visible modules:', filteredItems.length);
+    
+    return filteredItems.map(item => {
+      // Si el item tiene children, filtrarlos también por permisos
+      if (item.children && item.children.length > 0) {
+        const filteredChildren = item.children.filter(child => {
+          // Si no requiere permiso, mostrar
+          if (!child.permission) {
+            return true;
+          }
+          
+          // USAR PERMISOS DEL SIGNAL - Sin bypass de admin
+          return userPermissions.includes(child.permission);
+        });
+        
+        return { ...item, children: filteredChildren };
+      }
+      
+      return item;
     });
   });
 

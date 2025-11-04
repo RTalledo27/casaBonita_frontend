@@ -49,6 +49,7 @@ export interface LoginResponse {
 })
 export class AuthService {
   private apiUrl = `${environment.URL_BACKEND}/v1/security`;
+  private baseApiUrl = environment.URL_BACKEND; // Para rutas públicas sin /v1/security
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   private tokenSubject = new BehaviorSubject<string | null>(null);
   
@@ -254,16 +255,26 @@ export class AuthService {
     });
   }
 
-  // Forgot password
+  // Forgot password (ruta pública, sin /v1/security)
   forgotPassword(email: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/forgot-password`, { email });
+    return this.http.post(`${this.baseApiUrl}/forgot-password`, { email });
   }
 
-  // Reset password
-  resetPassword(token: string, password: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/reset-password`, {
+  // Reset password (ruta pública, sin /v1/security)
+  resetPassword(token: string, email: string, password: string, password_confirmation: string): Observable<any> {
+    return this.http.post(`${this.baseApiUrl}/reset-password`, {
       token,
-      password
+      email,
+      password,
+      password_confirmation
+    });
+  }
+
+  // Verify reset token (ruta pública, sin /v1/security)
+  verifyResetToken(token: string, email: string): Observable<any> {
+    return this.http.post(`${this.baseApiUrl}/verify-reset-token`, {
+      token,
+      email
     });
   }
 
@@ -340,19 +351,56 @@ export class AuthService {
     return hasModulePermissions;
   }
   
-  // Refresh user data
+  // Refresh user data from server
+  refreshUserData(): Observable<User> {
+    console.log('🔄 AuthService: Fetching fresh user data from /me endpoint...');
+    return this.http.get<any>(`${this.apiUrl}/me`).pipe(
+      map(response => {
+        console.log('📦 AuthService: Raw response from /me:', response);
+        
+        const user: User = {
+          id: response.user.user_id || response.user.id,
+          name: response.user.full_name || response.user.name || response.user.username,
+          email: response.user.email,
+          role: response.user.roles[0]?.name || response.roles?.[0] || 'user',
+          permissions: response.permissions || [],
+          avatar: response.user.avatar || response.user.photo_profile,
+          department: response.user.department,
+          position: response.user.position,
+          must_change_password: response.user.must_change_password,
+          password_changed_at: response.user.password_changed_at,
+          last_login_at: response.user.last_login_at
+        };
+
+        console.log('✅ AuthService: Mapped user object:', {
+          id: user.id,
+          name: user.name,
+          role: user.role,
+          permissionCount: user.permissions.length,
+          permissions: user.permissions.slice(0, 10) // Solo primeros 10 para no saturar console
+        });
+
+        // IMPORTANTE: Actualizar localStorage PRIMERO, ANTES de emitir
+        localStorage.setItem('user', JSON.stringify(user));
+        console.log('� AuthService: User saved to localStorage');
+        
+        // NO emitir a currentUserSubject - dejamos que SidebarService maneje la actualización
+        // Al no emitir, evitamos efectos secundarios no deseados
+        console.log('⏭️ AuthService: Skipping currentUserSubject emission for manual refresh');
+        
+        return user;
+      }),
+      catchError(error => {
+        console.error('❌ AuthService: Error refreshing user data:', error);
+        throw error;
+      })
+    );
+  }
+
+  // Legacy method for compatibility
   async refreshUser(): Promise<void> {
     try {
-      const token = this.getToken();
-      if (!token) return;
-      
-      // In a real app, this would fetch user data from the server
-      // For now, we'll just refresh from localStorage
-      const userData = localStorage.getItem('user');
-      if (userData) {
-        const user = JSON.parse(userData);
-        this.currentUserSubject.next(user);
-      }
+      await this.refreshUserData().toPromise();
     } catch (error) {
       console.error('Error refreshing user:', error);
     }

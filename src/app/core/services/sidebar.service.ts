@@ -1,4 +1,4 @@
-import { Injectable, computed, signal } from '@angular/core';
+import { Injectable, computed, signal, effect } from '@angular/core';
 import { AuthService } from './auth.service';
 import { MenuItem, ModuleConfig, SidebarConfig, PERMISSIONS } from '../../../types/permissions';
 
@@ -8,8 +8,53 @@ import { MenuItem, ModuleConfig, SidebarConfig, PERMISSIONS } from '../../../typ
 export class SidebarService {
   
   private sidebarConfigSignal = signal<SidebarConfig>(this.getDefaultSidebarConfig());
+  public userPermissionsSignal = signal<string[]>([]); // Público para que el component pueda acceder
+  public userRoleSignal = signal<string>(''); // Signal reactivo para el rol del usuario
   
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService) {
+    // Inicializar permisos y rol del usuario SOLO al crear el servicio
+    const currentUser = this.authService.getCurrentUser();
+    if (currentUser) {
+      console.log('🎯 SidebarService: Initializing with', currentUser.permissions.length, 'permissions');
+      this.userPermissionsSignal.set(currentUser.permissions);
+      this.userRoleSignal.set(currentUser.role);
+    }
+
+    // DESACTIVADO: No escuchar cambios automáticos del AuthService
+    // Esto causaba que el sidebar se actualizara incorrectamente
+    // Solo se actualizará manualmente con refreshSidebar()
+    
+    // Escuchar eventos MANUALES de actualización de permisos
+    window.addEventListener('permissions-updated', () => {
+      console.log('🔄 Manual permission update event received, refreshing sidebar');
+      this.refreshSidebar();
+    });
+  }
+
+  /**
+   * Refrescar la configuración del sidebar
+   */
+  refreshSidebar(): void {
+    console.log('🔄 SidebarService: Refreshing sidebar...');
+    const currentUser = this.authService.getCurrentUser();
+    if (currentUser) {
+      console.log('👤 SidebarService: Current user:', {
+        id: currentUser.id,
+        name: currentUser.name,
+        role: currentUser.role,
+        permissionCount: currentUser.permissions.length
+      });
+      
+      // Actualizar AMBOS signals para forzar la detección de cambios
+      const newPermissions = [...currentUser.permissions];
+      this.userPermissionsSignal.set(newPermissions);
+      this.userRoleSignal.set(currentUser.role);
+      
+      console.log('✅ SidebarService: Sidebar refreshed with', newPermissions.length, 'permissions and role:', currentUser.role);
+    } else {
+      console.warn('⚠️ SidebarService: No current user found');
+    }
+  }
 
   // Configuración por defecto del sidebar con todos los módulos
   private getDefaultSidebarConfig(): SidebarConfig {
@@ -272,8 +317,11 @@ export class SidebarService {
   }
 
   // Computed signal que filtra los módulos basado en permisos del usuario
-  visibleModules = computed(() => {
+    visibleModules = computed(() => {
     const config = this.sidebarConfigSignal();
+    const userPermissions = this.userPermissionsSignal(); // Reactivo!
+    
+    console.log('🔍 Computing visible modules with permissions:', userPermissions.length);
     
     return config.modules.filter((module: ModuleConfig) => {
       // Verificar si el usuario tiene acceso al módulo
