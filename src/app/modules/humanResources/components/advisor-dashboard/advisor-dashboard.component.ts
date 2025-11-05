@@ -31,6 +31,7 @@ export interface AdvisorDashboard {
   performance: {
     ranking?: number;
     total_advisors: number;
+    is_eligible_for_ranking: boolean;
   };
   recent_contracts: Array<{
     contract_number: string;
@@ -155,5 +156,66 @@ export class AdvisorDashboardComponent {
     if (percentage >= 80) return "text-yellow-600"
     if (percentage >= 60) return "text-blue-600"
     return "text-red-600"
+  }
+
+  getGoalType(): string {
+    const employee = this.dashboard()?.employee;
+    if (!employee) return "Meta Base";
+    
+    // Si tiene individual_goal > 0, es personalizada
+    if (employee.individual_goal && employee.individual_goal > 0) {
+      return "Meta Personalizada";
+    }
+    
+    // Si la meta es 10, probablemente es para empleado nuevo (meta base de 10 contratos)
+    const goal = this.dashboard()?.sales_summary.goal ?? 0;
+    if (goal === 10) {
+      return "Meta Base";
+    }
+    
+    // Si es otra cantidad, es basada en historial
+    return "Basada en Historial";
+  }
+
+  getGoalTypeLabel(): string {
+    const type = this.getGoalType();
+    switch(type) {
+      case "Meta Personalizada":
+        return "Cantidad de contratos asignada por gerencia";
+      case "Basada en Historial":
+        return "Basada en promedio de contratos de últimos 3 meses + 10%";
+      case "Meta Base":
+        return "Meta inicial de 10 contratos para nuevos asesores";
+      default:
+        return "";
+    }
+  }
+
+  getGoalTypeBadgeClass(): string {
+    const type = this.getGoalType();
+    switch(type) {
+      case "Meta Personalizada":
+        return "bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300";
+      case "Basada en Historial":
+        return "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300";
+      case "Meta Base":
+        return "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300";
+      default:
+        return "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300";
+    }
+  }
+
+  getGoalTypeDotClass(): string {
+    const type = this.getGoalType();
+    switch(type) {
+      case "Meta Personalizada":
+        return "bg-purple-500";
+      case "Basada en Historial":
+        return "bg-blue-500";
+      case "Meta Base":
+        return "bg-gray-500";
+      default:
+        return "bg-gray-500";
+    }
   }
 }
