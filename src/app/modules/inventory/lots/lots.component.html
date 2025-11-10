@@ -18,10 +18,15 @@
                         [title]="themeService.isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'">
                     <i class="fas" [ngClass]="themeService.isDark ? 'fa-sun' : 'fa-moon'" [class]="'text-sm ' + (themeService.isDark ? 'text-yellow-300' : 'text-blue-200')"></i>
                 </button>
+                <button *ngIf="canImport()" (click)="openExternalImport()" 
+                        class="bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 smooth-transition hover:scale-105 shadow-lg micro-bounce focus-ring">
+                    <i class="fas fa-cloud-download-alt text-sm"></i>
+                    <span class="font-medium">Importar API Externa</span>
+                </button>
                 <button *ngIf="canImport()" (click)="openImportModal()" 
                         class="bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/30 text-white px-4 py-2 rounded-lg flex items-center gap-2 smooth-transition hover:scale-105 shadow-lg micro-bounce focus-ring">
                     <i class="fas fa-upload text-sm"></i>
-                    <span class="font-medium">Importar Lotes</span>
+                    <span class="font-medium">Importar Excel</span>
                 </button>
                 <button *ngIf="canCreate()" (click)="onCreate()" 
                         class="bg-white text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg flex items-center gap-2 smooth-transition hover:scale-105 shadow-lg font-medium micro-bounce focus-ring animate-pulse-glow">

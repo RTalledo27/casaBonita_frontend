@@ -1,0 +1,696 @@
+<div class="container mx-auto px-4 py-6 max-w-7xl">
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-6">
+    <div class="flex items-center gap-4">
+      <button 
+        (click)="goBack()"
+        class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+        </svg>
+      </button>
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+          🚀 Importación desde LogicWare
+        </h1>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          Importar lotes por etapas del proyecto Casa Bonita
+        </p>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <button 
+        (click)="refreshData()"
+        [disabled]="loading()"
+        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white rounded-lg transition-colors flex items-center gap-2">
+        <svg class="w-5 h-5" [class.animate-spin]="loading()" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+        </svg>
+        Refrescar
+      </button>
+
+      <button 
+        (click)="clearCache()"
+        class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors flex items-center gap-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+        </svg>
+        Limpiar Caché
+      </button>
+    </div>
+  </div>
+
+  <!-- Estadísticas de conexión -->
+  <div *ngIf="connectionStats()" class="mb-6 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg shadow-lg p-4 text-white">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="bg-white/20 p-3 rounded-lg">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+          </svg>
+        </div>
+        <div>
+          <div class="text-sm opacity-90">Estado de Conexión LogicWare</div>
+          <div class="font-semibold">{{ connectionStats().connection_status === 'connected' ? '✅ Conectado' : '❌ Desconectado' }}</div>
+        </div>
+      </div>
+      <div class="text-right">
+        <div class="text-sm opacity-90">Consultas diarias</div>
+        <div class="font-bold text-lg">{{ connectionStats().daily_requests_used }} / {{ connectionStats().daily_requests_limit }}</div>
+        <div class="text-xs opacity-75">{{ connectionStats().daily_requests_remaining }} disponibles</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mensajes de estado -->
+  <div *ngIf="successMessage()" 
+       class="mb-4 p-4 bg-green-100 dark:bg-green-900 border border-green-300 dark:border-green-700 rounded-lg flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+      </svg>
+      <span class="text-green-800 dark:text-green-200">{{ successMessage() }}</span>
+    </div>
+    <button (click)="clearMessages()" class="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-200">
+      <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+      </svg>
+    </button>
+  </div>
+
+  <div *ngIf="errorMessage()" 
+       class="mb-4 p-4 bg-red-100 dark:bg-red-900 border border-red-300 dark:border-red-700 rounded-lg flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <svg class="w-5 h-5 text-red-600 dark:text-red-400" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+      </svg>
+      <span class="text-red-800 dark:text-red-200">{{ errorMessage() }}</span>
+    </div>
+    <button (click)="clearMessages()" class="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-200">
+      <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Selección de Etapas -->
+  <div *ngIf="!selectedStage()" class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+        <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+        </svg>
+        Seleccionar Etapa del Proyecto
+      </h2>
+    </div>
+
+    <div *ngIf="loadingStages()" class="flex items-center justify-center py-20">
+      <div class="text-center">
+        <svg class="w-12 h-12 animate-spin text-indigo-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+        </svg>
+        <p class="text-gray-600 dark:text-gray-400">Cargando etapas...</p>
+      </div>
+    </div>
+
+    <div *ngIf="!loadingStages() && stages().length === 0" class="text-center py-20">
+      <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+      </svg>
+      <p class="text-gray-600 dark:text-gray-400 mb-2">No se encontraron etapas</p>
+      <p class="text-sm text-gray-500">Verifique la configuración de LogicWare API</p>
+    </div>
+
+    <div *ngIf="!loadingStages() && stages().length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <button 
+        *ngFor="let stage of stages()"
+        (click)="selectStage(stage)"
+        class="group relative overflow-hidden bg-gradient-to-br from-white to-gray-50 dark:from-gray-700 dark:to-gray-800 border-2 border-gray-200 dark:border-gray-600 hover:border-indigo-500 dark:hover:border-indigo-400 rounded-xl p-6 transition-all duration-300 hover:shadow-xl transform hover:-translate-y-1">
+        
+        <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-100 dark:bg-indigo-900/30 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500"></div>
+        
+        <div class="relative">
+          <div class="flex items-start justify-between mb-3">
+            <div class="bg-indigo-100 dark:bg-indigo-900 p-3 rounded-lg">
+              <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+              </svg>
+            </div>
+            <span class="px-3 py-1 bg-indigo-500 text-white text-xs font-semibold rounded-full">
+              {{ stage.code }}
+            </span>
+          </div>
+
+          <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">
+            {{ stage.name }}
+          </h3>
+          
+          <p *ngIf="stage.description" class="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
+            {{ stage.description }}
+          </p>
+
+          <div class="flex items-center justify-between text-sm">
+            <div class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+              </svg>
+              <span *ngIf="stage.totalUnits">{{ stage.totalUnits }} unidades</span>
+              <span *ngIf="!stage.totalUnits">-</span>
+            </div>
+            <div class="flex items-center gap-2 text-green-600 dark:text-green-400 font-semibold">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <span *ngIf="stage.availableUnits !== undefined">{{ stage.availableUnits }} disp.</span>
+            </div>
+          </div>
+
+          <div class="mt-4 flex items-center text-indigo-600 dark:text-indigo-400 font-medium text-sm group-hover:translate-x-2 transition-transform">
+            Seleccionar etapa
+            <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          </div>
+        </div>
+      </button>
+    </div>
+  </div>
+
+  <!-- Vista de Etapa Seleccionada -->
+  <div *ngIf="selectedStage()" class="mb-6 bg-white dark:bg-gray-800 rounded-lg shadow-md p-4">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <button 
+          (click)="deselectStage()"
+          class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+          </svg>
+        </button>
+        <div>
+          <div class="text-sm text-gray-500 dark:text-gray-400">Etapa seleccionada</div>
+          <div class="font-bold text-gray-900 dark:text-white">{{ selectedStage()!.name }}</div>
+        </div>
+      </div>
+
+      <button 
+        (click)="importLots()"
+        [disabled]="!canImport()"
+        class="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 disabled:from-gray-400 disabled:to-gray-500 text-white rounded-lg transition-all duration-300 transform hover:scale-105 disabled:scale-100 flex items-center gap-2 font-semibold shadow-lg">
+        <svg *ngIf="!importing()" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+        </svg>
+        <svg *ngIf="importing()" class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+        </svg>
+        <span>{{ importing() ? 'Importando...' : 'Importar Lotes' }}</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Estadísticas de la etapa -->
+  <div *ngIf="selectedStage() && stageStats()" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+    <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-lg p-6 text-white">
+      <div class="flex items-center justify-between mb-2">
+        <div class="text-sm opacity-90">Total</div>
+        <svg class="w-8 h-8 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+        </svg>
+      </div>
+      <div class="text-3xl font-bold">{{ stageStats()!.total }}</div>
+      <div class="text-xs opacity-75 mt-1">unidades totales</div>
+    </div>
+
+    <div class="bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg shadow-lg p-6 text-white">
+      <div class="flex items-center justify-between mb-2">
+        <div class="text-sm opacity-90">Nuevos</div>
+        <svg class="w-8 h-8 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+        </svg>
+      </div>
+      <div class="text-3xl font-bold">{{ stageStats()!.newLots }}</div>
+      <div class="text-xs opacity-75 mt-1">lotes nuevos</div>
+    </div>
+
+    <div class="bg-gradient-to-br from-yellow-500 to-orange-600 rounded-lg shadow-lg p-6 text-white">
+      <div class="flex items-center justify-between mb-2">
+        <div class="text-sm opacity-90">Duplicados</div>
+        <svg class="w-8 h-8 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+        </svg>
+      </div>
+      <div class="text-3xl font-bold">{{ stageStats()!.duplicates }}</div>
+      <div class="text-xs opacity-75 mt-1">ya existentes</div>
+    </div>
+
+    <div class="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg shadow-lg p-6 text-white">
+      <div class="flex items-center justify-between mb-2">
+        <div class="text-sm opacity-90">Importables</div>
+        <svg class="w-8 h-8 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      </div>
+      <div class="text-3xl font-bold">{{ stageStats()!.importable }}</div>
+      <div class="text-xs opacity-75 mt-1">listos para importar</div>
+    </div>
+  </div>
+
+  <!-- Opciones de importación (solo cuando hay etapa seleccionada) -->
+  <div *ngIf="selectedStage()" class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+    <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+      <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
+      </svg>
+      Opciones de Importación
+    </h3>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <label class="flex items-center gap-3 p-4 border-2 border-gray-200 dark:border-gray-700 rounded-lg hover:border-indigo-500 dark:hover:border-indigo-400 cursor-pointer transition-colors">
+        <input 
+          type="checkbox" 
+          [checked]="importOptions().update_existing"
+          (change)="toggleOption('update_existing')"
+          class="w-5 h-5 text-indigo-600 rounded focus:ring-2 focus:ring-indigo-500">
+        <div>
+          <div class="font-medium text-gray-900 dark:text-white">Actualizar existentes</div>
+          <div class="text-xs text-gray-500">Actualizar lotes duplicados</div>
+        </div>
+      </label>
+
+      <label class="flex items-center gap-3 p-4 border-2 border-gray-200 dark:border-gray-700 rounded-lg hover:border-indigo-500 dark:hover:border-indigo-400 cursor-pointer transition-colors">
+        <input 
+          type="checkbox" 
+          [checked]="importOptions().create_manzanas"
+          (change)="toggleOption('create_manzanas')"
+          class="w-5 h-5 text-indigo-600 rounded focus:ring-2 focus:ring-indigo-500">
+        <div>
+          <div class="font-medium text-gray-900 dark:text-white">Crear manzanas</div>
+          <div class="text-xs text-gray-500">Auto-crear manzanas nuevas</div>
+        </div>
+      </label>
+
+      <label class="flex items-center gap-3 p-4 border-2 border-gray-200 dark:border-gray-700 rounded-lg hover:border-indigo-500 dark:hover:border-indigo-400 cursor-pointer transition-colors">
+        <input 
+          type="checkbox" 
+          [checked]="importOptions().create_templates"
+          (change)="toggleOption('create_templates')"
+          class="w-5 h-5 text-indigo-600 rounded focus:ring-2 focus:ring-indigo-500">
+        <div>
+          <div class="font-medium text-gray-900 dark:text-white">Crear templates</div>
+          <div class="text-xs text-gray-500">Generar templates financieros</div>
+        </div>
+      </label>
+
+      <label class="flex items-center gap-3 p-4 border-2 border-gray-200 dark:border-gray-700 rounded-lg hover:border-indigo-500 dark:hover:border-indigo-400 cursor-pointer transition-colors">
+        <input 
+          type="checkbox" 
+          [checked]="importOptions().update_templates"
+          (change)="toggleOption('update_templates')"
+          class="w-5 h-5 text-indigo-600 rounded focus:ring-2 focus:ring-indigo-500">
+        <div>
+          <div class="font-medium text-gray-900 dark:text-white">Actualizar templates</div>
+          <div class="text-xs text-gray-500">Actualizar templates existentes</div>
+        </div>
+      </label>
+
+      <label class="flex items-center gap-3 p-4 border-2 border-gray-200 dark:border-gray-700 rounded-lg hover:border-indigo-500 dark:hover:border-indigo-400 cursor-pointer transition-colors">
+        <input 
+          type="checkbox" 
+          [checked]="importOptions().update_status"
+          (change)="toggleOption('update_status')"
+          class="w-5 h-5 text-indigo-600 rounded focus:ring-2 focus:ring-indigo-500">
+        <div>
+          <div class="font-medium text-gray-900 dark:text-white">Actualizar status</div>
+          <div class="text-xs text-gray-500">Sincronizar estado de lotes</div>
+        </div>
+      </label>
+    </div>
+  </div>
+
+  <!-- Resultado de importación -->
+  <div *ngIf="importResult()" class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+    <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+      <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+      Resultado de la Importación
+    </h3>
+
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4">
+      <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg text-center">
+        <div class="text-2xl font-bold text-blue-600">{{ importResult().stats.total }}</div>
+        <div class="text-xs text-gray-600 dark:text-gray-400 mt-1">Total</div>
+      </div>
+      <div class="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg text-center">
+        <div class="text-2xl font-bold text-green-600">{{ importResult().stats.created }}</div>
+        <div class="text-xs text-gray-600 dark:text-gray-400 mt-1">Creados</div>
+      </div>
+      <div class="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg text-center">
+        <div class="text-2xl font-bold text-yellow-600">{{ importResult().stats.updated }}</div>
+        <div class="text-xs text-gray-600 dark:text-gray-400 mt-1">Actualizados</div>
+      </div>
+      <div class="bg-gray-50 dark:bg-gray-900/20 p-4 rounded-lg text-center">
+        <div class="text-2xl font-bold text-gray-600">{{ importResult().stats.skipped }}</div>
+        <div class="text-xs text-gray-600 dark:text-gray-400 mt-1">Omitidos</div>
+      </div>
+      <div class="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg text-center">
+        <div class="text-2xl font-bold text-red-600">{{ importResult().stats.errors }}</div>
+        <div class="text-xs text-gray-600 dark:text-gray-400 mt-1">Errores</div>
+      </div>
+    </div>
+
+    <div *ngIf="importResult().errors && importResult().errors.length > 0" class="mt-4">
+      <div class="font-semibold text-red-600 mb-2">Errores encontrados:</div>
+      <div class="max-h-40 overflow-y-auto space-y-2">
+        <div *ngFor="let error of importResult().errors" class="p-3 bg-red-50 dark:bg-red-900/20 rounded text-sm">
+          <strong>{{ error.unit }}:</strong> {{ error.error }}
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="importResult().warnings && importResult().warnings.length > 0" class="mt-4">
+      <div class="font-semibold text-yellow-600 mb-2">Advertencias:</div>
+      <div class="max-h-40 overflow-y-auto space-y-2">
+        <div *ngFor="let warning of importResult().warnings" class="p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded text-sm">
+          <strong>{{ warning.unit }}:</strong> {{ warning.warning }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Columna izquierda - Acciones -->
+    <div class="lg:col-span-1 space-y-6">
+      
+      <!-- Test de Conexión -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+          </svg>
+          Test de Conexión
+        </h2>
+        
+        <button 
+          (click)="testConnection()"
+          [disabled]="testingConnection()"
+          class="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white rounded-lg transition-colors font-medium flex items-center justify-center gap-2">
+          <svg *ngIf="!testingConnection()" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <svg *ngIf="testingConnection()" class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+          </svg>
+          {{ testingConnection() ? 'Probando...' : 'Probar Conexión' }}
+        </button>
+
+        <div *ngIf="connectionStatus" class="mt-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg text-sm">
+          {{ connectionStatus }}
+        </div>
+      </div>
+
+      <!-- Sincronización Completa -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+          </svg>
+          Sincronización Completa
+        </h2>
+        
+        <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+          Sincronizar todos los lotes disponibles desde el API externa
+        </p>
+
+        <div class="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+          <div class="text-sm text-blue-900 dark:text-blue-300">
+            <strong>Total disponibles:</strong> {{ totalAvailable() }} lotes
+          </div>
+        </div>
+
+        <button 
+          (click)="syncAll()"
+          [disabled]="syncing() || totalAvailable() === 0"
+          class="w-full px-4 py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white rounded-lg transition-colors font-medium flex items-center justify-center gap-2">
+          <svg *ngIf="!syncing()" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+          </svg>
+          <svg *ngIf="syncing()" class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+          </svg>
+          {{ syncing() ? 'Sincronizando...' : 'Sincronizar Todos' }}
+        </button>
+      </div>
+
+      <!-- Sincronizar Lote Individual -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+          </svg>
+          Sincronizar Lote Individual
+        </h2>
+        
+        <div class="space-y-3">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Código del Lote
+            </label>
+            <input 
+              type="text" 
+              [(ngModel)]="singleLotCode"
+              placeholder="Ej: E2-02"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              [disabled]="syncingSingleLot()">
+          </div>
+
+          <button 
+            (click)="syncByCode()"
+            [disabled]="syncingSingleLot() || !singleLotCode.trim()"
+            class="w-full px-4 py-3 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 text-white rounded-lg transition-colors font-medium flex items-center justify-center gap-2">
+            <svg *ngIf="!syncingSingleLot()" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+            <svg *ngIf="syncingSingleLot()" class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+            {{ syncingSingleLot() ? 'Sincronizando...' : 'Sincronizar' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Token Refresh -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          Herramientas
+        </h2>
+        <button 
+          (click)="refreshToken()"
+          [disabled]="loading()"
+          class="w-full px-4 py-2 bg-gray-600 hover:bg-gray-700 disabled:bg-gray-400 text-white rounded-lg transition-colors text-sm">
+          Refrescar Token
+        </button>
+      </div>
+    </div>
+
+    <!-- Columna derecha - Vista Previa y Estadísticas -->
+    <div class="lg:col-span-2 space-y-6">
+      
+      <!-- Estadísticas -->
+      <div *ngIf="stats()" class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+          </svg>
+          Estadísticas de Importación
+        </h2>
+
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+          <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+            <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ stats()!.total }}</div>
+            <div class="text-xs text-gray-600 dark:text-gray-400 mt-1">Total</div>
+          </div>
+          <div class="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
+            <div class="text-2xl font-bold text-green-600 dark:text-green-400">{{ stats()!.created }}</div>
+            <div class="text-xs text-gray-600 dark:text-gray-400 mt-1">Creados</div>
+          </div>
+          <div class="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg">
+            <div class="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{{ stats()!.updated }}</div>
+            <div class="text-xs text-gray-600 dark:text-gray-400 mt-1">Actualizados</div>
+          </div>
+          <div class="bg-gray-50 dark:bg-gray-900/20 p-4 rounded-lg">
+            <div class="text-2xl font-bold text-gray-600 dark:text-gray-400">{{ stats()!.skipped }}</div>
+            <div class="text-xs text-gray-600 dark:text-gray-400 mt-1">Omitidos</div>
+          </div>
+          <div class="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg">
+            <div class="text-2xl font-bold text-red-600 dark:text-red-400">{{ stats()!.errors }}</div>
+            <div class="text-xs text-gray-600 dark:text-gray-400 mt-1">Errores</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Errores -->
+      <div *ngIf="errors().length > 0" class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+        <h2 class="text-lg font-semibold text-red-600 dark:text-red-400 mb-4">
+          Errores Encontrados ({{ errors().length }})
+        </h2>
+        <div class="max-h-64 overflow-y-auto space-y-2">
+          <div *ngFor="let error of errors()" class="p-3 bg-red-50 dark:bg-red-900/20 rounded text-sm text-red-800 dark:text-red-300">
+            {{ error }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Vista Previa -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+            </svg>
+            Vista Previa de Unidades
+            <span *ngIf="selectedStage()" class="text-sm font-normal text-gray-500">({{ selectedUnitsCount() }})</span>
+          </h2>
+
+          <div *ngIf="selectedStage()" class="flex items-center gap-2">
+            <select 
+              [(ngModel)]="filterStatus"
+              class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-sm">
+              <option value="all">Todos</option>
+              <option value="new">Solo nuevos</option>
+              <option value="existing">Solo existentes</option>
+              <option value="importable">Solo importables</option>
+            </select>
+
+            <input 
+              type="text"
+              [(ngModel)]="searchTerm"
+              placeholder="Buscar..."
+              class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-sm w-48">
+          </div>
+          
+          <button 
+            *ngIf="!selectedStage()"
+            (click)="loadPreview()"
+            [disabled]="loadingPreview()"
+            class="px-3 py-1 text-sm bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded transition-colors">
+            Refrescar
+          </button>
+        </div>
+
+        <div *ngIf="loadingPreview()" class="flex items-center justify-center py-12">
+          <svg class="w-8 h-8 animate-spin text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+          </svg>
+        </div>
+
+        <!-- Mostrar unidades filtradas de la etapa seleccionada -->
+        <div *ngIf="!loadingPreview() && selectedStage() && filteredUnits().length > 0" class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead class="bg-gray-50 dark:bg-gray-700">
+              <tr>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Código</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Nombre</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Área</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Precio</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Acción</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+              <tr *ngFor="let unit of filteredUnits()" class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-indigo-100 dark:bg-indigo-900 rounded-lg flex items-center justify-center">
+                      <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+                      </svg>
+                    </div>
+                    <div>
+                      <div class="text-sm font-semibold text-gray-900 dark:text-white">{{ unit.code }}</div>
+                      <div class="text-xs text-gray-500">{{ unit.block }}-{{ unit.lotNumber }}</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                  {{ unit.name }}
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
+                  {{ formatArea(unit.area) }}
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                  {{ formatPrice(unit.price, unit.currency) }}
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <span 
+                    class="px-3 py-1 text-xs font-semibold rounded-full"
+                    [ngClass]="getStatusBadgeClass(unit)">
+                    {{ getStatusText(unit) }}
+                  </span>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                    <i class="fas" [ngClass]="getActionIcon(unit)"></i>
+                    <span>{{ unit.import_action === 'create' ? 'Crear' : 'Actualizar' }}</span>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Mensajes para estados sin etapa seleccionada -->
+        <div *ngIf="!loadingPreview() && !selectedStage() && previewData().length === 0" class="text-center py-12 text-gray-500 dark:text-gray-400">
+          Seleccione una etapa para ver la vista previa de unidades
+        </div>
+
+        <div *ngIf="!loadingPreview() && !selectedStage() && previewData().length > 0" class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead class="bg-gray-50 dark:bg-gray-700">
+              <tr>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Código</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Estado</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Área</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Precio</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+              <tr *ngFor="let property of previewData()" class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                  {{ property.code }}
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm">
+                  <span class="px-2 py-1 text-xs rounded-full"
+                        [ngClass]="{
+                          'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200': property.status === 'available',
+                          'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200': property.status === 'reserved',
+                          'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200': property.status === 'sold',
+                          'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200': property.status !== 'available' && property.status !== 'reserved' && property.status !== 'sold'
+                        }">
+                    {{ property.status }}
+                  </span>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                  {{ property.area }} m²
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                  {{ property.currency }} {{ property.price | number:'1.2-2' }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Estado vacío cuando hay etapa seleccionada pero sin unidades -->
+        <div *ngIf="!loadingPreview() && selectedStage() && filteredUnits().length === 0" class="text-center py-20">
+          <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+          </svg>
+          <p class="text-gray-600 dark:text-gray-400">No hay unidades que coincidan con los filtros</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

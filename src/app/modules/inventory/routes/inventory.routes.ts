@@ -13,6 +13,11 @@ export const INVENTORY_ROUTES: Route[] = [
     data: { permission: 'inventory.lots.store' },
   },
   {
+    path: 'lots/external-import',
+    loadComponent: () => import('../components/external-lot-import/external-lot-import.component').then(m => m.ExternalLotImportComponent),
+    data: { permission: 'inventory.lots.store' },
+  },
+  {
     path: 'lots/create',
     loadComponent: () => import('../lots/lot-form/lot-form.component').then(m => m.LotFormComponent),
     data: { permission: 'inventory.lots.store' },

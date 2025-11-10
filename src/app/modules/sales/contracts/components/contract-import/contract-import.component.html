@@ -224,6 +224,56 @@
           </p>
         </div>
       </div>
+      
+      <!-- External (LOGICWARE) Sales Import -->
+      <div class="mb-8 p-6 bg-gradient-to-br from-indigo-50/20 to-violet-50/20 rounded-2xl border border-indigo-200/30 shadow-inner backdrop-blur-sm">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h3 class="text-lg font-bold text-gray-800 dark:text-white">Importar desde LOGICWARE</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-300">Obtener ventas desde el CRM externo y crear clientes/contratos automáticamente.</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-4 mb-4">
+          <div>
+            <label class="text-sm font-medium">Fecha inicio</label>
+            <input type="date" [(ngModel)]="salesStartDate" class="mt-2 w-full p-2 rounded-lg border" />
+          </div>
+          <div>
+            <label class="text-sm font-medium">Fecha fin</label>
+            <input type="date" [(ngModel)]="salesEndDate" class="mt-2 w-full p-2 rounded-lg border" />
+          </div>
+          <div class="flex items-end gap-2">
+            <button (click)="fetchSalesPreview(false)" class="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg">Vista previa</button>
+            <button (click)="fetchSalesPreview(true)" class="px-4 py-2 bg-blue-600 text-white rounded-lg">Forzar</button>
+          </div>
+        </div>
+
+        <div *ngIf="salesLoading" class="mb-4 text-sm text-gray-600">Cargando ventas...</div>
+        <div *ngIf="salesError" class="mb-4 text-sm text-red-600">{{ salesError }}</div>
+
+        <div *ngIf="salesPreview?.length" class="mb-4">
+          <h4 class="font-semibold mb-2">Ventas (muestra)</h4>
+          <div class="max-h-40 overflow-y-auto bg-white/60 rounded p-3">
+            <ul class="space-y-2 text-sm">
+              <li *ngFor="let s of salesPreview">
+                <div class="flex justify-between">
+                  <div>
+                    <div class="font-medium">{{ s.documentNumber || s.document_number || s.code || s.id }}</div>
+                    <div class="text-xs text-gray-600">{{ s.fullName || s.full_name || s.clientName || s.client_name }}</div>
+                  </div>
+                  <div class="text-xs text-gray-500">{{ s.total || s.total_price || s.amount || '' }}</div>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="flex gap-4">
+          <button (click)="importSalesFromExternal(false)" class="flex-1 px-4 py-3 bg-emerald-500 text-white rounded-lg" [disabled]="salesImporting">Importar</button>
+          <button (click)="importSalesFromExternal(true)" class="px-4 py-3 bg-emerald-600 text-white rounded-lg" [disabled]="salesImporting">Importar (Forzar)</button>
+        </div>
+      </div>
 
       <!-- Import Progress -->
       <div *ngIf="isUploading" class="mb-8 p-8 bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-pink-500/10 dark:from-indigo-900/30 dark:via-purple-900/30 dark:to-pink-900/30 rounded-3xl border border-indigo-200/50 dark:border-indigo-700/50 shadow-xl hover:shadow-2xl transition-all duration-300 animate-slide-in-up backdrop-blur-sm">

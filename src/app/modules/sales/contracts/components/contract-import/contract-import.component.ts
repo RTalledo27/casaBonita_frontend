@@ -6,6 +6,7 @@ import { LucideAngularModule, Upload, Download, FileText, AlertCircle, CheckCirc
 import { ContractImportService, ImportResponse, ImportLog } from '../../../services/contract-import.service';
 import { finalize } from 'rxjs/operators';
 import { ThemeService } from '../../../../../core/services/theme.service';
+import { ExternalLotImportService } from '../../../../../core/services/external-lot-import.service';
 
 @Component({
   selector: 'app-contract-import',
@@ -84,9 +85,61 @@ export class ContractImportComponent {
 
   constructor(
     private importService: ContractImportService,
+    private externalImport: ExternalLotImportService,
     public theme: ThemeService
   ) {
     this.loadImportHistory();
+  }
+
+  // External sales import state
+  salesStartDate: string | null = null;
+  salesEndDate: string | null = null;
+  salesPreview: any[] = [];
+  salesLoading = false;
+  salesImporting = false;
+  salesError: string | null = null;
+
+  fetchSalesPreview(forceRefresh: boolean = false) {
+    this.salesPreview = [];
+    this.salesError = null;
+    this.salesLoading = true;
+    this.externalImport.getSales(this.salesStartDate || undefined, this.salesEndDate || undefined, forceRefresh)
+      .pipe(finalize(() => this.salesLoading = false))
+      .subscribe({
+        next: (res: any) => {
+          // expected shape: { success, data: { items: [...] } } or direct array
+          if (res?.data?.items) this.salesPreview = res.data.items;
+          else if (Array.isArray(res)) this.salesPreview = res;
+          else if (res?.data) this.salesPreview = res.data;
+          else this.salesPreview = [];
+        },
+        error: (err: any) => {
+          console.error('Error fetching sales preview', err);
+          this.salesError = err?.error?.message || err.message || 'Error al obtener ventas';
+        }
+      });
+  }
+
+  importSalesFromExternal(forceRefresh: boolean = false) {
+    this.salesImporting = true;
+    this.salesError = null;
+    this.externalImport.importSales(this.salesStartDate || undefined, this.salesEndDate || undefined, forceRefresh)
+      .pipe(finalize(() => this.salesImporting = false))
+      .subscribe({
+        next: (res: any) => {
+          console.log('Import sales result', res);
+          if (res?.success) {
+            // Emit completed so parent reloads contracts
+            this.importCompleted.emit();
+          } else {
+            this.salesError = res?.message || 'Importación no completada';
+          }
+        },
+        error: (err: any) => {
+          console.error('Error importing sales', err);
+          this.salesError = err?.error?.message || err.message || 'Error al importar ventas';
+        }
+      });
   }
 
 

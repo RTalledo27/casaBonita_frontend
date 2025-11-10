@@ -356,6 +356,10 @@ export class LotsComponent implements OnInit, OnDestroy {
     this.router.navigate(['/inventory/lots/import']);
   }
 
+  openExternalImport() {
+    this.router.navigate(['/inventory/lots/external-import']);
+  }
+
   // Filter methods
   onSearch() {
     this.searchSubject.next(this.filterText);
