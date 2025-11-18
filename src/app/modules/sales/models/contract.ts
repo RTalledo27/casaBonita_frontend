@@ -86,6 +86,9 @@ export interface Contract {
   // Campos directos de la API
   client_name: string;
   lot_name: string;
+  advisor_name?: string; // 🔥 Nombre del asesor desde el backend
+  manzana_name?: string; // 🔥 Nombre de la manzana
+  area_m2?: number; // 🔥 Área del lote
   
   // Información del asesor
   advisor?: Advisor;

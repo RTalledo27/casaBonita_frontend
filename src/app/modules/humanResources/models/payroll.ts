@@ -10,18 +10,36 @@ export interface Payroll {
 
   // Ingresos
   base_salary: number;
+  family_allowance: number; // Asignación familiar S/ 102.50
   commissions_amount: number;
   bonuses_amount: number;
   overtime_amount: number;
   other_income: number;
   gross_salary: number;
 
-  // Deducciones
-  income_tax: number;
-  social_security: number;
-  health_insurance: number;
+  // Sistema Pensionario
+  pension_system: 'AFP' | 'ONP' | 'NINGUNO';
+  afp_provider?: 'PRIMA' | 'INTEGRA' | 'PROFUTURO' | 'HABITAT';
+  afp_contribution: number; // 10%
+  afp_commission: number; // 1.00% - 1.47% según proveedor
+  afp_insurance: number; // 0.99%
+  onp_contribution: number; // 13%
+  total_pension: number; // Total AFP o ONP
+
+  // Impuesto a la Renta
+  rent_tax_5th: number; // Impuesto 5ta categoría
+
+  // Seguro de Salud
+  employee_essalud: number; // 9% descuento del empleado
+
+  // Otros descuentos
   other_deductions: number;
   total_deductions: number;
+
+  // Aportaciones del Empleador (informativo)
+  employer_essalud: number; // 9% pagado por el empleador
+
+  // Neto
   net_salary: number;
 
   currency: string;

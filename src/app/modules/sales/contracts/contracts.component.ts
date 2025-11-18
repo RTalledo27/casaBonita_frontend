@@ -3,8 +3,9 @@ import { Component, OnInit, TemplateRef, ViewChild, ChangeDetectorRef } from '@a
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { LucideAngularModule, Plus, Upload } from 'lucide-angular';
+import { LucideAngularModule, Plus, Upload, Database } from 'lucide-angular';
 import { ContractsService } from '../services/contracts.service';
+import { LogicwareService, FullStockResponse } from '../services/logicware.service';
 import { Contract } from '../models/contract';
 import { SharedTableComponent, ColumnDef } from '../../../shared/components/shared-table/shared-table.component';
 import { ModalService } from '../../../core/services/modal.service';
@@ -13,6 +14,7 @@ import { ThemeService } from '../../../core/services/theme.service';
 import { ContractImportComponent } from './components/contract-import/contract-import.component';
 import { ContractCreationModalComponent } from './contract-creation-modal/contract-creation-modal.component';
 import { ContractDetailsModalComponent } from './components/contract-details-modal/contract-details-modal.component';
+import { LogicwareFullStockModalComponent } from './logicware-full-stock-modal/logicware-full-stock-modal.component';
 
 @Component({
   selector: 'app-contracts',
@@ -26,6 +28,7 @@ import { ContractDetailsModalComponent } from './components/contract-details-mod
     ContractImportComponent,
     ContractCreationModalComponent,
     ContractDetailsModalComponent,
+    LogicwareFullStockModalComponent,
     // PaginationComponent,
   ],
   templateUrl: './contracts.component.html',
@@ -33,6 +36,8 @@ import { ContractDetailsModalComponent } from './components/contract-details-mod
 })
 export class ContractsComponent implements OnInit {
   contracts: Contract[] = [];
+  allContracts: Contract[] = []; // 🔥 Todos los contratos cargados
+  paginatedContracts: Contract[] = []; // 🔥 Contratos de la página actual
   loading = false;
   currentPage = 1;
   pageSize = 10;
@@ -60,14 +65,22 @@ export class ContractsComponent implements OnInit {
   idField = 'contract_id';
   plus = Plus;
   upload = Upload;
+  database = Database;
+  readonly Math = Math; // 🔥 Exponer Math para usar en el template
   isModalOpen = false;
   isImportModalOpen = false;
   isCreationModalOpen = false;
   isDetailsModalOpen = false;
   selectedContractId: number | null = null;
 
+  // Logicware Full Stock
+  isFullStockModalOpen = false;
+  fullStockData: FullStockResponse | null = null;
+  fullStockLoading = false;
+
   constructor(
     private contractsService: ContractsService,
+    private logicwareService: LogicwareService,
     private router: Router,
     private route: ActivatedRoute,
     private modalService: ModalService,
@@ -138,65 +151,99 @@ export class ContractsComponent implements OnInit {
 
   loadContracts(): void {
     this.loading = true;
-    console.log('Loading contracts with params:', {
-      page: this.currentPage,
-      per_page: this.pageSize,
-      search: this.searchTerm
-    });
+    console.log('🔄 Cargando TODOS los contratos desde el servidor...');
     
+    // Cargar TODOS los contratos sin paginación
     this.contractsService.list({
-      page: this.currentPage,
-      per_page: this.pageSize,
-      search: this.searchTerm
+      per_page: 9999 // Cargar todos los contratos
     })
       .subscribe((response: any) => {
-        console.log('Full API response:', response);
-        console.log('Response data:', response.data);
-        console.log('Response meta:', response.meta);
+        console.log('✅ Contratos recibidos del servidor:', response);
         
         // Manejar tanto el formato con meta como el formato directo
         if (response.data) {
-          this.contracts = response.data;
-          this.totalItems = response.meta?.total || response.data.length;
-          this.pagination = response.meta || {
-            current_page: 1,
-            last_page: 1,
-            total: response.data.length,
-            per_page: this.pageSize
-          };
+          this.allContracts = response.data;
         } else if (Array.isArray(response)) {
-          // Si la respuesta es directamente un array
-          this.contracts = response;
-          this.totalItems = response.length;
-          this.pagination = {
-            current_page: 1,
-            last_page: 1,
-            total: response.length,
-            per_page: this.pageSize
-          };
+          this.allContracts = response;
         } else {
-          this.contracts = [];
-          this.totalItems = 0;
+          this.allContracts = [];
         }
         
+        console.log(`📦 Total de contratos cargados: ${this.allContracts.length}`);
+        
+        // Aplicar filtros y paginación local
+        this.applyLocalFiltersAndPagination();
+        
         this.loading = false;
-        
-        console.log('Contracts assigned:', this.contracts);
-        console.log('Total items:', this.totalItems);
-        console.log('Pagination:', this.pagination);
-        
-        // Forzar detección de cambios
         this.cdr.detectChanges();
       }, error => {
-        console.error('Error loading contracts:', error);
-        console.error('Error details:', error.error);
+        console.error('❌ Error cargando contratos:', error);
         this.loading = false;
       });
   }
+
+  /**
+   * Aplica filtros de búsqueda y paginación local sin llamar al servidor
+   */
+  applyLocalFiltersAndPagination(): void {
+    console.log('🔍 Aplicando filtros locales y paginación...');
+    
+    // 1. Filtrar por término de búsqueda
+    let filtered = this.allContracts;
+    
+    if (this.searchTerm && this.searchTerm.trim() !== '') {
+      const term = this.searchTerm.toLowerCase().trim();
+      filtered = this.allContracts.filter(contract => 
+        contract.contract_number?.toLowerCase().includes(term) ||
+        contract.client_name?.toLowerCase().includes(term) ||
+        contract.lot_name?.toLowerCase().includes(term) ||
+        contract.advisor_name?.toLowerCase().includes(term)
+      );
+      console.log(`🔎 Filtrados ${filtered.length} contratos de ${this.allContracts.length}`);
+    }
+    
+    // 2. Calcular paginación
+    this.totalItems = filtered.length;
+    const totalPages = Math.ceil(this.totalItems / this.pageSize);
+    
+    // Ajustar página actual si está fuera de rango
+    if (this.currentPage > totalPages && totalPages > 0) {
+      this.currentPage = totalPages;
+    }
+    if (this.currentPage < 1) {
+      this.currentPage = 1;
+    }
+    
+    // 3. Obtener contratos de la página actual
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+    this.paginatedContracts = filtered.slice(startIndex, endIndex);
+    this.contracts = this.paginatedContracts; // Para compatibilidad con la tabla
+    
+    // 4. Actualizar objeto de paginación
+    this.pagination = {
+      current_page: this.currentPage,
+      last_page: totalPages,
+      total: this.totalItems,
+      per_page: this.pageSize,
+      from: startIndex + 1,
+      to: Math.min(endIndex, this.totalItems)
+    };
+    
+    console.log(`📄 Página ${this.currentPage}/${totalPages} - Mostrando ${this.paginatedContracts.length} contratos`);
+    console.log('📊 Paginación:', this.pagination);
+  }
   
   onPageChange(page: number): void {
+    console.log(`📄 Cambiando a página ${page} (sin llamar al servidor)`);
     this.currentPage = page;
-    this.loadContracts();
+    this.applyLocalFiltersAndPagination(); // 🔥 Solo repaginar localmente
+  }
+
+  onSearch(): void {
+    console.log('🔍 Búsqueda activada:', this.searchTerm);
+    this.currentPage = 1; // Resetear a primera página
+    this.applyLocalFiltersAndPagination(); // 🔥 Solo filtrar localmente
   }
 
   openEditModal(id: number): void {
@@ -289,4 +336,116 @@ export class ContractsComponent implements OnInit {
     this.selectedContractId = null;
   }
 
+  /**
+   * Abrir modal de stock completo de Logicware
+   * Obtiene todos los datos de unidades, asesores, clientes, reservas
+   */
+  async openFullStockModal(): Promise<void> {
+    console.log('🔍 Opening Logicware Full Stock Modal');
+    
+    this.isFullStockModalOpen = true;
+    this.fullStockLoading = true;
+    
+    try {
+      this.logicwareService.getFullStock(false).subscribe({
+        next: (response) => {
+          console.log('✅ Full stock data received:', response);
+          this.fullStockData = response;
+          this.fullStockLoading = false;
+          this.cdr.detectChanges();
+        },
+        error: (error) => {
+          console.error('❌ Error loading full stock:', error);
+          this.fullStockLoading = false;
+          // TODO: Show toast notification
+          this.cdr.detectChanges();
+        }
+      });
+    } catch (error) {
+      console.error('❌ Exception in openFullStockModal:', error);
+      this.fullStockLoading = false;
+    }
+  }
+
+  /**
+   * Cerrar modal de stock completo
+   */
+  onFullStockModalClose(): void {
+    console.log('🔒 Closing Logicware Full Stock Modal');
+    this.isFullStockModalOpen = false;
+  }
+
+  /**
+   * Refrescar datos de stock completo desde Logicware (fuerza actualización)
+   */
+  onRefreshFullStock(): void {
+    console.log('🔄 Refreshing Logicware Full Stock (force refresh)');
+    
+    this.fullStockLoading = true;
+    
+    this.logicwareService.getFullStock(true).subscribe({
+      next: (response) => {
+        console.log('✅ Full stock data refreshed:', response);
+        this.fullStockData = response;
+        this.fullStockLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('❌ Error refreshing full stock:', error);
+        this.fullStockLoading = false;
+        // TODO: Show toast notification
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  /**
+   * Obtener números de página para mostrar en la paginación
+   * Muestra: 1 ... 3 4 [5] 6 7 ... 10 (ejemplo con página actual 5)
+   */
+  getPageNumbers(): (number | string)[] {
+    const pages: (number | string)[] = [];
+    const current = this.pagination.current_page;
+    const total = this.pagination.last_page;
+    
+    if (total <= 7) {
+      // Si hay 7 o menos páginas, mostrar todas
+      for (let i = 1; i <= total; i++) {
+        pages.push(i);
+      }
+    } else {
+      // Siempre mostrar primera página
+      pages.push(1);
+      
+      // Agregar puntos suspensivos si es necesario
+      if (current > 3) {
+        pages.push('...');
+      }
+      
+      // Mostrar páginas alrededor de la actual
+      const start = Math.max(2, current - 1);
+      const end = Math.min(total - 1, current + 1);
+      
+      for (let i = start; i <= end; i++) {
+        pages.push(i);
+      }
+      
+      // Agregar puntos suspensivos al final si es necesario
+      if (current < total - 2) {
+        pages.push('...');
+      }
+      
+      // Siempre mostrar última página
+      pages.push(total);
+    }
+    
+    return pages;
+  }
+
+  /**
+   * Verificar si el valor es un número de página (no '...')
+   */
+  isPageNumber(page: number | string): page is number {
+    return typeof page === 'number';
+  }
 }

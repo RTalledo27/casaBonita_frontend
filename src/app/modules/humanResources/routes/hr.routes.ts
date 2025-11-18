@@ -169,6 +169,10 @@ export const HR_ROUTES: Routes = [
             loadComponent: () => import('../components/payroll-view/payroll-view.component').then(m => m.PayrollViewComponent)
           }
         ]
+      },
+      {
+        path: 'tax-parameters',
+        loadComponent: () => import('../components/tax-parameters/tax-parameters.component').then(m => m.TaxParametersComponent)
       }
     ]
   }

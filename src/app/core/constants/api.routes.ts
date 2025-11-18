@@ -140,4 +140,13 @@ export const API_ROUTES = {
       REVENUE_COMPARE: `${BASE}/v1/reports/projections/revenue/compare`,
     },
   },
+
+  LOGICWARE: {
+    BASE: `${BASE}/logicware`,
+    FULL_STOCK: `${BASE}/logicware/full-stock`,
+    RENEW_TOKEN: `${BASE}/logicware/renew-token`,
+    TOKEN_INFO: `${BASE}/logicware/token-info`,
+    IMPORT_CONTRACTS: `${BASE}/logicware/import-contracts`,
+    STATUS: `${BASE}/logicware/status`,
+  },
 };

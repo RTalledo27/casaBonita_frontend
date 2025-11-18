@@ -2,7 +2,7 @@ import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { LucideAngularModule, Plus, Search, Filter, Edit, Trash2, Eye, Users, UserCheck, UserX, Upload, UserPlus } from 'lucide-angular';
+import { LucideAngularModule, Plus, Search, Filter, Edit, Trash2, Eye, Users, UserCheck, UserX, Upload, UserPlus, Grid, List, Download, Phone, Mail, Calendar, Briefcase, DollarSign } from 'lucide-angular';
 import { EmployeeService, EmployeeFilters } from '../../services/employee.service';
 import { Employee } from '../../models/employee';
 import { ToastService } from '../../../../core/services/toast.service';
@@ -22,15 +22,15 @@ export class EmployeeListComponent implements OnInit {
   private toastService = inject(ToastService);
 
   // Señales para el estado del componente
-  employees = signal<Employee[]>([]);
+  allEmployees = signal<Employee[]>([]); // TODOS los empleados cargados una sola vez
   loading = signal<boolean>(false);
   error = signal<string | null>(null);
   searchTerm = signal<string>('');
   selectedStatus = signal<string>('');
   selectedType = signal<string>('');
   currentPage = signal<number>(1);
-  totalPages = signal<number>(1);
-  totalEmployees = signal<number>(0);
+  itemsPerPage = signal<number>(10); // Empleados por página
+  viewMode = signal<'table' | 'cards'>('cards'); // Vista por defecto: cards
 
   // Iconos de Lucide
   Plus = Plus;
@@ -44,6 +44,17 @@ export class EmployeeListComponent implements OnInit {
   UserX = UserX;
   Upload = Upload;
   UserPlus = UserPlus;
+  Grid = Grid;
+  List = List;
+  Download = Download;
+  Phone = Phone;
+  Mail = Mail;
+  Calendar = Calendar;
+  Briefcase = Briefcase;
+  DollarSign = DollarSign;
+
+  // Math para usar en template
+  Math = Math;
 
   // Estado para el modal de generar usuario
   showGenerateUserModal = signal<boolean>(false);
@@ -67,14 +78,14 @@ export class EmployeeListComponent implements OnInit {
     { value: 'supervisor', label: 'Supervisor' }
   ];
 
-  // Computed para empleados filtrados
+  // Computed para empleados filtrados (todos, sin paginar)
   filteredEmployees = computed(() => {
-    const employees = this.employees();
+    const employees = this.allEmployees();
     const search = this.searchTerm().toLowerCase();
     const status = this.selectedStatus();
     const type = this.selectedType();
 
-    return employees.filter(employee => {
+    return employees.filter((employee: Employee) => {
       const matchesSearch = !search || 
         employee.user?.first_name?.toLowerCase().includes(search) ||
         employee.user?.last_name?.toLowerCase().includes(search) ||
@@ -88,18 +99,44 @@ export class EmployeeListComponent implements OnInit {
     });
   });
 
-  // Computed properties for employee counts
+  // Computed para empleados paginados (solo los de la página actual)
+  paginatedEmployees = computed(() => {
+    const filtered = this.filteredEmployees();
+    const page = this.currentPage();
+    const perPage = this.itemsPerPage();
+    const start = (page - 1) * perPage;
+    const end = start + perPage;
+
+    return filtered.slice(start, end);
+  });
+
+  // Computed para total de empleados filtrados
+  totalEmployees = computed(() => {
+    return this.filteredEmployees().length;
+  });
+
+  // Computed para total de páginas
+  totalPages = computed(() => {
+    const total = this.totalEmployees();
+    const perPage = this.itemsPerPage();
+    return Math.ceil(total / perPage);
+  });
+
+  // Computed properties for employee counts (usan TODOS los filtrados, no solo la página)
   activeEmployeesCount = computed(() => {
-    return this.filteredEmployees().filter(e => e.employment_status === 'activo').length;
+    return this.filteredEmployees().filter((e: Employee) => e.employment_status === 'activo').length;
   });
 
   inactiveEmployeesCount = computed(() => {
-    return this.filteredEmployees().filter(e => e.employment_status === 'inactivo').length;
+    return this.filteredEmployees().filter((e: Employee) => e.employment_status === 'inactivo').length;
   });
 
   advisorsCount = computed(() => {
-    return this.filteredEmployees().filter(e => e.employee_type === 'asesor_inmobiliario').length;
+    return this.filteredEmployees().filter((e: Employee) => e.employee_type === 'asesor_inmobiliario').length;
   });
+
+  // Opciones para items por página
+  itemsPerPageOptions = [5, 10, 20, 50, 100];
 
   ngOnInit() {
     this.loadEmployees();
@@ -110,27 +147,16 @@ export class EmployeeListComponent implements OnInit {
     this.error.set(null);
 
     try {
+      // Cargar TODOS los empleados sin paginación
       const filters: EmployeeFilters = {
-        page: this.currentPage(),
-        per_page: 20
+        per_page: 9999 // Cargar todos
       };
-
-      if (this.searchTerm()) {
-        filters.search = this.searchTerm();
-      }
-      if (this.selectedStatus()) {
-        filters.employment_status = this.selectedStatus();
-      }
-      if (this.selectedType()) {
-        filters.employee_type = this.selectedType();
-      }
 
       const response = await this.employeeService.getEmployees(filters).toPromise();
       
       if (response?.data) {
-        this.employees.set(response.data);
-        this.totalEmployees.set(response.meta?.total || 0);
-        this.totalPages.set(response.meta?.last_page || 1);
+        this.allEmployees.set(response.data); // Guardar TODOS en memoria
+        console.log(`✅ Cargados ${response.data.length} empleados en memoria`);
       }
     } catch (error) {
       console.error('Error loading employees:', error);
@@ -142,18 +168,23 @@ export class EmployeeListComponent implements OnInit {
   }
 
   onSearch() {
-    this.currentPage.set(1);
-    this.loadEmployees();
+    this.currentPage.set(1); // Resetear a página 1 al buscar
   }
 
   onFilterChange() {
-    this.currentPage.set(1);
-    this.loadEmployees();
+    this.currentPage.set(1); // Resetear a página 1 al filtrar
   }
 
   onPageChange(page: number) {
-    this.currentPage.set(page);
-    this.loadEmployees();
+    if (page >= 1 && page <= this.totalPages()) {
+      this.currentPage.set(page);
+      // NO llamar a loadEmployees() - paginar en cliente
+    }
+  }
+
+  onItemsPerPageChange(perPage: number) {
+    this.itemsPerPage.set(perPage);
+    this.currentPage.set(1); // Resetear a página 1 al cambiar items por página
   }
 
   createEmployee() {
@@ -249,6 +280,92 @@ export class EmployeeListComponent implements OnInit {
 
   trackByEmployeeId(index: number, employee: Employee): number {
     return employee.employee_id;
+  }
+
+  // Obtener gradiente según tipo de empleado (estilo empresarial pastel)
+  getCardGradient(employee: Employee): string {
+    switch (employee.employee_type) {
+      case 'asesor_inmobiliario':
+        // Azul lavanda suave - coincide con el tema del ERP
+        return 'from-blue-200/80 via-indigo-200/70 to-purple-200/80 dark:from-blue-500 dark:via-indigo-500 dark:to-purple-500';
+      case 'vendedor':
+        // Rosa pastel suave - profesional y distinguido
+        return 'from-pink-200/80 via-rose-200/70 to-red-200/80 dark:from-pink-500 dark:via-rose-500 dark:to-red-500';
+      case 'administrativo':
+        // Melocotón/durazno suave - cálido pero profesional
+        return 'from-orange-200/80 via-amber-200/70 to-yellow-200/80 dark:from-orange-500 dark:via-amber-500 dark:to-yellow-500';
+      case 'gerente':
+        // Verde menta suave - como el badge "Activo" del sistema
+        return 'from-emerald-200/80 via-teal-200/70 to-cyan-200/80 dark:from-emerald-500 dark:via-teal-500 dark:to-cyan-500';
+      case 'supervisor':
+        // Lila suave - elegante y con autoridad
+        return 'from-violet-200/80 via-purple-200/70 to-fuchsia-200/80 dark:from-violet-500 dark:via-purple-500 dark:to-fuchsia-500';
+      default:
+        // Gris perla suave - neutral y profesional
+        return 'from-gray-200/80 via-slate-200/70 to-zinc-200/80 dark:from-gray-500 dark:via-slate-500 dark:to-zinc-500';
+    }
+  }
+
+  // Toggle entre vista de tabla y cards
+  toggleView(mode: 'table' | 'cards') {
+    this.viewMode.set(mode);
+  }
+
+  // Exportar a Excel
+  exportToExcel() {
+    const employees = this.filteredEmployees(); // Exportar solo los filtrados
+    
+    if (employees.length === 0) {
+      this.toastService.show('No hay empleados para exportar', 'info');
+      return;
+    }
+
+    // Preparar datos para Excel con todos los campos (incluyendo sistema pensionario)
+    const data = employees.map(emp => ({
+      'Código': emp.employee_code,
+      'Nombre': `${emp.user?.first_name || ''} ${emp.user?.last_name || ''}`.trim(),
+      'Email': emp.user?.email || '',
+      'Teléfono': emp.phone || '',
+      'Tipo': this.getTypeLabel(emp.employee_type),
+      'Estado': this.getStatusLabel(emp.employment_status),
+      'Fecha Ingreso': emp.hire_date ? new Date(emp.hire_date).toLocaleDateString('es-PE') : '',
+      'Salario Base': emp.base_salary || 0,
+      'Sistema Pensionario': emp.pension_system || 'N/A',
+      'AFP': emp.afp_provider || 'N/A',
+      'CUSPP': emp.cuspp || 'N/A',
+      'Asignación Familiar': emp.has_family_allowance ? 'Sí' : 'No',
+      'N° Hijos': emp.number_of_children || 0,
+      'Departamento': emp.department || '',
+      'Posición': emp.position || ''
+    }));
+
+    // Crear CSV
+    const headers = Object.keys(data[0]);
+    const csv = [
+      headers.join(','),
+      ...data.map(row => headers.map(header => {
+        const value = row[header as keyof typeof row];
+        // Escapar valores que contienen comas
+        return typeof value === 'string' && value.includes(',') 
+          ? `"${value}"` 
+          : value;
+      }).join(','))
+    ].join('\n');
+
+    // Crear blob y descargar con BOM para Excel
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    
+    link.setAttribute('href', url);
+    link.setAttribute('download', `empleados_completo_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    this.toastService.show(`${employees.length} empleados exportados exitosamente`, 'success');
   }
 
   // Métodos para importación

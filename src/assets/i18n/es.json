@@ -155,6 +155,9 @@
       "payroll": {
         "title": "Nómina"
       },
+      "tax-parameters": {
+        "title": "Parámetros Tributarios"
+      },
       "attendance": {
         "title": "Asistencia"
       }

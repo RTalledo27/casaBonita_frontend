@@ -114,7 +114,7 @@
                     <span class="text-gray-500 animate-pulse">Cargando...</span>
                   </ng-container>
                   <ng-container *ngIf="!clientLoading()">
-                    {{ clientData()?.doc_type && clientData()?.doc_number ? (clientData()?.doc_type + ': ' + clientData()?.doc_number) : 'No especificado' }}
+                    {{ data()?.data?.client?.doc_type && data()?.data?.client?.doc_number ? (data()?.data?.client?.doc_type + ': ' + data()?.data?.client?.doc_number) : 'No especificado' }}
                   </ng-container>
                 </span>
               </div>
@@ -126,7 +126,7 @@
                     <span class="text-gray-500 animate-pulse">Cargando...</span>
                   </ng-container>
                   <ng-container *ngIf="!clientLoading()">
-                    {{ clientData()?.email || 'No especificado' }}
+                    {{ data()?.data?.client?.email || 'No especificado' }}
                   </ng-container>
                 </span>
               </div>
@@ -138,22 +138,22 @@
                     <span class="text-gray-500 animate-pulse">Cargando...</span>
                   </ng-container>
                   <ng-container *ngIf="!clientLoading()">
-                    {{ clientData()?.primary_phone || 'No especificado' }}
+                    {{ data()?.data?.client?.primary_phone || 'No especificado' }}
                   </ng-container>
                 </span>
               </div>
               
-              <div class="flex justify-between items-center" *ngIf="clientData()?.secondary_phone">
+              <div class="flex justify-between items-center" *ngIf="data()?.data?.client?.secondary_phone">
                 <span class="text-gray-600 dark:text-gray-400">Teléfono Alt.:</span>
                 <span class="font-semibold text-gray-900 dark:text-white">
-                  {{ clientData()?.secondary_phone }}
+                  {{ data()?.data?.client?.secondary_phone || 'No especificado' }}
                 </span>
               </div>
               
-              <div class="flex justify-between items-center" *ngIf="clientData()?.occupation">
+              <div class="flex justify-between items-center" *ngIf="data()?.data?.client?.occupation">
                 <span class="text-gray-600 dark:text-gray-400">Ocupación:</span>
                 <span class="font-semibold text-gray-900 dark:text-white">
-                  {{ clientData()?.occupation }}
+                  {{ data()?.data?.client?.occupation || 'No especificado' }}
                 </span>
               </div>
             </div>
@@ -177,12 +177,12 @@
               <!-- Note: These fields might not exist in the current API response -->
               <div class="flex justify-between items-center">
                 <span class="text-gray-600 dark:text-gray-400">Manzana:</span>
-                <span class="font-semibold text-gray-900 dark:text-white">{{ data()?.data?.plot_name || 'No especificado' }}</span>
+                <span class="font-semibold text-gray-900 dark:text-white">{{ data()?.data?.lot?.manzana.name|| 'No especificado' }}</span>
               </div>
               
               <div class="flex justify-between items-center">
                 <span class="text-gray-600 dark:text-gray-400">Área:</span>
-                <span class="font-semibold text-gray-900 dark:text-white">No especificada</span>
+                <span class="font-semibold text-gray-900 dark:text-white">{{ data()?.data?.lot?.area_m2 || 'No especificado' }}</span>
               </div>
             </div>
           </div>
@@ -244,7 +244,7 @@
                   {{ data()?.data?.advisor?.full_name || 'Sin asesor asignado' }}
                 </p>
                 <p class="text-gray-600 dark:text-gray-400">
-                  {{ data()?.data?.advisor?.email || 'Sin email' }}
+                  {{ data()?.data?.advisor?.user?.email || 'Sin email' }}
                 </p>
               </div>
             </div>

@@ -33,6 +33,19 @@
 
           <!-- Action Buttons (opcional) -->
           <div class="flex gap-4">
+            <!-- Stock Completo Logicware -->
+            <button
+              (click)="openFullStockModal()"
+              class="group relative flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 font-semibold overflow-hidden">
+              <div class="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <svg class="w-5 h-5 relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/>
+              </svg>
+              <span class="relative z-10">Stock Completo</span>
+              <div class="absolute inset-0 rounded-2xl bg-gradient-to-r from-purple-400/50 to-indigo-500/50 blur-xl opacity-0 group-hover:opacity-70 transition-opacity duration-300 -z-10"></div>
+            </button>
+
             <!-- Importar -->
             <button
               (click)="onImport()"
@@ -66,6 +79,46 @@
     <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/30 dark:border-gray-700/50 overflow-hidden relative">
       <!-- Table Header Gradient -->
       <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500"></div>
+
+      <!-- Search Bar Section -->
+      <div class="relative p-6 border-b border-gray-200/50 dark:border-gray-700/50 bg-gradient-to-r from-white/70 via-slate-50/50 to-white/70 dark:from-gray-800/70 dark:via-gray-700/50 dark:to-gray-800/70">
+        <div class="max-w-2xl mx-auto">
+          <div class="relative group">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <svg class="w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+              </svg>
+            </div>
+            <input
+              type="text"
+              [(ngModel)]="searchTerm"
+              (input)="onSearch()"
+              placeholder="Buscar por número de contrato, cliente, lote o asesor..."
+              class="w-full pl-12 pr-4 py-4 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-2xl shadow-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200 font-medium"
+            />
+            <!-- Clear button -->
+            <button
+              *ngIf="searchTerm"
+              (click)="searchTerm = ''; onSearch()"
+              class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+          <!-- Search results info -->
+          <div class="mt-3 text-center">
+            <span class="text-sm text-gray-600 dark:text-gray-400">
+              <span *ngIf="searchTerm" class="font-semibold text-blue-600 dark:text-blue-400">
+                {{ totalItems }} resultado(s) encontrado(s)
+              </span>
+              <span *ngIf="!searchTerm" class="font-semibold text-gray-700 dark:text-gray-300">
+                Total: {{ totalItems }} contratos
+              </span>
+            </span>
+          </div>
+        </div>
+      </div>
 
       <!-- Table Content -->
       <div class="relative">
@@ -124,15 +177,79 @@
         <!-- Modern Pagination -->
         <div class="relative border-t border-gray-200/50 dark:border-gray-700/50 bg-gradient-to-r from-white/70 via-slate-50/50 to-white/70 dark:from-gray-800/70 dark:via-gray-700/50 dark:to-gray-800/70 backdrop-blur-sm">
           <div class="p-6">
-            <!-- <app-pagination
-              [currentPage]="pagination.current_page"
-              [totalPages]="pagination.last_page"
-              [total]="pagination.total"
-              [perPage]="pagination.per_page"
-              (pageChange)="onPageChange($event)">
-            </app-pagination> -->
-            <div class="text-center text-gray-500 dark:text-gray-400">
-              Página {{ pagination.current_page }} de {{ pagination.last_page }} - Total: {{ pagination.total }} contratos
+            <div class="flex items-center justify-between">
+              <!-- Info text -->
+              <div class="text-sm text-gray-600 dark:text-gray-400">
+                Mostrando 
+                <span class="font-semibold text-gray-900 dark:text-gray-100">
+                  {{ (pagination.current_page - 1) * pagination.per_page + 1 }}
+                </span>
+                -
+                <span class="font-semibold text-gray-900 dark:text-gray-100">
+                  {{ Math.min(pagination.current_page * pagination.per_page, pagination.total) }}
+                </span>
+                de
+                <span class="font-semibold text-gray-900 dark:text-gray-100">{{ pagination.total }}</span>
+                contratos
+              </div>
+
+              <!-- Pagination controls -->
+              <div class="flex items-center gap-2">
+                <!-- First page -->
+                <button
+                  (click)="onPageChange(1)"
+                  [disabled]="pagination.current_page === 1"
+                  class="px-3 py-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
+                  </svg>
+                </button>
+
+                <!-- Previous page -->
+                <button
+                  (click)="onPageChange(pagination.current_page - 1)"
+                  [disabled]="pagination.current_page === 1"
+                  class="px-3 py-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                  </svg>
+                </button>
+
+                <!-- Page numbers -->
+                <div class="flex items-center gap-1">
+                  <ng-container *ngFor="let page of getPageNumbers()">
+                    <button
+                      *ngIf="isPageNumber(page)"
+                      (click)="onPageChange($any(page))"
+                      [class]="page === pagination.current_page 
+                        ? 'px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold shadow-lg'
+                        : 'px-4 py-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors'">
+                      {{ page }}
+                    </button>
+                    <span *ngIf="!isPageNumber(page)" class="px-2 text-gray-500">...</span>
+                  </ng-container>
+                </div>
+
+                <!-- Next page -->
+                <button
+                  (click)="onPageChange(pagination.current_page + 1)"
+                  [disabled]="pagination.current_page === pagination.last_page"
+                  class="px-3 py-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                  </svg>
+                </button>
+
+                <!-- Last page -->
+                <button
+                  (click)="onPageChange(pagination.last_page)"
+                  [disabled]="pagination.current_page === pagination.last_page"
+                  class="px-3 py-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
+                  </svg>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -161,3 +278,12 @@
   [contractId]="selectedContractId"
   (closeModal)="onDetailsModalClose()">
 </app-contract-details-modal>
+
+<!-- Modal de Stock Completo Logicware -->
+<app-logicware-full-stock-modal
+  [isOpen]="isFullStockModalOpen"
+  [stockData]="fullStockData"
+  [loading]="fullStockLoading"
+  (closeModal)="onFullStockModalClose()"
+  (refresh)="onRefreshFullStock()">
+</app-logicware-full-stock-modal>

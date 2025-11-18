@@ -1,0 +1,514 @@
+<div class="tax-parameters-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="title-section">
+        <h1 class="page-title">
+          <lucide-angular [img]="Calculator" [size]="32" class="title-icon"></lucide-angular>
+          Parámetros Tributarios
+        </h1>
+        <p class="page-subtitle">
+          Gestiona los valores dinámicos para cálculo de planillas (UIT, RMV, AFP, ONP, Impuesto a la Renta)
+        </p>
+      </div>
+
+      <div class="header-actions">
+        @if (isNewYear()) {
+          <button 
+            class="btn btn-secondary"
+            (click)="copyFromPreviousYear()"
+            [disabled]="loading()">
+            <lucide-angular [img]="Copy" [size]="18"></lucide-angular>
+            Copiar {{ selectedYear() - 1 }}
+          </button>
+        }
+        
+        <button 
+          class="btn btn-primary"
+          (click)="save()"
+          [disabled]="!isFormValid() || !hasChanges() || saving()">
+          @if (saving()) {
+            <lucide-angular [img]="RefreshCw" [size]="18" class="spin"></lucide-angular>
+            Guardando...
+          } @else {
+            <lucide-angular [img]="Save" [size]="18"></lucide-angular>
+            Guardar Cambios
+          }
+        </button>
+      </div>
+    </div>
+
+    <!-- Year Selector -->
+    <div class="year-selector">
+      <div class="years-list">
+        @for (year of availableYears(); track year) {
+          <button 
+            class="year-badge"
+            [class.active]="year === selectedYear()"
+            [ngClass]="getYearBadgeClass(year)"
+            (click)="changeYear(year)">
+            <span class="year-number">{{ year }}</span>
+            <span class="year-status">{{ getYearBadgeText(year) }}</span>
+          </button>
+        }
+        
+        <button 
+          class="year-badge year-badge-new"
+          (click)="createNewYear()">
+          <lucide-angular [img]="Calendar" [size]="18"></lucide-angular>
+          Nuevo Año
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="loading-container">
+      <lucide-angular [img]="RefreshCw" [size]="48" class="spin"></lucide-angular>
+      <p>Cargando parámetros...</p>
+    </div>
+  } @else {
+    <!-- Form -->
+    <form [formGroup]="form" class="parameters-form">
+      
+      <!-- Valores Base -->
+      <div class="form-section">
+        <div class="section-header">
+          <lucide-angular [img]="DollarSign" [size]="24" class="section-icon"></lucide-angular>
+          <div>
+            <h2 class="section-title">Valores Base</h2>
+            <p class="section-description">UIT, RMV y Asignación Familiar</p>
+          </div>
+        </div>
+
+        <div class="form-grid grid-3">
+          <div class="form-group">
+            <label class="form-label">
+              UIT {{ selectedYear() }}
+              <span class="text-muted">(Unidad Impositiva Tributaria)</span>
+            </label>
+            <div class="input-group">
+              <span class="input-prefix">S/</span>
+              <input 
+                type="number" 
+                class="form-control"
+                formControlName="uit_amount"
+                step="0.01"
+                placeholder="5350.00">
+            </div>
+            @if (form.get('uit_amount')?.value) {
+              <small class="form-hint success">
+                <lucide-angular [img]="CheckCircle" [size]="14"></lucide-angular>
+                7 UIT = S/ {{ (form.get('uit_amount')?.value * 7).toFixed(2) }} (deducción anual)
+              </small>
+            }
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              RMV {{ selectedYear() }}
+              <span class="text-muted">(Remuneración Mínima Vital)</span>
+            </label>
+            <div class="input-group">
+              <span class="input-prefix">S/</span>
+              <input 
+                type="number" 
+                class="form-control"
+                formControlName="minimum_wage"
+                step="0.01"
+                placeholder="1130.00">
+            </div>
+            <small class="form-hint">
+              <lucide-angular [img]="AlertCircle" [size]="14"></lucide-angular>
+              Al cambiar RMV, se calcula automáticamente la asignación familiar
+            </small>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              Asignación Familiar
+              <span class="text-muted">(10% del RMV)</span>
+            </label>
+            <div class="input-group">
+              <span class="input-prefix">S/</span>
+              <input 
+                type="number" 
+                class="form-control calculated"
+                formControlName="family_allowance"
+                step="0.01"
+                readonly>
+              <button 
+                type="button" 
+                class="input-suffix-btn"
+                (click)="calculateFamilyAllowance()"
+                title="Recalcular">
+                <lucide-angular [img]="Calculator" [size]="16"></lucide-angular>
+              </button>
+            </div>
+            <small class="form-hint success">
+              <lucide-angular [img]="CheckCircle" [size]="14"></lucide-angular>
+              Calculado automáticamente
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <!-- AFP -->
+      <div class="form-section">
+        <div class="section-header">
+          <lucide-angular [img]="Percent" [size]="24" class="section-icon"></lucide-angular>
+          <div>
+            <h2 class="section-title">AFP - Administradora de Fondos de Pensiones</h2>
+            <p class="section-description">Tasas de aporte, seguro y comisiones por AFP</p>
+          </div>
+        </div>
+
+        <div class="form-grid grid-3">
+          <div class="form-group">
+            <label class="form-label">
+              Aporte AFP
+              <span class="text-badge badge-law">Ley</span>
+            </label>
+            <div class="input-group">
+              <input 
+                type="number" 
+                class="form-control"
+                formControlName="afp_contribution_rate"
+                step="0.01"
+                min="0"
+                max="100">
+              <span class="input-suffix">%</span>
+            </div>
+            <small class="form-hint">Normalmente 10% (fijado por ley)</small>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              Seguro AFP
+              <span class="text-badge badge-law">Ley</span>
+            </label>
+            <div class="input-group">
+              <input 
+                type="number" 
+                class="form-control"
+                formControlName="afp_insurance_rate"
+                step="0.01"
+                min="0"
+                max="100">
+              <span class="input-suffix">%</span>
+            </div>
+            <small class="form-hint">Normalmente 0.99% (fijado por ley)</small>
+          </div>
+        </div>
+
+        <div class="subsection-title">Comisiones por AFP (actualizadas por SBS)</div>
+        
+        <div class="form-grid grid-4">
+          <div class="form-group">
+            <label class="form-label">
+              AFP Prima
+              <span class="text-badge badge-sbs">SBS</span>
+            </label>
+            <div class="input-group">
+              <input 
+                type="number" 
+                class="form-control"
+                formControlName="afp_prima_commission"
+                step="0.01"
+                min="0"
+                max="100">
+              <span class="input-suffix">%</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              AFP Integra
+              <span class="text-badge badge-sbs">SBS</span>
+            </label>
+            <div class="input-group">
+              <input 
+                type="number" 
+                class="form-control"
+                formControlName="afp_integra_commission"
+                step="0.01"
+                min="0"
+                max="100">
+              <span class="input-suffix">%</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              AFP Profuturo
+              <span class="text-badge badge-sbs">SBS</span>
+            </label>
+            <div class="input-group">
+              <input 
+                type="number" 
+                class="form-control"
+                formControlName="afp_profuturo_commission"
+                step="0.01"
+                min="0"
+                max="100">
+              <span class="input-suffix">%</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              AFP Habitat
+              <span class="text-badge badge-sbs">SBS</span>
+            </label>
+            <div class="input-group">
+              <input 
+                type="number" 
+                class="form-control"
+                formControlName="afp_habitat_commission"
+                step="0.01"
+                min="0"
+                max="100">
+              <span class="input-suffix">%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ONP y EsSalud -->
+      <div class="form-section">
+        <div class="section-header">
+          <lucide-angular [img]="TrendingUp" [size]="24" class="section-icon"></lucide-angular>
+          <div>
+            <h2 class="section-title">ONP y EsSalud</h2>
+            <p class="section-description">Tasas de aportación social</p>
+          </div>
+        </div>
+
+        <div class="form-grid grid-2">
+          <div class="form-group">
+            <label class="form-label">
+              Tasa ONP
+              <span class="text-badge badge-law">Ley</span>
+            </label>
+            <div class="input-group">
+              <input 
+                type="number" 
+                class="form-control"
+                formControlName="onp_rate"
+                step="0.01"
+                min="0"
+                max="100">
+              <span class="input-suffix">%</span>
+            </div>
+            <small class="form-hint">Normalmente 13% (fijado por ley)</small>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              Tasa EsSalud (empleador)
+              <span class="text-badge badge-law">Ley</span>
+            </label>
+            <div class="input-group">
+              <input 
+                type="number" 
+                class="form-control"
+                formControlName="essalud_rate"
+                step="0.01"
+                min="0"
+                max="100">
+              <span class="input-suffix">%</span>
+            </div>
+            <small class="form-hint">Normalmente 9% (pagado por empleador)</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Impuesto a la Renta -->
+      <div class="form-section">
+        <div class="section-header">
+          <lucide-angular [img]="DollarSign" [size]="24" class="section-icon"></lucide-angular>
+          <div>
+            <h2 class="section-title">Impuesto a la Renta - 5ta Categoría</h2>
+            <p class="section-description">Tramos y tasas progresivas</p>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">
+            Deducción Anual
+            <span class="text-muted">(en UIT)</span>
+          </label>
+          <div class="input-group" style="max-width: 300px;">
+            <input 
+              type="number" 
+              class="form-control"
+              formControlName="rent_tax_deduction_uit"
+              step="0.01"
+              min="0">
+            <span class="input-suffix">UIT</span>
+          </div>
+          @if (form.get('rent_tax_deduction_uit')?.value && form.get('uit_amount')?.value) {
+            <small class="form-hint success">
+              <lucide-angular [img]="CheckCircle" [size]="14"></lucide-angular>
+              {{ form.get('rent_tax_deduction_uit')?.value }} UIT = S/ {{ (form.get('rent_tax_deduction_uit')?.value * form.get('uit_amount')?.value).toFixed(2) }} anuales
+            </small>
+          }
+        </div>
+
+        <div class="subsection-title">Tramos de Impuesto</div>
+
+        <div class="tax-brackets-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Tramo</th>
+                <th>Hasta (UIT)</th>
+                <th>Tasa (%)</th>
+                <th>Equivalente en Soles</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>1</strong></td>
+                <td>
+                  <input 
+                    type="number" 
+                    class="form-control-sm"
+                    formControlName="rent_tax_tramo1_uit"
+                    step="0.01">
+                  UIT
+                </td>
+                <td>
+                  <div class="input-group-sm">
+                    <input 
+                      type="number" 
+                      class="form-control-sm"
+                      formControlName="rent_tax_tramo1_rate"
+                      step="0.01">
+                    <span>%</span>
+                  </div>
+                </td>
+                <td class="text-muted">
+                  S/ {{ (form.get('rent_tax_tramo1_uit')?.value * form.get('uit_amount')?.value).toFixed(2) }}
+                </td>
+              </tr>
+              <tr>
+                <td><strong>2</strong></td>
+                <td>
+                  <input 
+                    type="number" 
+                    class="form-control-sm"
+                    formControlName="rent_tax_tramo2_uit"
+                    step="0.01">
+                  UIT
+                </td>
+                <td>
+                  <div class="input-group-sm">
+                    <input 
+                      type="number" 
+                      class="form-control-sm"
+                      formControlName="rent_tax_tramo2_rate"
+                      step="0.01">
+                    <span>%</span>
+                  </div>
+                </td>
+                <td class="text-muted">
+                  S/ {{ (form.get('rent_tax_tramo2_uit')?.value * form.get('uit_amount')?.value).toFixed(2) }}
+                </td>
+              </tr>
+              <tr>
+                <td><strong>3</strong></td>
+                <td>
+                  <input 
+                    type="number" 
+                    class="form-control-sm"
+                    formControlName="rent_tax_tramo3_uit"
+                    step="0.01">
+                  UIT
+                </td>
+                <td>
+                  <div class="input-group-sm">
+                    <input 
+                      type="number" 
+                      class="form-control-sm"
+                      formControlName="rent_tax_tramo3_rate"
+                      step="0.01">
+                    <span>%</span>
+                  </div>
+                </td>
+                <td class="text-muted">
+                  S/ {{ (form.get('rent_tax_tramo3_uit')?.value * form.get('uit_amount')?.value).toFixed(2) }}
+                </td>
+              </tr>
+              <tr>
+                <td><strong>4</strong></td>
+                <td>
+                  <input 
+                    type="number" 
+                    class="form-control-sm"
+                    formControlName="rent_tax_tramo4_uit"
+                    step="0.01">
+                  UIT
+                </td>
+                <td>
+                  <div class="input-group-sm">
+                    <input 
+                      type="number" 
+                      class="form-control-sm"
+                      formControlName="rent_tax_tramo4_rate"
+                      step="0.01">
+                    <span>%</span>
+                  </div>
+                </td>
+                <td class="text-muted">
+                  S/ {{ (form.get('rent_tax_tramo4_uit')?.value * form.get('uit_amount')?.value).toFixed(2) }}
+                </td>
+              </tr>
+              <tr>
+                <td><strong>5+</strong></td>
+                <td class="text-muted">Sin límite</td>
+                <td>
+                  <div class="input-group-sm">
+                    <input 
+                      type="number" 
+                      class="form-control-sm"
+                      formControlName="rent_tax_tramo5_rate"
+                      step="0.01">
+                    <span>%</span>
+                  </div>
+                </td>
+                <td class="text-muted">Más de S/ {{ (form.get('rent_tax_tramo4_uit')?.value * form.get('uit_amount')?.value).toFixed(2) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <button 
+          type="button" 
+          class="btn btn-secondary"
+          (click)="resetForm()"
+          [disabled]="!hasChanges()">
+          Descartar Cambios
+        </button>
+        
+        <button 
+          type="submit" 
+          class="btn btn-primary"
+          (click)="save()"
+          [disabled]="!isFormValid() || !hasChanges() || saving()">
+          @if (saving()) {
+            <lucide-angular [img]="RefreshCw" [size]="18" class="spin"></lucide-angular>
+            Guardando...
+          } @else {
+            <lucide-angular [img]="Save" [size]="18"></lucide-angular>
+            Guardar Parámetros
+          }
+        </button>
+      </div>
+    </form>
+  }
+</div>

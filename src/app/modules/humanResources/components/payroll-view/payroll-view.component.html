@@ -115,6 +115,10 @@
                 <span class="item-label font-medium text-gray-700 dark:text-gray-300">Salario Base</span>
                 <span class="item-value positive text-xl font-bold text-green-600 dark:text-green-400">{{ formatCurrency(payroll.base_salary || 0) }}</span>
               </div>
+              <div class="salary-item flex justify-between items-center p-4 bg-teal-50 dark:bg-teal-900/20 rounded-lg border border-teal-200 dark:border-teal-800" *ngIf="payroll.family_allowance">
+                <span class="item-label font-medium text-gray-700 dark:text-gray-300">Asignación Familiar</span>
+                <span class="item-value positive text-xl font-bold text-teal-600 dark:text-teal-400">{{ formatCurrency(payroll.family_allowance || 0) }}</span>
+              </div>
               <div class="salary-item flex justify-between items-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800" *ngIf="payroll.commissions_amount">
                 <span class="item-label font-medium text-gray-700 dark:text-gray-300">Comisiones</span>
                 <span class="item-value positive text-xl font-bold text-blue-600 dark:text-blue-400">{{ formatCurrency(payroll.commissions_amount || 0) }}</span>
@@ -134,24 +138,101 @@
           <div class="salary-section">
             <h4 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
               <div class="w-2 h-2 bg-red-500 rounded-full"></div>
-              Deducciones
+              Deducciones del Empleado
             </h4>
             <div class="salary-items space-y-3">
-              <div class="salary-item flex justify-between items-center p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800" *ngIf="payroll.health_insurance">
-                <span class="item-label font-medium text-gray-700 dark:text-gray-300">Seguro de Salud</span>
-                <span class="item-value negative text-xl font-bold text-red-600 dark:text-red-400">-{{ formatCurrency(payroll.health_insurance || 0) }}</span>
+              <!-- Sistema de Pensiones - Encabezado -->
+              <div class="salary-item flex justify-between items-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800" *ngIf="payroll.pension_system && payroll.total_pension">
+                <div class="flex items-center gap-2">
+                  <span class="item-label font-medium text-gray-700 dark:text-gray-300">
+                    Sistema de Pensiones: <strong>{{ payroll.pension_system }}</strong>
+                  </span>
+                  <span class="text-xs px-2 py-1 bg-purple-100 dark:bg-purple-800 text-purple-700 dark:text-purple-300 rounded-full font-semibold" *ngIf="payroll.afp_provider">
+                    {{ payroll.afp_provider }}
+                  </span>
+                </div>
+                <span class="item-value negative text-xl font-bold text-purple-600 dark:text-purple-400">-{{ formatCurrency(payroll.total_pension || 0) }}</span>
               </div>
-              <div class="salary-item flex justify-between items-center p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800" *ngIf="payroll.social_security">
-                <span class="item-label font-medium text-gray-700 dark:text-gray-300">Seguridad Social</span>
-                <span class="item-value negative text-xl font-bold text-red-600 dark:text-red-400">-{{ formatCurrency(payroll.social_security || 0) }}</span>
+              
+              <!-- Desglose AFP (si aplica) -->
+              <div class="ml-6 space-y-2 bg-purple-50/30 dark:bg-purple-900/10 p-4 rounded-lg border border-purple-100 dark:border-purple-800" *ngIf="payroll.pension_system === 'AFP' && (payroll.afp_contribution || payroll.afp_commission || payroll.afp_insurance)">
+                <div class="text-xs font-semibold text-purple-700 dark:text-purple-300 mb-2 uppercase tracking-wide">Desglose AFP</div>
+                <div class="salary-item-small flex justify-between items-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-purple-200 dark:border-purple-700" *ngIf="payroll.afp_contribution">
+                  <div class="flex items-center gap-2">
+                    <span class="item-label text-sm text-gray-600 dark:text-gray-400">Aporte Obligatorio</span>
+                    <span class="text-xs px-2 py-0.5 bg-purple-100 dark:bg-purple-800 text-purple-700 dark:text-purple-300 rounded font-semibold">10%</span>
+                  </div>
+                  <span class="item-value text-sm font-semibold text-purple-600 dark:text-purple-400">-{{ formatCurrency(payroll.afp_contribution || 0) }}</span>
+                </div>
+                <div class="salary-item-small flex justify-between items-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-purple-200 dark:border-purple-700" *ngIf="payroll.afp_commission">
+                  <div class="flex items-center gap-2">
+                    <span class="item-label text-sm text-gray-600 dark:text-gray-400">Comisión por Administración</span>
+                    <span class="text-xs px-2 py-0.5 bg-orange-100 dark:bg-orange-800 text-orange-700 dark:text-orange-300 rounded font-semibold">Variable</span>
+                  </div>
+                  <span class="item-value text-sm font-semibold text-purple-600 dark:text-purple-400">-{{ formatCurrency(payroll.afp_commission || 0) }}</span>
+                </div>
+                <div class="salary-item-small flex justify-between items-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-purple-200 dark:border-purple-700" *ngIf="payroll.afp_insurance">
+                  <div class="flex items-center gap-2">
+                    <span class="item-label text-sm text-gray-600 dark:text-gray-400">Seguro de Invalidez</span>
+                    <span class="text-xs px-2 py-0.5 bg-blue-100 dark:bg-blue-800 text-blue-700 dark:text-blue-300 rounded font-semibold">0.99%</span>
+                  </div>
+                  <span class="item-value text-sm font-semibold text-purple-600 dark:text-purple-400">-{{ formatCurrency(payroll.afp_insurance || 0) }}</span>
+                </div>
               </div>
-              <div class="salary-item flex justify-between items-center p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800" *ngIf="payroll.income_tax">
-                <span class="item-label font-medium text-gray-700 dark:text-gray-300">Impuesto sobre la Renta</span>
-                <span class="item-value negative text-xl font-bold text-red-600 dark:text-red-400">-{{ formatCurrency(payroll.income_tax || 0) }}</span>
+              
+              <!-- Desglose ONP (si aplica) -->
+              <div class="ml-6 space-y-2 bg-purple-50/30 dark:bg-purple-900/10 p-4 rounded-lg border border-purple-100 dark:border-purple-800" *ngIf="payroll.pension_system === 'ONP' && payroll.onp_contribution">
+                <div class="text-xs font-semibold text-purple-700 dark:text-purple-300 mb-2 uppercase tracking-wide">Desglose ONP</div>
+                <div class="salary-item-small flex justify-between items-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-purple-200 dark:border-purple-700">
+                  <div class="flex items-center gap-2">
+                    <span class="item-label text-sm text-gray-600 dark:text-gray-400">Aporte Obligatorio</span>
+                    <span class="text-xs px-2 py-0.5 bg-purple-100 dark:bg-purple-800 text-purple-700 dark:text-purple-300 rounded font-semibold">13%</span>
+                  </div>
+                  <span class="item-value text-sm font-semibold text-purple-600 dark:text-purple-400">-{{ formatCurrency(payroll.onp_contribution || 0) }}</span>
+                </div>
               </div>
-              <div class="salary-item flex justify-between items-center p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800" *ngIf="payroll.other_deductions">
+
+              <!-- Impuesto a la Renta (5ta categoría) -->
+              <div class="salary-item flex justify-between items-center p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800" *ngIf="payroll.rent_tax_5th">
+                <div class="flex items-center gap-2">
+                  <span class="item-label font-medium text-gray-700 dark:text-gray-300">Impuesto a la Renta</span>
+                  <span class="text-xs px-2 py-1 bg-red-100 dark:bg-red-800 text-red-700 dark:text-red-300 rounded-full font-semibold">5ta Categoría</span>
+                </div>
+                <span class="item-value negative text-xl font-bold text-red-600 dark:text-red-400">-{{ formatCurrency(payroll.rent_tax_5th || 0) }}</span>
+              </div>
+
+              <!-- Seguro de Salud (EsSalud) - Descuento del Empleado -->
+              <div class="salary-item flex justify-between items-center p-4 bg-cyan-50 dark:bg-cyan-900/20 rounded-lg border border-cyan-200 dark:border-cyan-800" *ngIf="payroll.employee_essalud">
+                <div class="flex items-center gap-2">
+                  <span class="item-label font-medium text-gray-700 dark:text-gray-300">Seguro de Salud (EsSalud)</span>
+                  <span class="text-xs px-2 py-1 bg-cyan-100 dark:bg-cyan-800 text-cyan-700 dark:text-cyan-300 rounded-full font-semibold">9%</span>
+                </div>
+                <span class="item-value negative text-xl font-bold text-cyan-600 dark:text-cyan-400">-{{ formatCurrency(payroll.employee_essalud || 0) }}</span>
+              </div>
+              
+              <!-- Otras Deducciones -->
+              <div class="salary-item flex justify-between items-center p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800" *ngIf="payroll.other_deductions && payroll.other_deductions > 0">
                 <span class="item-label font-medium text-gray-700 dark:text-gray-300">Otras Deducciones</span>
                 <span class="item-value negative text-xl font-bold text-red-600 dark:text-red-400">-{{ formatCurrency(payroll.other_deductions || 0) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Aporte del Empleador (Informativo) -->
+          <div class="salary-section" *ngIf="payroll.employer_essalud && payroll.employer_essalud > 0">
+            <h4 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
+              <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+              Aporte del Empleador
+              <span class="text-xs px-2 py-1 bg-blue-100 dark:bg-blue-800 text-blue-700 dark:text-blue-300 rounded-full font-semibold">Informativo</span>
+            </h4>
+            <div class="salary-items space-y-3">
+              <div class="salary-item flex justify-between items-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                <div class="flex items-center gap-2">
+                  <span class="item-label font-medium text-gray-700 dark:text-gray-300">EsSalud</span>
+                  <span class="text-xs px-2 py-0.5 bg-blue-100 dark:bg-blue-800 text-blue-700 dark:text-blue-300 rounded font-semibold">9%</span>
+                  <span class="text-xs text-gray-500 dark:text-gray-400">(No se descuenta al empleado)</span>
+                </div>
+                <span class="item-value text-xl font-bold text-blue-600 dark:text-blue-400">{{ formatCurrency(payroll.employer_essalud || 0) }}</span>
               </div>
             </div>
           </div>

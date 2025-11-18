@@ -36,10 +36,23 @@ export interface Employee {
   employment_status: 'activo' | 'inactivo' | 'suspendido';
   contract_type: 'indefinido' | 'temporal' | 'practicas' | 'freelance';
   work_schedule?: string;
+  
+  // Sistema Pensionario (nuevos campos para nóminas mejoradas)
+  pension_system?: 'AFP' | 'ONP' | 'NINGUNO';
+  afp_provider?: 'PRIMA' | 'INTEGRA' | 'PROFUTURO' | 'HABITAT';
+  cuspp?: string;
+  has_family_allowance?: boolean;
+  number_of_children?: number;
+  
+  // Campos heredados/legacy
   social_security_number?: string;
   afp_code?: string;
-  cuspp?: string;
   health_insurance?: string;
+  
+  // Campos organizacionales
+  department?: string;
+  position?: string;
+  
   notes?: string;
   status:string;
 

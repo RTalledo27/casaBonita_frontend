@@ -131,6 +131,9 @@
       "payroll": {
         "title": "Payroll"
       },
+      "tax-parameters": {
+        "title": "Tax Parameters"
+      },
       "attendance": {
         "title": "Attendance"
       }

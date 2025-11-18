@@ -15,14 +15,26 @@ export interface PayrollFilters {
 }
 
 export interface PayrollGenerateRequest {
-  employee_id?: number;
+  employee_id?: number; // Para backward compatibility
+  employee_ids?: number[]; // Para generación en batch
   month: number;
   year: number;
-  pay_date?: string;
+  pay_date: string;
   include_commissions?: boolean;
   include_bonuses?: boolean;
   include_overtime?: boolean;
   notes?: string;
+}
+
+export interface PayrollBatchResponse {
+  success: boolean;
+  data: {
+    payrolls: Payroll[];
+    successful: number;
+    failed: number;
+    errors: Array<{ employee_id: number; employee_name?: string; error: string }>;
+  };
+  message: string;
 }
 
 export interface PayrollResponse {
@@ -85,6 +97,11 @@ export class PayrollService {
     return this.http
       .post<ApiResponse<Payroll | Payroll[]>>(API_ROUTES.HR.PAYROLL_GENERATE, request)
       .pipe(map((response) => response.data));
+  }
+
+  // Nuevo método específico para generación en batch (más claro)
+  generatePayrollBatch(request: PayrollGenerateRequest): Observable<PayrollBatchResponse> {
+    return this.http.post<PayrollBatchResponse>(API_ROUTES.HR.PAYROLL_GENERATE, request);
   }
 
   processPayroll(id: number): Observable<boolean> {
