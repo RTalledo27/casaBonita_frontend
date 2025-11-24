@@ -2,7 +2,7 @@ import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { LucideAngularModule, DollarSign, Calendar, Filter, Search, Eye, CheckCircle, XCircle, Clock, TrendingUp, Plus, Edit, Trash2, FileText, ChevronRight, Users, AlertTriangle, Shield, CheckCircle2, CreditCard, RefreshCw } from 'lucide-angular';
+import { LucideAngularModule, DollarSign, Calendar, Filter, Search, Eye, CheckCircle, XCircle, Clock, TrendingUp, Plus, Edit, Trash2, FileText, ChevronRight, Users, User, AlertTriangle, Shield, CheckCircle2, CreditCard, RefreshCw } from 'lucide-angular';
 import { AdvisorCommissionsModalComponent, AdvisorGroup } from '../advisor-commissions-modal/advisor-commissions-modal.component';
 import { CommissionService } from '../../services/commission.service';
 import { Commission } from '../../models/commission';
@@ -32,7 +32,7 @@ interface ContractGroup {
   styleUrls: ['./commission-list.component.scss']
 })
 export class CommissionListComponent implements OnInit {
-  
+
   private commissionService = inject(CommissionService);
   private router = inject(Router);
   private toastService = inject(ToastService);
@@ -73,11 +73,12 @@ export class CommissionListComponent implements OnInit {
   FileText = FileText;
   ChevronRight = ChevronRight;
   Users = Users;
+  User = User;
   AlertTriangle = AlertTriangle;
   Shield = Shield;
   CheckCircle2 = CheckCircle2;
   CreditCard = CreditCard;
-  RefreshCw =  RefreshCw;
+  RefreshCw = RefreshCw;
 
   // Opciones para filtros
   statusOptions = [
@@ -117,8 +118,8 @@ export class CommissionListComponent implements OnInit {
     return commissions.filter(commission => {
       // Solo incluir comisiones padre (sin parent_commission_id)
       const isParentCommission = !commission.parent_commission_id;
-      
-      const matchesSearch = !search || 
+
+      const matchesSearch = !search ||
         commission.employee?.user?.first_name?.toLowerCase().includes(search) ||
         commission.employee?.user?.last_name?.toLowerCase().includes(search) ||
         commission.employee?.employee_code?.toLowerCase().includes(search);
@@ -135,7 +136,7 @@ export class CommissionListComponent implements OnInit {
     const itemsPerPage = 10;
     const startIndex = (this.currentPage() - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
-    
+
     return filtered.slice(startIndex, endIndex);
   });
 
@@ -152,30 +153,30 @@ export class CommissionListComponent implements OnInit {
   // Computed para comisiones agrupadas por asesor - Solo comisiones padre
   groupedCommissions = computed(() => {
     const commissions = this.filteredCommissions();
-    
+
     console.log('=== DEBUG: Procesando groupedCommissions ===');
     console.log('Comisiones filtradas:', commissions.length);
-    
-    const parentCommissions = commissions.filter(commission => 
+
+    const parentCommissions = commissions.filter(commission =>
       !commission.parent_commission_id
     );
-    
+
     parentCommissions.forEach(commission => {
       const advisorId = commission.employee?.employee_id || 'unknown';
-      const advisorName = commission.employee?.user ? 
-        `${commission.employee.user.first_name} ${commission.employee.user.last_name}` : 
+      const advisorName = commission.employee?.user ?
+        `${commission.employee.user.first_name} ${commission.employee.user.last_name}` :
         'Sin nombre';
-      
+
       console.log(`Procesando comisión - ID Asesor: ${advisorId}, Nombre: ${advisorName}`);
     });
-    
+
     const groups: { [key: string]: AdvisorGroup } = {};
-    
+
     parentCommissions.forEach((commission) => {
       const employeeId = commission.employee?.employee_id;
       const advisorName = `${commission.employee?.user?.first_name || ''} ${commission.employee?.user?.last_name || ''}`.trim() || 'Nombre no disponible';
       const groupKey = employeeId ? `advisor_${employeeId}` : `name_${advisorName}_${commission.commission_id}`;
-      
+
       if (!groups[groupKey]) {
         groups[groupKey] = {
           employee: commission.employee,
@@ -189,24 +190,24 @@ export class CommissionListComponent implements OnInit {
           overallStatus: 'all_pending'
         };
       }
-      
+
       groups[groupKey].commissions.push(commission);
-      
+
       const amount = parseFloat(commission.commission_amount?.toString() || '0');
       groups[groupKey].totalAmount += amount;
-      
+
       if (commission.payment_status === 'pagado') {
         groups[groupKey].paidAmount += amount;
         groups[groupKey].paidCount++;
       } else {
         groups[groupKey].pendingCount++;
       }
-      
+
       groups[groupKey].pendingAmount = groups[groupKey].totalAmount - groups[groupKey].paidAmount;
-      groups[groupKey].paymentPercentage = groups[groupKey].totalAmount > 0 
-        ? (groups[groupKey].paidAmount / groups[groupKey].totalAmount) * 100 
+      groups[groupKey].paymentPercentage = groups[groupKey].totalAmount > 0
+        ? (groups[groupKey].paidAmount / groups[groupKey].totalAmount) * 100
         : 0;
-      
+
       if (groups[groupKey].paidCount === groups[groupKey].commissions.length) {
         groups[groupKey].overallStatus = 'all_paid';
       } else if (groups[groupKey].paidCount > 0) {
@@ -215,7 +216,7 @@ export class CommissionListComponent implements OnInit {
         groups[groupKey].overallStatus = 'all_pending';
       }
     });
-    
+
     const result = Object.values(groups);
     console.log('Grupos finales:', result.length);
     return result;
@@ -277,7 +278,7 @@ export class CommissionListComponent implements OnInit {
 
     try {
       const commissionPeriod = `${this.selectedYear()}-${this.selectedMonth().toString().padStart(2, '0')}`;
-      
+
       const response = await this.commissionService.getCommissions({
         commission_period: commissionPeriod,
         status: this.selectedStatus(),
@@ -285,10 +286,10 @@ export class CommissionListComponent implements OnInit {
         per_page: 1000,
         include_split_payments: this.showSplitPayments()
       }).toPromise();
-      
+
       if (response && response.data) {
         console.log(`✅ Loaded ${response.data.length} commissions`);
-        
+
         // Debug logging: mostrar estructura completa de las primeras 2 comisiones
         console.log('=== DEBUG: Estructura de comisiones recibidas ===');
         console.log('Total comisiones:', response.data.length);
@@ -302,7 +303,7 @@ export class CommissionListComponent implements OnInit {
           console.log('employee.user de segunda comisión:', response.data[1].employee?.user);
           console.log('Nombre completo segunda comisión:', response.data[1].employee?.user?.first_name, response.data[1].employee?.user?.last_name);
         }
-        
+
         // Logging detallado de las primeras 2 comisiones
         if (response.data.length > 0) {
           console.log('🔍 DETAILED COMMISSION STRUCTURE - First 2 commissions:');
@@ -323,7 +324,7 @@ export class CommissionListComponent implements OnInit {
             });
           });
         }
-        
+
         this.commissions.set(response.data);
       }
     } catch (error) {
@@ -396,11 +397,11 @@ export class CommissionListComponent implements OnInit {
     try {
       // Crear el período de comisión en formato YYYY-MM
       const commissionPeriod = `${this.selectedYear()}-${this.selectedMonth().toString().padStart(2, '0')}`;
-      
+
       await this.commissionService.processCommissionsForPeriod(
         commissionPeriod
       ).toPromise();
-      
+
       this.toastService.success('Comisiones procesadas exitosamente');
       this.loadCommissions();
     } catch (error) {
@@ -448,7 +449,7 @@ export class CommissionListComponent implements OnInit {
 
   getStatusClass(status: string | undefined): string {
     if (!status) return 'bg-gray-100 text-gray-800';
-    
+
     switch (status) {
       case 'fully_paid':
         return 'bg-green-100 text-green-800';
@@ -465,7 +466,7 @@ export class CommissionListComponent implements OnInit {
 
   getStatusLabel(status: string | undefined): string {
     if (!status) return 'Sin Estado';
-    
+
     switch (status) {
       case 'fully_paid':
         return 'Completamente Pagada';
@@ -497,7 +498,7 @@ export class CommissionListComponent implements OnInit {
 
   getCommissionTypeLabel(type: string | undefined): string {
     if (!type) return 'No especificado';
-    
+
     switch (type) {
       case 'sale': return 'Venta';
       case 'bonus': return 'Bono';
@@ -509,7 +510,7 @@ export class CommissionListComponent implements OnInit {
   formatCurrency(amount: number | string): string {
     // Convertir a número de forma segura
     let numericAmount: number;
-    
+
     if (typeof amount === 'string') {
       // Si es string, intentar extraer solo el primer número válido
       const cleanAmount = amount.toString().replace(/[^\d.-]/g, '');
@@ -518,12 +519,12 @@ export class CommissionListComponent implements OnInit {
     } else {
       numericAmount = amount || 0;
     }
-    
+
     // Validar que sea un número válido
     if (isNaN(numericAmount) || !isFinite(numericAmount)) {
       numericAmount = 0;
     }
-    
+
     return new Intl.NumberFormat('es-PE', {
       style: 'currency',
       currency: 'PEN',
@@ -570,8 +571,8 @@ export class CommissionListComponent implements OnInit {
 
   getCommissionHierarchyLabel(commission: Commission): string {
     if (this.isParentCommission(commission)) {
-      return commission.child_commissions && commission.child_commissions.length > 0 
-        ? 'Comisión General (con divisiones)' 
+      return commission.child_commissions && commission.child_commissions.length > 0
+        ? 'Comisión General (con divisiones)'
         : 'Comisión General';
     } else {
       return `División ${commission.payment_part || 'N/A'}`;
@@ -640,20 +641,20 @@ export class CommissionListComponent implements OnInit {
   viewAdvisorCommissions(advisorGroup: AdvisorGroup) {
     alert('¡Botón clickeado! Abriendo modal...');
     console.log('=== OPENING ADVISOR COMMISSIONS MODAL ===');
-    
+
     // Crear una copia del advisorGroup con todas las comisiones (padre + hijas)
     const allCommissions: Commission[] = [];
-    
+
     // Agregar comisiones padre y sus hijas
     advisorGroup.commissions.forEach(parentCommission => {
       allCommissions.push(parentCommission);
-      
+
       // Agregar child_commissions si existen
       if (parentCommission.child_commissions && parentCommission.child_commissions.length > 0) {
         allCommissions.push(...parentCommission.child_commissions);
       }
     });
-    
+
     // Crear un AdvisorGroup temporal para el modal (mantener compatibilidad)
     const tempAdvisorGroup: AdvisorGroup = {
       employee: {
@@ -682,12 +683,12 @@ export class CommissionListComponent implements OnInit {
       paymentPercentage: advisorGroup.paymentPercentage,
       overallStatus: advisorGroup.overallStatus
     };
-    
+
     console.log('AdvisorGroup to send to modal (with children):', tempAdvisorGroup);
     console.log('Advisor data:', `${advisorGroup.commissions[0]?.employee?.user?.first_name || ''} ${advisorGroup.commissions[0]?.employee?.user?.last_name || ''}`.trim());
     console.log('Total commissions count (parent + children):', allCommissions?.length || 0);
     console.log('Commissions data (parent + children):', allCommissions);
-    
+
     // Log individual commission details
     if (allCommissions && allCommissions.length > 0) {
       console.log('=== INDIVIDUAL COMMISSION DETAILS ===');
@@ -706,7 +707,7 @@ export class CommissionListComponent implements OnInit {
           contract_id_type: typeof (commission.contract?.contract_id || commission.contract_id),
           contract_id_value: commission.contract?.contract_id || commission.contract_id
         });
-        
+
         // Log detallado de la estructura del contrato
         if (commission.contract) {
           console.log(`Commission ${index + 1} - Contract details:`, commission.contract);
@@ -714,14 +715,14 @@ export class CommissionListComponent implements OnInit {
           console.log(`Commission ${index + 1} - NO CONTRACT OBJECT FOUND`);
         }
       });
-      
+
       // Verificar si hay contract_ids únicos
       const contractIds = allCommissions.map(c => c.contract?.contract_id || c.contract_id).filter(id => id !== null && id !== undefined);
       const uniqueContractIds = [...new Set(contractIds)];
       console.log('All contract_ids:', contractIds);
       console.log('Unique contract_ids:', uniqueContractIds);
       console.log('Expected contracts count:', uniqueContractIds.length);
-      
+
       // Verificar comisiones sin contract_id
       const commissionsWithoutContract = allCommissions.filter(c => !(c.contract?.contract_id || c.contract_id));
       console.log('Commissions without contract_id:', commissionsWithoutContract.length);
@@ -729,10 +730,10 @@ export class CommissionListComponent implements OnInit {
         console.log('Commissions without contract_id details:', commissionsWithoutContract);
       }
     }
-    
+
     this.selectedAdvisorGroup.set(tempAdvisorGroup);
     this.showAdvisorModal.set(true);
-    
+
     console.log('Modal state set to:', this.showAdvisorModal());
     console.log('Selected advisor group set to:', this.selectedAdvisorGroup());
   }
@@ -814,8 +815,8 @@ export class CommissionListComponent implements OnInit {
     if (!this.requiresPaymentVerification(commission)) {
       return 'text-gray-600';
     }
-    return this.isEligibleForPayment(commission) 
-      ? 'text-green-600' 
+    return this.isEligibleForPayment(commission)
+      ? 'text-green-600'
       : 'text-red-600';
   }
 
@@ -823,8 +824,8 @@ export class CommissionListComponent implements OnInit {
     if (!this.requiresPaymentVerification(commission)) {
       return 'No requiere verificación';
     }
-    return this.isEligibleForPayment(commission) 
-      ? 'Elegible para pago' 
+    return this.isEligibleForPayment(commission)
+      ? 'Elegible para pago'
       : 'No elegible para pago';
   }
 
@@ -878,13 +879,13 @@ export class CommissionListComponent implements OnInit {
     if (!commission.child_commissions || commission.child_commissions.length === 0) {
       return commission.payment_status === 'pagado' ? 100 : 0;
     }
-    
+
     const totalAmount = this.parseAmount(commission.commission_amount);
     const paidCommissions = commission.child_commissions
       .filter(child => child.payment_status === 'pagado');
     const paidAmount = paidCommissions
       .reduce((sum, child) => sum + this.parseAmount(child.commission_amount), 0);
-    
+
     return totalAmount > 0 ? Math.round((paidAmount / totalAmount) * 100) : 0;
   }
 }

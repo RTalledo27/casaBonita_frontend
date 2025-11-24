@@ -44,6 +44,10 @@ export const HR_ROUTES: Routes = [
         ]
       },
       {
+        path: 'commission-schemes',
+        loadComponent: () => import('../components/commission-schemes/commission-schemes.component').then(m => m.CommissionSchemesComponent)
+      },
+      {
         path: 'teams',
         children: [
           {

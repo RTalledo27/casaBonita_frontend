@@ -1,18 +1,20 @@
-<section
-  class="commission-list-container w-full min-h-screen px-4 sm:px-6 lg:px-10 2xl:px-16
+<section class="commission-list-container w-full min-h-screen px-4 sm:px-6 lg:px-10 2xl:px-16
          bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20
          dark:from-gray-900 dark:via-slate-900/80 dark:to-indigo-950/30
          relative overflow-x-hidden">
 
   <!-- Fondos decorativos -->
   <div class="absolute inset-0 overflow-hidden pointer-events-none">
-    <div class="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-600/20 rounded-full blur-3xl"></div>
-    <div class="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-tr from-indigo-400/15 to-cyan-400/15 rounded-full blur-3xl"></div>
+    <div
+      class="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-600/20 rounded-full blur-3xl">
+    </div>
+    <div
+      class="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-tr from-indigo-400/15 to-cyan-400/15 rounded-full blur-3xl">
+    </div>
   </div>
 
   <!-- Header -->
-  <header
-    class="max-w-7xl mx-auto w-full bg-white/70 dark:bg-gray-800/70 backdrop-blur-2xl
+  <header class="max-w-7xl mx-auto w-full bg-white/70 dark:bg-gray-800/70 backdrop-blur-2xl
            p-6 md:p-8 rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/50
            mb-8 relative overflow-hidden group">
     <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500"></div>
@@ -33,17 +35,15 @@
       </div>
 
       <div class="header-actions flex flex-col sm:flex-row gap-3 sm:gap-4">
-        <button
-          class="group inline-flex items-center gap-3 px-5 md:px-6 py-3 rounded-2xl font-semibold text-white
+        <button class="group inline-flex items-center gap-3 px-5 md:px-6 py-3 rounded-2xl font-semibold text-white
                  bg-gradient-to-r from-purple-600 via-fuchsia-600 to-pink-600 hover:from-purple-700 hover:via-fuchsia-700 hover:to-pink-700
-                 shadow-xl hover:shadow-2xl transition-all"
-          (click)="viewSalesDetail()">
-          <lucide-angular [name]="FileText" size="18" class="group-hover:rotate-12 transition-transform"></lucide-angular>
+                 shadow-xl hover:shadow-2xl transition-all" (click)="viewSalesDetail()">
+          <lucide-angular [name]="FileText" size="18"
+            class="group-hover:rotate-12 transition-transform"></lucide-angular>
           Detalle de Ventas
         </button>
 
-        <button
-          class="group inline-flex items-center gap-3 px-5 md:px-6 py-3 rounded-2xl font-semibold
+        <button class="group inline-flex items-center gap-3 px-5 md:px-6 py-3 rounded-2xl font-semibold
                  bg-white/80 dark:bg-gray-700/80 text-gray-700 dark:text-gray-100 border border-gray-200/50 dark:border-gray-600/50
                  hover:bg-white dark:hover:bg-gray-600 shadow-lg hover:shadow-xl transition-all"
           (click)="createCommission()">
@@ -51,12 +51,10 @@
           Nueva Comisión
         </button>
 
-        <button
-          class="group inline-flex items-center gap-3 px-5 md:px-6 py-3 rounded-2xl font-semibold text-white
+        <button class="group inline-flex items-center gap-3 px-5 md:px-6 py-3 rounded-2xl font-semibold text-white
                  bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700
                  shadow-xl hover:shadow-2xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-          [disabled]="processing()"
-          (click)="processCommissions()">
+          [disabled]="processing()" (click)="processCommissions()">
           <lucide-angular [name]="TrendingUp" size="18"
             [class]="processing() ? 'animate-pulse' : 'group-hover:scale-110 transition-transform'"></lucide-angular>
           {{ processing() ? 'Procesando...' : 'Procesar Comisiones' }}
@@ -68,49 +66,69 @@
   <!-- Estadísticas -->
   <section class="max-w-7xl mx-auto stats-grid grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
     <!-- Total -->
-    <article class="stat-card group bg-white/70 dark:bg-gray-800/60 backdrop-blur-xl p-6 md:p-8 rounded-3xl shadow-xl border border-white/30 dark:border-gray-700/50 flex items-center gap-5 relative overflow-hidden">
-      <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-      <div class="stat-icon w-14 h-14 md:w-16 md:h-16 rounded-2xl flex items-center justify-center bg-gradient-to-br from-blue-400 via-blue-500 to-indigo-600 text-white shadow-lg">
+    <article
+      class="stat-card group bg-white/70 dark:bg-gray-800/60 backdrop-blur-xl p-6 md:p-8 rounded-3xl shadow-xl border border-white/30 dark:border-gray-700/50 flex items-center gap-5 relative overflow-hidden">
+      <div
+        class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity">
+      </div>
+      <div
+        class="stat-icon w-14 h-14 md:w-16 md:h-16 rounded-2xl flex items-center justify-center bg-gradient-to-br from-blue-400 via-blue-500 to-indigo-600 text-white shadow-lg">
         <lucide-angular [name]="DollarSign" size="26"></lucide-angular>
       </div>
       <div class="stat-content flex-1">
-        <h3 class="stat-value text-2xl md:text-3xl font-black text-gray-900 dark:text-gray-100 mb-1">{{ formatCurrency(computedTotalCommissions()) }}</h3>
+        <h3 class="stat-value text-2xl md:text-3xl font-black text-gray-900 dark:text-gray-100 mb-1">{{
+          formatCurrency(computedTotalCommissions()) }}</h3>
         <p class="stat-label text-gray-600 dark:text-gray-300 text-sm font-medium">Total Comisiones</p>
       </div>
     </article>
 
     <!-- Pagadas -->
-    <article class="stat-card group bg-white/70 dark:bg-gray-800/60 backdrop-blur-xl p-6 md:p-8 rounded-3xl shadow-xl border border-white/30 dark:border-gray-700/50 flex items-center gap-5 relative overflow-hidden">
-      <div class="absolute inset-0 bg-gradient-to-br from-green-500/5 to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-      <div class="stat-icon w-14 h-14 md:w-16 md:h-16 rounded-2xl flex items-center justify-center bg-gradient-to-br from-green-400 via-green-500 to-emerald-600 text-white shadow-lg">
+    <article
+      class="stat-card group bg-white/70 dark:bg-gray-800/60 backdrop-blur-xl p-6 md:p-8 rounded-3xl shadow-xl border border-white/30 dark:border-gray-700/50 flex items-center gap-5 relative overflow-hidden">
+      <div
+        class="absolute inset-0 bg-gradient-to-br from-green-500/5 to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity">
+      </div>
+      <div
+        class="stat-icon w-14 h-14 md:w-16 md:h-16 rounded-2xl flex items-center justify-center bg-gradient-to-br from-green-400 via-green-500 to-emerald-600 text-white shadow-lg">
         <lucide-angular [name]="CheckCircle" size="26"></lucide-angular>
       </div>
       <div class="stat-content flex-1">
-        <h3 class="stat-value text-2xl md:text-3xl font-black text-gray-900 dark:text-gray-100 mb-1">{{ formatCurrency(paidAmount()) }}</h3>
+        <h3 class="stat-value text-2xl md:text-3xl font-black text-gray-900 dark:text-gray-100 mb-1">{{
+          formatCurrency(paidAmount()) }}</h3>
         <p class="stat-label text-gray-600 dark:text-gray-300 text-sm font-medium">Pagadas</p>
       </div>
     </article>
 
     <!-- Pendientes -->
-    <article class="stat-card group bg-white/70 dark:bg-gray-800/60 backdrop-blur-xl p-6 md:p-8 rounded-3xl shadow-xl border border-white/30 dark:border-gray-700/50 flex items-center gap-5 relative overflow-hidden">
-      <div class="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-orange-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-      <div class="stat-icon w-14 h-14 md:w-16 md:h-16 rounded-2xl flex items-center justify-center bg-gradient-to-br from-amber-400 via-orange-500 to-red-500 text-white shadow-lg">
+    <article
+      class="stat-card group bg-white/70 dark:bg-gray-800/60 backdrop-blur-xl p-6 md:p-8 rounded-3xl shadow-xl border border-white/30 dark:border-gray-700/50 flex items-center gap-5 relative overflow-hidden">
+      <div
+        class="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-orange-500/5 opacity-0 group-hover:opacity-100 transition-opacity">
+      </div>
+      <div
+        class="stat-icon w-14 h-14 md:w-16 md:h-16 rounded-2xl flex items-center justify-center bg-gradient-to-br from-amber-400 via-orange-500 to-red-500 text-white shadow-lg">
         <lucide-angular [name]="Clock" size="26"></lucide-angular>
       </div>
       <div class="stat-content flex-1">
-        <h3 class="stat-value text-2xl md:text-3xl font-black text-gray-900 dark:text-gray-100 mb-1">{{ formatCurrency(pendingAmount()) }}</h3>
+        <h3 class="stat-value text-2xl md:text-3xl font-black text-gray-900 dark:text-gray-100 mb-1">{{
+          formatCurrency(pendingAmount()) }}</h3>
         <p class="stat-label text-gray-600 dark:text-gray-300 text-sm font-medium">Pendientes</p>
       </div>
     </article>
 
     <!-- Registros -->
-    <article class="stat-card group bg-white/70 dark:bg-gray-800/60 backdrop-blur-xl p-6 md:p-8 rounded-3xl shadow-xl border border-white/30 dark:border-gray-700/50 flex items-center gap-5 relative overflow-hidden">
-      <div class="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-      <div class="stat-icon w-14 h-14 md:w-16 md:h-16 rounded-2xl flex items-center justify-center bg-gradient-to-br from-purple-400 via-indigo-500 to-blue-600 text-white shadow-lg">
+    <article
+      class="stat-card group bg-white/70 dark:bg-gray-800/60 backdrop-blur-xl p-6 md:p-8 rounded-3xl shadow-xl border border-white/30 dark:border-gray-700/50 flex items-center gap-5 relative overflow-hidden">
+      <div
+        class="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity">
+      </div>
+      <div
+        class="stat-icon w-14 h-14 md:w-16 md:h-16 rounded-2xl flex items-center justify-center bg-gradient-to-br from-purple-400 via-indigo-500 to-blue-600 text-white shadow-lg">
         <lucide-angular [name]="Calendar" size="26"></lucide-angular>
       </div>
       <div class="stat-content flex-1">
-        <h3 class="stat-value text-2xl md:text-3xl font-black text-gray-900 dark:text-gray-100 mb-1">{{ filteredCommissions().length }}</h3>
+        <h3 class="stat-value text-2xl md:text-3xl font-black text-gray-900 dark:text-gray-100 mb-1">{{
+          filteredCommissions().length }}</h3>
         <p class="stat-label text-gray-600 dark:text-gray-300 text-sm font-medium">Total Registros</p>
       </div>
     </article>
@@ -122,28 +140,25 @@
 
     <!-- ASIDE: Filtros -->
     <aside class="col-span-12 lg:col-span-4 xl:col-span-3">
-      <div class="filters-section sticky top-24 lg:top-28 bg-white/80 dark:bg-gray-800/70 backdrop-blur-xl p-6 rounded-3xl shadow-xl border border-white/30 dark:border-gray-700/50">
+      <div
+        class="filters-section sticky top-24 lg:top-28 bg-white/80 dark:bg-gray-800/70 backdrop-blur-xl p-6 rounded-3xl shadow-xl border border-white/30 dark:border-gray-700/50">
         <div class="grid grid-cols-1 gap-6">
           <!-- Buscar -->
           <div>
             <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Buscar empleado</label>
             <div class="relative">
-              <lucide-angular [name]="Search" size="18" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500"></lucide-angular>
-              <input
-                type="text"
-                placeholder="Buscar por nombre o código..."
-                [(ngModel)]="searchTerm"
+              <lucide-angular [name]="Search" size="18"
+                class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500"></lucide-angular>
+              <input type="text" placeholder="Buscar por nombre o código..." [(ngModel)]="searchTerm"
                 (input)="onSearch()"
-                class="app-input w-full pl-12 pr-4 py-3 rounded-2xl border border-gray-300/60 dark:border-gray-600/50 bg-white/70 dark:bg-gray-700/70 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500/60"/>
+                class="app-input w-full pl-12 pr-4 py-3 rounded-2xl border border-gray-300/60 dark:border-gray-600/50 bg-white/70 dark:bg-gray-700/70 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500/60" />
             </div>
           </div>
 
           <!-- Estado -->
           <div>
             <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Estado</label>
-            <select
-              [(ngModel)]="selectedStatus"
-              (change)="onFilterChange()"
+            <select [(ngModel)]="selectedStatus" (change)="onFilterChange()"
               class="app-select w-full px-4 py-3 rounded-2xl border border-gray-300/60 dark:border-gray-600/50 bg-white/70 dark:bg-gray-700/70 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500/60">
               <option *ngFor="let option of statusOptions" [value]="option.value">{{ option.label }}</option>
             </select>
@@ -152,9 +167,7 @@
           <!-- Mes -->
           <div>
             <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Mes</label>
-            <select
-              [(ngModel)]="selectedMonth"
-              (change)="onFilterChange()"
+            <select [(ngModel)]="selectedMonth" (change)="onFilterChange()"
               class="app-select w-full px-4 py-3 rounded-2xl border border-gray-300/60 dark:border-gray-600/50 bg-white/70 dark:bg-gray-700/70 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500/60">
               <option *ngFor="let option of monthOptions" [value]="option.value">{{ option.label }}</option>
             </select>
@@ -163,9 +176,7 @@
           <!-- Año -->
           <div>
             <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Año</label>
-            <select
-              [(ngModel)]="selectedYear"
-              (change)="onFilterChange()"
+            <select [(ngModel)]="selectedYear" (change)="onFilterChange()"
               class="app-select w-full px-4 py-3 rounded-2xl border border-gray-300/60 dark:border-gray-600/50 bg-white/70 dark:bg-gray-700/70 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500/60">
               <option *ngFor="let option of yearOptions" [value]="option.value">{{ option.label }}</option>
             </select>
@@ -175,12 +186,12 @@
           <div>
             <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Mostrar Divisiones</label>
             <div class="flex items-center">
-              <button type="button"
-                (click)="toggleSplitPayments()"
+              <button type="button" (click)="toggleSplitPayments()"
                 [class]="'relative inline-flex h-7 w-14 items-center rounded-full transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ' + (showSplitPayments() ? 'bg-gradient-to-r from-blue-500 to-indigo-600' : 'bg-gray-300 dark:bg-gray-600')">
-                <span [class]="'inline-block h-5 w-5 transform rounded-full bg-white transition-all shadow ' + (showSplitPayments() ? 'translate-x-8' : 'translate-x-1')"></span>
+                <span
+                  [class]="'inline-block h-5 w-5 transform rounded-full bg-white transition-all shadow ' + (showSplitPayments() ? 'translate-x-8' : 'translate-x-1')"></span>
               </button>
-             <!-- <span class="ml-4 text-sm font-medium text-gray-700 dark:text-gray-300">
+              <!-- <span class="ml-4 text-sm font-medium text-gray-700 dark:text-gray-300">
                 {{ showSplitPayments() ? 'Incluir comisiones divididas' : 'Solo comisiones generales' }}
               </span> -->
             </div>
@@ -193,13 +204,17 @@
     <main class="col-span-12 lg:col-span-8 xl:col-span-9 space-y-6">
 
       <!-- Loading -->
-      <div *ngIf="loading()" class="loading-container flex flex-col items-center justify-center py-16 bg-white/70 dark:bg-gray-800/60 rounded-3xl border border-white/30 dark:border-gray-700/50">
-        <div class="loading-spinner w-12 h-12 border-4 border-blue-200/50 border-t-blue-600 rounded-full animate-spin mb-4"></div>
+      <div *ngIf="loading()"
+        class="loading-container flex flex-col items-center justify-center py-16 bg-white/70 dark:bg-gray-800/60 rounded-3xl border border-white/30 dark:border-gray-700/50">
+        <div
+          class="loading-spinner w-12 h-12 border-4 border-blue-200/50 border-t-blue-600 rounded-full animate-spin mb-4">
+        </div>
         <p class="text-gray-700 dark:text-gray-300 font-semibold">Cargando comisiones...</p>
       </div>
 
       <!-- Error -->
-      <div *ngIf="error()" class="error-container bg-gradient-to-br from-red-50/80 via-pink-50/60 to-rose-50/40 dark:from-red-900/30 dark:via-pink-900/20 dark:to-rose-900/10 border border-red-200/50 dark:border-red-800/50 rounded-3xl p-10 text-center">
+      <div *ngIf="error()"
+        class="error-container bg-gradient-to-br from-red-50/80 via-pink-50/60 to-rose-50/40 dark:from-red-900/30 dark:via-pink-900/20 dark:to-rose-900/10 border border-red-200/50 dark:border-red-800/50 rounded-3xl p-10 text-center">
         <div class="error-icon w-16 h-16 mx-auto mb-4 text-red-500">
           <lucide-angular [name]="XCircle" size="64"></lucide-angular>
         </div>
@@ -214,23 +229,25 @@
       </div>
 
       <!-- Grid de contratos -->
-      <div *ngIf="!loading() && !error()"
-           class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3 gap-6">
+      <div *ngIf="!loading() && !error()" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3 gap-6">
         <article *ngFor="let advisorGroup of paginatedGroupedCommissions(); trackBy: trackByAdvisorId"
-                 class="advisor-card group bg-white/70 dark:bg-gray-800/60 backdrop-blur-xl rounded-3xl shadow-xl border border-white/30 dark:border-gray-700/50 overflow-hidden">
+          class="advisor-card group bg-white/70 dark:bg-gray-800/60 backdrop-blur-xl rounded-3xl shadow-xl border border-white/30 dark:border-gray-700/50 overflow-hidden">
           <!-- Header -->
           <div class="p-6 md:p-8 border-b border-white/20 dark:border-gray-700/30">
-            <div class="flex items-start justify-between gap-4">
-              <div class="min-w-0">
-                <h3 class="text-lg md:text-xl font-black text-gray-900 dark:text-gray-100 truncate">
-                  Asesor {{ advisorGroup.commissions[0]?.employee?.full_name }} 
+            <div class="flex items-start justify-between gap-4 mb-3">
+              <div class="flex-1 min-w-0">
+                <h3 class="text-xl md:text-2xl font-black text-gray-900 dark:text-gray-100 mb-2">
+                  {{ advisorGroup.commissions[0]?.employee?.full_name || 'Asesor Sin Nombre' }}
                 </h3>
-                <div class="flex flex-col mt-2">
-                  <span class="font-mono text-xs bg-blue-50 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200 px-2.5 py-1 rounded-xl w-fit font-bold">
-                    Código: {{ advisorGroup.commissions[0]?.employee?.employee_code || 'N/A' }}
+                <div class="flex flex-wrap items-center gap-2">
+                  <span
+                    class="font-mono text-xs bg-blue-50 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200 px-2.5 py-1 rounded-xl font-bold inline-flex items-center gap-1.5">
+                    <lucide-angular [name]="User" size="12"></lucide-angular>
+                    {{ advisorGroup.commissions[0]?.employee?.employee_code || 'N/A' }}
                   </span>
-                  <span class="text-sm text-gray-600 dark:text-gray-300 mt-1 truncate">
-                    {{ advisorGroup.commissions.length }} comisiones
+                  <span class="text-sm text-gray-600 dark:text-gray-300 font-medium">
+                    {{ advisorGroup.commissions.length }} comisión{{ advisorGroup.commissions.length !== 1 ? 'es' : ''
+                    }}
                   </span>
                 </div>
               </div>
@@ -245,8 +262,10 @@
           <!-- Body -->
           <div class="p-6 md:p-8 space-y-5">
             <div class="flex items-center justify-between">
-              <span class="text-xs md:text-sm font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wide">Total Comisiones</span>
-              <span class="text-2xl md:text-3xl font-black bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 bg-clip-text text-transparent">
+              <span class="text-xs md:text-sm font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wide">Total
+                Comisiones</span>
+              <span
+                class="text-2xl md:text-3xl font-black bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 bg-clip-text text-transparent">
                 {{ formatCurrency(advisorGroup.totalAmount) }}
               </span>
             </div>
@@ -258,8 +277,10 @@
                   <span class="text-sm font-bold text-gray-700 dark:text-gray-200">Pagadas</span>
                 </div>
                 <div class="text-right">
-                  <span class="text-base md:text-lg font-black text-gray-900 dark:text-gray-100">{{ advisorGroup.paidCount }}</span>
-                  <span class="text-[11px] md:text-xs font-medium text-gray-600 dark:text-gray-300 ml-2 block">{{ formatCurrency(advisorGroup.paidAmount) }}</span>
+                  <span class="text-base md:text-lg font-black text-gray-900 dark:text-gray-100">{{
+                    advisorGroup.paidCount }}</span>
+                  <span class="text-[11px] md:text-xs font-medium text-gray-600 dark:text-gray-300 ml-2 block">{{
+                    formatCurrency(advisorGroup.paidAmount) }}</span>
                 </div>
               </div>
               <div class="flex items-center justify-between p-3 bg-amber-50/60 dark:bg-amber-900/20 rounded-2xl">
@@ -268,44 +289,56 @@
                   <span class="text-sm font-bold text-gray-700 dark:text-gray-200">Pendientes</span>
                 </div>
                 <div class="text-right">
-                  <span class="text-base md:text-lg font-black text-gray-900 dark:text-gray-100">{{ advisorGroup.pendingCount }}</span>
-                  <span class="text-[11px] md:text-xs font-medium text-gray-600 dark:text-gray-300 ml-2 block">{{ formatCurrency(advisorGroup.pendingAmount) }}</span>
+                  <span class="text-base md:text-lg font-black text-gray-900 dark:text-gray-100">{{
+                    advisorGroup.pendingCount }}</span>
+                  <span class="text-[11px] md:text-xs font-medium text-gray-600 dark:text-gray-300 ml-2 block">{{
+                    formatCurrency(advisorGroup.pendingAmount) }}</span>
                 </div>
               </div>
             </div>
 
             <!-- Progreso -->
             <div>
-              <div class="flex items-center justify-between text-xs md:text-sm font-bold text-gray-700 dark:text-gray-200 mb-2">
+              <div
+                class="flex items-center justify-between text-xs md:text-sm font-bold text-gray-700 dark:text-gray-200 mb-2">
                 <span class="uppercase tracking-wide">Progreso de Pago</span>
-                <span class="bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent">{{ advisorGroup.paymentPercentage }}%</span>
+                <span class="bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent">{{
+                  advisorGroup.paymentPercentage }}%</span>
               </div>
               <div class="w-full h-3 rounded-2xl bg-gray-200/50 dark:bg-gray-700/50 overflow-hidden">
-                <div class="h-3 rounded-2xl bg-gradient-to-r from-emerald-500 via-green-600 to-teal-600 transition-all" [style.width.%]="advisorGroup.paymentPercentage"></div>
+                <div class="h-3 rounded-2xl bg-gradient-to-r from-emerald-500 via-green-600 to-teal-600 transition-all"
+                  [style.width.%]="advisorGroup.paymentPercentage"></div>
               </div>
             </div>
 
             <!-- Verificación -->
             <div class="pt-4 border-t border-white/20 dark:border-gray-700/30">
-              <h4 class="text-xs md:text-sm font-black text-gray-700 dark:text-gray-300 mb-2 uppercase">Verificación de pagos</h4>
+              <h4 class="text-xs md:text-sm font-black text-gray-700 dark:text-gray-300 mb-2 uppercase">Verificación de
+                pagos</h4>
               <div class="space-y-2 max-h-28 overflow-y-auto pr-2 custom-scrollbar">
                 <div *ngFor="let commission of advisorGroup.commissions" class="text-sm">
-                  <div *ngIf="requiresPaymentVerification(commission)" class="flex items-center justify-between p-2 bg-white/50 dark:bg-gray-700/30 rounded-xl">
+                  <div *ngIf="requiresPaymentVerification(commission)"
+                    class="flex items-center justify-between p-2 bg-white/50 dark:bg-gray-700/30 rounded-xl">
                     <div class="flex items-center gap-2">
-                      <lucide-angular [name]="getVerificationStatusIcon(commission.payment_verification_status)" size="14" [class]="getPaymentEligibilityClass(commission)"></lucide-angular>
-                      <span class="font-medium text-gray-700 dark:text-gray-200">Comisión #{{ commission.commission_id }}</span>
+                      <lucide-angular [name]="getVerificationStatusIcon(commission.payment_verification_status)"
+                        size="14" [class]="getPaymentEligibilityClass(commission)"></lucide-angular>
+                      <span class="font-medium text-gray-700 dark:text-gray-200">Comisión #{{ commission.commission_id
+                        }}</span>
                     </div>
                     <div class="flex items-center gap-2">
-                      <span [class]="'px-2.5 py-1 rounded-xl text-[11px] font-bold ' + getVerificationStatusClass(commission.payment_verification_status)">
+                      <span
+                        [class]="'px-2.5 py-1 rounded-xl text-[11px] font-bold ' + getVerificationStatusClass(commission.payment_verification_status)">
                         {{ getVerificationStatusLabel(commission.payment_verification_status) }}
                       </span>
-                      <span *ngIf="!isEligibleForPayment(commission)" class="text-red-500" title="No elegible para pago">
+                      <span *ngIf="!isEligibleForPayment(commission)" class="text-red-500"
+                        title="No elegible para pago">
                         <lucide-angular [name]="AlertTriangle" size="12"></lucide-angular>
                       </span>
                     </div>
                   </div>
                 </div>
-                <div *ngIf="!hasCommissionsRequiringVerification(advisorGroup.commissions)" class="text-sm text-gray-500 dark:text-gray-400 italic text-center p-3 bg-gray-50/70 dark:bg-gray-700/30 rounded-xl">
+                <div *ngIf="!hasCommissionsRequiringVerification(advisorGroup.commissions)"
+                  class="text-sm text-gray-500 dark:text-gray-400 italic text-center p-3 bg-gray-50/70 dark:bg-gray-700/30 rounded-xl">
                   Ninguna comisión requiere verificación de pagos del cliente
                 </div>
               </div>
@@ -324,21 +357,21 @@
 
       <!-- Empty -->
       <div *ngIf="!loading() && !error() && filteredCommissions().length === 0"
-           class="bg-white/70 dark:bg-gray-800/60 p-14 rounded-3xl shadow-2xl border border-white/30 dark:border-gray-700/50 grid place-items-center text-center">
+        class="bg-white/70 dark:bg-gray-800/60 p-14 rounded-3xl shadow-2xl border border-white/30 dark:border-gray-700/50 grid place-items-center text-center">
         <div class="text-gray-300 dark:text-gray-500 mb-4">
           <lucide-angular [name]="DollarSign" size="56"></lucide-angular>
         </div>
         <h3 class="text-xl md:text-2xl font-black text-gray-900 dark:text-gray-100 mb-2">No hay comisiones</h3>
-        <p class="text-base md:text-lg font-medium text-gray-600 dark:text-gray-300">No se encontraron comisiones para los filtros seleccionados.</p>
+        <p class="text-base md:text-lg font-medium text-gray-600 dark:text-gray-300">No se encontraron comisiones para
+          los filtros seleccionados.</p>
       </div>
 
       <!-- Paginación -->
       <div *ngIf="computedTotalPages() > 1"
-           class="w-full bg-white/70 dark:bg-gray-800/70 backdrop-blur-2xl p-6 md:p-8 rounded-3xl shadow-2xl border border-white/30 dark:border-gray-700/50 flex items-center justify-center gap-6">
+        class="w-full bg-white/70 dark:bg-gray-800/70 backdrop-blur-2xl p-6 md:p-8 rounded-3xl shadow-2xl border border-white/30 dark:border-gray-700/50 flex items-center justify-center gap-6">
         <button
           class="px-5 py-3 rounded-2xl border border-white/30 dark:border-gray-600/30 text-gray-700 dark:text-gray-200 bg-white/60 dark:bg-gray-700/50 hover:bg-white dark:hover:bg-gray-600 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-          [disabled]="currentPage() === 1"
-          (click)="onPageChange(currentPage() - 1)">
+          [disabled]="currentPage() === 1" (click)="onPageChange(currentPage() - 1)">
           Anterior
         </button>
 
@@ -348,8 +381,7 @@
 
         <button
           class="px-5 py-3 rounded-2xl border border-white/30 dark:border-gray-600/30 text-gray-700 dark:text-gray-200 bg-white/60 dark:bg-gray-700/50 hover:bg-white dark:hover:bg-gray-600 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-          [disabled]="currentPage() === computedTotalPages()"
-          (click)="onPageChange(currentPage() + 1)">
+          [disabled]="currentPage() === computedTotalPages()" (click)="onPageChange(currentPage() + 1)">
           Siguiente
         </button>
       </div>
@@ -357,10 +389,7 @@
   </div>
 
   <!-- Modal -->
-  <app-advisor-commissions-modal
-    [isOpen]="showAdvisorModal()"
-    [advisorGroup]="selectedAdvisorGroup()"
-    (closeModal)="closeAdvisorModal()"
-    (paymentSuccess)="onPaymentSuccess()">
+  <app-advisor-commissions-modal [isOpen]="showAdvisorModal()" [advisorGroup]="selectedAdvisorGroup()"
+    (closeModal)="closeAdvisorModal()" (paymentSuccess)="onPaymentSuccess()">
   </app-advisor-commissions-modal>
 </section>

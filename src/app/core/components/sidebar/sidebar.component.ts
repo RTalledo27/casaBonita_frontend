@@ -216,6 +216,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
         { name: 'bonus-types', label: 'sidebar.hr.bonus-types.title', route: '/hr/bonus-types', active: false, permission: 'hr.bonus-types.view' },
         { name: 'bonus-goals', label: 'sidebar.hr.bonus-goals.title', route: '/hr/bonus-goals', active: false, permission: 'hr.bonus-goals.view' },
         { name: 'commissions', label: 'sidebar.hr.commissions.title', route: '/hr/commissions', active: false, permission: 'hr.commissions.view' },
+        { name: 'commission-schemes', label: 'sidebar.hr.commissionSchemes.title', route: '/hr/commission-schemes', active: false, permission: 'hr.commissions.view' },
         { name: 'payroll', label: 'sidebar.hr.payroll.title', route: '/hr/payroll', active: false, permission: 'hr.payroll.view' },
         { name: 'tax-parameters', label: 'sidebar.hr.tax-parameters.title', route: '/hr/tax-parameters', active: false, permission: 'hr.access' },
         { name: 'attendance', label: 'sidebar.hr.attendance.title', route: '/hr/attendance', active: false, permission: 'hr.access' },

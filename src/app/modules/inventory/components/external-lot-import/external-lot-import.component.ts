@@ -3,9 +3,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { 
-  LogicwareService, 
-  LogicwareStage, 
+import Swal from 'sweetalert2';
+import {
+  LogicwareService,
+  LogicwareStage,
   LogicwareUnit,
   LogicwareImportOptions
 } from '../../../../core/services/logicware.service';
@@ -30,14 +31,14 @@ export class ExternalLotImportComponent implements OnInit {
   loadingStages = signal(false);
   loadingPreview = signal(false);
   importing = signal(false);
-  
+
   // Datos
   projectCode = signal('casabonita');
   stages = signal<LogicwareStage[]>([]);
   selectedStage = signal<LogicwareStage | null>(null);
   previewUnits = signal<LogicwareUnit[]>([]);
   stageStats = signal<StageStats | null>(null);
-  
+
   // Opciones de importación
   importOptions = signal<LogicwareImportOptions>({
     update_existing: false,
@@ -47,22 +48,22 @@ export class ExternalLotImportComponent implements OnInit {
     update_status: false,
     force_refresh: false
   });
-  
+
   // Resultado de importación
   importResult = signal<any>(null);
-  
+
   // Mensajes
   successMessage = signal<string>('');
   errorMessage = signal<string>('');
   warningMessage = signal<string>('');
-  
+
   // Filtros de preview
   filterStatus = signal<string>('all');
   searchTerm = signal<string>('');
-  
+
   // Estadísticas de conexión
   connectionStats = signal<any>(null);
-  
+
   // Propiedades para componentes legacy (compatibilidad con HTML antiguo)
   testingConnection = signal(false);
   connectionStatus = '';
@@ -72,13 +73,13 @@ export class ExternalLotImportComponent implements OnInit {
   stats = signal<any>(null);
   errors = signal<string[]>([]);
   previewData = signal<any[]>([]);
-  
+
   // Computed signals
   filteredUnits = computed(() => {
     let units = this.previewUnits();
     const status = this.filterStatus();
     const search = this.searchTerm().toLowerCase();
-    
+
     // Filtrar por status
     if (status !== 'all') {
       if (status === 'new') {
@@ -89,32 +90,32 @@ export class ExternalLotImportComponent implements OnInit {
         units = units.filter(u => u.can_import);
       }
     }
-    
+
     // Filtrar por búsqueda
     if (search) {
-      units = units.filter(u => 
+      units = units.filter(u =>
         u.code?.toLowerCase().includes(search) ||
         u.name?.toLowerCase().includes(search) ||
         u.block?.toLowerCase().includes(search) ||
         u.lotNumber?.includes(search)
       );
     }
-    
+
     return units;
   });
-  
+
   selectedUnitsCount = computed(() => this.filteredUnits().length);
-  
+
   canImport = computed(() => {
-    return this.selectedStage() !== null && 
-           this.previewUnits().length > 0 &&
-           !this.importing();
+    return this.selectedStage() !== null &&
+      this.previewUnits().length > 0 &&
+      !this.importing();
   });
 
   constructor(
     private logicwareService: LogicwareService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadStages();
@@ -135,7 +136,7 @@ export class ExternalLotImportComponent implements OnInit {
         if (response.success) {
           console.log('✅ Stages recibidos:', response.data);
           this.stages.set(response.data);
-          
+
           if (response.meta.is_mock) {
             this.warningMessage.set('⚠️ Usando datos de prueba (MOCK). Configure correctamente la API de LogicWare.');
           }
@@ -165,9 +166,9 @@ export class ExternalLotImportComponent implements OnInit {
    */
   loadPreview(): void {
     const stage = this.selectedStage();
-    
+
     console.log('🔍 LoadPreview - Stage actual:', stage);
-    
+
     // Si no hay etapa seleccionada, mostrar datos mock o vacío
     if (!stage) {
       this.loadingPreview.set(true);
@@ -179,12 +180,12 @@ export class ExternalLotImportComponent implements OnInit {
     }
 
     console.log('📤 Llamando a previewStageStock con stageId:', stage.id);
-    
+
     this.loadingPreview.set(true);
     this.clearMessages();
 
     this.logicwareService.previewStageStock(
-      stage.id, 
+      stage.id,
       this.projectCode(),
       this.importOptions().force_refresh || false
     ).subscribe({
@@ -194,14 +195,14 @@ export class ExternalLotImportComponent implements OnInit {
           this.previewUnits.set(response.data);
           // También actualizar previewData para compatibilidad
           this.previewData.set(response.data);
-          
+
           this.stageStats.set({
             total: response.meta.total,
             importable: response.meta.importable,
             duplicates: response.meta.duplicates,
             newLots: response.meta.importable - response.meta.duplicates
           });
-          
+
           // También actualizar stats para compatibilidad
           this.stats.set({
             total: response.meta.total,
@@ -210,11 +211,11 @@ export class ExternalLotImportComponent implements OnInit {
             skipped: 0,
             errors: 0
           });
-          
+
           if (response.meta.is_mock) {
             this.warningMessage.set('⚠️ Vista previa usando datos de prueba (MOCK)');
           }
-          
+
           this.successMessage.set(`Vista previa cargada: ${response.meta.total} unidades encontradas`);
         } else {
           this.errorMessage.set('Error al cargar vista previa: ' + response.message);
@@ -233,19 +234,51 @@ export class ExternalLotImportComponent implements OnInit {
   async importLots(): Promise<void> {
     const stage = this.selectedStage();
     const stats = this.stageStats();
-    
+
     if (!stage || !stats) return;
 
-    // Confirmar importación
-    const confirmMessage = `¿Confirmar importación de ${stats.importable} lotes?
-    
-• Lotes nuevos: ${stats.newLots}
-• Lotes existentes: ${stats.duplicates}
-${this.importOptions().update_existing ? '• Se actualizarán los lotes existentes' : '• Los lotes existentes se omitirán'}
-${this.importOptions().create_manzanas ? '• Se crearán manzanas nuevas si es necesario' : ''}
-${this.importOptions().create_templates ? '• Se crearán templates financieros' : ''}`;
+    // Confirmar importación con SweetAlert2
+    const result = await Swal.fire({
+      title: '¿Confirmar Importación?',
+      html: `
+        <div style="text-align: left; padding: 1rem;">
+          <div style="margin-bottom: 1rem;">
+            <strong style="font-size: 1.1rem; color: #4F46E5;">📦 ${stats.importable} lotes a importar</strong>
+          </div>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin: 1rem 0;">
+            <div style="background: #ECFDF5; padding: 0.75rem; border-radius: 0.5rem; border-left: 3px solid #10B981;">
+              <div style="font-size: 0.75rem; color: #065F46; font-weight: 600;">NUEVOS</div>
+              <div style="font-size: 1.5rem; color: #059669; font-weight: bold;">${stats.newLots}</div>
+            </div>
+            <div style="background: #FEF3C7; padding: 0.75rem; border-radius: 0.5rem; border-left: 3px solid #F59E0B;">
+              <div style="font-size: 0.75rem; color: #92400E; font-weight: 600;">EXISTENTES</div>
+              <div style="font-size: 1.5rem; color: #D97706; font-weight: bold;">${stats.duplicates}</div>
+            </div>
+          </div>
 
-    if (!confirm(confirmMessage)) {
+          <div style="background: #F3F4F6; padding: 0.75rem; border-radius: 0.5rem; margin-top: 1rem;">
+            <div style="font-size: 0.875rem; color: #374151; margin-bottom: 0.5rem;"><strong>Acciones:</strong></div>
+            ${this.importOptions().update_existing ?
+          '<div style="color: #059669;">✓ Se actualizarán lotes existentes</div>' :
+          '<div style="color: #6B7280;">• Lotes existentes se omitirán</div>'}
+            ${this.importOptions().create_manzanas ?
+          '<div style="color: #059669;">✓ Se crearán manzanas nuevas</div>' : ''}
+            ${this.importOptions().create_templates ?
+          '<div style="color: #059669;">✓ Se crearán templates financieros</div>' : ''}
+          </div>
+        </div>
+      `,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: '<i class="fas fa-download"></i> Importar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#4F46E5',
+      cancelButtonColor: '#6B7280',
+      width: '600px'
+    });
+
+    if (!result.isConfirmed) {
       return;
     }
 
@@ -261,14 +294,14 @@ ${this.importOptions().create_templates ? '• Se crearán templates financieros
       next: (response) => {
         this.importing.set(false);
         this.importResult.set(response);
-        
+
         if (response.success) {
           this.successMessage.set(`✅ Importación completada: ${response.stats.created} creados, ${response.stats.updated} actualizados, ${response.stats.skipped} omitidos`);
-          
+
           if (response.stats.errors > 0) {
             this.warningMessage.set(`⚠️ ${response.stats.errors} errores durante la importación`);
           }
-          
+
           // Recargar preview
           setTimeout(() => this.loadPreview(), 1500);
         } else {
@@ -307,13 +340,13 @@ ${this.importOptions().create_templates ? '• Se crearán templates financieros
       ...currentOptions,
       force_refresh: true
     });
-    
+
     if (this.selectedStage()) {
       this.loadPreview();
     } else {
       this.loadStages();
     }
-    
+
     setTimeout(() => {
       const opts = this.importOptions();
       this.importOptions.set({
@@ -427,21 +460,21 @@ ${this.importOptions().create_templates ? '• Se crearán templates financieros
     this.errorMessage.set('');
     this.warningMessage.set('');
   }
-  
+
   /**
    * Métodos legacy para compatibilidad con HTML antiguo
    */
-  
+
   testConnection(): void {
     this.testingConnection.set(true);
     this.connectionStatus = 'Probando conexión...';
-    
+
     this.logicwareService.getConnectionStats().subscribe({
       next: (response) => {
         this.connectionStats.set(response.data);
         this.testingConnection.set(false);
-        this.connectionStatus = response.data.connection_status === 'connected' 
-          ? '✅ Conexión exitosa' 
+        this.connectionStatus = response.data.connection_status === 'connected'
+          ? '✅ Conexión exitosa'
           : '❌ Error de conexión';
       },
       error: (error) => {
@@ -451,24 +484,24 @@ ${this.importOptions().create_templates ? '• Se crearán templates financieros
       }
     });
   }
-  
+
   totalAvailable(): number {
     return this.previewData().length;
   }
-  
+
   syncAll(): void {
     // Implementar sincronización completa si es necesario
     this.syncing.set(true);
     this.successMessage.set('Función de sincronización completa en desarrollo');
     setTimeout(() => this.syncing.set(false), 1000);
   }
-  
+
   syncByCode(): void {
     if (!this.singleLotCode.trim()) return;
-    
+
     this.syncingSingleLot.set(true);
     this.successMessage.set(`Sincronizando lote ${this.singleLotCode}...`);
-    
+
     // Implementar sincronización por código si es necesario
     setTimeout(() => {
       this.syncingSingleLot.set(false);
@@ -476,7 +509,7 @@ ${this.importOptions().create_templates ? '• Se crearán templates financieros
       this.singleLotCode = '';
     }, 1500);
   }
-  
+
   refreshToken(): void {
     this.loading.set(true);
     this.successMessage.set('Token refrescado exitosamente');

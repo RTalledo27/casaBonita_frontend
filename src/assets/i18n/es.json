@@ -152,6 +152,9 @@
       "commissions": {
         "title": "Comisiones"
       },
+      "commissionSchemes": {
+        "title": "Esquemas de Comisiones"
+      },
       "payroll": {
         "title": "Nómina"
       },

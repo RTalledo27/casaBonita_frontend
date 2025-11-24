@@ -1,30 +1,32 @@
 <!-- Modal Backdrop -->
-<div 
-  *ngIf="isOpen" 
-  class="fixed inset-0 z-50 overflow-y-auto modal-backdrop animate-fade-in"
-  (click)="onClose()"
->
+<div *ngIf="isOpen" class="fixed inset-0 z-50 overflow-y-auto modal-backdrop animate-fade-in" (click)="onClose()">
   <!-- Modal Container -->
   <div class="flex min-h-screen items-center justify-center p-4">
-    <div 
+    <div
       class="relative w-full max-w-7xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/50 animate-slide-in-up overflow-hidden"
-      (click)="$event.stopPropagation()"
-    >
+      (click)="$event.stopPropagation()">
       <!-- Modal Header -->
-      <div class="flex items-center justify-between p-6 border-b border-gray-200/50 dark:border-gray-600/50 bg-gradient-to-r from-blue-600/90 via-indigo-600/90 to-purple-600/90 dark:from-gray-800/90 dark:to-gray-900/90">
+      <div
+        class="flex items-center justify-between p-6 border-b border-gray-200/50 dark:border-gray-600/50 bg-gradient-to-r from-blue-600/90 via-indigo-600/90 to-purple-600/90 dark:from-gray-800/90 dark:to-gray-900/90">
         <div class="flex items-center space-x-4">
           <div class="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
             <lucide-angular [name]="User" size="24" class="text-white"></lucide-angular>
           </div>
-          <div>
-            <h2 class="text-2xl font-bold text-white">Comisiones de {{ getEmployeeName() }}</h2>
-            <p class="text-blue-100 dark:text-gray-300 text-sm">Código: {{ advisorGroup?.employee?.employee_code }} | Total: {{ formatCurrency(advisorGroup?.totalAmount || 0) }}</p>
+          <div class="flex-1">
+            <h2 class="text-2xl md:text-3xl font-black text-white mb-1">{{ getEmployeeName() }}</h2>
+            <div class="flex flex-wrap items-center gap-3 text-blue-100 dark:text-gray-300 text-sm">
+              <span class="inline-flex items-center gap-1.5 bg-white/20 px-2.5 py-1 rounded-lg font-mono font-semibold">
+                <lucide-angular [name]="Hash" size="14"></lucide-angular>
+                {{ advisorGroup?.employee?.employee_code }}
+              </span>
+              <span class="font-bold">
+                Total: {{ formatCurrency(advisorGroup?.totalAmount || 0) }}
+              </span>
+            </div>
           </div>
         </div>
-        <button 
-          (click)="onClose()" 
-          class="p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-xl transition-all duration-200 backdrop-blur-sm"
-        >
+        <button (click)="onClose()"
+          class="p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-xl transition-all duration-200 backdrop-blur-sm">
           <lucide-angular [name]="X" size="24"></lucide-angular>
         </button>
       </div>
@@ -32,9 +34,11 @@
       <!-- Modal Body -->
       <div class="p-6 max-h-[80vh] overflow-y-auto">
         <!-- Información del Sistema de Pagos -->
-        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800 mb-6">
+        <div
+          class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800 mb-6">
           <div class="flex items-start gap-3">
-            <lucide-angular [name]="GitBranch" size="20" class="text-blue-600 dark:text-blue-400 mt-0.5"></lucide-angular>
+            <lucide-angular [name]="GitBranch" size="20"
+              class="text-blue-600 dark:text-blue-400 mt-0.5"></lucide-angular>
             <div class="flex-1">
               <h4 class="text-sm font-semibold text-blue-800 dark:text-blue-300 mb-2">Sistema de Pagos por Partes</h4>
               <div class="text-xs text-blue-700 dark:text-blue-400 space-y-1">
@@ -56,22 +60,27 @@
         </div>
 
         <!-- Resumen del Asesor -->
-        <div class="bg-gradient-to-br from-blue-50/80 to-indigo-50/60 dark:from-blue-900/30 dark:to-indigo-900/20 rounded-2xl p-6 mb-8 border border-blue-200/50 dark:border-blue-700/30">
+        <div
+          class="bg-gradient-to-br from-blue-50/80 to-indigo-50/60 dark:from-blue-900/30 dark:to-indigo-900/20 rounded-2xl p-6 mb-8 border border-blue-200/50 dark:border-blue-700/30">
           <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div class="text-center">
-              <div class="text-3xl font-black text-blue-600 dark:text-blue-400 mb-2">{{ getParentCommissionsCount() }}</div>
+              <div class="text-3xl font-black text-blue-600 dark:text-blue-400 mb-2">{{ getParentCommissionsCount() }}
+              </div>
               <div class="text-sm font-medium text-gray-600 dark:text-gray-300">Total Ventas</div>
             </div>
             <div class="text-center">
-              <div class="text-3xl font-black text-green-600 dark:text-green-400 mb-2">{{ advisorGroup?.paidCount || 0 }}</div>
+              <div class="text-3xl font-black text-green-600 dark:text-green-400 mb-2">{{ advisorGroup?.paidCount || 0
+                }}</div>
               <div class="text-sm font-medium text-gray-600 dark:text-gray-300">Pagadas</div>
             </div>
             <div class="text-center">
-              <div class="text-3xl font-black text-amber-600 dark:text-amber-400 mb-2">{{ advisorGroup?.pendingCount || 0 }}</div>
+              <div class="text-3xl font-black text-amber-600 dark:text-amber-400 mb-2">{{ advisorGroup?.pendingCount ||
+                0 }}</div>
               <div class="text-sm font-medium text-gray-600 dark:text-gray-300">Pendientes</div>
             </div>
             <div class="text-center">
-              <div class="text-3xl font-black text-purple-600 dark:text-purple-400 mb-2">{{ advisorGroup?.paymentPercentage || 0 }}%</div>
+              <div class="text-3xl font-black text-purple-600 dark:text-purple-400 mb-2">{{
+                advisorGroup?.paymentPercentage || 0 }}%</div>
               <div class="text-sm font-medium text-gray-600 dark:text-gray-300">Progreso</div>
             </div>
           </div>
@@ -84,39 +93,51 @@
             Comisiones por Contrato
           </h3>
 
-          <div *ngFor="let contractGroup of groupedByContract; trackBy: trackByContractId" 
-               class="bg-white/60 dark:bg-gray-700/60 backdrop-blur-sm rounded-2xl border border-gray-200/50 dark:border-gray-600/50 overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300">
-            
+          <div *ngFor="let contractGroup of groupedByContract; trackBy: trackByContractId"
+            class="bg-white/60 dark:bg-gray-700/60 backdrop-blur-sm rounded-2xl border border-gray-200/50 dark:border-gray-600/50 overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300">
+
             <!-- Encabezado del Contrato -->
-            <div class="bg-gradient-to-r from-gray-50/80 to-blue-50/40 dark:from-gray-800/60 dark:to-blue-900/20 p-6 border-b border-gray-200/50 dark:border-gray-600/50">
+            <div
+              class="bg-gradient-to-r from-gray-50/80 to-blue-50/40 dark:from-gray-800/60 dark:to-blue-900/20 p-6 border-b border-gray-200/50 dark:border-gray-600/50">
               <div class="flex items-center justify-between">
                 <div class="flex-1">
-                  <h4 class="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">
+                  <h4 class="text-lg md:text-xl font-black text-gray-900 dark:text-gray-100 mb-3">
                     {{ getContractTitle(contractGroup) }}
                   </h4>
-                  <div class="flex flex-wrap gap-4 text-sm text-gray-600 dark:text-gray-300">
-                    <span class="flex items-center gap-2">
-                      <lucide-angular [name]="Calendar" size="16"></lucide-angular>
-                      {{ formatPeriod(contractGroup.commissions[0]?.period_month, contractGroup.commissions[0]?.period_year) }}
+                  <div class="flex flex-wrap gap-3 text-sm text-gray-600 dark:text-gray-300">
+                    <span
+                      class="flex items-center gap-1.5 bg-blue-50 dark:bg-blue-900/30 px-2.5 py-1 rounded-lg font-medium">
+                      <lucide-angular [name]="Calendar" size="14"></lucide-angular>
+                      {{ formatPeriod(contractGroup.commissions[0]?.period_month,
+                      contractGroup.commissions[0]?.period_year) }}
                     </span>
-                    <span class="flex items-center gap-2">
-                      <lucide-angular [name]="DollarSign" size="16"></lucide-angular>
-                      Total: {{ formatCurrency(contractGroup.totalAmount) }}
+                    <span
+                      class="flex items-center gap-1.5 bg-green-50 dark:bg-green-900/30 px-2.5 py-1 rounded-lg font-bold text-green-700 dark:text-green-300">
+                      <lucide-angular [name]="DollarSign" size="14"></lucide-angular>
+                      {{ formatCurrency(contractGroup.totalAmount) }}
                     </span>
-                    <span class="flex items-center gap-2">
-                      <lucide-angular [name]="Hash" size="16"></lucide-angular>
-                      {{ contractGroup.commissions.length }} comisiones
+                    <span
+                      class="flex items-center gap-1.5 bg-purple-50 dark:bg-purple-900/30 px-2.5 py-1 rounded-lg font-medium">
+                      <lucide-angular [name]="Hash" size="14"></lucide-angular>
+                      {{ contractGroup.commissions.length }} com{{ contractGroup.commissions.length !== 1 ? 'isiones' :
+                      'isión' }}
+                    </span>
+                    <span *ngIf="contractGroup.commissions[0]?.contract?.lot_number"
+                      class="flex items-center gap-1.5 bg-amber-50 dark:bg-amber-900/30 px-2.5 py-1 rounded-lg font-medium">
+                      <lucide-angular [name]="MapPin" size="14"></lucide-angular>
+                      Lote: {{ contractGroup.commissions[0]?.contract?.lot_number }}
+                    </span>
+                    <span *ngIf="contractGroup.commissions[0]?.contract?.block_number"
+                      class="flex items-center gap-1.5 bg-indigo-50 dark:bg-indigo-900/30 px-2.5 py-1 rounded-lg font-medium">
+                      <lucide-angular [name]="Grid" size="14"></lucide-angular>
+                      Manzana: {{ contractGroup.commissions[0]?.contract?.block_number }}
                     </span>
                   </div>
                 </div>
-                <button 
-                  (click)="toggleContractExpansion(contractGroup.contractId)"
-                  class="p-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50/50 dark:hover:bg-blue-900/20 rounded-xl transition-all duration-200"
-                >
-                  <lucide-angular 
-                    [name]="isContractExpanded(contractGroup.contractId) ? ChevronUp : ChevronDown" 
-                    size="20"
-                  ></lucide-angular>
+                <button (click)="toggleContractExpansion(contractGroup.contractId)"
+                  class="p-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50/50 dark:hover:bg-blue-900/20 rounded-xl transition-all duration-200">
+                  <lucide-angular [name]="isContractExpanded(contractGroup.contractId) ? ChevronUp : ChevronDown"
+                    size="20"></lucide-angular>
                 </button>
               </div>
             </div>
@@ -125,109 +146,126 @@
             <div *ngIf="isContractExpanded(contractGroup.contractId)" class="p-6">
               <div class="space-y-6">
                 <!-- Mostrar solo comisiones padre -->
-                <div *ngFor="let parentCommission of getParentCommissions(contractGroup.commissions); trackBy: trackByCommissionId" 
-                     class="bg-gradient-to-r from-white/70 to-gray-50/50 dark:from-gray-800/50 dark:to-gray-700/30 rounded-xl border border-gray-200/30 dark:border-gray-600/30 hover:shadow-md transition-all duration-200 overflow-hidden">
-                  
+                <div
+                  *ngFor="let parentCommission of getParentCommissions(contractGroup.commissions); trackBy: trackByCommissionId"
+                  class="bg-gradient-to-r from-white/70 to-gray-50/50 dark:from-gray-800/50 dark:to-gray-700/30 rounded-xl border border-gray-200/30 dark:border-gray-600/30 hover:shadow-md transition-all duration-200 overflow-hidden">
+
                   <!-- Encabezado de Comisión Padre -->
-                  <div class="bg-gradient-to-r from-indigo-50/80 to-purple-50/40 dark:from-indigo-900/30 dark:to-purple-900/20 p-5 border-b border-gray-200/50 dark:border-gray-600/50">
+                  <div
+                    class="bg-gradient-to-r from-indigo-50/80 to-purple-50/40 dark:from-indigo-900/30 dark:to-purple-900/20 p-5 border-b border-gray-200/50 dark:border-gray-600/50">
                     <div class="flex items-center justify-between">
                       <div class="flex-1">
                         <div class="flex items-center gap-3 mb-3">
-                          <span class="commission-hierarchy-indicator text-xs px-2 py-1 rounded-full font-medium" [class]="getCommissionTypeClass(parentCommission)">
+                          <span class="commission-hierarchy-indicator text-xs px-2 py-1 rounded-full font-medium"
+                            [class]="getCommissionTypeClass(parentCommission)">
                             {{ getCommissionHierarchyLabel(parentCommission) }}
                           </span>
-                          <span class="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-bold" [class]="getStatusClass(parentCommission.status ?? 'pending')">
+                          <span class="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-bold"
+                            [class]="getStatusClass(parentCommission.status ?? 'pending')">
                             {{ getStatusLabel(parentCommission.status ?? 'pending') }}
                           </span>
                           <span class="text-sm font-medium text-gray-600 dark:text-gray-300">
                             {{ parentCommission.commission_type || 'Comisión Padre' }}
                           </span>
-                          <span class="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 rounded-lg text-xs font-medium">
+                          <span
+                            class="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 rounded-lg text-xs font-medium">
                             ID: {{ parentCommission.commission_id }}
                           </span>
                         </div>
-                        
+
                         <!-- Información del Contrato -->
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                           <div *ngIf="parentCommission.commission_id">
-                            <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Comisión ID</label>
-                            <p class="text-sm font-bold text-gray-900 dark:text-gray-100">#{{ parentCommission.commission_id }}</p>
+                            <label
+                              class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Comisión
+                              ID</label>
+                            <p class="text-sm font-bold text-gray-900 dark:text-gray-100">#{{
+                              parentCommission.commission_id }}</p>
                           </div>
                           <div *ngIf="parentCommission.employee">
-                            <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Asesor</label>
-                            <p class="text-sm font-bold text-gray-900 dark:text-gray-100">{{ getCommissionEmployeeName(parentCommission) }}</p>
+                            <label
+                              class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Asesor</label>
+                            <p class="text-sm font-bold text-gray-900 dark:text-gray-100">{{
+                              getCommissionEmployeeName(parentCommission) }}</p>
                           </div>
                           <div *ngIf="parentCommission.contract_id">
-                            <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Contrato</label>
-                            <p class="text-sm font-bold text-gray-900 dark:text-gray-100">#{{ parentCommission.contract_id }}</p>
+                            <label
+                              class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Contrato</label>
+                            <p class="text-sm font-bold text-gray-900 dark:text-gray-100">#{{
+                              parentCommission.contract_id }}</p>
                           </div>
                           <div *ngIf="parentCommission.commission_amount">
-                            <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Monto Comisión</label>
-                            <p class="text-sm font-bold text-gray-900 dark:text-gray-100">{{ formatCurrency(parentCommission.commission_amount) }}</p>
+                            <label
+                              class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Monto
+                              Comisión</label>
+                            <p class="text-sm font-bold text-gray-900 dark:text-gray-100">{{
+                              formatCurrency(parentCommission.commission_amount) }}</p>
                           </div>
                         </div>
-                        
+
                         <!-- Información de la Comisión Padre -->
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                           <div>
-                            <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Monto Total</label>
-                            <p class="text-lg font-bold text-gray-900 dark:text-gray-100">{{ formatCurrency(parentCommission.commission_amount) }}</p>
+                            <label
+                              class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Monto
+                              Total</label>
+                            <p class="text-lg font-bold text-gray-900 dark:text-gray-100">{{
+                              formatCurrency(parentCommission.commission_amount) }}</p>
                           </div>
                           <div *ngIf="parentCommission.sale_amount">
-                            <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Venta</label>
-                            <p class="text-lg font-bold text-gray-900 dark:text-gray-100">{{ formatCurrency(parentCommission.sale_amount) }}</p>
+                            <label
+                              class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Venta</label>
+                            <p class="text-lg font-bold text-gray-900 dark:text-gray-100">{{
+                              formatCurrency(parentCommission.sale_amount) }}</p>
                           </div>
                           <div *ngIf="parentCommission.commission_percentage">
-                            <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Porcentaje</label>
-                            <p class="text-lg font-bold text-gray-900 dark:text-gray-100">{{ parentCommission.commission_percentage }}%</p>
+                            <label
+                              class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Porcentaje</label>
+                            <p class="text-lg font-bold text-gray-900 dark:text-gray-100">{{
+                              parentCommission.commission_percentage }}%</p>
                           </div>
                         </div>
                       </div>
-                      
+
                       <div class="flex gap-2">
-                        <button 
-                          (click)="viewCommissionDetail(parentCommission)"
-                          class="inline-flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-xl transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5"
-                        >
+                        <button (click)="viewCommissionDetail(parentCommission)"
+                          class="inline-flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-xl transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5">
                           <lucide-angular [name]="Eye" size="16"></lucide-angular>
                           Ver Detalle
                         </button>
-                        
+
                         <!-- Botones de pago por partes -->
                         <div class="flex gap-1">
-                          <button 
+                          <button
                             *ngIf="getPaymentState(parentCommission.commission_id).canPayFirst && !getPaymentState(parentCommission.commission_id).isProcessing"
                             (click)="payFirstPart(parentCommission)"
                             class="px-2 py-1 bg-green-500 text-white text-xs rounded hover:bg-green-600 transition-colors"
                             title="Pagar Primera Parte">
                             1ra Parte
                           </button>
-                          
-                          <button 
+
+                          <button
                             *ngIf="getPaymentState(parentCommission.commission_id).canPaySecond && !getPaymentState(parentCommission.commission_id).isProcessing"
                             (click)="paySecondPart(parentCommission)"
                             class="px-2 py-1 bg-orange-500 text-white text-xs rounded hover:bg-orange-600 transition-colors"
                             title="Pagar Segunda Parte">
                             2da Parte
                           </button>
-                          
-                          <div 
-                            *ngIf="getPaymentState(parentCommission.commission_id).isProcessing"
+
+                          <div *ngIf="getPaymentState(parentCommission.commission_id).isProcessing"
                             class="px-2 py-1 bg-gray-400 text-white text-xs rounded flex items-center gap-1"
                             title="Procesando pago...">
-                            <div class="animate-spin w-3 h-3 border border-white border-t-transparent rounded-full"></div>
+                            <div class="animate-spin w-3 h-3 border border-white border-t-transparent rounded-full">
+                            </div>
                             Procesando...
                           </div>
                         </div>
-                        
-                        <button 
-                          (click)="toggleParentCommissionExpansion(parentCommission.commission_id)"
-                          class="p-2 text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 rounded-xl transition-all duration-200"
-                        >
-                          <lucide-angular 
-                            [name]="isParentCommissionExpanded(parentCommission.commission_id) ? ChevronUp : ChevronDown" 
-                            size="20"
-                          ></lucide-angular>
+
+                        <button (click)="toggleParentCommissionExpansion(parentCommission.commission_id)"
+                          class="p-2 text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 rounded-xl transition-all duration-200">
+                          <lucide-angular
+                            [name]="isParentCommissionExpanded(parentCommission.commission_id) ? ChevronUp : ChevronDown"
+                            size="20"></lucide-angular>
                         </button>
                       </div>
                     </div>
@@ -237,85 +275,99 @@
                   <div *ngIf="isParentCommissionExpanded(parentCommission.commission_id)" class="p-5">
                     <div *ngIf="getChildCommissions(parentCommission).length > 0; else noChildCommissions">
                       <h5 class="text-sm font-bold text-gray-700 dark:text-gray-200 mb-4 flex items-center gap-2">
-                        <lucide-angular [name]="GitBranch" size="16" class="text-indigo-600 dark:text-indigo-400"></lucide-angular>
+                        <lucide-angular [name]="GitBranch" size="16"
+                          class="text-indigo-600 dark:text-indigo-400"></lucide-angular>
                         Divisiones de Pago ({{ getChildCommissions(parentCommission).length }})
                       </h5>
-                      
+
                       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <div *ngFor="let childCommission of getChildCommissions(parentCommission); trackBy: trackByCommissionId" 
-                             class="bg-white/80 dark:bg-gray-600/60 rounded-xl p-4 border border-gray-200/50 dark:border-gray-500/50 shadow-sm hover:shadow-md transition-all duration-200"
-                             [ngClass]="{
+                        <div
+                          *ngFor="let childCommission of getChildCommissions(parentCommission); trackBy: trackByCommissionId"
+                          class="bg-white/80 dark:bg-gray-600/60 rounded-xl p-4 border border-gray-200/50 dark:border-gray-500/50 shadow-sm hover:shadow-md transition-all duration-200"
+                          [ngClass]="{
                                'border-l-4 border-l-green-400': childCommission.payment_part === 1,
                                'border-l-4 border-l-orange-400': childCommission.payment_part === 2
                              }">
-                          
+
                           <!-- Encabezado de Comisión Hija -->
                           <div class="flex items-center justify-between mb-3">
                             <div class="flex items-center gap-2">
-                              <span class="commission-hierarchy-indicator text-xs px-2 py-1 rounded-full font-medium" [class]="getCommissionTypeClass(childCommission)">
+                              <span class="commission-hierarchy-indicator text-xs px-2 py-1 rounded-full font-medium"
+                                [class]="getCommissionTypeClass(childCommission)">
                                 {{ getCommissionHierarchyLabel(childCommission) }}
                               </span>
                               <span class="text-xs font-medium text-gray-600 dark:text-gray-300">
                                 {{ getPaymentTypeLabel(childCommission.payment_type) }}
                               </span>
-                              
+
                               <!-- Indicador de parte del pago -->
-                              <span 
-                                *ngIf="childCommission.payment_part"
-                                class="px-2 py-1 text-xs rounded-full font-medium"
-                                [ngClass]="{
+                              <span *ngIf="childCommission.payment_part"
+                                class="px-2 py-1 text-xs rounded-full font-medium" [ngClass]="{
                                   'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300': childCommission.payment_part === 1,
                                   'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300': childCommission.payment_part === 2
                                 }">
                                 {{ childCommission.payment_part === 1 ? '1ra Parte' : '2da Parte' }}
                               </span>
                             </div>
-                            
-                            <span class="inline-flex items-center px-2 py-1 rounded-lg text-xs font-bold" [class]="getPaymentStatusClass(childCommission.payment_status)">
+
+                            <span class="inline-flex items-center px-2 py-1 rounded-lg text-xs font-bold"
+                              [class]="getPaymentStatusClass(childCommission.payment_status)">
                               {{ getStatusLabel(childCommission.payment_status) }}
                             </span>
                           </div>
-                          
+
                           <!-- Información de la Comisión Hija -->
                           <div class="space-y-3">
                             <div>
-                              <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Monto División</label>
-                              <p class="text-base font-bold text-gray-900 dark:text-gray-100">{{ formatCurrency(childCommission.commission_amount) }}</p>
+                              <label
+                                class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Monto
+                                División</label>
+                              <p class="text-base font-bold text-gray-900 dark:text-gray-100">{{
+                                formatCurrency(childCommission.commission_amount) }}</p>
                             </div>
-                            
+
                             <div *ngIf="childCommission.commission_percentage">
-                              <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">% División</label>
-                              <p class="text-sm font-semibold text-gray-700 dark:text-gray-200">{{ childCommission.commission_percentage }}%</p>
+                              <label
+                                class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">%
+                                División</label>
+                              <p class="text-sm font-semibold text-gray-700 dark:text-gray-200">{{
+                                childCommission.commission_percentage }}%</p>
                             </div>
-                            
+
                             <div *ngIf="childCommission.payment_date">
-                              <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Fecha Programada</label>
-                              <p class="text-sm text-gray-700 dark:text-gray-200">{{ formatDate(childCommission.payment_date) }}</p>
+                              <label
+                                class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Fecha
+                                Programada</label>
+                              <p class="text-sm text-gray-700 dark:text-gray-200">{{
+                                formatDate(childCommission.payment_date) }}</p>
                             </div>
-                            
+
                             <div *ngIf="childCommission.payment_part">
-                              <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Cronograma</label>
-                              <p class="text-sm text-gray-700 dark:text-gray-200">Pago {{ childCommission.payment_part }}</p>
+                              <label
+                                class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Cronograma</label>
+                              <p class="text-sm text-gray-700 dark:text-gray-200">Pago {{ childCommission.payment_part
+                                }}</p>
                             </div>
-                            
+
                             <!-- Información adicional sobre el pago dividido -->
-                            <div *ngIf="childCommission.payment_part" class="mt-2 p-2 bg-gray-50/80 dark:bg-gray-700/50 rounded border border-gray-200/30 dark:border-gray-600/30">
+                            <div *ngIf="childCommission.payment_part"
+                              class="mt-2 p-2 bg-gray-50/80 dark:bg-gray-700/50 rounded border border-gray-200/30 dark:border-gray-600/30">
                               <div class="text-xs text-gray-500 dark:text-gray-400">
                                 <div class="flex items-center gap-1">
                                   <lucide-angular [name]="GitBranch" size="12"></lucide-angular>
-                                  <span>Pago condicionado a cuota {{ childCommission.payment_part === 1 ? 'inicial' : 'secundaria' }} del cliente</span>
+                                  <span>Pago condicionado a cuota {{ childCommission.payment_part === 1 ? 'inicial' :
+                                    'secundaria' }} del cliente</span>
                                 </div>
                               </div>
                             </div>
-                            
+
                             <!-- Información adicional del cronograma -->
                             <div class="pt-2 border-t border-gray-200/50 dark:border-gray-500/50">
                               <div class="flex items-center justify-between text-xs">
-                                <span class="text-gray-500 dark:text-gray-400">ID: {{ childCommission.commission_id }}</span>
-                                <button 
-                                  (click)="viewCommissionDetail(childCommission)"
-                                  class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-medium transition-colors duration-200"
-                                >
+                                <span class="text-gray-500 dark:text-gray-400">ID: {{ childCommission.commission_id
+                                  }}</span>
+                                <button (click)="viewCommissionDetail(childCommission)"
+                                  class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-medium transition-colors duration-200">
                                   Ver Detalle
                                 </button>
                               </div>
@@ -324,14 +376,15 @@
                         </div>
                       </div>
                     </div>
-                    
+
                     <!-- Mensaje cuando no hay comisiones hijas -->
                     <ng-template #noChildCommissions>
                       <div class="text-center py-8">
                         <div class="text-gray-400 dark:text-gray-500 mb-2">
                           <lucide-angular [name]="GitBranch" size="32" class="mx-auto opacity-50"></lucide-angular>
                         </div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Esta comisión no tiene divisiones de pago</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Esta comisión no tiene divisiones de pago
+                        </p>
                       </div>
                     </ng-template>
                   </div>
@@ -343,11 +396,10 @@
       </div>
 
       <!-- Modal Footer -->
-      <div class="flex items-center justify-end gap-4 p-6 border-t border-gray-200/50 dark:border-gray-600/50 bg-gray-50/50 dark:bg-gray-800/50">
-        <button 
-          (click)="onClose()"
-          class="px-6 py-3 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 font-medium rounded-xl hover:bg-gray-300 dark:hover:bg-gray-500 transition-all duration-200"
-        >
+      <div
+        class="flex items-center justify-end gap-4 p-6 border-t border-gray-200/50 dark:border-gray-600/50 bg-gray-50/50 dark:bg-gray-800/50">
+        <button (click)="onClose()"
+          class="px-6 py-3 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 font-medium rounded-xl hover:bg-gray-300 dark:hover:bg-gray-500 transition-all duration-200">
           Cerrar
         </button>
       </div>
@@ -356,36 +408,38 @@
 </div>
 
 <style>
-.modal-backdrop {
-  backdrop-filter: blur(8px);
-  background: rgba(0, 0, 0, 0.5);
-}
-
-.animate-fade-in {
-  animation: fadeIn 0.3s ease-out;
-}
-
-.animate-slide-in-up {
-  animation: slideInUp 0.3s ease-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
+  .modal-backdrop {
+    backdrop-filter: blur(8px);
+    background: rgba(0, 0, 0, 0.5);
   }
-  to {
-    opacity: 1;
-  }
-}
 
-@keyframes slideInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px) scale(0.95);
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-out;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
+
+  .animate-slide-in-up {
+    animation: slideInUp 0.3s ease-out;
   }
-}
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px) scale(0.95);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
 </style>

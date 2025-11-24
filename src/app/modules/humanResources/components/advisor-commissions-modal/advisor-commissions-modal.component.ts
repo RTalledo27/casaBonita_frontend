@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LucideAngularModule, User, X, FileText, Calendar, DollarSign, Hash, ChevronUp, ChevronDown, Eye, GitBranch, Info } from 'lucide-angular';
+import { LucideAngularModule, User, X, FileText, Calendar, DollarSign, Hash, ChevronUp, ChevronDown, Eye, GitBranch, Info, MapPin, Grid } from 'lucide-angular';
 import { Router } from '@angular/router';
 import { CommissionService } from '../../services/commission.service';
 import { forkJoin } from 'rxjs';
@@ -54,34 +54,36 @@ export class AdvisorCommissionsModalComponent implements OnInit, OnChanges {
   Eye = Eye;
   GitBranch = GitBranch;
   Info = Info;
+  MapPin = MapPin;
+  Grid = Grid;
 
   groupedByContract: ContractGroup[] = [];
   expandedContracts: Set<string> = new Set();
   expandedParentCommissions: Set<number> = new Set();
-  
+
   // Estados para pagos de comisiones
-  paymentStates: Map<number, {canPayFirst: boolean, canPaySecond: boolean, isProcessing: boolean}> = new Map();
+  paymentStates: Map<number, { canPayFirst: boolean, canPaySecond: boolean, isProcessing: boolean }> = new Map();
   processingPayments: Set<number> = new Set();
 
   constructor(
     private router: Router,
     private commissionService: CommissionService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
-   // console.log('=== MODAL INIT ===');
+    // console.log('=== MODAL INIT ===');
     //console.log('Modal initialized with advisorGroup:', this.advisorGroup);
     //console.log('Total commissions received:', this.advisorGroup?.commissions?.length || 0);
     console.table(this.advisorGroup)
     if (this.advisorGroup?.commissions) {
-   //   console.log('All commissions data:', this.advisorGroup.commissions);
+      //   console.log('All commissions data:', this.advisorGroup.commissions);
       this.advisorGroup.commissions.forEach((comm, index) => {
-      /*  console.log(`Commission ${index + 1}:`, {
-          id: comm.commission_id,
-          contract_id: comm.contract_id,
-          parent_commission_id: comm.parent_commission_id,
-          amount: comm.commission_amount
-        });*/
+        /*  console.log(`Commission ${index + 1}:`, {
+            id: comm.commission_id,
+            contract_id: comm.contract_id,
+            parent_commission_id: comm.parent_commission_id,
+            amount: comm.commission_amount
+          });*/
       });
     }
     this.groupCommissionsByContract();
@@ -96,11 +98,11 @@ export class AdvisorCommissionsModalComponent implements OnInit, OnChanges {
       if (this.advisorGroup?.commissions) {
         this.advisorGroup.commissions.forEach((comm, index) => {
           console.log(`Changed Commission ${index + 1}:`, {
-          commission_id: comm.commission_id,
-          contract_id: comm.contract_id,
-          parent_commission_id: comm.parent_commission_id,
-          commission_amount: comm.commission_amount
-        });
+            commission_id: comm.commission_id,
+            contract_id: comm.contract_id,
+            parent_commission_id: comm.parent_commission_id,
+            commission_amount: comm.commission_amount
+          });
         });
       }
       this.groupCommissionsByContract();
@@ -117,7 +119,7 @@ export class AdvisorCommissionsModalComponent implements OnInit, OnChanges {
     console.log('=== DEBUGGING groupCommissionsByContract ===');
     console.log('advisorGroup:', this.advisorGroup);
     console.log('advisorGroup.commissions:', this.advisorGroup?.commissions);
-    
+
     if (!this.advisorGroup?.commissions) {
       console.log('No commissions to group - advisorGroup or commissions is null/undefined');
       console.log('advisorGroup:', this.advisorGroup);
@@ -127,7 +129,7 @@ export class AdvisorCommissionsModalComponent implements OnInit, OnChanges {
 
     const commissions = this.advisorGroup.commissions;
     console.log('📊 Comisiones recibidas:', commissions);
-    
+
     // Log ALL commissions first
     commissions.forEach((comm, index) => {
       console.log(`ALL Commission ${index + 1} (ID: ${comm.commission_id}):`, {
@@ -137,7 +139,7 @@ export class AdvisorCommissionsModalComponent implements OnInit, OnChanges {
         commission_amount: comm.commission_amount,
         isParent: this.isParentCommission(comm)
       });
-      
+
       // Special attention to commissions #77 and #78
       if (comm.commission_id === 77 || comm.commission_id === 78) {
         console.log(`🔍 TRACKING COMMISSION #${comm.commission_id}:`, {
@@ -149,40 +151,40 @@ export class AdvisorCommissionsModalComponent implements OnInit, OnChanges {
         });
       }
     });
-    
+
     const groups: { [key: string]: ContractGroup } = {};
-    
+
     // FILTRADO MÁS ESTRICTO: Primero filtrar por contract_id válido, LUEGO por isParentCommission
     // Esto elimina completamente las comisiones CRJ sin contract_id desde el inicio
     const commissionsWithValidContract = commissions.filter(commission => {
       const contractId = commission.contract?.contract_id || commission.contract_id;
       const isValid = contractId && contractId !== null && contractId !== undefined && contractId > 0 && Number.isInteger(Number(contractId));
-      
+
       if (!isValid && (commission.commission_id === 77 || commission.commission_id === 78)) {
         console.log(`🔍 Commission #${commission.commission_id} FILTERED OUT - invalid contract_id: ${contractId}`);
       }
-      
+
       return isValid;
     });
-    
+
     console.log('🔍 Comisiones con contract_id válido:', commissionsWithValidContract.length, 'de', commissions.length);
-    
+
     // AHORA aplicar el filtro de isParentCommission solo a las comisiones con contract_id válido
-    const parentCommissions = commissionsWithValidContract.filter(commission => 
+    const parentCommissions = commissionsWithValidContract.filter(commission =>
       this.isParentCommission(commission)
     );
-    
+
     console.log('👨‍👩‍👧‍👦 Comisiones padre encontradas:', parentCommissions.length);
     console.log('Parent commissions found:', parentCommissions.length);
     console.log('Parent commissions:', parentCommissions);
-    
+
     parentCommissions.forEach(comm => {
       console.log(`Parent commission ID ${comm.commission_id}: contract_id=${comm.contract_id}`);
       if (comm.commission_id === 77 || comm.commission_id === 78) {
         console.log(`🔍 Commission #${comm.commission_id} IS PARENT - contract_id: ${comm.contract_id}`);
       }
     });
-    
+
     parentCommissions.forEach((commission, index) => {
       console.log(`📋 Procesando comisión padre ${index + 1}:`, {
         commission_id: commission.commission_id,
@@ -190,51 +192,51 @@ export class AdvisorCommissionsModalComponent implements OnInit, OnChanges {
         contract_number: commission.contract?.contract_number || 'Sin número',
         hierarchy: this.getCommissionHierarchyLabel(commission)
       });
-      
+
       // Las comisiones ya fueron filtradas por contract_id válido al inicio del método
       const contractId = commission.contract?.contract_id || commission.contract_id;
-      
+
       // LOGGING ESPECÍFICO para comisiones #77 y #78
       if (commission.commission_id === 77 || commission.commission_id === 78) {
         console.log(`✅ Commission #${commission.commission_id} PROCESSING - contract_id: ${contractId}`);
       }
-      
+
       const contractNumber = commission.contract?.contract_number || 'Sin número';
       const groupKey = `contract_${contractId}`;
-      
+
       console.log(`🔑 Clave de grupo generada: ${groupKey}`);
-      
+
       if (!groups[groupKey]) {
         console.log(`✨ Creando nuevo grupo para: ${groupKey}`);
         groups[groupKey] = {
           contractId: contractId,
           contractNumber: contractNumber,
-          clientName: commission.contract?.client?.name || 
-                     commission.contract?.client?.name || 
-                     'Cliente no especificado',
+          clientName: commission.contract?.client?.name ||
+            commission.contract?.client?.name ||
+            'Cliente no especificado',
           commissions: [],
           totalAmount: 0,
           paidAmount: 0,
           pendingAmount: 0
         };
-        
+
         console.log('📝 Grupo creado:', groups[groupKey]);
       }
-      
+
       // SOLO agregar la comisión padre al grupo
       // Las comisiones hijas se obtienen dinámicamente con getChildCommissions()
       groups[groupKey].commissions.push(commission);
-      
+
       // Calcular montos SOLO de la comisión padre
       // Los montos de las hijas no se suman para evitar duplicación
       groups[groupKey].totalAmount += parseFloat(commission.commission_amount?.toString() || '0');
-      
+
       if (commission.payment_status === 'pagado') {
         groups[groupKey].paidAmount += parseFloat(commission.commission_amount?.toString() || '0');
       }
-      
+
       groups[groupKey].pendingAmount = groups[groupKey].totalAmount - groups[groupKey].paidAmount;
-      
+
       console.log(`💰 Montos calculados para ${groupKey} (solo comisión padre):`, {
         total: groups[groupKey].totalAmount,
         paid: groups[groupKey].paidAmount,
@@ -242,9 +244,9 @@ export class AdvisorCommissionsModalComponent implements OnInit, OnChanges {
         parent_commissions_count: groups[groupKey].commissions.length
       });
     });
-    
+
     this.groupedByContract = Object.values(groups);
-    
+
     console.log('📊 Resultado final del agrupamiento:', {
       totalGroups: this.groupedByContract.length,
       groups: this.groupedByContract.map(g => ({
@@ -254,32 +256,32 @@ export class AdvisorCommissionsModalComponent implements OnInit, OnChanges {
         firstCommissionId: g.commissions[0]?.commission_id
       }))
     });
-    
+
     console.log('✅ FILTRADO COMPLETADO: Solo se muestran contratos reales, eliminadas todas las comisiones individuales sin contract_id válido');
     console.log('✅ Agrupación completada. Grupos finales:', this.groupedByContract);
     console.log('Final groupedByContract:', this.groupedByContract);
     console.log('=== END DEBUGGING ===');
-    
+
     // Verificar estados de pago para todas las comisiones
     this.checkPaymentStates();
   }
-  
+
   // Verificar estados de pago para todas las comisiones
   private checkPaymentStates(): void {
     const allCommissions = this.advisorGroup?.commissions || [];
     const parentCommissions = allCommissions.filter(c => !c.parent_commission_id);
-    
+
     parentCommissions.forEach(commission => {
       this.checkCommissionPaymentState(commission.commission_id);
     });
   }
-  
+
   // Verificar estado de pago de una comisión específica
   private checkCommissionPaymentState(commissionId: number): void {
     if (this.paymentStates.has(commissionId)) {
       return; // Ya verificado
     }
-    
+
     // Temporalmente deshabilitado hasta que la API esté implementada en el backend
     // La verificación de pagos se manejará directamente en el backend al intentar pagar
     this.paymentStates.set(commissionId, {
@@ -287,7 +289,7 @@ export class AdvisorCommissionsModalComponent implements OnInit, OnChanges {
       canPaySecond: true,
       isProcessing: false
     });
-    
+
     // TODO: Reactivar cuando la API /can-pay-part esté implementada en el backend
     /*
     // Verificar ambas partes del pago
@@ -318,7 +320,7 @@ export class AdvisorCommissionsModalComponent implements OnInit, OnChanges {
     });
     */
   }
-  
+
   // Obtener estado de pago de una comisión
   getPaymentState(commissionId: number) {
     return this.paymentStates.get(commissionId) || {
@@ -327,13 +329,13 @@ export class AdvisorCommissionsModalComponent implements OnInit, OnChanges {
       isProcessing: false
     };
   }
-  
+
   // Pagar primera parte de la comisión
   payFirstPart(commission: Commission): void {
     if (this.processingPayments.has(commission.commission_id)) {
       return;
     }
-    
+
     const employeeName = this.getCommissionEmployeeName(commission);
     const firstPartCommission = commission.child_commissions?.find(child => child.payment_part === 1);
     const firstPartAmount = firstPartCommission ? firstPartCommission.commission_amount : 0;
@@ -342,23 +344,23 @@ export class AdvisorCommissionsModalComponent implements OnInit, OnChanges {
       `Monto: ${this.formatCurrency(firstPartAmount)}\n` +
       `Contrato: ${commission.contract_id || 'Sin Contrato'}`
     );
-    
+
     if (!confirmed) {
       return;
     }
-    
+
     this.processingPayments.add(commission.commission_id);
     const currentState = this.getPaymentState(commission.commission_id);
     this.paymentStates.set(commission.commission_id, {
       ...currentState,
       isProcessing: true
     });
-    
+
     this.commissionService.payCommissionPart(commission.commission_id, 1).subscribe({
       next: (response) => {
         console.log('Primera parte pagada exitosamente:', response);
         alert('Primera parte de la comisión pagada exitosamente');
-        
+
         // Actualizar estado
         this.processingPayments.delete(commission.commission_id);
         this.paymentStates.set(commission.commission_id, {
@@ -366,14 +368,14 @@ export class AdvisorCommissionsModalComponent implements OnInit, OnChanges {
           canPaySecond: currentState.canPaySecond,
           isProcessing: false
         });
-        
+
         // Recargar datos
         this.reloadCommissionData();
       },
       error: (error) => {
         console.error('Error pagando primera parte:', error);
         alert('Error al pagar la primera parte de la comisión: ' + (error.error?.message || 'Error desconocido'));
-        
+
         this.processingPayments.delete(commission.commission_id);
         this.paymentStates.set(commission.commission_id, {
           ...currentState,
@@ -382,13 +384,13 @@ export class AdvisorCommissionsModalComponent implements OnInit, OnChanges {
       }
     });
   }
-  
+
   // Pagar segunda parte de la comisión
   paySecondPart(commission: Commission): void {
     if (this.processingPayments.has(commission.commission_id)) {
       return;
     }
-    
+
     const employeeName = this.getCommissionEmployeeName(commission);
     const secondPartCommission = commission.child_commissions?.find(child => child.payment_part === 2);
     const secondPartAmount = secondPartCommission ? secondPartCommission.commission_amount : 0;
@@ -397,23 +399,23 @@ export class AdvisorCommissionsModalComponent implements OnInit, OnChanges {
       `Monto: ${this.formatCurrency(secondPartAmount)}\n` +
       `Contrato: ${commission.contract_id || 'Sin Contrato'}`
     );
-    
+
     if (!confirmed) {
       return;
     }
-    
+
     this.processingPayments.add(commission.commission_id);
     const currentState = this.getPaymentState(commission.commission_id);
     this.paymentStates.set(commission.commission_id, {
       ...currentState,
       isProcessing: true
     });
-    
+
     this.commissionService.payCommissionPart(commission.commission_id, 2).subscribe({
       next: (response) => {
         console.log('Segunda parte pagada exitosamente:', response);
         alert('Segunda parte de la comisión pagada exitosamente');
-        
+
         // Actualizar estado
         this.processingPayments.delete(commission.commission_id);
         this.paymentStates.set(commission.commission_id, {
@@ -421,14 +423,14 @@ export class AdvisorCommissionsModalComponent implements OnInit, OnChanges {
           canPaySecond: false,
           isProcessing: false
         });
-        
+
         // Recargar datos
         this.reloadCommissionData();
       },
       error: (error) => {
         console.error('Error pagando segunda parte:', error);
         alert('Error al pagar la segunda parte de la comisión: ' + (error.error?.message || 'Error desconocido'));
-        
+
         this.processingPayments.delete(commission.commission_id);
         this.paymentStates.set(commission.commission_id, {
           ...currentState,
@@ -437,7 +439,7 @@ export class AdvisorCommissionsModalComponent implements OnInit, OnChanges {
       }
     });
   }
-  
+
   // Recargar datos de comisiones
   private reloadCommissionData(): void {
     // Emitir evento para que el componente padre recargue los datos
@@ -450,10 +452,10 @@ export class AdvisorCommissionsModalComponent implements OnInit, OnChanges {
   toggleContractExpansion(contractId: number | null): void {
     console.log('=== TOGGLING CONTRACT EXPANSION ===');
     console.log('Contract ID to toggle:', contractId);
-    
+
     // Usar un string único para identificar contratos null
     const contractKey = contractId !== null ? contractId.toString() : 'null';
-    
+
     if (this.expandedContracts.has(contractKey)) {
       this.expandedContracts.delete(contractKey);
       console.log('Contract collapsed:', contractId, 'key:', contractKey);
@@ -461,7 +463,7 @@ export class AdvisorCommissionsModalComponent implements OnInit, OnChanges {
       this.expandedContracts.add(contractKey);
       console.log('Contract expanded:', contractId, 'key:', contractKey);
     }
-    
+
     console.log('New expanded contracts:', Array.from(this.expandedContracts));
   }
 
@@ -475,7 +477,7 @@ export class AdvisorCommissionsModalComponent implements OnInit, OnChanges {
   toggleParentCommissionExpansion(commissionId: number): void {
     console.log('=== TOGGLING PARENT COMMISSION EXPANSION ===');
     console.log('Parent commission ID to toggle:', commissionId);
-    
+
     if (this.expandedParentCommissions.has(commissionId)) {
       this.expandedParentCommissions.delete(commissionId);
       console.log('Parent commission collapsed:', commissionId);
@@ -483,7 +485,7 @@ export class AdvisorCommissionsModalComponent implements OnInit, OnChanges {
       this.expandedParentCommissions.add(commissionId);
       console.log('Parent commission expanded:', commissionId);
     }
-    
+
     console.log('New expanded parent commissions:', Array.from(this.expandedParentCommissions));
   }
 
@@ -496,11 +498,11 @@ export class AdvisorCommissionsModalComponent implements OnInit, OnChanges {
   getParentCommissions(commissions: Commission[]): Commission[] {
     console.log('=== GETTING PARENT COMMISSIONS ===');
     console.log('Contract commissions to filter:', commissions);
-    
+
     const parentCommissions = commissions.filter(commission => this.isParentCommission(commission));
     console.log('Parent commissions found:', parentCommissions.length);
     console.log('Parent commissions:', parentCommissions);
-    
+
     return parentCommissions;
   }
 
@@ -509,15 +511,15 @@ export class AdvisorCommissionsModalComponent implements OnInit, OnChanges {
     console.log('=== getChildCommissions called ===');
     console.log('parentCommission:', parentCommission);
     console.log('parentCommission.child_commissions:', parentCommission.child_commissions);
-    
+
     // USAR LA MISMA LÓGICA QUE advisor-commissions.component.ts
     // Las comisiones hijas vienen en la propiedad child_commissions
     const childCommissions = parentCommission.child_commissions || [];
-    
+
     console.log(`Child commissions found for parent ${parentCommission.commission_id}:`, childCommissions.length);
     console.log('Child commissions:', childCommissions);
     console.log('=== END getChildCommissions ===');
-    
+
     return childCommissions;
   }
 
@@ -538,8 +540,8 @@ export class AdvisorCommissionsModalComponent implements OnInit, OnChanges {
 
   getCommissionHierarchyLabel(commission: any): string {
     if (this.isParentCommission(commission)) {
-      return commission.child_commissions && commission.child_commissions.length > 0 
-        ? 'Comisión General (con divisiones)' 
+      return commission.child_commissions && commission.child_commissions.length > 0
+        ? 'Comisión General (con divisiones)'
         : 'Comisión General';
     } else {
       return `División ${commission.payment_part || 'N/A'}`;
@@ -649,7 +651,7 @@ export class AdvisorCommissionsModalComponent implements OnInit, OnChanges {
 
   formatDate(dateString: string): string {
     if (!dateString) return 'No especificada';
-    
+
     const date = new Date(dateString);
     return new Intl.DateTimeFormat('es-PE', {
       year: 'numeric',
@@ -660,12 +662,12 @@ export class AdvisorCommissionsModalComponent implements OnInit, OnChanges {
 
   formatPeriod(month: number | undefined, year: number | undefined): string {
     if (!month || !year) return 'Período no especificado';
-    
+
     const monthNames = [
       'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
       'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
     ];
-    
+
     return `${monthNames[month - 1]} ${year}`;
   }
 
@@ -681,29 +683,29 @@ export class AdvisorCommissionsModalComponent implements OnInit, OnChanges {
     if (!this.advisorGroup?.employee) {
       return 'Empleado no especificado';
     }
-    
+
     const employee = this.advisorGroup.employee;
-    
+
     // Verificar si tenemos first_name y last_name
     if (employee.first_name && employee.last_name) {
       return `${employee.first_name} ${employee.last_name}`;
     }
-    
+
     // Si tenemos full_name, usarlo
     if (employee.full_name) {
       return employee.full_name;
     }
-    
+
     // Si solo tenemos first_name
     if (employee.first_name) {
       return employee.first_name;
     }
-    
+
     // Si solo tenemos last_name
     if (employee.last_name) {
       return employee.last_name;
     }
-    
+
     // Fallback al código del empleado
     return employee.employee_code || 'Empleado sin nombre';
   }
@@ -714,7 +716,7 @@ export class AdvisorCommissionsModalComponent implements OnInit, OnChanges {
     if (actualContractId && actualContractId > 0) {
       return `contract_${actualContractId}`;
     }
-    
+
     // Si no tiene contract_id válido, retornar null para excluir del agrupamiento
     return null;
   }
@@ -732,26 +734,26 @@ export class AdvisorCommissionsModalComponent implements OnInit, OnChanges {
 
   getContractTitle(contractGroup: ContractGroup): string {
     const firstCommission = contractGroup.commissions[0];
-    
+
     // Si tenemos contract_number y client_name, mostrar información completa
     if (firstCommission?.contract?.contract_number && firstCommission?.contract?.client?.name) {
       return `Contrato ${firstCommission.contract.contract_number} - ${firstCommission.contract.client.name}`;
     }
-    
+
     // Si solo tenemos contract_number
     if (firstCommission?.contract?.contract_number) {
       return `Contrato: ${firstCommission.contract.contract_number}`;
     }
-    
+
     // Si tenemos contract_id válido pero no contract_number
     if (contractGroup.contractId && contractGroup.contractId > 0) {
       const clientInfo = firstCommission?.contract?.client?.name || 'Cliente no especificado';
       return `Contrato #${contractGroup.contractId} - ${clientInfo}`;
     }
-    
+
     // ELIMINADO: Las condiciones fallback que creaban títulos de comisiones individuales
     // Ya no se permiten comisiones sin contract_id válido en groupCommissionsByContract()
-    
+
     return 'Contrato Sin Información';
   }
 
@@ -761,14 +763,14 @@ export class AdvisorCommissionsModalComponent implements OnInit, OnChanges {
       const user = commission.employee.user;
       const firstName = user.first_name;
       const lastName = user.last_name;
-      
+
       if (firstName && lastName) {
         return `${firstName} ${lastName}`;
       }
-      
+
       return firstName || lastName || 'N/A';
     }
-    
+
     // Fallback to advisor group employee name
     return this.getEmployeeName();
   }
@@ -778,7 +780,7 @@ export class AdvisorCommissionsModalComponent implements OnInit, OnChanges {
     if (!this.advisorGroup?.commissions) {
       return 0;
     }
-    return this.advisorGroup.commissions.filter(commission => 
+    return this.advisorGroup.commissions.filter(commission =>
       !commission.parent_commission_id
     ).length;
   }
