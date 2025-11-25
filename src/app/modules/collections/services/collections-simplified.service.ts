@@ -4,9 +4,9 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../../../../environments/environment';
 import { Contract } from '../../sales/models/contract';
-import { 
-  PaymentSchedule, 
-  PaymentScheduleFilters, 
+import {
+  PaymentSchedule,
+  PaymentScheduleFilters,
   PaymentScheduleMetrics,
   PaymentScheduleReport,
   GenerateScheduleRequest,
@@ -55,7 +55,7 @@ export class CollectionsSimplifiedService {
 
   // Dashboard
   getDashboardData(): Observable<CollectionsSimplifiedDashboard> {
-    return this.http.get<{success: boolean, data: any}>(`${this.baseUrl}/collections/dashboard`)
+    return this.http.get<{ success: boolean, data: any }>(`${this.baseUrl}/collections/dashboard`)
       .pipe(
         map(response => {
           if (response.success && response.data) {
@@ -63,7 +63,7 @@ export class CollectionsSimplifiedService {
             const metrics = data.metrics || {};
             const scheduleMetrics = metrics.schedules || {};
             const contractMetrics = metrics.contracts || {};
-            
+
             return {
               total_contracts: contractMetrics.contracts_with_schedules || 0,
               active_contracts: contractMetrics.active_contracts || 0,
@@ -95,7 +95,7 @@ export class CollectionsSimplifiedService {
     if (filters?.page) params = params.set('page', filters.page.toString());
     if (filters?.per_page) params = params.set('per_page', filters.per_page.toString());
     if (filters?.search) params = params.set('search', filters.search);
-    
+
     return this.http.get<{ data: ContractWithSchedules[]; meta: any }>(
       `${this.baseUrl}/sales/contracts/with-financing`,
       { params }
@@ -152,7 +152,7 @@ export class CollectionsSimplifiedService {
   getPaymentScheduleMetrics(contractId?: number): Observable<PaymentScheduleMetrics> {
     let params = new HttpParams();
     if (contractId) params = params.set('contract_id', contractId.toString());
-    
+
     return this.http.get<PaymentScheduleMetrics>(
       `${this.baseUrl}/sales/schedules/metrics`,
       { params }

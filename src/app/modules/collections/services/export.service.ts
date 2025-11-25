@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { PaymentSchedule } from '../models/payment-schedule';
 import { Workbook } from 'exceljs';
-import { saveAs } from 'file-saver';
 
 export interface ExportOptions {
   format: 'csv' | 'excel' | 'pdf';
@@ -102,7 +101,7 @@ export class ExportService {
         };
 
         const valueCell = row.getCell(2);
-        if (typeof value === 'number' && label.toLowerCase().includes('monto')) {
+        if (typeof value === 'number' && typeof label === 'string' && label.toLowerCase().includes('monto')) {
           valueCell.value = value;
           valueCell.numFmt = '"S/ "#,##0.00';
         } else {
@@ -327,12 +326,22 @@ export class ExportService {
       { state: 'frozen', xSplit: 0, ySplit: 1 }
     ];
 
-    // Generate and download file
+
+    // Generate and download file using browser native download
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], {
       type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     });
-    saveAs(blob, `${filename}.xlsx`);
+
+    // Create download link
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${filename}.xlsx`;
+    link.click();
+
+    // Clean up
+    setTimeout(() => URL.revokeObjectURL(url), 100);
   }
 
   /**
