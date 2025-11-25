@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { PaymentSchedule } from '../models/payment-schedule';
+import * as XLSX from 'xlsx';
 
 export interface ExportOptions {
   format: 'csv' | 'excel' | 'pdf';
@@ -9,6 +10,17 @@ export interface ExportOptions {
     from: string;
     to: string;
   };
+}
+
+interface ReportSummary {
+  total_amount: number;
+  paid_amount: number;
+  pending_amount: number;
+  overdue_amount: number;
+  total_schedules: number;
+  paid_schedules: number;
+  pending_schedules: number;
+  overdue_schedules: number;
 }
 
 @Injectable({
@@ -25,11 +37,83 @@ export class ExportService {
   }
 
   /**
-   * Export data to Excel format (simplified as CSV for now)
+   * Export data to Excel format using xlsx library
    */
-  exportToExcel(data: PaymentSchedule[], filename: string = 'reporte-cobranzas'): void {
-    const csvContent = this.generateCSVContent(data);
-    this.downloadFile(csvContent, `${filename}.xlsx`, 'application/vnd.ms-excel');
+  exportToExcel(data: PaymentSchedule[], filename: string = 'reporte-cobranzas', summary?: ReportSummary): void {
+    // Create workbook
+    const wb = XLSX.utils.book_new();
+
+    // If summary is provided, add summary sheet
+    if (summary) {
+      const summaryData = [
+        ['RESUMEN DE COBRANZAS'],
+        [],
+        ['Métrica', 'Valor'],
+        ['Total de Cronogramas', summary.total_schedules],
+        ['Monto Total', this.formatCurrency(summary.total_amount)],
+        ['Monto Cobrado', this.formatCurrency(summary.paid_amount)],
+        ['Monto Pendiente', this.formatCurrency(summary.pending_amount)],
+        ['Monto Vencido', this.formatCurrency(summary.overdue_amount)],
+        [],
+        ['Cronogramas Pagados', summary.paid_schedules],
+        ['Cronogramas Pendientes', summary.pending_schedules],
+        ['Cronogramas Vencidos', summary.overdue_schedules],
+        [],
+        ['Eficiencia de Cobranza', `${summary.total_amount > 0 ? ((summary.paid_amount / summary.total_amount) * 100).toFixed(2) : 0}%`]
+      ];
+
+      const ws_summary = XLSX.utils.aoa_to_sheet(summaryData);
+
+      // Set column widths
+      ws_summary['!cols'] = [
+        { wch: 30 },
+        { wch: 20 }
+      ];
+
+      XLSX.utils.book_append_sheet(wb, ws_summary, 'Resumen');
+    }
+
+    // Prepare data for detailed sheet
+    const detailedData = [
+      ['DETALLE DE CRONOGRAMAS DE PAGO'],
+      [],
+      ['Contrato', 'Cliente', 'Lote', 'Cuota', 'Fecha Vencimiento', 'Monto', 'Estado', 'Fecha Pago', 'Días Vencido']
+    ];
+
+    data.forEach(schedule => {
+      const daysOverdue = this.calculateDaysOverdue(schedule);
+      detailedData.push([
+        schedule.contract_number || schedule.contract_id?.toString() || 'N/A',
+        schedule.client_name || 'N/A',
+        schedule.lot_number || 'N/A',
+        schedule.installment_number?.toString() || '',
+        this.formatDate(schedule.due_date),
+        schedule.amount || 0,
+        this.getStatusLabel(schedule.status),
+        schedule.payment_date ? this.formatDate(schedule.payment_date) : '',
+        daysOverdue
+      ]);
+    });
+
+    const ws_detail = XLSX.utils.aoa_to_sheet(detailedData);
+
+    // Set column widths for detailed sheet
+    ws_detail['!cols'] = [
+      { wch: 15 }, // Contrato
+      { wch: 25 }, // Cliente
+      { wch: 12 }, // Lote
+      { wch: 8 },  // Cuota
+      { wch: 15 }, // Fecha Vencimiento
+      { wch: 12 }, // Monto
+      { wch: 12 }, // Estado
+      { wch: 15 }, // Fecha Pago
+      { wch: 12 }  // Días Vencido
+    ];
+
+    XLSX.utils.book_append_sheet(wb, ws_detail, 'Cronogramas');
+
+    // Generate file and download
+    XLSX.writeFile(wb, `${filename}.xlsx`);
   }
 
   /**
@@ -37,7 +121,7 @@ export class ExportService {
    */
   exportChartsAsImages(charts: any, filename: string = 'graficos'): void {
     const chartNames = ['distribucion-estados', 'tendencia-mensual', 'comparacion-montos'];
-    
+
     Object.values(charts).forEach((chart: any, index) => {
       if (chart && chart.canvas) {
         const url = chart.canvas.toDataURL('image/png');
@@ -50,13 +134,16 @@ export class ExportService {
   }
 
   /**
-   * Export to PDF (simplified implementation)
+   * Export to PDF
+   * NOTE: This is a placeholder. For actual PDF generation, 
+   * consider using a backend endpoint or a library like jsPDF with autoTable
    */
   exportToPDF(data: PaymentSchedule[], options?: ExportOptions): void {
-    // For now, we'll export as CSV with PDF extension
-    // In a real implementation, you'd use a library like jsPDF
-    const csvContent = this.generateCSVContent(data);
-    this.downloadFile(csvContent, 'reporte-cobranzas.pdf', 'application/pdf');
+    // For now, alert the user that PDF export is not yet implemented
+    alert('La exportación a PDF estará disponible próximamente. Por favor, use la exportación a Excel.');
+
+    // Alternative: Export as Excel for now
+    // this.exportToExcel(data, 'reporte-cobranzas-pdf');
   }
 
   /**
@@ -64,7 +151,10 @@ export class ExportService {
    */
   private generateCSVContent(data: PaymentSchedule[]): string {
     const headers = [
-      'Contrato ID',
+      'Contrato',
+      'Cliente',
+      'Lote',
+      'Cuota',
       'Fecha Vencimiento',
       'Monto',
       'Estado',
@@ -75,9 +165,12 @@ export class ExportService {
     let csv = headers.join(',') + '\n';
 
     data.forEach(schedule => {
-      const daysOverdue = schedule.status === 'vencido' ? this.getDaysOverdue(schedule.due_date) : 0;
+      const daysOverdue = this.calculateDaysOverdue(schedule);
       const row = [
-        schedule.contract_id,
+        schedule.contract_number || schedule.contract_id?.toString() || 'N/A',
+        this.escapeCsvValue(schedule.client_name || 'N/A'),
+        schedule.lot_number || 'N/A',
+        schedule.installment_number?.toString() || '',
         this.formatDate(schedule.due_date),
         schedule.amount?.toString() || '0',
         this.getStatusLabel(schedule.status),
@@ -91,22 +184,40 @@ export class ExportService {
   }
 
   /**
+   * Escape CSV values that contain commas or quotes
+   */
+  private escapeCsvValue(value: string): string {
+    if (!value) return '';
+    if (value.includes(',') || value.includes('"') || value.includes('\n')) {
+      return `"${value.replace(/"/g, '""')}"`;
+    }
+    return value;
+  }
+
+  /**
    * Download file helper
    */
   private downloadFile(content: string, filename: string, mimeType: string): void {
     const blob = new Blob([content], { type: `${mimeType};charset=utf-8;` });
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
-    
+
     link.setAttribute('href', url);
     link.setAttribute('download', filename);
     link.style.visibility = 'hidden';
-    
+
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    
+
     URL.revokeObjectURL(url);
+  }
+
+  /**
+   * Format currency for display
+   */
+  private formatCurrency(value: number): string {
+    return `S/ ${value.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   }
 
   /**
@@ -137,22 +248,35 @@ export class ExportService {
         return 'Pendiente';
       case 'vencido':
         return 'Vencido';
+      case 'anulado':
+        return 'Anulado';
       default:
         return status;
     }
   }
 
   /**
-   * Calculate days overdue
+   * Calculate days overdue dynamically
    */
-  private getDaysOverdue(dueDateString: string): number {
-    if (!dueDateString) return 0;
-    
+  private calculateDaysOverdue(schedule: PaymentSchedule): number {
+    // If already paid, no days overdue
+    if (schedule.status === 'pagado') {
+      return 0;
+    }
+
+    if (!schedule.due_date) return 0;
+
     try {
-      const dueDate = new Date(dueDateString);
+      const dueDate = new Date(schedule.due_date);
       const today = new Date();
+
+      // Reset hours for accurate day calculation
+      dueDate.setHours(0, 0, 0, 0);
+      today.setHours(0, 0, 0, 0);
+
       const diffTime = today.getTime() - dueDate.getTime();
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
       return Math.max(0, diffDays);
     } catch {
       return 0;

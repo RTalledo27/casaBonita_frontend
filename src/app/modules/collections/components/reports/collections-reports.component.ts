@@ -363,20 +363,33 @@ export class CollectionsReportsComponent implements OnInit, OnDestroy, AfterView
   }
 
   /**
-   * Export report
+   * Export report to Excel
    */
   exportReport() {
     const data = this.reportData();
     if (!data) return;
 
-    this.exportService.exportToExcel(data.schedules, 'reporte-cobranzas');
+    // Pass both schedules and summary to create a complete Excel report
+    this.exportService.exportToExcel(data.schedules, 'reporte-cobranzas', {
+      total_amount: data.total_amount,
+      paid_amount: data.paid_amount,
+      pending_amount: data.pending_amount,
+      overdue_amount: data.overdue_amount,
+      total_schedules: data.total_schedules,
+      paid_schedules: data.paid_schedules,
+      pending_schedules: data.pending_schedules,
+      overdue_schedules: data.overdue_schedules
+    });
   }
 
   /**
    * Export to PDF
    */
   exportToPDF() {
-    console.log('Exporting to PDF...');
+    const data = this.reportData();
+    if (!data) return;
+
+    this.exportService.exportToPDF(data.schedules);
   }
 
   /**
