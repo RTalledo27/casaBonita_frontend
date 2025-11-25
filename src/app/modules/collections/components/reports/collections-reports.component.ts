@@ -852,6 +852,48 @@ export class CollectionsReportsComponent implements OnInit, OnDestroy, AfterView
   }
 
   /**
+   * Get real status of a schedule (considering due date)
+   */
+  getRealStatus(schedule: PaymentSchedule): 'pagado' | 'pendiente' | 'vencido' {
+    // If already paid, return paid
+    if (schedule.status === 'pagado') {
+      return 'pagado';
+    }
+
+    // Calculate if overdue based on due date
+    const dueDate = new Date(schedule.due_date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    dueDate.setHours(0, 0, 0, 0);
+
+    if (dueDate < today) {
+      return 'vencido';
+    }
+
+    return 'pendiente';
+  }
+
+  /**
+   * Get real days overdue for a schedule
+   */
+  getRealDaysOverdue(schedule: PaymentSchedule): number {
+    // If paid, no days overdue
+    if (schedule.status === 'pagado') {
+      return 0;
+    }
+
+    const dueDate = new Date(schedule.due_date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    dueDate.setHours(0, 0, 0, 0);
+
+    const diffTime = today.getTime() - dueDate.getTime();
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+    return Math.max(0, diffDays);
+  }
+
+  /**
    * Track by function for schedules
    */
   trackByScheduleId(index: number, schedule: PaymentSchedule): number {

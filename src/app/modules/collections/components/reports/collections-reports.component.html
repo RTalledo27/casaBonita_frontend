@@ -372,9 +372,9 @@
                                     {{ schedule.client_name }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span [class]="getStatusClass(schedule.status)"
+                                    <span [class]="getStatusClass(getRealStatus(schedule))"
                                         class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold">
-                                        {{ getStatusLabel(schedule.status) }}
+                                        {{ getStatusLabel(getRealStatus(schedule)) }}
                                     </span>
                                 </td>
                                 <td
@@ -385,8 +385,8 @@
                                     {{ formatDate(schedule.due_date) }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm"
-                                    [class]="getDaysOverdueClass(schedule.days_overdue || 0)">
-                                    {{ schedule.days_overdue || 0 }} días
+                                    [class]="getDaysOverdueClass(getRealDaysOverdue(schedule))">
+                                    {{ getRealDaysOverdue(schedule) }} días
                                 </td>
                             </tr>
                         </tbody>
