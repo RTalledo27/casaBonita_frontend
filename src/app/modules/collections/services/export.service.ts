@@ -45,24 +45,23 @@ export class ExportService {
 
     // If summary is provided, add summary sheet
     if (summary) {
-      const summaryData = [
-        ['RESUMEN DE COBRANZAS'],
-        [],
-        ['Métrica', 'Valor'],
-        ['Total de Cronogramas', summary.total_schedules],
-        ['Monto Total', this.formatCurrency(summary.total_amount)],
-        ['Monto Cobrado', this.formatCurrency(summary.paid_amount)],
-        ['Monto Pendiente', this.formatCurrency(summary.pending_amount)],
-        ['Monto Vencido', this.formatCurrency(summary.overdue_amount)],
-        [],
-        ['Cronogramas Pagados', summary.paid_schedules],
-        ['Cronogramas Pendientes', summary.pending_schedules],
-        ['Cronogramas Vencidos', summary.overdue_schedules],
-        [],
-        ['Eficiencia de Cobranza', `${summary.total_amount > 0 ? ((summary.paid_amount / summary.total_amount) * 100).toFixed(2) : 0}%`]
+      const summaryRows = [
+        { Métrica: 'RESUMEN DE COBRANZAS', Valor: '' },
+        { Métrica: '', Valor: '' },
+        { Métrica: 'Total de Cronogramas', Valor: summary.total_schedules },
+        { Métrica: 'Monto Total', Valor: this.formatCurrency(summary.total_amount) },
+        { Métrica: 'Monto Cobrado', Valor: this.formatCurrency(summary.paid_amount) },
+        { Métrica: 'Monto Pendiente', Valor: this.formatCurrency(summary.pending_amount) },
+        { Métrica: 'Monto Vencido', Valor: this.formatCurrency(summary.overdue_amount) },
+        { Métrica: '', Valor: '' },
+        { Métrica: 'Cronogramas Pagados', Valor: summary.paid_schedules },
+        { Métrica: 'Cronogramas Pendientes', Valor: summary.pending_schedules },
+        { Métrica: 'Cronogramas Vencidos', Valor: summary.overdue_schedules },
+        { Métrica: '', Valor: '' },
+        { Métrica: 'Eficiencia de Cobranza', Valor: `${summary.total_amount > 0 ? ((summary.paid_amount / summary.total_amount) * 100).toFixed(2) : 0}%` }
       ];
 
-      const ws_summary = XLSX.utils.aoa_to_sheet(summaryData);
+      const ws_summary = XLSX.utils.json_to_sheet(summaryRows);
 
       // Set column widths
       ws_summary['!cols'] = [
@@ -73,29 +72,23 @@ export class ExportService {
       XLSX.utils.book_append_sheet(wb, ws_summary, 'Resumen');
     }
 
-    // Prepare data for detailed sheet
-    const detailedData = [
-      ['DETALLE DE CRONOGRAMAS DE PAGO'],
-      [],
-      ['Contrato', 'Cliente', 'Lote', 'Cuota', 'Fecha Vencimiento', 'Monto', 'Estado', 'Fecha Pago', 'Días Vencido']
-    ];
-
-    data.forEach(schedule => {
+    // Prepare detailed data as objects for json_to_sheet
+    const detailedRows = data.map(schedule => {
       const daysOverdue = this.calculateDaysOverdue(schedule);
-      detailedData.push([
-        schedule.contract_number || schedule.contract_id?.toString() || 'N/A',
-        schedule.client_name || 'N/A',
-        schedule.lot_number || 'N/A',
-        schedule.installment_number?.toString() || '',
-        this.formatDate(schedule.due_date),
-        schedule.amount || 0,
-        this.getStatusLabel(schedule.status),
-        schedule.payment_date ? this.formatDate(schedule.payment_date) : '',
-        daysOverdue
-      ]);
+      return {
+        'Contrato': schedule.contract_number || schedule.contract_id?.toString() || 'N/A',
+        'Cliente': schedule.client_name || 'N/A',
+        'Lote': schedule.lot_number || 'N/A',
+        'Cuota': schedule.installment_number?.toString() || '',
+        'Fecha Vencimiento': this.formatDate(schedule.due_date),
+        'Monto': schedule.amount || 0,
+        'Estado': this.getStatusLabel(schedule.status),
+        'Fecha Pago': schedule.payment_date ? this.formatDate(schedule.payment_date) : '',
+        'Días Vencido': daysOverdue
+      };
     });
 
-    const ws_detail = XLSX.utils.aoa_to_sheet(detailedData);
+    const ws_detail = XLSX.utils.json_to_sheet(detailedRows);
 
     // Set column widths for detailed sheet
     ws_detail['!cols'] = [
@@ -103,7 +96,7 @@ export class ExportService {
       { wch: 25 }, // Cliente
       { wch: 12 }, // Lote
       { wch: 8 },  // Cuota
-      { wch: 15 }, // Fecha Vencimiento
+      { wch: 18 }, // Fecha Vencimiento
       { wch: 12 }, // Monto
       { wch: 12 }, // Estado
       { wch: 15 }, // Fecha Pago
