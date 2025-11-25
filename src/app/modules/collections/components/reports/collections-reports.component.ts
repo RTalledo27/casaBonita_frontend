@@ -190,6 +190,18 @@ export class CollectionsReportsComponent implements OnInit, OnDestroy, AfterView
 
   ngOnInit() {
     this.setDefaultDates();
+
+    // Listen to report type changes to update table visibility
+    this.filterForm.get('report_type')?.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        // Just trigger change detection - table visibility will update automatically
+        // via the showTable() computed signal
+        if (this.reportData()) {
+          // Reset to first page when switching between types
+          this.currentPage.set(1);
+        }
+      });
   }
 
   ngAfterViewInit() {
