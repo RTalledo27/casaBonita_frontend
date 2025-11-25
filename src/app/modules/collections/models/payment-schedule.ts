@@ -14,6 +14,8 @@ export interface PaymentSchedule {
   days_since_created?: number | string;
   days_overdue?: number;
   client_name?: string;
+  lot_number?: string;
+  amount_paid?: number;
 }
 
 export interface PaymentScheduleFilters {

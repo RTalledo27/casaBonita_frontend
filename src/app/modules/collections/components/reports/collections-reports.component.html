@@ -1,0 +1,422 @@
+<div
+    class="min-h-screen bg-gradient- to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+    <!-- Header -->
+    <div
+        class="sticky top-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200/70 dark:border-slate-700/60 shadow-lg">
+        <div class="container mx-auto px-4 lg:px-8 py-4">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div class="flex-1 min-w-0">
+                    <h1
+                        class="text-2xl lg:text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-900 via-blue-800 to-indigo-800 dark:from-white dark:via-blue-200 dark:to-indigo-200">
+                        Reportes de Cobranzas
+                    </h1>
+                    <p class="text-slate-600 dark:text-slate-400 mt-1 text-sm lg:text-base">Análisis detallado y
+                        métricas de
+                        rendimiento</p>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex items-center gap-3 flex-shrink-0">
+                    <button (click)="exportReport()" [disabled]="!reportData()"
+                        class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 disabled:cursor-not-allowed rounded-lg transition-all duration-200 shadow-md hover:shadow-lg">
+                        <lucide-angular [img]="FileSpreadsheetIcon" class="w-4 h-4"></lucide-angular>
+                        <span class="hidden sm:inline">Excel</span>
+                    </button>
+
+                    <button (click)="exportToPDF()" [disabled]="!reportData()"
+                        class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-all duration-200">
+                        <lucide-angular [img]="DownloadIcon" class="w-4 h-4"></lucide-angular>
+                        <span class="hidden sm:inline">PDF</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 lg:px-8 py-6 lg:py-8">
+        <!-- Quick Filters -->
+        <div class="mb-6 animate-fade-in">
+            <div class="flex items-center gap-2 overflow-x-auto pb-2">
+                <span
+                    class="text-sm font-medium text-slate-700 dark:text-slate-300 whitespace-nowrap mr-2">Periodo:</span>
+                <button *ngFor="let filter of [
+            {value: 'today', label: 'Hoy'},
+            {value: 'week', label: 'Semana'},
+            {value: 'month', label: 'Mes'},
+            {value: 'quarter', label: 'Trimestre'},
+            {value: 'year', label: 'Año'}
+          ]" (click)="applyQuickFilter($any(filter.value))"
+                    [class.bg-gradient-to-r]="selectedQuickFilter() === filter.value"
+                    [class.from-blue-600]="selectedQuickFilter() === filter.value"
+                    [class.to-indigo-600]="selectedQuickFilter() === filter.value"
+                    [class.text-white]="selectedQuickFilter() === filter.value"
+                    [class.border-blue-600]="selectedQuickFilter() === filter.value"
+                    [class.bg-white]="selectedQuickFilter() !== filter.value"
+                    [class.dark:bg-slate-800]="selectedQuickFilter() !== filter.value"
+                    [class.text-slate-700]="selectedQuickFilter() !== filter.value"
+                    [class.dark:text-slate-300]="selectedQuickFilter() !== filter.value"
+                    [class.hover:bg-blue-50]="selectedQuickFilter() !== filter.value"
+                    [class.dark:hover:bg-slate-700]="selectedQuickFilter() !== filter.value"
+                    class="px-4 py-2 text-sm font-medium border border-slate-300 dark:border-slate-600 rounded-lg transition-all duration-200 whitespace-nowrap shadow-sm hover:shadow-md">
+                    {{ filter.label }}
+                </button>
+            </div>
+        </div>
+
+        <!-- Filters Card -->
+        <div
+            class="bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm rounded-2xl border border-slate-200/60 dark:border-slate-700/60 shadow-xl mb-8 animate-slide-up">
+            <div class="p-6">
+                <form [formGroup]="filterForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Date From -->
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                            <lucide-angular [img]="CalendarIcon" class="w-4 h-4 inline mr-2"></lucide-angular>
+                            Fecha Desde
+                        </label>
+                        <input type="date" formControlName="date_from"
+                            class="w-full px-4 py-2.5 text-sm border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" />
+                    </div>
+
+                    <!-- Date To -->
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                            <lucide-angular [img]="CalendarIcon" class="w-4 h-4 inline mr-2"></lucide-angular>
+                            Fecha Hasta
+                        </label>
+                        <input type="date" formControlName="date_to"
+                            class="w-full px-4 py-2.5 text-sm border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" />
+                    </div>
+
+                    <!-- Status Filter -->
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                            <lucide-angular [img]="ActivityIcon" class="w-4 h-4 inline mr-2"></lucide-angular>
+                            Estado
+                        </label>
+                        <select formControlName="status"
+                            class="w-full px-4 py-2.5 text-sm border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                            <option value="">Todos</option>
+                            <option value="pagado">Pagado</option>
+                            <option value="pendiente">Pendiente</option>
+                            <option value="vencido">Vencido</option>
+                        </select>
+                    </div>
+
+                    <!-- Report Type -->
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                            <lucide-angular [img]="BarChart3Icon" class="w-4 h-4 inline mr-2"></lucide-angular>
+                            Tipo
+                        </label>
+                        <select formControlName="report_type"
+                            class="w-full px-4 py-2.5 text-sm border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                            <option value="summary">Resumen (solo KPIs y gráficos)</option>
+                            <option value="detailed">Detallado (todo)</option>
+                            <option value="overdue">Solo Vencidos</option>
+                        </select>
+                    </div>
+                </form>
+
+                <!-- Action Buttons -->
+                <div class="flex flex-col sm:flex-row gap-3 mt-6 pt-6 border-t border-slate-200 dark:border-slate-700">
+                    <button (click)="generateReport()" [disabled]="isLoading()"
+                        class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 disabled:from-slate-400 disabled:to-slate-500 disabled:cursor-not-allowed rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                        <lucide-angular [img]="BarChart3Icon" class="w-5 h-5"></lucide-angular>
+                        <span>{{ isLoading() ? 'Generando...' : 'Generar Reporte' }}</span>
+                    </button>
+
+                    <button (click)="resetFilters()"
+                        class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 text-sm font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-all duration-200">
+                        <lucide-angular [img]="ArrowLeftIcon" class="w-5 h-5"></lucide-angular>
+                        <span>Limpiar</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div *ngIf="isLoading()"
+            class="bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm rounded-2xl border border-slate-200/60 dark:border-slate-700/60 shadow-xl p-12 text-center animate-pulse">
+            <div class="flex flex-col items-center space-y-6">
+                <div class="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+                <div class="space-y-3">
+                    <p class="text-xl font-semibold text-slate-900 dark:text-slate-100">{{ loadingMessage() }}</p>
+                    <div class="w-80 bg-slate-200 dark:bg-slate-700 rounded-full h-3 overflow-hidden">
+                        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 h-3 rounded-full transition-all duration-300"
+                            [style.width.%]="loadingProgress()"></div>
+                    </div>
+                    <p class="text-sm text-slate-600 dark:text-slate-400">{{ loadingProgress() }}% completado</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error State -->
+        <div *ngIf="errorMessage()"
+            class="bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800 rounded-2xl p-6 mb-8 animate-shake">
+            <div class="flex items-start space-x-4">
+                <lucide-angular [img]="AlertTriangleIcon"
+                    class="w-7 h-7 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5"></lucide-angular>
+                <div class="flex-1">
+                    <h3 class="text-lg font-bold text-red-800 dark:text-red-200 mb-2">Error al generar reporte</h3>
+                    <p class="text-red-700 dark:text-red-300 mb-4">{{ errorMessage() }}</p>
+                    <div class="flex gap-3">
+                        <button (click)="retryLastOperation()"
+                            class="px-5 py-2 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-lg transition-all shadow-md hover:shadow-lg">
+                            Reintentar
+                        </button>
+                        <button (click)="clearError()"
+                            class="px-5 py-2 text-sm font-semibold text-red-700 dark:text-red-300 bg-transparent border-2 border-red-300 dark:border-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-all">
+                            Cerrar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Report Content -->
+        <div *ngIf="reportData() && !isLoading()" class="space-y-8">
+            <!-- KPI Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Total Amount -->
+                <div
+                    class="kpi-card bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-2xl border border-blue-200/60 dark:border-blue-800/60 p-6 cursor-pointer hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="p-3 bg-blue-500/10 rounded-xl">
+                            <lucide-angular [img]="DollarSignIcon"
+                                class="w-8 h-8 text-blue-600 dark:text-blue-400"></lucide-angular>
+                        </div>
+                        <lucide-angular [img]="TrendingUpIcon"
+                            class="w-5 h-5 text-blue-600 dark:text-blue-400"></lucide-angular>
+                    </div>
+                    <p class="text-sm font-semibold text-blue-700 dark:text-blue-300 mb-1">Monto Total</p>
+                    <p class="text-3xl font-extrabold text-blue-900 dark:text-blue-100 mb-2">{{
+                        formatCurrency(reportData()?.total_amount || 0) }}</p>
+                    <p class="text-xs text-blue-600 dark:text-blue-400">{{ reportData()?.total_schedules || 0 }}
+                        cronogramas</p>
+                </div>
+
+                <!-- Paid Amount -->
+                <div
+                    class="kpi-card bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-900/20 dark:to-emerald-900/20 rounded-2xl border border-green-200/60 dark:border-green-800/60 p-6 cursor-pointer hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="p-3 bg-green-500/10 rounded-xl">
+                            <lucide-angular [img]="CheckCircleIcon"
+                                class="w-8 h-8 text-green-600 dark:text-green-400"></lucide-angular>
+                        </div>
+                        <div class="px-2 py-1 bg-green-500/20 rounded-lg">
+                            <span class="text-xs font-bold text-green-700 dark:text-green-300">{{ collectionEfficiency()
+                                |
+                                number:'1.1-1' }}%</span>
+                        </div>
+                    </div>
+                    <p class="text-sm font-semibold text-green-700 dark:text-green-300 mb-1">Cobrado</p>
+                    <p class="text-3xl font-extrabold text-green-900 dark:text-green-100 mb-2">{{
+                        formatCurrency(reportData()?.paid_amount || 0) }}</p>
+                    <p class="text-xs text-green-600 dark:text-green-400">{{ reportData()?.paid_schedules || 0 }}
+                        pagados</p>
+                </div>
+
+                <!-- Pending Amount -->
+                <div
+                    class="kpi-card bg-gradient-to-br from-yellow-50 to-orange-100 dark:from-yellow-900/20 dark:to-orange-900/20 rounded-2xl border border-yellow-200/60 dark:border-yellow-800/60 p-6 cursor-pointer hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="p-3 bg-yellow-500/10 rounded-xl">
+                            <lucide-angular [img]="ClockIcon"
+                                class="w-8 h-8 text-yellow-600 dark:text-yellow-400"></lucide-angular>
+                        </div>
+                        <lucide-angular [img]="TrendingDownIcon"
+                            class="w-5 h-5 text-yellow-600 dark:text-yellow-400"></lucide-angular>
+                    </div>
+                    <p class="text-sm font-semibold text-yellow-700 dark:text-yellow-300 mb-1">Pendiente</p>
+                    <p class="text-3xl font-extrabold text-yellow-900 dark:text-yellow-100 mb-2">{{
+                        formatCurrency(reportData()?.pending_amount || 0) }}</p>
+                    <p class="text-xs text-yellow-600 dark:text-yellow-400">{{ reportData()?.pending_schedules || 0 }}
+                        pendientes
+                    </p>
+                </div>
+
+                <!-- Overdue Amount -->
+                <div
+                    class="kpi-card bg-gradient-to-br from-red-50 to-rose-100 dark:from-red-900/20 dark:to-rose-900/20 rounded-2xl border border-red-200/60 dark:border-red-800/60 p-6 cursor-pointer hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="p-3 bg-red-500/10 rounded-xl">
+                            <lucide-angular [img]="AlertCircleIcon"
+                                class="w-8 h-8 text-red-600 dark:text-red-400"></lucide-angular>
+                        </div>
+                        <div class="px-2 py-1 bg-red-500/20 rounded-lg">
+                            <span class="text-xs font-bold text-red-700 dark:text-red-300">{{ averageCollectionDays()
+                                }}d</span>
+                        </div>
+                    </div>
+                    <p class="text-sm font-semibold text-red-700 dark:text-red-300 mb-1">Vencido</p>
+                    <p class="text-3xl font-extrabold text-red-900 dark:text-red-100 mb-2">{{
+                        formatCurrency(reportData()?.overdue_amount || 0) }}</p>
+                    <p class="text-xs text-red-600 dark:text-red-400">{{ reportData()?.overdue_schedules || 0 }}
+                        vencidos</p>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Status Distribution -->
+                <div
+                    class="chart-card bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm rounded-2xl border border-slate-200/60 dark:border-slate-700/60 shadow-xl p-6 hover:shadow-2xl transition-all  duration-300">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-slate-100">Distribución por Estado</h3>
+                        <lucide-angular [img]="PieChartIcon"
+                            class="w-6 h-6 text-slate-600 dark:text-slate-400"></lucide-angular>
+                    </div>
+                    <div class="relative h-72">
+                        <canvas #statusChart></canvas>
+                    </div>
+                </div>
+
+                <!-- Amount Distribution -->
+                <div
+                    class="chart-card bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm rounded-2xl border border-slate-200/60 dark:border-slate-700/60 shadow-xl p-6 hover:shadow-2xl transition-all duration-300">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-slate-100">Distribución de Montos</h3>
+                        <lucide-angular [img]="BarChart3Icon"
+                            class="w-6 h-6 text-slate-600 dark:text-slate-400"></lucide-angular>
+                    </div>
+                    <div class="relative h-72">
+                        <canvas #amountChart></canvas>
+                    </div>
+                </div>
+
+                <!-- Trends Chart -->
+                <div
+                    class="chart-card bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm rounded-2xl border border-slate-200/60 dark:border-slate-700/60 shadow-xl p-6 hover:shadow-2xl transition-all duration-300">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-slate-100">Tendencias Mensuales</h3>
+                        <lucide-angular [img]="TrendingUpIcon"
+                            class="w-6 h-6 text-slate-600 dark:text-slate-400"></lucide-angular>
+                    </div>
+                    <div class="relative h-72">
+                        <canvas #trendsChart></canvas>
+                    </div>
+                </div>
+
+                <!-- Aging Analysis -->
+                <div
+                    class="chart-card bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm rounded-2xl border border-slate-200/60 dark:border-slate-700/60 shadow-xl p-6 hover:shadow-2xl transition-all duration-300">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-slate-100">Análisis de Antigüedad</h3>
+                        <lucide-angular [img]="ActivityIcon"
+                            class="w-6 h-6 text-slate-600 dark:text-slate-400"></lucide-angular>
+                    </div>
+                    <div class="relative h-72">
+                        <canvas #agingChart></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Table -->
+            <div *ngIf="showTable()"
+                class="bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm rounded-2xl border border-slate-200/60 dark:border-slate-700/60 shadow-xl overflow-hidden">
+                <div
+                    class="px-6 py-5 border-b border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-700/30">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-slate-100">Detalle de Cronogramas</h3>
+
+                        <!-- Search Box -->
+                        <div class="relative">
+                            <lucide-angular [img]="SearchIcon"
+                                class="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"></lucide-angular>
+                            <input type="text" [value]="searchTerm()"
+                                (input)="onSearchChange($any($event.target).value)"
+                                placeholder="Buscar contrato, cliente, lote..."
+                                class="pl-10 pr-4 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all min-w-[300px]" />
+                        </div>
+                    </div>
+
+                    <p class="text-sm text-slate-600 dark:text-slate-400 mt-2">
+                        Mostrando {{ paginatedSchedules().length }} de {{ filteredSchedules().length }} registros
+                    </p>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-slate-50 dark:bg-slate-700/50">
+                            <tr>
+                                <th
+                                    class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                    Contrato</th>
+                                <th
+                                    class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                    Cliente</th>
+                                <th
+                                    class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                    Estado</th>
+                                <th
+                                    class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                    Monto</th>
+                                <th
+                                    class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                    Vencimiento</th>
+                                <th
+                                    class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                    Días Vencido</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700">
+                            <tr *ngFor="let schedule of paginatedSchedules(); trackBy: trackByScheduleId"
+                                class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                                <td
+                                    class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-slate-900 dark:text-slate-100">
+                                    {{ schedule.contract_number }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600 dark:text-slate-400">
+                                    {{ schedule.client_name }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span [class]="getStatusClass(schedule.status)"
+                                        class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold">
+                                        {{ getStatusLabel(schedule.status) }}
+                                    </span>
+                                </td>
+                                <td
+                                    class="px-6 py-4 whitespace-nowrap text-sm font-bold text-slate-900 dark:text-slate-100">
+                                    {{ formatCurrency(schedule.amount) }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600 dark:text-slate-400">
+                                    {{ formatDate(schedule.due_date) }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm"
+                                    [class]="getDaysOverdueClass(schedule.days_overdue || 0)">
+                                    {{ schedule.days_overdue || 0 }} días
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!--  Pagination Controls -->
+                <div *ngIf="totalPages() > 1"
+                    class="px-6 py-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-700/30">
+                    <div class="flex items-center justify-between">
+                        <div class="text-sm text-slate-600 dark:text-slate-400">
+                            Página {{ currentPage() }} de {{ totalPages() }}
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <button (click)="previousPage()" [disabled]="currentPage() === 1"
+                                class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
+                                <lucide-angular [img]="ChevronLeftIcon" class="w-4 h-4"></lucide-angular>
+                                Anterior
+                            </button>
+
+                            <button (click)="nextPage()" [disabled]="currentPage() === totalPages()"
+                                class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
+                                Siguiente
+                                <lucide-angular [img]="ChevronRightIcon" class="w-4 h-4"></lucide-angular>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
