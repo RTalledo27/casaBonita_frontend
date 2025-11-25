@@ -365,21 +365,26 @@ export class CollectionsReportsComponent implements OnInit, OnDestroy, AfterView
   /**
    * Export report to Excel
    */
-  exportReport() {
+  async exportReport() {
     const data = this.reportData();
     if (!data) return;
 
-    // Pass both schedules and summary to create a complete Excel report
-    this.exportService.exportToExcel(data.schedules, 'reporte-cobranzas', {
-      total_amount: data.total_amount,
-      paid_amount: data.paid_amount,
-      pending_amount: data.pending_amount,
-      overdue_amount: data.overdue_amount,
-      total_schedules: data.total_schedules,
-      paid_schedules: data.paid_schedules,
-      pending_schedules: data.pending_schedules,
-      overdue_schedules: data.overdue_schedules
-    });
+    try {
+      // Pass both schedules and summary to create a complete Excel report
+      await this.exportService.exportToExcel(data.schedules, 'reporte-cobranzas', {
+        total_amount: data.total_amount,
+        paid_amount: data.paid_amount,
+        pending_amount: data.pending_amount,
+        overdue_amount: data.overdue_amount,
+        total_schedules: data.total_schedules,
+        paid_schedules: data.paid_schedules,
+        pending_schedules: data.pending_schedules,
+        overdue_schedules: data.overdue_schedules
+      });
+    } catch (error) {
+      console.error('Error exporting to Excel:', error);
+      alert('Error al exportar a Excel. Por favor, intente nuevamente.');
+    }
   }
 
   /**

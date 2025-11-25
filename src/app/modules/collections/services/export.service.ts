@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { PaymentSchedule } from '../models/payment-schedule';
-import * as XLSX from 'xlsx';
+import { Workbook } from 'exceljs';
+import { saveAs } from 'file-saver';
 
 export interface ExportOptions {
   format: 'csv' | 'excel' | 'pdf';
@@ -29,84 +30,317 @@ interface ReportSummary {
 export class ExportService {
 
   /**
+   * Export data to professional Excel format using exceljs
+   */
+  async exportToExcel(data: PaymentSchedule[], filename: string = 'reporte-cobranzas', summary?: ReportSummary): Promise<void> {
+    const workbook = new Workbook();
+    workbook.creator = 'Casa Bonita - Sistema de Cobranzas';
+    workbook.created = new Date();
+
+    // Add Summary Sheet if summary provided
+    if (summary) {
+      const summarySheet = workbook.addWorksheet('Resumen', {
+        properties: { tabColor: { argb: 'FF2563EB' } }
+      });
+
+      // Title
+      summarySheet.mergeCells('A1:D1');
+      const titleCell = summarySheet.getCell('A1');
+      titleCell.value = 'REPORTE DE COBRANZAS';
+      titleCell.font = { size: 18, bold: true, color: { argb: 'FF1E3A8A' } };
+      titleCell.alignment = { vertical: 'middle', horizontal: 'center' };
+      summarySheet.getRow(1).height = 30;
+
+      // Date range info
+      summarySheet.mergeCells('A2:D2');
+      const dateCell = summarySheet.getCell('A2');
+      dateCell.value = `Generado: ${new Date().toLocaleDateString('es-PE', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      })}`;
+      dateCell.font = { size: 10, italic: true };
+      dateCell.alignment = { horizontal: 'center' };
+      summarySheet.getRow(2).height = 20;
+
+      // Empty row
+      summarySheet.addRow([]);
+
+      // Header for metrics section
+      summarySheet.mergeCells('A4:B4');
+      const metricsHeader = summarySheet.getCell('A4');
+      metricsHeader.value = 'MÉTRICAS GENERALES';
+      metricsHeader.font = { size: 14, bold: true, color: { argb: 'FFFFFFFF' } };
+      metricsHeader.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FF2563EB' }
+      };
+      metricsHeader.alignment = { vertical: 'middle', horizontal: 'center' };
+      summarySheet.getRow(4).height = 25;
+
+      // Metrics data
+      const metrics = [
+        ['Total de Cronogramas', summary.total_schedules],
+        ['Monto Total', summary.total_amount],
+        ['Monto Cobrado', summary.paid_amount],
+        ['Monto Pendiente', summary.pending_amount],
+        ['Monto Vencido', summary.overdue_amount]
+      ];
+
+      let currentRow = 5;
+      metrics.forEach(([label, value]) => {
+        const row = summarySheet.getRow(currentRow);
+        row.getCell(1).value = label;
+        row.getCell(1).font = { bold: true };
+        row.getCell(1).fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FFF3F4F6' }
+        };
+
+        const valueCell = row.getCell(2);
+        if (typeof value === 'number' && label.toLowerCase().includes('monto')) {
+          valueCell.value = value;
+          valueCell.numFmt = '"S/ "#,##0.00';
+        } else {
+          valueCell.value = value;
+        }
+        valueCell.alignment = { horizontal: 'right' };
+
+        row.eachCell((cell) => {
+          cell.border = {
+            top: { style: 'thin' },
+            left: { style: 'thin' },
+            bottom: { style: 'thin' },
+            right: { style: 'thin' }
+          };
+        });
+        row.height = 20;
+        currentRow++;
+      });
+
+      // Empty row
+      summarySheet.addRow([]);
+      currentRow++;
+
+      // Header for counts section
+      summarySheet.mergeCells(`A${currentRow}:B${currentRow}`);
+      const countsHeader = summarySheet.getCell(`A${currentRow}`);
+      countsHeader.value = 'DISTRIBUCIÓN POR ESTADO';
+      countsHeader.font = { size: 14, bold: true, color: { argb: 'FFFFFFFF' } };
+      countsHeader.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FF059669' }
+      };
+      countsHeader.alignment = { vertical: 'middle', horizontal: 'center' };
+      summarySheet.getRow(currentRow).height = 25;
+      currentRow++;
+
+      // Counts data
+      const counts = [
+        ['Cronogramas Pagados', summary.paid_schedules],
+        ['Cronogramas Pendientes', summary.pending_schedules],
+        ['Cronogramas Vencidos', summary.overdue_schedules]
+      ];
+
+      counts.forEach(([label, value]) => {
+        const row = summarySheet.getRow(currentRow);
+        row.getCell(1).value = label;
+        row.getCell(1).font = { bold: true };
+        row.getCell(1).fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FFF3F4F6' }
+        };
+
+        row.getCell(2).value = value;
+        row.getCell(2).alignment = { horizontal: 'right' };
+
+        row.eachCell((cell) => {
+          cell.border = {
+            top: { style: 'thin' },
+            left: { style: 'thin' },
+            bottom: { style: 'thin' },
+            right: { style: 'thin' }
+          };
+        });
+        row.height = 20;
+        currentRow++;
+      });
+
+      // Empty row
+      summarySheet.addRow([]);
+      currentRow++;
+
+      // Efficiency
+      summarySheet.mergeCells(`A${currentRow}:B${currentRow}`);
+      const efficiencyHeader = summarySheet.getCell(`A${currentRow}`);
+      efficiencyHeader.value = 'EFICIENCIA DE COBRANZA';
+      efficiencyHeader.font = { size: 14, bold: true, color: { argb: 'FFFFFFFF' } };
+      efficiencyHeader.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FFDC2626' }
+      };
+      efficiencyHeader.alignment = { vertical: 'middle', horizontal: 'center' };
+      summarySheet.getRow(currentRow).height = 25;
+      currentRow++;
+
+      const efficiencyRow = summarySheet.getRow(currentRow);
+      efficiencyRow.getCell(1).value = 'Porcentaje de Cobranza';
+      efficiencyRow.getCell(1).font = { bold: true };
+      efficiencyRow.getCell(1).fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FFF3F4F6' }
+      };
+
+      const efficiencyValue = summary.total_amount > 0
+        ? ((summary.paid_amount / summary.total_amount) * 100).toFixed(2)
+        : '0.00';
+      efficiencyRow.getCell(2).value = `${efficiencyValue}%`;
+      efficiencyRow.getCell(2).alignment = { horizontal: 'right' };
+      efficiencyRow.getCell(2).font = { bold: true, size: 12 };
+
+      efficiencyRow.eachCell((cell) => {
+        cell.border = {
+          top: { style: 'thin' },
+          left: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thin' }
+        };
+      });
+      efficiencyRow.height = 20;
+
+      // Set column widths
+      summarySheet.getColumn(1).width = 30;
+      summarySheet.getColumn(2).width = 20;
+    }
+
+    // Add Detailed Sheet
+    const detailSheet = workbook.addWorksheet('Cronogramas', {
+      properties: { tabColor: { argb: 'FF059669' } }
+    });
+
+    // Headers
+    const headers = [
+      'Contrato',
+      'Cliente',
+      'Lote',
+      'Cuota',
+      'Fecha Vencimiento',
+      'Monto',
+      'Estado',
+      'Fecha Pago',
+      'Días Vencido'
+    ];
+
+    const headerRow = detailSheet.addRow(headers);
+    headerRow.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 11 };
+    headerRow.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FF1E40AF' }
+    };
+    headerRow.alignment = { vertical: 'middle', horizontal: 'center' };
+    headerRow.height = 25;
+
+    headerRow.eachCell((cell) => {
+      cell.border = {
+        top: { style: 'thin' },
+        left: { style: 'thin' },
+        bottom: { style: 'thin' },
+        right: { style: 'thin' }
+      };
+    });
+
+    // Data rows
+    data.forEach((schedule, index) => {
+      const daysOverdue = this.calculateDaysOverdue(schedule);
+      const row = detailSheet.addRow([
+        schedule.contract_number || schedule.contract_id?.toString() || 'N/A',
+        schedule.client_name || 'N/A',
+        schedule.lot_number || 'N/A',
+        schedule.installment_number?.toString() || '',
+        this.formatDate(schedule.due_date),
+        schedule.amount || 0,
+        this.getStatusLabel(schedule.status),
+        schedule.payment_date ? this.formatDate(schedule.payment_date) : '',
+        daysOverdue
+      ]);
+
+      // Set number format for amount column
+      row.getCell(6).numFmt = '"S/ "#,##0.00';
+
+      // Zebra striping
+      if (index % 2 === 0) {
+        row.eachCell((cell) => {
+          cell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FFF9FAFB' }
+          };
+        });
+      }
+
+      // Color code status
+      const statusCell = row.getCell(7);
+      const status = schedule.status;
+      if (status === 'pagado') {
+        statusCell.font = { bold: true, color: { argb: 'FF059669' } };
+      } else if (status === 'vencido' || (status === 'pendiente' && daysOverdue > 0)) {
+        statusCell.font = { bold: true, color: { argb: 'FFDC2626' } };
+      } else {
+        statusCell.font = { bold: true, color: { argb: 'FFD97706' } };
+      }
+
+      // Add borders to all cells
+      row.eachCell((cell) => {
+        cell.border = {
+          top: { style: 'thin', color: { argb: 'FFE5E7EB' } },
+          left: { style: 'thin', color: { argb: 'FFE5E7EB' } },
+          bottom: { style: 'thin', color: { argb: 'FFE5E7EB' } },
+          right: { style: 'thin', color: { argb: 'FFE5E7EB' } }
+        };
+      });
+
+      row.height = 18;
+    });
+
+    // Set column widths
+    detailSheet.getColumn(1).width = 18;  // Contrato
+    detailSheet.getColumn(2).width = 30;  // Cliente
+    detailSheet.getColumn(3).width = 12;  // Lote
+    detailSheet.getColumn(4).width = 8;   // Cuota
+    detailSheet.getColumn(5).width = 18;  // Fecha Vencimiento
+    detailSheet.getColumn(6).width = 15;  // Monto
+    detailSheet.getColumn(7).width = 12;  // Estado
+    detailSheet.getColumn(8).width = 18;  // Fecha Pago
+    detailSheet.getColumn(9).width = 12;  // Días Vencido
+
+    // Freeze header row
+    detailSheet.views = [
+      { state: 'frozen', xSplit: 0, ySplit: 1 }
+    ];
+
+    // Generate and download file
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    });
+    saveAs(blob, `${filename}.xlsx`);
+  }
+
+  /**
    * Export data to CSV format
    */
   exportToCSV(data: PaymentSchedule[], filename: string = 'export'): void {
     const csvContent = this.generateCSVContent(data);
     this.downloadFile(csvContent, `${filename}.csv`, 'text/csv');
-  }
-
-  /**
-   * Export data to Excel format using xlsx library
-   */
-  exportToExcel(data: PaymentSchedule[], filename: string = 'reporte-cobranzas', summary?: ReportSummary): void {
-    // Create workbook
-    const wb = XLSX.utils.book_new();
-
-    // If summary is provided, add summary sheet
-    if (summary) {
-      const summaryRows = [
-        { Métrica: 'RESUMEN DE COBRANZAS', Valor: '' },
-        { Métrica: '', Valor: '' },
-        { Métrica: 'Total de Cronogramas', Valor: summary.total_schedules },
-        { Métrica: 'Monto Total', Valor: this.formatCurrency(summary.total_amount) },
-        { Métrica: 'Monto Cobrado', Valor: this.formatCurrency(summary.paid_amount) },
-        { Métrica: 'Monto Pendiente', Valor: this.formatCurrency(summary.pending_amount) },
-        { Métrica: 'Monto Vencido', Valor: this.formatCurrency(summary.overdue_amount) },
-        { Métrica: '', Valor: '' },
-        { Métrica: 'Cronogramas Pagados', Valor: summary.paid_schedules },
-        { Métrica: 'Cronogramas Pendientes', Valor: summary.pending_schedules },
-        { Métrica: 'Cronogramas Vencidos', Valor: summary.overdue_schedules },
-        { Métrica: '', Valor: '' },
-        { Métrica: 'Eficiencia de Cobranza', Valor: `${summary.total_amount > 0 ? ((summary.paid_amount / summary.total_amount) * 100).toFixed(2) : 0}%` }
-      ];
-
-      const ws_summary = XLSX.utils.json_to_sheet(summaryRows);
-
-      // Set column widths
-      ws_summary['!cols'] = [
-        { wch: 30 },
-        { wch: 20 }
-      ];
-
-      XLSX.utils.book_append_sheet(wb, ws_summary, 'Resumen');
-    }
-
-    // Prepare detailed data as objects for json_to_sheet
-    const detailedRows = data.map(schedule => {
-      const daysOverdue = this.calculateDaysOverdue(schedule);
-      return {
-        'Contrato': schedule.contract_number || schedule.contract_id?.toString() || 'N/A',
-        'Cliente': schedule.client_name || 'N/A',
-        'Lote': schedule.lot_number || 'N/A',
-        'Cuota': schedule.installment_number?.toString() || '',
-        'Fecha Vencimiento': this.formatDate(schedule.due_date),
-        'Monto': schedule.amount || 0,
-        'Estado': this.getStatusLabel(schedule.status),
-        'Fecha Pago': schedule.payment_date ? this.formatDate(schedule.payment_date) : '',
-        'Días Vencido': daysOverdue
-      };
-    });
-
-    const ws_detail = XLSX.utils.json_to_sheet(detailedRows);
-
-    // Set column widths for detailed sheet
-    ws_detail['!cols'] = [
-      { wch: 15 }, // Contrato
-      { wch: 25 }, // Cliente
-      { wch: 12 }, // Lote
-      { wch: 8 },  // Cuota
-      { wch: 18 }, // Fecha Vencimiento
-      { wch: 12 }, // Monto
-      { wch: 12 }, // Estado
-      { wch: 15 }, // Fecha Pago
-      { wch: 12 }  // Días Vencido
-    ];
-
-    XLSX.utils.book_append_sheet(wb, ws_detail, 'Cronogramas');
-
-    // Generate file and download
-    XLSX.writeFile(wb, `${filename}.xlsx`);
   }
 
   /**
@@ -127,16 +361,10 @@ export class ExportService {
   }
 
   /**
-   * Export to PDF
-   * NOTE: This is a placeholder. For actual PDF generation, 
-   * consider using a backend endpoint or a library like jsPDF with autoTable
+   * Export to PDF (placeholder)
    */
   exportToPDF(data: PaymentSchedule[], options?: ExportOptions): void {
-    // For now, alert the user that PDF export is not yet implemented
-    alert('La exportación a PDF estará disponible próximamente. Por favor, use la exportación a Excel.');
-
-    // Alternative: Export as Excel for now
-    // this.exportToExcel(data, 'reporte-cobranzas-pdf');
+    alert('La exportación a PDF estará disponible próximamente.\nPor favor, use la exportación a Excel.');
   }
 
   /**
@@ -177,7 +405,7 @@ export class ExportService {
   }
 
   /**
-   * Escape CSV values that contain commas or quotes
+   * Escape CSV values
    */
   private escapeCsvValue(value: string): string {
     if (!value) return '';
@@ -207,7 +435,7 @@ export class ExportService {
   }
 
   /**
-   * Format currency for display
+   * Format currency
    */
   private formatCurrency(value: number): string {
     return `S/ ${value.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -252,7 +480,6 @@ export class ExportService {
    * Calculate days overdue dynamically
    */
   private calculateDaysOverdue(schedule: PaymentSchedule): number {
-    // If already paid, no days overdue
     if (schedule.status === 'pagado') {
       return 0;
     }
@@ -263,7 +490,6 @@ export class ExportService {
       const dueDate = new Date(schedule.due_date);
       const today = new Date();
 
-      // Reset hours for accurate day calculation
       dueDate.setHours(0, 0, 0, 0);
       today.setHours(0, 0, 0, 0);
 
