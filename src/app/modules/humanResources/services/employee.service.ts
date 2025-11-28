@@ -54,10 +54,10 @@ export interface TopPerformer {
   providedIn: 'root',
 })
 export class EmployeeService {
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
 
-  
+
   getEmployees(filters: EmployeeFilters = {}): Observable<EmployeeResponse> {
     let params = new HttpParams();
     // Add pagination by default
@@ -164,13 +164,13 @@ export class EmployeeService {
 
   getAdminDashboard(month?: number, year?: number): Observable<any> {
     let params = new HttpParams();
-   
+
     if (month) params = params.set('month', month.toString());
     if (year) params = params.set('year', year.toString());
-  
+
     console.log('getAdminDashboard - URL:', API_ROUTES.HR.EMPLOYEES_ADMIN_DASHBOARD);
     console.log('getAdminDashboard - Params:', params.toString());
-    
+
     return this.http
       .get<ApiResponse<any>>(API_ROUTES.HR.EMPLOYEES_ADMIN_DASHBOARD, { params })
       .pipe(map(response => {
@@ -210,7 +210,7 @@ export class EmployeeService {
 
   downloadTemplate(): void {
     const url = `${API_ROUTES.HR.EMPLOYEES.replace('/employees', '/employee-import')}/template`;
-    
+
     // El token interceptor se encarga de agregar automáticamente el header de autorización
     this.http.get(url, {
       responseType: 'blob'
@@ -240,5 +240,9 @@ export class EmployeeService {
 
   generateUser(employeeId: number, userData: any): Promise<any> {
     return this.http.post<any>(`${API_ROUTES.HR.EMPLOYEES}/${employeeId}/generate-user`, userData).toPromise();
+  }
+
+  linkUser(employeeId: number, userId: number): Promise<any> {
+    return this.http.post<any>(`${API_ROUTES.HR.EMPLOYEES}/${employeeId}/link-user`, { user_id: userId }).toPromise();
   }
 }

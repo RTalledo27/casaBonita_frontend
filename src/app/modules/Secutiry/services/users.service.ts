@@ -30,7 +30,7 @@ interface PaginatedResponse<T> {
   providedIn: 'root',
 })
 export class UsersService {
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   private base = API_ROUTES.SECURITY.USERS;
 
@@ -38,7 +38,7 @@ export class UsersService {
     let params = new HttpParams()
       .set('page', page.toString())
       .set('per_page', perPage.toString());
-    
+
     return this.http.get<PaginatedResponse<User>>(this.base, { params });
   }
   get(id: number): Observable<User> {
@@ -56,5 +56,13 @@ export class UsersService {
   }
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.base}/${id}`);
+  }
+
+  resetPassword(id: number): Observable<any> {
+    return this.http.post(`${this.base}/${id}/reset-password`, {});
+  }
+
+  toggleStatus(id: number): Observable<any> {
+    return this.http.post(`${this.base}/${id}/toggle-status`, {});
   }
 }

@@ -1,15 +1,15 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
+import { Observable, of, from } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from '../../../../environments/environment';
-import { 
-  ExportFormat, 
-  ExportRequest, 
+import {
+  ExportFormat,
+  ExportRequest,
   ExportResponse,
   SalesReport,
   PaymentSchedule,
-  ProjectedReport 
+  ProjectedReport
 } from '../models';
 
 @Injectable({
@@ -18,7 +18,7 @@ import {
 export class ExportService {
   private apiUrl = `${environment.URL_BACKEND}/v1/reports`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   // Método principal para exportar reportes
   exportReport(
@@ -26,13 +26,11 @@ export class ExportService {
     format: ExportFormat,
     filters?: any
   ): Observable<Blob> {
-    // Preparar datos para el body del POST
     const exportData: any = {
       format: format,
       type: reportType
     };
 
-    // Agregar filtros al body
     if (filters) {
       Object.keys(filters).forEach(key => {
         const value = filters[key];
@@ -49,12 +47,12 @@ export class ExportService {
         console.error('Error exporting report:', error);
         return of(new Blob());
       })
-    ) as Observable<Blob>;
+    );
   }
 
   // Sales Reports Export
   exportSalesReport(
-    salesData: SalesReport[], 
+    salesData: SalesReport[],
     format: ExportFormat,
     filters?: any
   ): Observable<Blob> {
@@ -63,7 +61,7 @@ export class ExportService {
 
   // Payment Schedule Export
   exportPaymentSchedule(
-    scheduleData: PaymentSchedule[], 
+    scheduleData: PaymentSchedule[],
     format: ExportFormat,
     filters?: any
   ): Observable<Blob> {
@@ -72,7 +70,7 @@ export class ExportService {
 
   // Projected Reports Export
   exportProjectedReport(
-    projectionIds: number[], 
+    projectionIds: number[],
     format: ExportFormat,
     filters?: any
   ): Observable<Blob> {
@@ -93,8 +91,7 @@ export class ExportService {
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    
-    // Determinar extensión del archivo
+
     let extension = '';
     switch (format) {
       case 'excel':
@@ -107,7 +104,7 @@ export class ExportService {
         extension = '.pdf';
         break;
     }
-    
+
     link.download = `${filename}-${this.getDateString()}${extension}`;
     document.body.appendChild(link);
     link.click();
@@ -164,6 +161,103 @@ export class ExportService {
         ]);
       })
     );
+  }
+
+  // NEW: Specific Excel Export Methods (matching user's provided images)
+
+  /**
+   * Export Monthly Income Report (Format from Image 1)
+   * Columns for each month grouped by advisor
+   */
+  exportMonthlyIncome(year: number, filters?: any): Observable<Blob> {
+    let params = new HttpParams().set('year', year.toString());
+
+    if (filters) {
+      Object.keys(filters).forEach(key => {
+        const value = filters[key];
+        if (value !== undefined && value !== null && value !== '') {
+          params = params.set(key, value.toString());
+        }
+      });
+    }
+
+    return this.http.get(`${this.apiUrl}/export/monthly-income`, {
+      params,
+      responseType: 'blob'
+    }).pipe(
+      catchError(error => {
+        console.error('Error exporting monthly income:', error);
+        return of(new Blob());
+      })
+    );
+  }
+
+  /**
+   * Export Detailed Sales Report (Format from Image 2)
+   * Includes payment schedules and cuotas
+   */
+  exportDetailedSales(filters?: any): Observable<Blob> {
+    let params = new HttpParams();
+
+    if (filters) {
+      Object.keys(filters).forEach(key => {
+        const value = filters[key];
+        if (value !== undefined && value !== null && value !== '') {
+          params = params.set(key, value.toString());
+        }
+      });
+    }
+
+    return this.http.get(`${this.apiUrl}/export/detailed-sales`, {
+      params,
+      responseType: 'blob'
+    }).pipe(
+      catchError(error => {
+        console.error('Error exporting detailed sales:', error);
+        return of(new Blob());
+      })
+    );
+  }
+
+  /**
+   * Export Client Details Report (Format from Image 3)
+   * Comprehensive client information
+   */
+  exportClientDetails(filters?: any): Observable<Blob> {
+    let params = new HttpParams();
+
+    if (filters) {
+      Object.keys(filters).forEach(key => {
+        const value = filters[key];
+        if (value !== undefined && value !== null && value !== '') {
+          params = params.set(key, value.toString());
+        }
+      });
+    }
+
+    return this.http.get(`${this.apiUrl}/export/client-details`, {
+      params,
+      responseType: 'blob'
+    }).pipe(
+      catchError(error => {
+        console.error('Error exporting client details:', error);
+        return of(new Blob());
+      })
+    );
+  }
+
+  /**
+   * Download any of the specific Excel exports
+   */
+  downloadExcel(blob: Blob, filename: string): void {
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${filename}-${this.getDateString()}.xlsx`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
   }
 
   // Métodos de utilidad

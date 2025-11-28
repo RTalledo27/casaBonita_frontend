@@ -11,18 +11,18 @@ import { SalesReport, SalesReportFilter, SalesReportSummary } from '../models';
 export class SalesReportService {
   private apiUrl = API_ROUTES.REPORTS.SALES;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   // Método para obtener TODAS las ventas con detalles completos
   getAllSales(filters: SalesReportFilter = {}): Observable<any> {
     let params = new HttpParams();
-    
+
     // Map frontend filter names to backend parameter names
     if (filters.startDate) params = params.set('date_from', filters.startDate);
     if (filters.endDate) params = params.set('date_to', filters.endDate);
     if (filters.advisorId) params = params.set('employee_id', filters.advisorId.toString());
     if (filters.projectId) params = params.set('project_id', filters.projectId.toString());
-    
+
     // Add pagination
     params = params.set('limit', '100');
     params = params.set('offset', '0');
@@ -46,17 +46,17 @@ export class SalesReportService {
   // Método para obtener el dashboard de ventas
   getDashboard(filters: SalesReportFilter = {}): Observable<any> {
     let params = new HttpParams();
-    
+
     // Map frontend filter names to backend parameter names
     if (filters.startDate) params = params.set('date_from', filters.startDate);
     if (filters.endDate) params = params.set('date_to', filters.endDate);
     if (filters.advisorId) params = params.set('employee_id', filters.advisorId.toString());
-    
+
     // Add any other filters
     Object.keys(filters).forEach(key => {
       const value = (filters as any)[key];
-      if (value !== undefined && value !== null && value !== '' && 
-          key !== 'startDate' && key !== 'endDate' && key !== 'advisorId') {
+      if (value !== undefined && value !== null && value !== '' &&
+        key !== 'startDate' && key !== 'endDate' && key !== 'advisorId') {
         params = params.set(key, value.toString());
       }
     });
@@ -84,19 +84,19 @@ export class SalesReportService {
   // Método para obtener ventas por período
   getSalesByPeriod(filters: SalesReportFilter = {}): Observable<any> {
     let params = new HttpParams();
-    
+
     // Map frontend filter names to backend parameter names
     if (filters.startDate) params = params.set('date_from', filters.startDate);
     if (filters.endDate) params = params.set('date_to', filters.endDate);
     if (filters.advisorId) params = params.set('employee_id', filters.advisorId.toString());
-    
+
     // Add period parameter (default to monthly)
     params = params.set('period', 'monthly');
-    
+
     Object.keys(filters).forEach(key => {
       const value = (filters as any)[key];
-      if (value !== undefined && value !== null && value !== '' && 
-          key !== 'startDate' && key !== 'endDate' && key !== 'advisorId') {
+      if (value !== undefined && value !== null && value !== '' &&
+        key !== 'startDate' && key !== 'endDate' && key !== 'advisorId') {
         params = params.set(key, value.toString());
       }
     });
@@ -112,16 +112,16 @@ export class SalesReportService {
   // Método para obtener rendimiento de ventas
   getSalesPerformance(filters: SalesReportFilter = {}): Observable<any> {
     let params = new HttpParams();
-    
+
     // Map frontend filter names to backend parameter names
     if (filters.startDate) params = params.set('date_from', filters.startDate);
     if (filters.endDate) params = params.set('date_to', filters.endDate);
     if (filters.office) params = params.set('department', filters.office);
-    
+
     Object.keys(filters).forEach(key => {
       const value = (filters as any)[key];
-      if (value !== undefined && value !== null && value !== '' && 
-          key !== 'startDate' && key !== 'endDate' && key !== 'office') {
+      if (value !== undefined && value !== null && value !== '' &&
+        key !== 'startDate' && key !== 'endDate' && key !== 'office') {
         params = params.set(key, value.toString());
       }
     });
@@ -137,16 +137,16 @@ export class SalesReportService {
   // Método para obtener embudo de conversión
   getConversionFunnel(filters: SalesReportFilter = {}): Observable<any> {
     let params = new HttpParams();
-    
+
     // Map frontend filter names to backend parameter names
     if (filters.startDate) params = params.set('date_from', filters.startDate);
     if (filters.endDate) params = params.set('date_to', filters.endDate);
     if (filters.advisorId) params = params.set('employee_id', filters.advisorId.toString());
-    
+
     Object.keys(filters).forEach(key => {
       const value = (filters as any)[key];
-      if (value !== undefined && value !== null && value !== '' && 
-          key !== 'startDate' && key !== 'endDate' && key !== 'advisorId') {
+      if (value !== undefined && value !== null && value !== '' &&
+        key !== 'startDate' && key !== 'endDate' && key !== 'advisorId') {
         params = params.set(key, value.toString());
       }
     });
@@ -162,16 +162,16 @@ export class SalesReportService {
   // Método para obtener productos top
   getTopProducts(filters: SalesReportFilter = {}): Observable<any> {
     let params = new HttpParams();
-    
+
     // Map frontend filter names to backend parameter names
     if (filters.startDate) params = params.set('date_from', filters.startDate);
     if (filters.endDate) params = params.set('date_to', filters.endDate);
     params = params.set('limit', '10');
-    
+
     Object.keys(filters).forEach(key => {
       const value = (filters as any)[key];
-      if (value !== undefined && value !== null && value !== '' && 
-          key !== 'startDate' && key !== 'endDate') {
+      if (value !== undefined && value !== null && value !== '' &&
+        key !== 'startDate' && key !== 'endDate') {
         params = params.set(key, value.toString());
       }
     });
@@ -273,20 +273,20 @@ export class SalesReportService {
   }
 
   exportSalesReport(filters: SalesReportFilter, format: 'excel' | 'pdf' | 'csv'): Observable<Blob> {
-    let params = new HttpParams();
-    
+    const payload: any = {
+      format: format
+    };
+
+    // Add all filters to payload
     Object.keys(filters).forEach(key => {
       const value = (filters as any)[key];
       if (value !== undefined && value !== null && value !== '') {
-        params = params.set(key, value.toString());
+        payload[key] = value;
       }
     });
 
-    params = params.set('format', format);
-    params = params.set('type', 'sales');
-
-    return this.http.get(API_ROUTES.REPORTS.EXPORT, {
-      params,
+    // POST to the sales-specific export endpoint
+    return this.http.post(API_ROUTES.REPORTS.SALES.EXPORT, payload, {
       responseType: 'blob'
     }).pipe(
       catchError(error => {
@@ -298,16 +298,16 @@ export class SalesReportService {
 
   getSalesReportsByAdvisor(advisorId: number, filters: SalesReportFilter = {}): Observable<SalesReport[]> {
     let params = new HttpParams();
-    
+
     // Map frontend filter names to backend parameter names
     if (filters.startDate) params = params.set('date_from', filters.startDate);
     if (filters.endDate) params = params.set('date_to', filters.endDate);
     params = params.set('employee_id', advisorId.toString());
-    
+
     Object.keys(filters).forEach(key => {
       const value = (filters as any)[key];
-      if (value !== undefined && value !== null && value !== '' && 
-          key !== 'startDate' && key !== 'endDate' && key !== 'advisorId') {
+      if (value !== undefined && value !== null && value !== '' &&
+        key !== 'startDate' && key !== 'endDate' && key !== 'advisorId') {
         params = params.set(key, value.toString());
       }
     });
@@ -328,17 +328,17 @@ export class SalesReportService {
 
   getSalesReportsByOffice(office: string, filters: SalesReportFilter = {}): Observable<SalesReport[]> {
     let params = new HttpParams();
-    
+
     // Map frontend filter names to backend parameter names
     if (filters.startDate) params = params.set('date_from', filters.startDate);
     if (filters.endDate) params = params.set('date_to', filters.endDate);
     params = params.set('period', 'monthly');
     params = params.set('department', office);
-    
+
     Object.keys(filters).forEach(key => {
       const value = (filters as any)[key];
-      if (value !== undefined && value !== null && value !== '' && 
-          key !== 'startDate' && key !== 'endDate' && key !== 'office') {
+      if (value !== undefined && value !== null && value !== '' &&
+        key !== 'startDate' && key !== 'endDate' && key !== 'office') {
         params = params.set(key, value.toString());
       }
     });

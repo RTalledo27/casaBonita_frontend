@@ -1,0 +1,45 @@
+// Sales Reports Component Styles
+
+// Custom scrollbar para tablas grandes
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background-color: #e5e7eb;
+}
+
+.dark ::-webkit-scrollbar-track {
+    background-color: #374151;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #9ca3af;
+    border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+    background-color: #6b7280;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #6b7280;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+    background-color: #9ca3af;
+}
+
+// Chart containers
+canvas {
+    max-height: 300px;
+    width: 100% !important;
+}
+
+// Smooth transitions
+* {
+    transition-property: background-color, border-color, color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+}
