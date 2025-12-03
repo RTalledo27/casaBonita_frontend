@@ -117,6 +117,24 @@ export const collectionsRoutes: Routes = [
     }
   },
   {
+    path: 'preventive',
+    loadComponent: () => import('../components/preventive/preventive-list.component').then(m => m.PreventiveListComponent),
+    data: {
+      title: 'Preventivo',
+      breadcrumb: 'Preventivo',
+      permission: 'collections.followups.view'
+    }
+  },
+  {
+    path: 'mora',
+    loadComponent: () => import('../components/mora/mora-list.component').then(m => m.MoraListComponent),
+    data: {
+      title: 'Mora',
+      breadcrumb: 'Mora',
+      permission: 'collections.followups.view'
+    }
+  },
+  {
     path: 'alerts',
     component: OverdueAlertsComponent,
     data: {
@@ -167,6 +185,15 @@ export const collectionsRoutes: Routes = [
       title: 'Gestión de Pagos',
       breadcrumb: 'Gestión de Pagos',
       permission: 'collections.customer-payments.view'
+    }
+  }
+  ,{
+    path: 'kpis',
+    loadComponent: () => import('../components/kpis/collections-kpis.component').then(m => m.CollectionsKpisComponent),
+    data: {
+      title: 'KPIs de Cobranzas',
+      breadcrumb: 'KPIs',
+      permission: 'collections.followups.view'
     }
   }
 ];

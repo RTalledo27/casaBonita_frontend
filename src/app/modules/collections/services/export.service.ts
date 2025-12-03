@@ -1,4 +1,6 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../../environments/environment';
 import { PaymentSchedule } from '../models/payment-schedule';
 import { Workbook } from 'exceljs';
 
@@ -27,6 +29,8 @@ interface ReportSummary {
   providedIn: 'root'
 })
 export class ExportService {
+  constructor(private http: HttpClient) {}
+  private contractsBase = `${environment.URL_BACKEND}/v1/sales/contracts`;
 
   /**
    * Export data to professional Excel format using exceljs
@@ -229,13 +233,21 @@ export class ExportService {
     const headers = [
       'Contrato',
       'Cliente',
+      'DNI',
+      'Teléfono',
+      'Teléfono 2',
+      'Email',
+      'Dirección',
+      'Distrito',
+      'Provincia',
+      'Departamento',
       'Lote',
       'Cuota',
       'Nombre de Cuota',
       'Tipo',
       'Fecha Vencimiento',
       'Monto',
-      'Estado',
+      'Estado (calculado)',
       'Fecha Pago',
       'Días Vencido'
     ];
@@ -259,25 +271,64 @@ export class ExportService {
       };
     });
 
+    // Enable filters on header row
+    detailSheet.autoFilter = {
+      from: { row: 1, column: 1 },
+      to: { row: 1, column: headers.length }
+    };
+
+    // Prefetch contract details for enrichment
+    const ids = Array.from(new Set(data.map(d => d.contract_id))).filter(Boolean) as number[];
+    const contractDetails: Record<number, any> = {};
+    try {
+      const res: any = await this.http.get<any>(`${this.contractsBase}/batch`, { params: { ids: ids.join(',') } }).toPromise();
+      const list = res?.data || [];
+      (list as any[]).forEach((c: any) => { contractDetails[c.contract_id] = c; });
+    } catch {}
+
     // Data rows
     data.forEach((schedule, index) => {
       const daysOverdue = this.calculateDaysOverdue(schedule);
+      const statusCalculated = (schedule.status === 'pendiente' && daysOverdue > 0) ? 'Vencido' : this.getStatusLabel(schedule.status);
+
+      const c = contractDetails[schedule.contract_id];
+      const client = c?.client || c?.reservation?.client;
+      const lot = c?.lot || c?.reservation?.lot;
+      const manzanaName = lot?.manzana?.name || lot?.manzana_id || '';
+      const lotLabel = lot ? `MZ-${manzanaName} L-${lot?.num_lot ?? ''}` : (schedule.lot_number || 'N/A');
+      const dni = client?.doc_number || client?.document_number || '';
+      const phone1 = client?.primary_phone || '';
+      const phone2 = client?.secondary_phone || '';
+      const email = client?.email || '';
+      const address = client?.address?.line1 || '';
+      const district = client?.address?.city || '';
+      const province = client?.address?.state || '';
+      const department = client?.address?.country || '';
+
       const row = detailSheet.addRow([
         schedule.contract_number || schedule.contract_id?.toString() || 'N/A',
-        schedule.client_name || 'N/A',
-        schedule.lot_number || 'N/A',
+        schedule.client_name || (client ? `${client?.first_name || ''} ${client?.last_name || ''}`.trim() : 'N/A'),
+        dni,
+        phone1,
+        phone2,
+        email,
+        address,
+        district,
+        province,
+        department,
+        lotLabel,
         schedule.installment_number?.toString() || '',
-        schedule.notes || '',
+        this.escapeCsvValue(schedule.notes || ''),
         schedule.type || '',
         this.formatDate(schedule.due_date),
         schedule.amount || 0,
-        this.getStatusLabel(schedule.status),
+        statusCalculated,
         schedule.payment_date ? this.formatDate(schedule.payment_date) : '',
         daysOverdue
       ]);
 
-      // Set number format for amount column
-      row.getCell(6).numFmt = '"S/ "#,##0.00';
+      // Set number format for amount column (now column index shifted)
+      row.getCell(16).numFmt = '"S/ "#,##0.00';
 
       // Zebra striping
       if (index % 2 === 0) {
@@ -291,7 +342,7 @@ export class ExportService {
       }
 
       // Color code status
-      const statusCell = row.getCell(7);
+      const statusCell = row.getCell(17);
       const status = schedule.status;
       if (status === 'pagado') {
         statusCell.font = { bold: true, color: { argb: 'FF059669' } };
@@ -315,17 +366,25 @@ export class ExportService {
     });
 
     // Set column widths
-    detailSheet.getColumn(1).width = 18;  // Contrato
-    detailSheet.getColumn(2).width = 30;  // Cliente
-    detailSheet.getColumn(3).width = 12;  // Lote
-    detailSheet.getColumn(4).width = 8;   // Cuota
-    detailSheet.getColumn(5).width = 24;  // Nombre de Cuota
-    detailSheet.getColumn(6).width = 14;  // Tipo
-    detailSheet.getColumn(7).width = 18;  // Fecha Vencimiento
-    detailSheet.getColumn(8).width = 15;  // Monto
-    detailSheet.getColumn(9).width = 12;  // Estado
-    detailSheet.getColumn(10).width = 18; // Fecha Pago
-    detailSheet.getColumn(11).width = 12; // Días Vencido
+    detailSheet.getColumn(1).width = 18;   // Contrato
+    detailSheet.getColumn(2).width = 28;   // Cliente
+    detailSheet.getColumn(3).width = 12;   // DNI
+    detailSheet.getColumn(4).width = 16;   // Teléfono
+    detailSheet.getColumn(5).width = 16;   // Teléfono 2
+    detailSheet.getColumn(6).width = 24;   // Email
+    detailSheet.getColumn(7).width = 28;   // Dirección
+    detailSheet.getColumn(8).width = 18;   // Distrito
+    detailSheet.getColumn(9).width = 18;   // Provincia
+    detailSheet.getColumn(10).width = 18;  // Departamento
+    detailSheet.getColumn(11).width = 12;  // Lote
+    detailSheet.getColumn(12).width = 8;   // Cuota
+    detailSheet.getColumn(13).width = 24;  // Nombre de Cuota
+    detailSheet.getColumn(14).width = 14;  // Tipo
+    detailSheet.getColumn(15).width = 18;  // Fecha Vencimiento
+    detailSheet.getColumn(16).width = 15;  // Monto
+    detailSheet.getColumn(17).width = 16;  // Estado (calculado)
+    detailSheet.getColumn(18).width = 18;  // Fecha Pago
+    detailSheet.getColumn(19).width = 12;  // Días Vencido
 
     // Freeze header row
     detailSheet.views = [

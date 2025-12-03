@@ -1,9 +1,16 @@
 export interface ClientFollowupRecord {
+  followup_id?: number;
   client_id?: number; // Referencia al cliente CRM
   contract_id?: number; // Contrato asociado
   sale_code: string;
   client_name: string;
   lot: string;
+  lot_id?: number;
+  lot_area_m2?: number;
+  lot_status?: string;
+  contract_status?: string;
+  advisor_id?: number;
+  advisor_name?: string;
   dni: string;
   phone1: string;
   phone2?: string;

@@ -66,6 +66,9 @@
     "collections": {
       "title": "Cobranzas",
       "followups": { "title": "Gestión de Cobranzas" },
+      "preventive": { "title": "Preventivo" },
+      "mora": { "title": "Mora" },
+      "kpis": { "title": "KPIs" },
       "accounts-receivable": {
         "title": "Cuentas por Cobrar"
       },
@@ -498,7 +501,8 @@
         "client": "Cliente",
         "clientPlaceholder": "Nombre, DNI o ID",
         "contract": "Contrato",
-        "contractPlaceholder": "N° contrato o ID"
+        "contractPlaceholder": "N° contrato o ID",
+        "overdue": "Cuotas vencidas"
       },
       "new": "Nuevo seguimiento",
       "status": {
@@ -513,6 +517,8 @@
         "sale_code": "COD.VENTA",
         "client_name": "Cliente",
         "lot": "Lote",
+        "contract_status": "Estado de contrato",
+        "advisor_name": "Asesor",
         "dni": "DNI",
         "phone1": "TELÉFONO",
         "phone2": "TELÉFONO 2",
@@ -544,7 +550,17 @@
         "next_action": "Próxima acción programada",
         "owner": "Responsable",
         "general_notes": "Observaciones generales",
-        "general_reason": "MOTIVO"
+        "general_reason": "MOTIVO",
+        "actions": "Acciones"
+      },
+      "commitment": {
+        "title": "Registrar compromiso",
+        "date": "Fecha",
+        "amount": "Monto"
+      },
+      "summary": {
+        "title": "Resumen",
+        "lastActions": "Últimas gestiones"
       }
     }
   },

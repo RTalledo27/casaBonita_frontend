@@ -6,13 +6,15 @@ import { TranslateModule } from '@ngx-translate/core';
 import { LucideAngularModule, FileText, Search, Plus } from 'lucide-angular';
 import { ColumnDef, SharedTableComponent } from '../../../../shared/components/shared-table/shared-table.component';
 import { ClientFollowupEditComponent } from './client-followup-edit.component';
+import { FollowupCommitmentComponent } from './followup-commitment.component';
 import { ClientFollowupRecord } from '../../models/client-followup';
 import { ClientFollowupsService } from '../../services/client-followups.service';
+import { ToastService } from '../../../../core/services/toast.service';
 
 @Component({
   selector: 'app-client-followups',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, LucideAngularModule, RouterModule, SharedTableComponent, ClientFollowupEditComponent],
+  imports: [CommonModule, FormsModule, TranslateModule, LucideAngularModule, RouterModule, SharedTableComponent, ClientFollowupEditComponent, FollowupCommitmentComponent],
   template: `
     <div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
       <div class="mb-6 flex items-center justify-between">
@@ -33,7 +35,7 @@ import { ClientFollowupsService } from '../../services/client-followups.service'
       </div>
 
       <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow border border-gray-200 dark:border-gray-700 mb-4">
-        <div class="grid grid-cols-1 md:grid-cols-6 gap-3 items-end">
+        <div class="grid grid-cols-1 md:grid-cols-7 gap-3 items-end">
           <div class="relative">
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ 'collections.followups.filters.search' | translate }}</label>
             <input type="text" [(ngModel)]="query" class="w-full px-10 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100" placeholder="{{ 'collections.followups.filters.searchPlaceholder' | translate }}" />
@@ -62,6 +64,16 @@ import { ClientFollowupsService } from '../../services/client-followups.service'
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ 'collections.followups.filters.contract' | translate }}</label>
             <input type="text" [(ngModel)]="contractSearch" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100" placeholder="{{ 'collections.followups.filters.contractPlaceholder' | translate }}" />
           </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ 'collections.followups.filters.overdue' | translate }}</label>
+            <select [(ngModel)]="overdueMin" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100">
+              <option value="">{{ 'common.all' | translate }}</option>
+              <option value="0">0+</option>
+              <option value="1">1+</option>
+              <option value="2">2+</option>
+              <option value="3">3+</option>
+            </select>
+          </div>
           <div class="flex gap-2">
             <button (click)="clearFilters()" class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">{{ 'common.clearFilters' | translate }}</button>
           </div>
@@ -72,6 +84,80 @@ import { ClientFollowupsService } from '../../services/client-followups.service'
         (onEdit)="openEdit($event)"></app-shared-table>
 
       <app-client-followup-edit [visible]="editVisible" [record]="selected" (save)="onModalSave($event)" (cancel)="closeEdit()"></app-client-followup-edit>
+      <app-followup-commitment [visible]="commitVisible" (save)="saveCommit($event)" (cancel)="commitVisible=false"></app-followup-commitment>
+      <ng-template [ngIf]="summaryVisible">
+        <div class="fixed inset-0 bg-black/50 z-40" (click)="summaryVisible=false"></div>
+        <div class="fixed top-0 right-0 h-full w-full sm:w-[460px] bg-white dark:bg-gray-900 z-50 shadow-2xl border-l border-gray-200 dark:border-gray-700">
+          <div class="px-6 py-4 bg-gradient-to-r from-indigo-600 to-sky-600 dark:from-indigo-900 dark:to-sky-900 text-white flex items-center justify-between">
+            <div class="text-lg font-semibold">{{ 'collections.followups.summary.title' | translate }}</div>
+            <button class="px-2 py-1 rounded bg-white/20 hover:bg-white/30" (click)="summaryVisible=false">{{ 'common.close' | translate }}</button>
+          </div>
+          <div class="p-6 space-y-5">
+            <div class="grid grid-cols-1 gap-4">
+              <div class="rounded-xl border border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-800">
+                <div class="text-xs font-semibold text-gray-700 dark:text-gray-300">{{ 'collections.followups.columns.sale_code' | translate }}</div>
+                <div class="text-lg font-bold text-gray-900 dark:text-white">{{ selected?.sale_code || '—' }}</div>
+              </div>
+              <div class="rounded-xl border border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-800">
+                <div class="text-xs font-semibold text-gray-700 dark:text-gray-300">{{ 'collections.followups.columns.client_name' | translate }}</div>
+                <div class="text-lg font-semibold"><a *ngIf="selected?.client_id" [routerLink]="['/crm/clients', selected?.client_id]" class="text-indigo-600 dark:text-indigo-400 hover:underline">{{ selected?.client_name }}</a></div>
+              </div>
+              <div class="rounded-xl border border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-800">
+                <div class="text-xs font-semibold text-gray-700 dark:text-gray-300">{{ 'collections.followups.columns.lot' | translate }}</div>
+                <div class="text-lg font-semibold"><a *ngIf="selected?.lot_id" [routerLink]="['/inventory/lots', selected?.lot_id]" class="text-indigo-600 dark:text-indigo-400 hover:underline">{{ selected?.lot || '—' }}</a></div>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="rounded-xl border border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-800">
+                <div class="text-xs font-semibold text-gray-700 dark:text-gray-300">{{ 'collections.followups.columns.due_date' | translate }}</div>
+                <div class="text-lg font-semibold text-gray-900 dark:text-white">{{ selected?.due_date || '—' }}</div>
+              </div>
+              <div class="rounded-xl border border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-800">
+                <div class="text-xs font-semibold text-gray-700 dark:text-gray-300">{{ 'collections.followups.columns.monthly_quota' | translate }}</div>
+                <div class="text-lg font-semibold text-gray-900 dark:text-white">{{ (selected?.monthly_quota || 0) | number:'1.2-2' }}</div>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="rounded-xl border border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-800">
+                <div class="text-xs font-semibold text-gray-700 dark:text-gray-300">{{ 'collections.followups.columns.contract_status' | translate }}</div>
+                <div class="text-lg font-semibold text-gray-900 dark:text-white">{{ selected?.contract_status || '—' }}</div>
+              </div>
+              <div class="rounded-xl border border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-800">
+                <div class="text-xs font-semibold text-gray-700 dark:text-gray-300">{{ 'collections.followups.columns.advisor_name' | translate }}</div>
+                <div class="text-lg font-semibold text-gray-900 dark:text-white">{{ selected?.advisor_name || '—' }}</div>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="rounded-xl border border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-800">
+                <div class="text-xs font-semibold text-gray-700 dark:text-gray-300">{{ 'collections.followups.columns.amount_due' | translate }}</div>
+                <div class="text-lg font-semibold text-gray-900 dark:text-white">{{ (selected?.amount_due || 0) | number:'1.2-2' }}</div>
+              </div>
+              <div class="rounded-xl border border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-800">
+                <div class="text-xs font-semibold text-gray-700 dark:text-gray-300">{{ 'collections.followups.columns.pending_amount' | translate }}</div>
+                <div class="text-lg font-semibold text-gray-900 dark:text-white">{{ (selected?.pending_amount || 0) | number:'1.2-2' }}</div>
+              </div>
+            </div>
+            <div class="grid grid-cols-3 gap-4">
+              <div class="rounded-xl border border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-800">
+                <div class="text-xs font-semibold text-gray-700 dark:text-gray-300">{{ 'collections.followups.columns.paid_installments' | translate }}</div>
+                <div class="text-lg font-semibold text-gray-900 dark:text-white">{{ selected?.paid_installments || 0 }}</div>
+              </div>
+              <div class="rounded-xl border border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-800">
+                <div class="text-xs font-semibold text-gray-700 dark:text-gray-300">{{ 'collections.followups.columns.pending_installments' | translate }}</div>
+                <div class="text-lg font-semibold text-gray-900 dark:text-white">{{ selected?.pending_installments || 0 }}</div>
+              </div>
+              <div class="rounded-xl border border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-800">
+                <div class="text-xs font-semibold text-gray-700 dark:text-gray-300">{{ 'collections.followups.columns.overdue_installments' | translate }}</div>
+                <div class="text-lg font-semibold text-gray-900 dark:text-white">{{ selected?.overdue_installments || 0 }}</div>
+              </div>
+            </div>
+            <div class="rounded-xl border border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-800">
+              <div class="text-xs font-semibold text-gray-700 dark:text-gray-300">{{ 'collections.followups.summary.lastActions' | translate }}</div>
+              <div class="text-sm text-gray-900 dark:text-white">{{ selected?.management_notes || '—' }}</div>
+            </div>
+          </div>
+        </div>
+      </ng-template>
 
       <ng-template #statusTpl let-row>
         <span [class]="statusClass(row.management_status)">{{ ('collections.followups.status.' + row.management_status) | translate }}</span>
@@ -90,6 +176,16 @@ import { ClientFollowupsService } from '../../services/client-followups.service'
           <span class="text-slate-500" [title]="('Lote: ' + (row.lot || '—'))">{{ row.lot || '—' }}</span>
         </ng-template>
       </ng-template>
+      <ng-template #actionsTpl let-row>
+        <div class="flex gap-2">
+          <button class="px-2 py-1 text-xs rounded bg-emerald-600 text-white" (click)="openCommit(row.sale_code)">Compromiso</button>
+          <button class="px-2 py-1 text-xs rounded bg-blue-600 text-white" (click)="logAction(row, 'call')">Llamada</button>
+          <button class="px-2 py-1 text-xs rounded bg-teal-600 text-white" (click)="logAction(row, 'whatsapp')">WhatsApp</button>
+          <button class="px-2 py-1 text-xs rounded bg-indigo-600 text-white" (click)="logAction(row, 'email')">Email</button>
+          <button class="px-2 py-1 text-xs rounded bg-yellow-600 text-white" (click)="logAction(row, 'letter')">Carta</button>
+          <button class="px-2 py-1 text-xs rounded bg-slate-600 text-white" (click)="openSummary(row)">Resumen</button>
+        </div>
+      </ng-template>
     </div>
   `,
   styleUrls: ['./client-followups.component.scss']
@@ -103,9 +199,12 @@ export class ClientFollowupsComponent implements AfterViewInit {
   owner = '';
   clientSearch = '';
   contractSearch = '';
+  overdueMin = '';
   editVisible = false;
   selected?: ClientFollowupRecord;
   createVisible = false;
+  commitVisible = false;
+  summaryVisible = false;
 
   data = signal<ClientFollowupRecord[]>([]);
   filtered = computed(() => {
@@ -114,12 +213,14 @@ export class ClientFollowupsComponent implements AfterViewInit {
     const o = this.owner.toLowerCase();
     const cq = this.clientSearch.toLowerCase();
     const kq = this.contractSearch.toLowerCase();
+    const om = this.overdueMin;
     return this.data().filter(r => (
       (!q || [r.sale_code, r.client_name, r.dni, r.lot].some(v => (v || '').toLowerCase().includes(q))) &&
       (!s || r.management_status === s) &&
       (!o || (r.owner || '').toLowerCase().includes(o)) &&
       (!cq || (r.client_name || '').toLowerCase().includes(cq) || String(r.client_id || '').includes(cq)) &&
-      (!kq || (r.sale_code || '').toLowerCase().includes(kq) || String(r.contract_id || '').includes(kq))
+      (!kq || (r.sale_code || '').toLowerCase().includes(kq) || String(r.contract_id || '').includes(kq)) &&
+      (!om || (Number(r.overdue_installments || 0) >= Number(om)))
     ));
   });
 
@@ -127,6 +228,8 @@ export class ClientFollowupsComponent implements AfterViewInit {
     { field: 'sale_code', header: 'collections.followups.columns.sale_code' },
     { header: 'collections.followups.columns.client_name', tpl: 'clientLink' },
     { header: 'collections.followups.columns.lot', tpl: 'lotLink' },
+    { field: 'contract_status', header: 'collections.followups.columns.contract_status' },
+    { field: 'advisor_name', header: 'collections.followups.columns.advisor_name' },
     { field: 'dni', header: 'collections.followups.columns.dni' },
     { field: 'phone1', header: 'collections.followups.columns.phone1' },
     { field: 'phone2', header: 'collections.followups.columns.phone2' },
@@ -154,6 +257,7 @@ export class ClientFollowupsComponent implements AfterViewInit {
     { field: 'home_visit_result', header: 'collections.followups.columns.home_visit_result' },
     { field: 'home_visit_notes', header: 'collections.followups.columns.home_visit_notes', width: '260px' },
     { header: 'collections.followups.columns.management_status', tpl: 'status' },
+    { header: 'collections.followups.columns.actions', tpl: 'actions' },
     { field: 'last_contact', header: 'collections.followups.columns.last_contact' },
     { field: 'next_action', header: 'collections.followups.columns.next_action' },
     { field: 'owner', header: 'collections.followups.columns.owner' },
@@ -165,8 +269,9 @@ export class ClientFollowupsComponent implements AfterViewInit {
   @ViewChild('statusTpl') statusTpl!: TemplateRef<any>;
   @ViewChild('clientLinkTpl') clientLinkTpl!: TemplateRef<any>;
   @ViewChild('lotLinkTpl') lotLinkTpl!: TemplateRef<any>;
+  @ViewChild('actionsTpl') actionsTpl!: TemplateRef<any>;
 
-  constructor(private followups: ClientFollowupsService) {
+  constructor(private followups: ClientFollowupsService, private toast: ToastService) {
     this.followups.records$.subscribe(list => this.data.set(list));
     // templates se asignan en ngAfterViewInit
   }
@@ -175,6 +280,7 @@ export class ClientFollowupsComponent implements AfterViewInit {
     this.templates['status'] = this.statusTpl;
     this.templates['clientLink'] = this.clientLinkTpl;
     this.templates['lotLink'] = this.lotLinkTpl;
+    this.templates['actions'] = this.actionsTpl;
   }
 
   ngOnInit(): void {
@@ -258,6 +364,54 @@ export class ClientFollowupsComponent implements AfterViewInit {
     };
     const created = await this.followups.createRecord(base);
     this.closeEdit();
+  }
+
+  openCommit(id: string): void {
+    const found = this.data().find(r => r.sale_code === id);
+    if (found) {
+      this.selected = found;
+      this.commitVisible = true;
+    }
+  }
+
+  saveCommit(data: {commitment_date: string, commitment_amount: number}) {
+    if (!this.selected) return;
+    const id = Number(this.selected.followup_id || 0);
+    if (!id) {
+      this.toast.error('No se puede registrar compromiso: seguimiento sin ID');
+      this.commitVisible = false;
+      return;
+    }
+    this.followups.setCommitment(id, data).subscribe({
+      next: () => {
+        this.toast.success('Compromiso registrado');
+        this.commitVisible = false;
+      },
+      error: () => {
+        this.toast.error('Error registrando compromiso');
+        this.commitVisible = false;
+      }
+    });
+  }
+
+  logAction(row: ClientFollowupRecord, channel: string) {
+    const payload = {
+      followup_id: (row as any).followup_id as number | undefined,
+      client_id: (row as any).client_id as number,
+      employee_id: undefined,
+      channel,
+      result: undefined,
+      notes: undefined,
+    };
+    this.followups.logAction(payload).subscribe({
+      next: () => this.toast.success('Gestión registrada'),
+      error: () => this.toast.error('Error registrando gestión')
+    });
+  }
+
+  openSummary(row: ClientFollowupRecord) {
+    this.selected = row;
+    this.summaryVisible = true;
   }
 
   statusClass(s?: string): string {

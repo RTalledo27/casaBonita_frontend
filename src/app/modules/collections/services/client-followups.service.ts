@@ -161,4 +161,30 @@ export class ClientFollowupsService {
       tap((list) => this.subject.next(list))
     );
   }
+
+  listPreventive(window = 15) {
+    const url = `${API_ROUTES.COLLECTIONS.BASE}/segments/preventive?window=${window}`;
+    return this.http.get<any>(url).pipe(map(res => (res?.data ?? [])));
+  }
+
+  listMora(tramo: '1'|'2'|'3' = '1') {
+    const url = `${API_ROUTES.COLLECTIONS.BASE}/segments/mora?tramo=${tramo}`;
+    return this.http.get<any>(url).pipe(map(res => (res?.data ?? [])));
+  }
+
+  logAction(payload: {followup_id?: number, client_id: number, employee_id?: number, channel: string, result?: string, notes?: string, logged_at?: string}) {
+    const url = `${API_ROUTES.COLLECTIONS.BASE}/followup-logs`;
+    return this.http.post(url, payload);
+  }
+
+  setCommitment(id: number, data: {commitment_date: string, commitment_amount: number}) {
+    const url = `${this.baseUrl}/${id}/commitment`;
+    return this.http.put(url, data).pipe(tap((res: any) => {
+      const updated: ClientFollowupRecord = res?.data;
+      if (updated) {
+        const next = this.subject.getValue().map(r => (String(r.sale_code) === String(updated.sale_code)) ? { ...r, ...updated } : r);
+        this.subject.next(next);
+      }
+    }));
+  }
 }

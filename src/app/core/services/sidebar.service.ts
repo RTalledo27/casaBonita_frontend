@@ -166,6 +166,33 @@ export class SidebarService {
               module: 'collections',
               order: 2
             }
+            ,{
+              id: 'collections-preventive',
+              label: 'sidebar.collections.preventive.title',
+              icon: 'alert-circle',
+              route: '/collections/preventive',
+              requiredPermissions: [PERMISSIONS.COLLECTIONS_SCHEDULES_LIST],
+              module: 'collections',
+              order: 3
+            }
+            ,{
+              id: 'collections-mora',
+              label: 'sidebar.collections.mora.title',
+              icon: 'clock',
+              route: '/collections/mora',
+              requiredPermissions: [PERMISSIONS.COLLECTIONS_SCHEDULES_LIST],
+              module: 'collections',
+              order: 4
+            }
+            ,{
+              id: 'collections-kpis',
+              label: 'sidebar.collections.kpis.title',
+              icon: 'bar-chart-3',
+              route: '/collections/kpis',
+              requiredPermissions: [PERMISSIONS.COLLECTIONS_SCHEDULES_LIST],
+              module: 'collections',
+              order: 5
+            }
           ]
         },
         {

@@ -187,6 +187,9 @@
   },
   "collections": {
     "followups": { "title": "Collections Management" },
+    "preventive": { "title": "Preventive" },
+    "mora": { "title": "Delinquency" },
+    "kpis": { "title": "KPIs" },
     "followups": {
       "title": "Phone & Home Collections Management",
       "subtitle": "Manage contacts, visits and collection statuses",
@@ -199,7 +202,8 @@
         "client": "Client",
         "clientPlaceholder": "Name, DNI or ID",
         "contract": "Contract",
-        "contractPlaceholder": "Contract number or ID"
+        "contractPlaceholder": "Contract number or ID",
+        "overdue": "Overdue installments"
       },
       "new": "New follow-up",
       "status": {
@@ -214,6 +218,8 @@
         "sale_code": "Sale Code",
         "client_name": "Client",
         "lot": "Lot",
+        "contract_status": "Contract Status",
+        "advisor_name": "Advisor",
         "dni": "DNI",
         "phone1": "Phone",
         "phone2": "Phone 2",
@@ -245,7 +251,17 @@
         "next_action": "Next Action",
         "owner": "Owner",
         "general_notes": "General Notes",
-        "general_reason": "Reason"
+        "general_reason": "Reason",
+        "actions": "Actions"
+      },
+      "commitment": {
+        "title": "Register commitment",
+        "date": "Date",
+        "amount": "Amount"
+      },
+      "summary": {
+        "title": "Summary",
+        "lastActions": "Last actions"
       }
     }
   },
