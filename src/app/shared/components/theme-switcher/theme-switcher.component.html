@@ -1,8 +1,8 @@
 <button 
     (click)="toggleTheme()" 
-    aria-label="Toggle theme"
+    [attr.aria-label]="(theme.isDark ? 'theme.switch.toLight' : 'theme.switch.toDark') | translate"
     class="p-2 rounded-xl text-gray-600 hover:text-yellow-600 dark:text-gray-300 dark:hover:text-yellow-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none transition-all duration-200 group"
-    [title]="theme.isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'">
+    [title]="(theme.isDark ? 'theme.switch.toLight' : 'theme.switch.toDark') | translate">
     <lucide-icon 
         [name]="theme.isDark ? 'Sun' : 'Moon'" 
         class="h-5 w-5 transform group-hover:scale-110 transition-transform duration-200"

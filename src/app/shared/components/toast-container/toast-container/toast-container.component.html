@@ -1,5 +1,5 @@
 <!-- toast-container.component.html -->
-<div class="fixed top-4 right-4 flex flex-col items-end space-y-3 z-50">
+<div class="toast-root fixed top-4 right-4 flex flex-col items-end space-y-3">
     <div *ngFor="let t of toasts" [@toastAnim]
         class="flex items-center max-w-xs w-full bg-gray-900 text-white shadow-xl rounded-2xl overflow-hidden"
         [ngClass]="{

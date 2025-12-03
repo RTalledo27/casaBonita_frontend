@@ -11,6 +11,8 @@ export interface Client {
   email: string | null;
   primary_phone: string | null;
   secondary_phone: string | null;
+  email_verified?: boolean;
+  phone_verified?: boolean;
   marital_status: 'soltero' | 'casado' | 'divorciado' | 'viudo' | null;
   type: 'lead' | 'client' | 'provider';
   date: string | null; // ISO string (ej. '2025-06-03')

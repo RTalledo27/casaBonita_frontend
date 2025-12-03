@@ -11,4 +11,8 @@
             background-color: #1f2937;
         } 
     }
+    .toast-root {
+        position: fixed;
+        z-index: 2147483647 !important;
+    }
 }

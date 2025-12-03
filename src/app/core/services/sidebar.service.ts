@@ -156,6 +156,15 @@ export class SidebarService {
               requiredPermissions: [PERMISSIONS.COLLECTIONS_SCHEDULES_LIST],
               module: 'collections',
               order: 1
+            },
+            {
+              id: 'collections-followups',
+              label: 'sidebar.collections.followups.title',
+              icon: 'file-text',
+              route: '/collections/client-followups',
+              requiredPermissions: [PERMISSIONS.COLLECTIONS_SCHEDULES_LIST],
+              module: 'collections',
+              order: 2
             }
           ]
         },

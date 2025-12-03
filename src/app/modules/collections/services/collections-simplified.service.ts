@@ -402,6 +402,54 @@ export class CollectionsSimplifiedService {
     }>(`${this.baseUrl}/collections/schedules/${scheduleId}/mark-overdue`, {});
   }
 
+  sendInstallmentReminder(scheduleId: number, email?: string): Observable<{
+    success: boolean;
+    message: string;
+    data: any;
+  }> {
+    return this.http.post<{
+      success: boolean;
+      message: string;
+      data: any;
+    }>(`${this.baseUrl}/collections/notifications/schedules/${scheduleId}/send-reminder`, email ? { email } : {});
+  }
+
+  sendUpcomingReminders(daysAhead = 7): Observable<{
+    success: boolean;
+    message: string;
+    data: { total: number; sent: number; failed: number; days_ahead: number };
+  }> {
+    return this.http.post<{
+      success: boolean;
+      message: string;
+      data: { total: number; sent: number; failed: number; days_ahead: number };
+    }>(`${this.baseUrl}/collections/notifications/send-upcoming`, { days_ahead: daysAhead });
+  }
+
+  sendCustomEmail(email: string, subject: string, html: string): Observable<{
+    success: boolean;
+    message: string;
+    data: any;
+  }> {
+    return this.http.post<{
+      success: boolean;
+      message: string;
+      data: any;
+    }>(`${this.baseUrl}/collections/notifications/send-custom`, { email, subject, html });
+  }
+
+  sendCustomEmailForSchedule(scheduleId: number, subject: string, html: string): Observable<{
+    success: boolean;
+    message: string;
+    data: any;
+  }> {
+    return this.http.post<{
+      success: boolean;
+      message: string;
+      data: any;
+    }>(`${this.baseUrl}/collections/notifications/schedules/${scheduleId}/send-custom`, { subject, html });
+  }
+
   // Reports
   getPaymentSummaryReport(filters?: {
     start_date?: string;

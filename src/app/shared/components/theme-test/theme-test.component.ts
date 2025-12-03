@@ -2,32 +2,34 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ThemeService } from '../../../core/services/theme.service';
 import { LucideAngularModule } from 'lucide-angular';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-theme-test',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule, TranslateModule],
   template: `
     <div class="p-6 bg-white dark:bg-gray-900 min-h-screen transition-colors duration-300">
       <div class="max-w-4xl mx-auto">
         <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-6">
-          Prueba del Modo Oscuro
+          {{ 'theme.test.title' | translate }}
         </h1>
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <!-- Card 1 -->
           <div class="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg shadow-lg">
             <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">
-              Información del Tema
+              {{ 'theme.test.info' | translate }}
             </h2>
             <p class="text-gray-600 dark:text-gray-400 mb-4">
-              Tema actual: <span class="font-bold">{{ theme.isDark ? 'Oscuro' : 'Claro' }}</span>
+              {{ 'theme.test.current' | translate }}: 
+              <span class="font-bold">{{ theme.isDark ? ('theme.test.dark' | translate) : ('theme.test.light' | translate) }}</span>
             </p>
             <button 
               (click)="theme.toggle()"
               class="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors duration-200">
               <lucide-icon [name]="theme.isDark ? 'Sun' : 'Moon'" class="w-4 h-4 inline mr-2"></lucide-icon>
-              Cambiar a {{ theme.isDark ? 'Claro' : 'Oscuro' }}
+              {{ 'theme.test.toggle' | translate: { mode: (theme.isDark ? ('theme.test.light' | translate) : ('theme.test.dark' | translate)) } }}
             </button>
           </div>
           
@@ -93,12 +95,12 @@ import { LucideAngularModule } from 'lucide-angular';
           <h3 class="text-lg font-semibold text-blue-800 dark:text-blue-200 mb-2">
             Información Técnica
           </h3>
-          <ul class="text-blue-700 dark:text-blue-300 space-y-1">
-            <li>• El modo oscuro se aplica automáticamente a toda la aplicación</li>
-            <li>• Los cambios se guardan en localStorage</li>
-            <li>• Se respeta la preferencia del sistema por defecto</li>
-            <li>• Todas las clases de Tailwind CSS dark: funcionan correctamente</li>
-          </ul>
+            <ul class="text-blue-700 dark:text-blue-300 space-y-1">
+              <li>• {{ 'theme.test.details.autoApply' | translate }}</li>
+              <li>• {{ 'theme.test.details.persist' | translate }}</li>
+              <li>• {{ 'theme.test.details.systemPref' | translate }}</li>
+              <li>• {{ 'theme.test.details.tailwind' | translate }}</li>
+            </ul>
         </div>
       </div>
     </div>

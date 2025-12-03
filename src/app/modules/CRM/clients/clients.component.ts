@@ -40,11 +40,11 @@ export class ClientsComponent implements OnInit {
 
 
   columns: ColumnDef[] = [
-    { field: 'first_name', header: 'First Name' },
-    { field: 'last_name', header: 'Last Name' },
-    { field: 'email', header: 'Email' },
-    { field: 'phone', header: 'Phone' },
-    { field: 'type', header: 'Type' }
+    { field: 'first_name', header: 'crm.clients.first_name' },
+    { field: 'last_name', header: 'crm.clients.last_name' },
+    { field: 'email', header: 'crm.clients.email' },
+    { field: 'primary_phone', header: 'crm.clients.primary_phone' },
+    { field: 'type', header: 'crm.clients.type', translateContent: true }
   ];
 
   templates: any = {};
@@ -58,7 +58,10 @@ export class ClientsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadClients();
+    // Si hay un modal abierto en URL, limpiarlo para evitar bloqueos
+    this.router.navigate([{ outlets: { modal: null } }], { relativeTo: this.route }).finally(() => {
+      this.loadClients();
+    });
   }
 
   loadClients(): void {
@@ -81,7 +84,9 @@ export class ClientsComponent implements OnInit {
   }
 
   onView(id: number): void {
-    this.router.navigate(['/crm/clients', id]);
+    this.router.navigate([{ outlets: { modal: null } }], { relativeTo: this.route }).finally(() => {
+      this.router.navigate(['/crm/clients', id]);
+    });
   }
 
   onDelete(id: number): void {
@@ -98,12 +103,17 @@ export class ClientsComponent implements OnInit {
     if (component && component.modalClosed) {
       component.modalClosed.subscribe(() => {
         this.isModalOpen = false;
-        this.loadClients(); // Reload clients after modal closes
+        // Clear auxiliary outlet from URL
+        this.router.navigate([{ outlets: { modal: null } }], { relativeTo: this.route }).finally(() => {
+          this.loadClients(); // Reload clients after modal closes
+        });
       });
     }
   }
 
   onModalDeactivate(): void {
     this.isModalOpen = false;
+    // Ensure modal outlet is cleared from URL
+    this.router.navigate([{ outlets: { modal: null } }], { relativeTo: this.route });
   }
 }

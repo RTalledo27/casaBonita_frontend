@@ -1,41 +1,45 @@
-<div class="w-full max-w-md sm:max-w-xl p-6 bg-gray-900 text-white rounded-2xl shadow-2xl overflow-y-auto">
+<div class="w-full p-8 bg-white dark:bg-slate-900 text-gray-900 dark:text-white rounded-2xl shadow-2xl">
     <div class="flex justify-between items-start mb-6">
         <div>
-            <h3 class="text-2xl font-bold">{{ isEditMode ? 'Edit Client' : 'Create Client' }}</h3>
-            <div class="mt-2 h-1 w-full bg-gray-800 rounded">
-                <div class="bg-blue-600 h-1 rounded transition-all duration-300"
-                    [style.width.%]="(currentStep / sections.length) * 100"></div>
+            <h3 class="text-2xl font-bold text-slate-900 dark:text-white">{{ isEditMode ? 'Editar Cliente' : 'Crear Cliente' }}</h3>
+            <div class="flex justify-between items-center mb-2 mt-2">
+              <span class="text-xs font-medium text-slate-600 dark:text-slate-400">Paso {{ currentStep }} de {{ sections.length }}</span>
+              <span class="text-xs font-medium text-slate-600 dark:text-slate-400">{{ ((currentStep / sections.length) * 100) | number:'1.0-0' }}% completado</span>
             </div>
-            <p class="mt-1 text-xs text-gray-400">Step {{ currentStep }} of {{ sections.length }}</p>
+            <div class="bg-slate-100 dark:bg-slate-800 rounded-full h-1.5">
+              <div class="bg-gradient-to-r from-blue-500 to-blue-600 h-1.5 rounded-full transition-all duration-500" [style.width.%]="(currentStep / sections.length) * 100"></div>
+            </div>
+            
         </div>
         <button type="button"
-            class="flex items-center gap-1 text-sm bg-gray-800 hover:bg-gray-700 px-3 py-2 rounded shadow"
+            class="flex items-center gap-2 px-4 py-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all"
             (click)="onCancel()">
-            <lucide-icon [name]="X" class="w-4 h-4"></lucide-icon> Cancel
+            <lucide-icon [name]="X" class="w-5 h-5"></lucide-icon> <span class="font-medium">Cancelar</span>
         </button>
     </div>
 
     <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-4">
         <div *ngFor="let s of sections; let i = index"
-            [ngClass]="s.expanded ? 'ring-2 ring-blue-600/40 shadow-2xl' : 'border border-gray-700'"
-            class="rounded-lg overflow-hidden transition-colors duration-300">
+            [ngClass]="s.expanded ? 'ring-1 ring-blue-500/20' : ''"
+            class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden transition-all duration-300">
             <button type="button"
-                class="w-full flex justify-between items-center px-4 py-3 bg-gradient-to-r from-gray-800 to-gray-850 hover:to-gray-800 select-none transition-colors"
+                class="w-full flex justify-between items-center px-6 py-4 select-none transition-all duration-300"
+                [ngClass]="s.expanded ? 'bg-slate-50 dark:bg-slate-800' : 'bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700'"
                 (click)="toggleSection(i)">
                 <div class="flex items-center gap-3">
                     <span
-                        class="h-5 w-5 flex items-center justify-center rounded-full text-[11px] font-semibold transition-colors duration-200"
-                        [ngClass]="s.expanded ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300'">
+                        class="h-8 w-8 flex items-center justify-center rounded-lg text-sm font-bold transition-all duration-300"
+                        [ngClass]="s.expanded ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400'">
                         {{ i + 1 }}
                     </span>
-                    <lucide-icon [name]="s.icon" class="w-4 h-4"
-                        [ngClass]="s.expanded ? 'text-blue-400' : 'text-gray-400'"></lucide-icon>
-                    <span class="font-medium text-sm">{{ s.title | titlecase }}</span>
+                    <lucide-icon [name]="s.icon" class="w-5 h-5 transition-all duration-300"
+                        [ngClass]="s.expanded ? 'text-blue-600 dark:text-blue-400' : 'text-slate-500 dark:text-slate-400'"></lucide-icon>
+                    <span class="font-semibold text-base transition-all duration-300" [ngClass]="s.expanded ? 'text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'">{{ s.title | titlecase }}</span>
                 </div>
-                <lucide-icon [name]="s.expanded ? ChevronUp : ChevronDown" class="w-4 h-4 text-gray-400"></lucide-icon>
+                <lucide-icon [name]="s.expanded ? ChevronUp : ChevronDown" class="w-5 h-5 transition-all duration-300" [ngClass]="s.expanded ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500'"></lucide-icon>
             </button>
 
-            <div *ngIf="s.expanded" class="p-5 bg-gray-950 space-y-6">
+            <div *ngIf="s.expanded" class="p-6 bg-slate-50 dark:bg-slate-900/50 space-y-6 border-t border-slate-200 dark:border-slate-700">
                 <ng-container *ngIf="s.key === 'general'">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         <div class="field">
@@ -56,6 +60,9 @@
                         <div class="field">
                             <label class="label">Doc Number</label>
                             <input class="input" formControlName="doc_number" />
+                            <div class="text-xs mt-1" [class]="fc('doc_number').invalid && fc('doc_number').touched ? 'text-red-600' : 'sr-only'">
+                              {{ form.value.doc_type === 'DNI' ? 'Debe tener 8 dígitos numéricos' : 'Número requerido' }}
+                            </div>
                         </div>
                         <div class="field">
                             <label class="label">Marital Status</label>
@@ -77,16 +84,37 @@
                 <ng-container *ngIf="s.key === 'contact'">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         <div class="field">
+                            <label class="label">Email</label>
+                            <div class="flex items-center gap-2">
+                              <input class="input flex-1" formControlName="email" />
+                              <button type="button" (click)="requestEmailVerification()" [disabled]="!fc('email').valid || emailVerified" class="px-3 py-2 rounded text-white" [class]="emailVerified ? 'bg-emerald-600' : 'bg-blue-600 hover:bg-blue-700'">
+                                {{ emailVerified ? 'Verified' : 'Verify' }}
+                              </button>
+                            </div>
+                            <div *ngIf="emailVerificationId && !emailVerified" class="mt-2 flex gap-2 items-center">
+                              <input type="text" [(ngModel)]="codeEmail" [ngModelOptions]="{standalone: true}" name="codeEmail" maxlength="6" class="input flex-1" placeholder="Verification code" />
+                              <button type="button" (click)="confirmEmailVerification()" [disabled]="!codeEmail || isVerifyingEmail" class="px-3 py-2 rounded bg-emerald-600 text-white">Confirm</button>
+                            </div>
+                        </div>
+                        <div class="field">
                             <label class="label">Phone</label>
-                            <input class="input" formControlName="primary_phone" />
+                            <div class="flex items-center gap-2">
+                              <input class="input flex-1" formControlName="primary_phone" />
+                              <button type="button" (click)="requestPhoneVerification()" [disabled]="!fc('primary_phone').value || phoneVerified" class="px-3 py-2 rounded text-white" [class]="phoneVerified ? 'bg-emerald-600' : 'bg-indigo-600 hover:bg-indigo-700'">
+                                {{ phoneVerified ? 'Verified' : 'Verify' }}
+                              </button>
+                            </div>
+                            <div class="text-xs mt-1" [class]="fc('primary_phone').invalid && fc('primary_phone').touched ? 'text-red-600' : 'sr-only'">
+                              Debe tener 9 dígitos numéricos
+                            </div>
+                            <div *ngIf="phoneVerificationId && !phoneVerified" class="mt-2 flex gap-2 items-center">
+                              <input type="text" [(ngModel)]="codePhone" [ngModelOptions]="{standalone: true}" name="codePhone" maxlength="6" class="input flex-1" placeholder="Verification code" />
+                              <button type="button" (click)="confirmPhoneVerification()" [disabled]="!codePhone || isVerifyingPhone" class="px-3 py-2 rounded bg-emerald-600 text-white">Confirm</button>
+                            </div>
                         </div>
                         <div class="field">
                             <label class="label">Alt. Phone</label>
                             <input class="input" formControlName="secondary_phone" />
-                        </div>
-                        <div class="field">
-                            <label class="label">Email</label>
-                            <input class="input" formControlName="email" />
                         </div>
                         <div class="field sm:col-span-2">
                             <label class="label">Address</label>

@@ -231,6 +231,8 @@ export class ExportService {
       'Cliente',
       'Lote',
       'Cuota',
+      'Nombre de Cuota',
+      'Tipo',
       'Fecha Vencimiento',
       'Monto',
       'Estado',
@@ -265,6 +267,8 @@ export class ExportService {
         schedule.client_name || 'N/A',
         schedule.lot_number || 'N/A',
         schedule.installment_number?.toString() || '',
+        schedule.notes || '',
+        schedule.type || '',
         this.formatDate(schedule.due_date),
         schedule.amount || 0,
         this.getStatusLabel(schedule.status),
@@ -315,11 +319,13 @@ export class ExportService {
     detailSheet.getColumn(2).width = 30;  // Cliente
     detailSheet.getColumn(3).width = 12;  // Lote
     detailSheet.getColumn(4).width = 8;   // Cuota
-    detailSheet.getColumn(5).width = 18;  // Fecha Vencimiento
-    detailSheet.getColumn(6).width = 15;  // Monto
-    detailSheet.getColumn(7).width = 12;  // Estado
-    detailSheet.getColumn(8).width = 18;  // Fecha Pago
-    detailSheet.getColumn(9).width = 12;  // Días Vencido
+    detailSheet.getColumn(5).width = 24;  // Nombre de Cuota
+    detailSheet.getColumn(6).width = 14;  // Tipo
+    detailSheet.getColumn(7).width = 18;  // Fecha Vencimiento
+    detailSheet.getColumn(8).width = 15;  // Monto
+    detailSheet.getColumn(9).width = 12;  // Estado
+    detailSheet.getColumn(10).width = 18; // Fecha Pago
+    detailSheet.getColumn(11).width = 12; // Días Vencido
 
     // Freeze header row
     detailSheet.views = [
@@ -385,6 +391,8 @@ export class ExportService {
       'Cliente',
       'Lote',
       'Cuota',
+      'Nombre de Cuota',
+      'Tipo',
       'Fecha Vencimiento',
       'Monto',
       'Estado',
@@ -401,6 +409,8 @@ export class ExportService {
         this.escapeCsvValue(schedule.client_name || 'N/A'),
         schedule.lot_number || 'N/A',
         schedule.installment_number?.toString() || '',
+        this.escapeCsvValue(schedule.notes || ''),
+        schedule.type || '',
         this.formatDate(schedule.due_date),
         schedule.amount?.toString() || '0',
         this.getStatusLabel(schedule.status),

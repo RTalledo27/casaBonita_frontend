@@ -65,6 +65,7 @@
     },
     "collections": {
       "title": "Collections",
+      "followups": { "title": "Collections Management" },
       "accounts-receivable": {
         "title": "Accounts Receivable"
       },
@@ -148,6 +149,26 @@
     "profile": "Profile",
     "language": "Language"
   },
+  "theme": {
+    "switch": {
+      "toDark": "Switch to dark mode",
+      "toLight": "Switch to light mode"
+    },
+    "test": {
+      "title": "Dark Mode Test",
+      "info": "Theme Information",
+      "current": "Current theme",
+      "dark": "Dark",
+      "light": "Light",
+      "toggle": "Switch to {{mode}}",
+      "details": {
+        "autoApply": "Dark mode applies automatically across the app",
+        "persist": "Changes are saved in localStorage",
+        "systemPref": "System preference is respected by default",
+        "tailwind": "All Tailwind CSS dark: classes work correctly"
+      }
+    }
+  },
   "dashboard": {
     "title": "Dashboard",
     "totalClients": "Total Clients",
@@ -162,6 +183,70 @@
       "activeBudgets": "Active Budgets",
       "accountsReceivable": "Accounts Receivable",
       "overduePayments": "Overdue Payments"
+    }
+  },
+  "collections": {
+    "followups": { "title": "Collections Management" },
+    "followups": {
+      "title": "Phone & Home Collections Management",
+      "subtitle": "Manage contacts, visits and collection statuses",
+      "exportExcel": "Export Excel",
+      "filters": {
+        "search": "Search",
+        "searchPlaceholder": "Code, client, DNI or lot",
+        "status": "Status",
+        "owner": "Owner",
+        "client": "Client",
+        "clientPlaceholder": "Name, DNI or ID",
+        "contract": "Contract",
+        "contractPlaceholder": "Contract number or ID"
+      },
+      "new": "New follow-up",
+      "status": {
+        "pending": "Pending",
+        "in_progress": "In Progress",
+        "resolved": "Resolved",
+        "unreachable": "Unreachable",
+        "escalated": "Escalated"
+      },
+      "columns": {
+        "client_id": "Client ID",
+        "sale_code": "Sale Code",
+        "client_name": "Client",
+        "lot": "Lot",
+        "dni": "DNI",
+        "phone1": "Phone",
+        "phone2": "Phone 2",
+        "email": "Email",
+        "address": "Address",
+        "district": "District",
+        "province": "Province",
+        "department": "Department",
+        "due_date": "Due date / last installment",
+        "sale_price": "Sale Price",
+        "amount_paid": "Amount Paid",
+        "amount_due": "Amount Due",
+        "monthly_quota": "Monthly Installment",
+        "paid_installments": "Paid Installments",
+        "pending_installments": "Pending Installments",
+        "total_installments": "Total Installments",
+        "overdue_installments": "Overdue Installments",
+        "pending_amount": "Pending Amount",
+        "contact_date": "Contact Date",
+        "action_taken": "Action Taken",
+        "management_result": "Management Result",
+        "management_notes": "Additional Notes",
+        "home_visit_date": "Home Visit Date",
+        "home_visit_reason": "Home Visit Reason",
+        "home_visit_result": "Home Visit Result",
+        "home_visit_notes": "Additional Notes",
+        "management_status": "Management Status",
+        "last_contact": "Last Contact",
+        "next_action": "Next Action",
+        "owner": "Owner",
+        "general_notes": "General Notes",
+        "general_reason": "Reason"
+      }
     }
   },
   "users": {
@@ -219,7 +304,8 @@
     "step": "Step",
     "of": "of",
     "noData": "No records found",
-    "next": "Next"
+    "next": "Next",
+    "clearFilters": "Clear filters"
   },
   "security": {
     "access": "System Access",

@@ -6,6 +6,7 @@ export interface PaymentSchedule {
   due_date: string;
   amount: number;
   status: 'pendiente' | 'pagado' | 'vencido';
+  type?: string;
   payment_date?: string;
   payment_method?: 'cash' | 'transfer' | 'check' | 'card';
   notes?: string;

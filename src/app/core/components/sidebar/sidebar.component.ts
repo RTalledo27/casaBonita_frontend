@@ -197,6 +197,13 @@ export class SidebarComponent implements OnInit, OnDestroy {
           active: false,
           permission: 'collections.reports'
         },
+        {
+          name: 'followups',
+          label: 'sidebar.collections.followups.title',
+          route: '/collections/client-followups',
+          active: false,
+          permission: 'collections.followups.view'
+        },
       ],
     },
     {

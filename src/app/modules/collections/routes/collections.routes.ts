@@ -108,6 +108,15 @@ export const collectionsRoutes: Routes = [
     }
   },
   {
+    path: 'client-followups',
+    loadComponent: () => import('../components/followups/client-followups.component').then(m => m.ClientFollowupsComponent),
+    data: {
+      title: 'Gestión Telefónica y Domiciliaria',
+      breadcrumb: 'Gestión de Cobranzas',
+      permission: 'collections.followups.view'
+    }
+  },
+  {
     path: 'alerts',
     component: OverdueAlertsComponent,
     data: {

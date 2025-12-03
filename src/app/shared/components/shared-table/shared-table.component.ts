@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy, TemplateRef, ChangeDetectorRef } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { Database, Edit, Eye, LucideAngularModule, Trash2 } from 'lucide-angular';
 import { AuthService } from '../../../core/services/auth.service';
@@ -45,7 +45,7 @@ export class SharedTableComponent {
   private _data: any[] = [];
   @Input() loading: boolean = false;
 
-  constructor(private authService: AuthService, private cdr: ChangeDetectorRef) {}
+  constructor(private authService: AuthService, private cdr: ChangeDetectorRef, private router: Router) {}
 
   //ICONOS LUCIDE:
   eye = Eye;
@@ -97,7 +97,11 @@ export class SharedTableComponent {
 
   onViewClick(id: number) {
     console.log('onViewClick called with id:', id);
-    this.onViewDetails.emit(id);
+    if (this.viewRoute) {
+      this.router.navigate([this.viewRoute, id]);
+    } else {
+      this.onViewDetails.emit(id);
+    }
   }
 
   onDelete(id: number) {

@@ -65,6 +65,7 @@
     },
     "collections": {
       "title": "Cobranzas",
+      "followups": { "title": "Gestión de Cobranzas" },
       "accounts-receivable": {
         "title": "Cuentas por Cobrar"
       },
@@ -172,6 +173,26 @@
     "profile": "Perfil",
     "language": "Idioma"
   },
+  "theme": {
+    "switch": {
+      "toDark": "Cambiar a modo oscuro",
+      "toLight": "Cambiar a modo claro"
+    },
+    "test": {
+      "title": "Prueba del Modo Oscuro",
+      "info": "Información del Tema",
+      "current": "Tema actual",
+      "dark": "Oscuro",
+      "light": "Claro",
+      "toggle": "Cambiar a {{mode}}",
+      "details": {
+        "autoApply": "El modo oscuro se aplica automáticamente a toda la aplicación",
+        "persist": "Los cambios se guardan en localStorage",
+        "systemPref": "Se respeta la preferencia del sistema por defecto",
+        "tailwind": "Todas las clases de Tailwind CSS dark: funcionan correctamente"
+      }
+    }
+  },
   "dashboard": {
     "title": "Dashboard",
     "totalClients": "Total de Clientes",
@@ -244,7 +265,10 @@
     "noData": "No hay registros",
     "next": "Siguiente",
     "previous": "Anterior",
-    "finish": "Finalizar"
+    "finish": "Finalizar",
+    "clearFilters": "Limpiar filtros",
+    "verified": "Verificado",
+    "unverified": "No verificado"
   },
   "security": {
     "access": "Acceso al Sistema",
@@ -456,13 +480,74 @@
      "income": "Ingresos",
      "reports": "Reportes"
    },
-   "collections": {
-     "title": "Cobranzas",
-     "accounts": "Cuentas",
-     "receivable": "Por Cobrar",
-     "payments": "Pagos",
-     "reports": "Reportes"
-   },
+  "collections": {
+    "title": "Cobranzas",
+    "accounts": "Cuentas",
+    "receivable": "Por Cobrar",
+    "payments": "Pagos",
+    "reports": "Reportes",
+    "followups": {
+      "title": "Gestión Telefónica y Domiciliaria",
+      "subtitle": "Administra contactos, visitas y estados de gestión",
+      "exportExcel": "Exportar Excel",
+      "filters": {
+        "search": "Buscar",
+        "searchPlaceholder": "Código, cliente, DNI o lote",
+        "status": "Estado",
+        "owner": "Responsable",
+        "client": "Cliente",
+        "clientPlaceholder": "Nombre, DNI o ID",
+        "contract": "Contrato",
+        "contractPlaceholder": "N° contrato o ID"
+      },
+      "new": "Nuevo seguimiento",
+      "status": {
+        "pending": "Pendiente",
+        "in_progress": "En progreso",
+        "resolved": "Resuelto",
+        "unreachable": "No ubicable",
+        "escalated": "Escalado"
+      },
+      "columns": {
+        "client_id": "ID Cliente",
+        "sale_code": "COD.VENTA",
+        "client_name": "Cliente",
+        "lot": "Lote",
+        "dni": "DNI",
+        "phone1": "TELÉFONO",
+        "phone2": "TELÉFONO 2",
+        "email": "CORREO",
+        "address": "DIRECCIÓN",
+        "district": "DISTRITO",
+        "province": "PROVINCIA",
+        "department": "DEPARTAMENTO",
+        "due_date": "Fecha de vencimiento/última cuota",
+        "sale_price": "Precio de Venta",
+        "amount_paid": "Monto Pagado",
+        "amount_due": "Monto por pagar",
+        "monthly_quota": "CUOTA MENSUAL",
+        "paid_installments": "Cuotas Canceladas",
+        "pending_installments": "Cuotas Pendientes de pago",
+        "total_installments": "Total de Cuotas",
+        "overdue_installments": "N° de cuotas vencidas",
+        "pending_amount": "Monto pendiente",
+        "contact_date": "FEC.CONTACTO",
+        "action_taken": "ACCIÓN REALIZADA",
+        "management_result": "Resultado de la gestión",
+        "management_notes": "Observaciones adicionales",
+        "home_visit_date": "Fecha de visita domiciliaria",
+        "home_visit_reason": "Motivo de la visita",
+        "home_visit_result": "Resultado de la visita",
+        "home_visit_notes": "Observaciones adicionales",
+        "management_status": "Estado de gestión",
+        "last_contact": "Último contacto",
+        "next_action": "Próxima acción programada",
+        "owner": "Responsable",
+        "general_notes": "Observaciones generales",
+        "general_reason": "MOTIVO"
+      }
+    }
+  },
    "collections-simplified": {
      "title": "Cobranzas",
      "dashboard": {
@@ -478,7 +563,7 @@
        "title": "Reportes"
      }
    },
-   "validation": {
+    "validation": {
      "required": "Este campo es obligatorio",
      "maxLength": "Máximo {{value}} caracteres",
      "minLength": "Mínimo {{value}} caracteres",
@@ -486,7 +571,7 @@
      "birthDate": {
        "required": "La fecha de nacimiento es obligatoria"
      }
-   },
+    },
    "permissions": {
      "security.access": "Acceso a Seguridad",
      "security.permissions.view": "Ver Permisos",

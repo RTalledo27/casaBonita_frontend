@@ -23,7 +23,8 @@ import {
   ChevronRight,
   Users,
   User,
-  FileText
+  FileText,
+  Mail
 } from 'lucide-angular';
 import { CollectionsSimplifiedService } from '../../services/collections-simplified.service';
 import { PaymentSchedule, ContractSummary, MarkPaymentPaidRequest } from '../../models/payment-schedule';
@@ -332,9 +333,19 @@ import { PaymentSchedule, ContractSummary, MarkPaymentPaidRequest } from '../../
               @for (schedule of contract.schedules; track schedule.schedule_id) {
                 <tr class="hover:bg-slate-50/70 dark:hover:bg-slate-700/40 transition-colors">
                   <td class="py-3 px-4">
-                    <span class="font-medium text-slate-900 dark:text-slate-100">
-                      {{ schedule.installment_number || 'N/A' }}
-                    </span>
+                    <div class="flex items-center gap-2">
+                      <span class="font-medium text-slate-900 dark:text-slate-100">
+                        {{ schedule.installment_number || 'N/A' }}
+                      </span>
+                      @if (schedule.notes) {
+                        <span class="text-xs text-slate-500 dark:text-slate-300">/ {{ schedule.notes }}</span>
+                      }
+                      @if (schedule.type) {
+                        <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold bg-slate-100 text-slate-700 dark:bg-slate-900/40 dark:text-slate-300 ring-1 ring-slate-200/70 dark:ring-slate-700/60">
+                          {{ schedule.type }}
+                        </span>
+                      }
+                    </div>
                   </td>
 
                   <td class="py-3 px-4 text-slate-700 dark:text-slate-300">
@@ -364,15 +375,31 @@ import { PaymentSchedule, ContractSummary, MarkPaymentPaidRequest } from '../../
                   </td>
 
                   <td class="py-3 px-4 text-right">
-                    @if (schedule.status !== 'pagado') {
+                    <div class="flex justify-end gap-2">
                       <button
-                        (click)="openMarkPaidModal(schedule)"
-                        class="inline-flex items-center justify-center h-8 w-8 rounded-full text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 ring-1 ring-emerald-200/70 dark:ring-emerald-800/60 transition"
-                        title="Marcar como pagado"
+                        (click)="sendReminder(schedule); $event.stopPropagation()"
+                        class="inline-flex items-center justify-center h-8 w-8 rounded-full text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 ring-1 ring-blue-200/70 dark:ring-blue-800/60 transition"
+                        title="Enviar aviso"
                       >
-                        <lucide-angular [img]="CheckCircleIcon" class="w-4 h-4"></lucide-angular>
+                        <lucide-angular [img]="MailIcon" class="w-4 h-4"></lucide-angular>
                       </button>
-                    }
+                      <button
+                        (click)="openCustomMessageModal(schedule); $event.stopPropagation()"
+                        class="inline-flex items-center justify-center h-8 w-8 rounded-full text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 ring-1 ring-indigo-200/70 dark:ring-indigo-800/60 transition"
+                        title="Mensaje personalizado"
+                      >
+                        <lucide-angular [img]="EditIcon" class="w-4 h-4"></lucide-angular>
+                      </button>
+                      @if (schedule.status !== 'pagado') {
+                        <button
+                          (click)="openMarkPaidModal(schedule)"
+                          class="inline-flex items-center justify-center h-8 w-8 rounded-full text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 ring-1 ring-emerald-200/70 dark:ring-emerald-800/60 transition"
+                          title="Marcar como pagado"
+                        >
+                          <lucide-angular [img]="CheckCircleIcon" class="w-4 h-4"></lucide-angular>
+                        </button>
+                      }
+                    </div>
                   </td>
                 </tr>
               }
@@ -617,6 +644,78 @@ import { PaymentSchedule, ContractSummary, MarkPaymentPaidRequest } from '../../
         }
       </div> <!-- /relative p-6 -->
     </div> <!-- /min-h-screen -->
+
+    @if (showCustomMessageModal()) {
+      <div class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div class="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl shadow-2xl max-w-lg w-full border border-white/20 dark:border-gray-700/50 relative overflow-hidden">
+          <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-blue-500 to-purple-500"></div>
+          <div class="p-8">
+            <div class="flex justify-between items-center mb-6">
+              <div class="flex items-center gap-4">
+                <div class="bg-gradient-to-br from-indigo-500 to-purple-600 p-3 rounded-2xl shadow-lg">
+                  <lucide-angular [img]="EditIcon" class="w-6 h-6 text-white"></lucide-angular>
+                </div>
+                <h3 class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-gray-900 via-indigo-800 to-purple-800 dark:from-white dark:via-indigo-200 dark:to-purple-200">Mensaje personalizado</h3>
+              </div>
+              <button (click)="closeCustomMessageModal()" class="p-2 rounded-xl text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                <lucide-angular [img]="XIcon" class="w-5 h-5"></lucide-angular>
+              </button>
+            </div>
+
+            <form [formGroup]="customMessageForm" (ngSubmit)="sendCustomMessage()" class="space-y-5">
+              <div>
+                <label class="block text-sm font-bold mb-2">Asunto</label>
+                <input type="text" formControlName="subject" aria-label="Asunto" class="w-full px-4 py-3 rounded-2xl border" />
+              </div>
+              <div>
+                <label class="block text-sm font-bold mb-2">Plantilla</label>
+                <select formControlName="template" aria-label="Plantilla" (change)="applyTemplate($event)" class="w-full px-4 py-3 rounded-2xl border">
+                  <option value="">Sin plantilla</option>
+                  <option value="friendly">Recordatorio amistoso</option>
+                  <option value="last_notice">Último aviso</option>
+                  <option value="thanks">Gracias por su pago</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-bold mb-2">Mensaje</label>
+                <textarea formControlName="message" rows="5" aria-label="Mensaje" class="w-full px-4 py-3 rounded-2xl border" placeholder="Escribe tu mensaje..."></textarea>
+                <div class="text-xs mt-1" [class]="customMessageForm.controls['message'].invalid && customMessageForm.controls['message'].touched ? 'text-red-600' : 'text-gray-500'">
+                  Mínimo 10 y máximo 500 caracteres
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-bold mb-2">Fuente</label>
+                  <select formControlName="font" aria-label="Fuente" class="w-full px-4 py-3 rounded-2xl border">
+                    <option>Arial</option>
+                    <option>Georgia</option>
+                    <option>Times New Roman</option>
+                    <option>Verdana</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-sm font-bold mb-2">Color</label>
+                  <input type="color" formControlName="color" aria-label="Color" class="w-10 h-10 p-0 border rounded" />
+                </div>
+              </div>
+              <div>
+                <label class="block text-sm font-bold mb-2">Imagen (URL)</label>
+                <input type="url" formControlName="imageUrl" aria-label="Imagen" class="w-full px-4 py-3 rounded-2xl border" placeholder="https://..." />
+              </div>
+              <div class="p-4 rounded-2xl border">
+                <div [ngStyle]="{ 'font-family': customMessageForm.value.font, 'color': customMessageForm.value.color }">
+                  <p class="mb-2">Vista previa</p>
+                  <div [innerHTML]="previewHtml()"></div>
+                </div>
+              </div>
+              <button type="submit" [disabled]="customMessageForm.invalid" class="w-full px-6 py-3 rounded-2xl bg-indigo-600 text-white">
+                Enviar mensaje
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    }
   `
 })
 export class InstallmentManagementComponent implements OnInit, OnDestroy {
@@ -643,6 +742,7 @@ export class InstallmentManagementComponent implements OnInit, OnDestroy {
   UsersIcon = Users;
   UserIcon = User;
   FileTextIcon = FileText;
+  MailIcon = Mail;
 
   // Signals
   contracts = signal<ContractSummary[]>([]);
@@ -650,8 +750,11 @@ export class InstallmentManagementComponent implements OnInit, OnDestroy {
   errorMessage = signal<string | null>(null);
   successMessage = signal<string | null>(null);
   showMarkPaidModal = signal(false);
+  showCustomMessageModal = signal(false);
   selectedScheduleForPayment = signal<PaymentSchedule | null>(null);
+  selectedScheduleForMessage = signal<PaymentSchedule | null>(null);
   isMarkingPaid = signal(false);
+  isSendingReminder = signal(false);
   currentPage = signal(1);
   pageSize = signal(10);
   totalItems = signal(0);
@@ -667,6 +770,7 @@ export class InstallmentManagementComponent implements OnInit, OnDestroy {
   // Forms
   filterForm: FormGroup;
   markPaidForm: FormGroup;
+  customMessageForm: FormGroup;
 
   // Computed properties - Now using backend pagination
   paginatedContracts = computed(() => {
@@ -698,6 +802,15 @@ export class InstallmentManagementComponent implements OnInit, OnDestroy {
       amount_paid: [0, [Validators.required, Validators.min(0.01)]],
       payment_method: ['cash', Validators.required],
       notes: ['']
+    });
+
+    this.customMessageForm = this.fb.group({
+      subject: ['Mensaje de Cobranzas', [Validators.required, Validators.minLength(3), Validators.maxLength(150)]],
+      template: [''],
+      message: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(500)]],
+      font: ['Arial', Validators.required],
+      color: ['#111827', Validators.required],
+      imageUrl: ['']
     });
   }
 
@@ -821,6 +934,71 @@ this.collectionsService.getContractsWithSchedulesSummary(paginationFilters)
     this.showMarkPaidModal.set(true);
   }
 
+  openCustomMessageModal(schedule: PaymentSchedule) {
+    this.selectedScheduleForMessage.set(schedule);
+    this.customMessageForm.reset({
+      subject: 'Mensaje de Cobranzas',
+      template: '',
+      message: '',
+      font: 'Arial',
+      color: '#111827',
+      imageUrl: ''
+    });
+    this.showCustomMessageModal.set(true);
+  }
+
+  closeCustomMessageModal() {
+    this.showCustomMessageModal.set(false);
+    this.selectedScheduleForMessage.set(null);
+  }
+
+  applyTemplate(event: Event) {
+    const value = (event.target as HTMLSelectElement).value;
+    const templates: Record<string, string> = {
+      friendly: 'Hola, te recordamos tu próxima cuota. Muchas gracias por tu confianza. 😊',
+      last_notice: 'Último aviso: tu cuota está próxima a vencer. Evita cargos adicionales realizando tu pago a tiempo.',
+      thanks: 'Gracias por su pago. ¡Seguimos a tu disposición para cualquier consulta!'
+    };
+    if (templates[value]) {
+      this.customMessageForm.controls['message'].setValue(templates[value]);
+    }
+  }
+
+  previewHtml(): string {
+    const v = this.customMessageForm.value;
+    const msg = this.escapeHtml(v.message || '');
+    const emojiMsg = msg;
+    const imgTag = v.imageUrl ? `<div><img src="${v.imageUrl}" alt="imagen" style="max-width:100%;border-radius:12px"/></div>` : '';
+    return `<div style="font-family:${v.font};color:${v.color};line-height:1.5">${emojiMsg}${imgTag}</div>`;
+  }
+
+  private escapeHtml(s: string): string {
+    const map: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+    return s.replace(/[&<>"']/g, c => map[c]);
+  }
+
+  sendCustomMessage() {
+    if (this.customMessageForm.invalid) return;
+    const schedule = this.selectedScheduleForMessage();
+    if (!schedule) return;
+    const v = this.customMessageForm.value;
+    const html = this.previewHtml();
+    this.collectionsService.sendCustomEmailForSchedule(schedule.schedule_id, v.subject, html)
+      .pipe(
+        catchError(error => {
+          this.errorMessage.set('Error enviando mensaje: ' + (error.error?.message || error.message));
+          return of({ success: false });
+        }),
+        takeUntil(this.destroy$)
+      )
+      .subscribe((res: any) => {
+        if (res?.success) {
+          this.successMessage.set('Mensaje enviado');
+          this.closeCustomMessageModal();
+        }
+      });
+  }
+
   closeMarkPaidModal() {
     this.showMarkPaidModal.set(false);
     this.selectedScheduleForPayment.set(null);
@@ -863,6 +1041,25 @@ this.collectionsService.getContractsWithSchedulesSummary(paginationFilters)
           this.successMessage.set('Pago marcado como pagado exitosamente');
           this.closeMarkPaidModal();
           this.loadContracts(); // Reload to get updated data
+        }
+      });
+  }
+
+  sendReminder(schedule: PaymentSchedule) {
+    this.isSendingReminder.set(true);
+    this.clearMessages();
+    this.collectionsService.sendInstallmentReminder(schedule.schedule_id)
+      .pipe(
+        catchError(error => {
+          this.errorMessage.set('Error enviando aviso: ' + (error.error?.message || error.message));
+          return of({ success: false });
+        }),
+        takeUntil(this.destroy$)
+      )
+      .subscribe((response: any) => {
+        this.isSendingReminder.set(false);
+        if (response?.success) {
+          this.successMessage.set('Aviso enviado correctamente');
         }
       });
   }

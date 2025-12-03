@@ -12,29 +12,35 @@
             <div class="flex flex-wrap gap-2">
                 <button (click)="exportMonthlyIncome()" [disabled]="isExporting()"
                     class="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-2.5 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2">
-                    <lucide-angular name="file-text" [size]="18"></lucide-angular>
+                    <lucide-angular [img]="fileTextIcon" [size]="18"></lucide-angular>
                     <span class="font-medium">Ingresos Mensuales</span>
+                    <lucide-angular [img]="infoIcon" [size]="16" (click)="ttMonthly.toggle($event)"></lucide-angular>
                 </button>
+                <app-tooltip-popover #ttMonthly text="Descarga Excel consolidado por asesor con columnas por mes y totales."></app-tooltip-popover>
 
                 <button (click)="exportDetailedSales()" [disabled]="isExporting()"
                     class="bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-2.5 rounded-lg hover:from-green-700 hover:to-green-800 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2">
-                    <lucide-angular name="file-text" [size]="18"></lucide-angular>
+                    <lucide-angular [img]="fileTextIcon" [size]="18"></lucide-angular>
                     <span class="font-medium">Ventas Detalladas</span>
+                    <lucide-angular [img]="infoIcon" [size]="16" (click)="ttDetailed.toggle($event)"></lucide-angular>
                 </button>
+                <app-tooltip-popover #ttDetailed text="Formato profesional: bloques de MES, REEMBOLSO y CUOTA INICIAL, MZ/LOTE desde external_code, separación unificada y montos en S/."></app-tooltip-popover>
 
                 <button (click)="exportClientDetails()" [disabled]="isExporting()"
                     class="bg-gradient-to-r from-purple-600 to-purple-700 text-white px-4 py-2.5 rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2">
-                    <lucide-angular name="users" [size]="18"></lucide-angular>
+                    <lucide-angular [img]="usersIcon" [size]="18"></lucide-angular>
                     <span class="font-medium">Detalles Clientes</span>
+                    <lucide-angular [img]="infoIcon" [size]="16" (click)="ttClients.toggle($event)"></lucide-angular>
                 </button>
+                <app-tooltip-popover #ttClients text="Información integral de clientes: ocupación, ingresos, fuente y contrato."></app-tooltip-popover>
 
                 <!-- Dropdown for other exports -->
                 <div class="relative" #exportDropdown>
                     <button (click)="toggleExportMenu()"
                         class="bg-gray-700 dark:bg-gray-600 text-white px-4 py-2.5 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-700 transition-colors flex items-center space-x-2">
-                        <lucide-angular name="download" [size]="18"></lucide-angular>
+                        <lucide-angular [img]="downloadIcon" [size]="18"></lucide-angular>
                         <span>Más</span>
-                        <lucide-angular name="chevron-down" [size]="16"></lucide-angular>
+                        <lucide-angular [img]="chevronDownIcon" [size]="16"></lucide-angular>
                     </button>
 
                     @if (showExportMenu()) {
@@ -42,17 +48,17 @@
                         class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-10">
                         <button (click)="exportReport('excel')"
                             class="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center space-x-2 rounded-t-lg">
-                            <lucide-angular name="file-text" [size]="16" class="text-green-600"></lucide-angular>
+                            <lucide-angular [img]="fileTextIcon" [size]="16" class="text-green-600"></lucide-angular>
                             <span class="text-gray-700 dark:text-gray-300">Excel Básico</span>
                         </button>
                         <button (click)="exportReport('pdf')"
                             class="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center space-x-2">
-                            <lucide-angular name="file-text" [size]="16" class="text-red-600"></lucide-angular>
+                            <lucide-angular [img]="fileTextIcon" [size]="16" class="text-red-600"></lucide-angular>
                             <span class="text-gray-700 dark:text-gray-300">PDF</span>
                         </button>
                         <button (click)="exportReport('csv')"
                             class="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center space-x-2 rounded-b-lg">
-                            <lucide-angular name="file-text" [size]="16" class="text-gray-600"></lucide-angular>
+                            <lucide-angular [img]="fileTextIcon" [size]="16" class="text-gray-600"></lucide-angular>
                             <span class="text-gray-700 dark:text-gray-300">CSV</span>
                         </button>
                     </div>
@@ -69,9 +75,11 @@
                 <div>
                     <label
                         class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center space-x-1">
-                        <lucide-angular name="calendar" [size]="16"></lucide-angular>
+                        <lucide-angular [img]="calendarIcon" [size]="16"></lucide-angular>
                         <span>Fecha Inicio</span>
+                        <lucide-angular [img]="infoIcon" [size]="14" (click)="ttStart.toggle($event)"></lucide-angular>
                     </label>
+                    <app-tooltip-popover #ttStart text="Filtra desde esta fecha; puedes combinar con Año/Mes para periodo exacto."></app-tooltip-popover>
                     <input type="date" formControlName="startDate"
                         class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" />
                 </div>
@@ -79,15 +87,20 @@
                 <div>
                     <label
                         class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center space-x-1">
-                        <lucide-angular name="calendar" [size]="16"></lucide-angular>
+                        <lucide-angular [img]="calendarIcon" [size]="16"></lucide-angular>
                         <span>Fecha Fin</span>
+                        <lucide-angular [img]="infoIcon" [size]="14" (click)="ttEnd.toggle($event)"></lucide-angular>
                     </label>
+                    <app-tooltip-popover #ttEnd text="Filtra hasta esta fecha; asegúrate que sea mayor o igual a la fecha inicio."></app-tooltip-popover>
                     <input type="date" formControlName="endDate"
                         class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" />
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Año</label>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-1">Año
+                      <lucide-angular [img]="infoIcon" [size]="14" (click)="ttYear.toggle($event)"></lucide-angular>
+                    </label>
+                    <app-tooltip-popover #ttYear text="Selecciona el año del período de exportación."></app-tooltip-popover>
                     <select formControlName="year"
                         class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
                         @for (y of [2024,2025,2026]; track y) {
@@ -97,7 +110,10 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Mes</label>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-1">Mes
+                      <lucide-angular [img]="infoIcon" [size]="14" (click)="ttMonth.toggle($event)"></lucide-angular>
+                    </label>
+                    <app-tooltip-popover #ttMonth text="Selecciona el mes; el Excel mostrará el bloque con el nombre en español."></app-tooltip-popover>
                     <select formControlName="month"
                         class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
                         @for (m of [1,2,3,4,5,6,7,8,9,10,11,12]; track m) {
@@ -109,7 +125,7 @@
                 <div>
                     <label
                         class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center space-x-1">
-                        <lucide-angular name="user" [size]="16"></lucide-angular>
+                        <lucide-angular [img]="userIcon" [size]="16"></lucide-angular>
                         <span>Asesor</span>
                     </label>
                     <select formControlName="advisorId"
@@ -124,7 +140,7 @@
                 <div>
                     <label
                         class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center space-x-1">
-                        <lucide-angular name="building" [size]="16"></lucide-angular>
+                        <lucide-angular [img]="buildingIcon" [size]="16"></lucide-angular>
                         <span>Oficina/Equipo</span>
                     </label>
                     <select formControlName="officeId"
@@ -140,12 +156,12 @@
             <div class="flex gap-4 mt-4 justify-end">
                 <button type="submit"
                     class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2">
-                    <lucide-angular name="filter" [size]="16"></lucide-angular>
+                    <lucide-angular [img]="filterIcon" [size]="16"></lucide-angular>
                     <span>Aplicar Filtros</span>
                 </button>
                 <button type="button" (click)="clearFilters()"
                     class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors flex items-center space-x-2">
-                    <lucide-angular name="x" [size]="16"></lucide-angular>
+                    <lucide-angular [img]="xIcon" [size]="16"></lucide-angular>
                     <span>Limpiar</span>
                 </button>
             </div>
@@ -159,7 +175,7 @@
             class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-6 text-white shadow-lg hover:shadow-xl transition-shadow">
             <div class="flex items-center justify-between mb-2">
                 <h3 class="text-sm font-medium opacity-90">Total Ventas</h3>
-                <lucide-angular name="trending-up" [size]="20" class="opacity-75"></lucide-angular>
+                <lucide-angular [img]="trendingUpIcon" [size]="20" class="opacity-75"></lucide-angular>
             </div>
             <p class="text-3xl font-bold">{{ totalSales() }}</p>
             <p class="text-xs opacity-75 mt-1">Contratos cerrados</p>
@@ -169,7 +185,7 @@
             class="bg-gradient-to-br from-green-500 to-green-600 rounded-lg p-6 text-white shadow-lg hover:shadow-xl transition-shadow">
             <div class="flex items-center justify-between mb-2">
                 <h3 class="text-sm font-medium opacity-90">Ingresos Totales</h3>
-                <lucide-angular name="dollar-sign" [size]="20" class="opacity-75"></lucide-angular>
+                <lucide-angular [img]="dollarSignIcon" [size]="20" class="opacity-75"></lucide-angular>
             </div>
             <p class="text-3xl font-bold">${{ totalRevenue() | number:'1.0-0' }}</p>
             <p class="text-xs opacity-75 mt-1">Valor total de ventas</p>
@@ -179,7 +195,7 @@
             class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg p-6 text-white shadow-lg hover:shadow-xl transition-shadow">
             <div class="flex items-center justify-between mb-2">
                 <h3 class="text-sm font-medium opacity-90">Venta Promedio</h3>
-                <lucide-angular name="bar-chart" [size]="20" class="opacity-75"></lucide-angular>
+                <lucide-angular [img]="barChartIcon" [size]="20" class="opacity-75"></lucide-angular>
             </div>
             <p class="text-3xl font-bold">${{ averageSale() | number:'1.0-0' }}</p>
             <p class="text-xs opacity-75 mt-1">Por contrato</p>
@@ -189,7 +205,7 @@
             class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg p-6 text-white shadow-lg hover:shadow-xl transition-shadow">
             <div class="flex items-center justify-between mb-2">
                 <h3 class="text-sm font-medium opacity-90">Crecimiento</h3>
-                <lucide-angular name="trending-up" [size]="20" class="opacity-75"></lucide-angular>
+                <lucide-angular [img]="trendingUpIcon" [size]="20" class="opacity-75"></lucide-angular>
             </div>
             <p class="text-3xl font-bold">{{ salesGrowth() | number:'1.1-1' }}%</p>
             <p class="text-xs opacity-75 mt-1">vs período anterior</p>
@@ -202,7 +218,7 @@
         <!-- Advisor Performance Chart -->
         <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center space-x-2">
-                <lucide-angular name="users" [size]="20"></lucide-angular>
+                <lucide-angular [img]="usersIcon" [size]="20"></lucide-angular>
                 <span>Rendimiento por Asesor</span>
             </h3>
             @if (advisorChartData()) {
@@ -219,7 +235,7 @@
         <!-- Sales Trend Chart -->
         <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center space-x-2">
-                <lucide-angular name="trending-up" [size]="20"></lucide-angular>
+                <lucide-angular [img]="trendingUpIcon" [size]="20"></lucide-angular>
                 <span>Tendencia de Ventas</span>
             </h3>
             @if (trendChartData()) {
