@@ -294,8 +294,8 @@ export class ExportService {
       const c = contractDetails[schedule.contract_id];
       const client = c?.client || c?.reservation?.client;
       const lot = c?.lot || c?.reservation?.lot;
-      const manzanaName = lot?.manzana?.name || lot?.manzana_id || '';
-      const lotLabel = lot ? `MZ-${manzanaName} L-${lot?.num_lot ?? ''}` : (schedule.lot_number || 'N/A');
+      const manzanaName = (lot?.manzana?.name) || (lot?.manzana_name) || (lot?.manzana_id) || '';
+      const lotLabel = lot ? (lot?.external_code || `MZ-${manzanaName} L-${lot?.num_lot ?? ''}`) : (schedule.lot_number || 'N/A');
       const dni = client?.doc_number || client?.document_number || '';
       const phone1 = client?.primary_phone || '';
       const phone2 = client?.secondary_phone || '';
