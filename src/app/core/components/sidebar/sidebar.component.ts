@@ -204,6 +204,27 @@ export class SidebarComponent implements OnInit, OnDestroy {
           active: false,
           permission: 'collections.followups.view'
         },
+        {
+          name: 'preventive',
+          label: 'sidebar.collections.preventive.title',
+          route: '/collections/preventive',
+          active: false,
+          permission: 'collections.followups.view'
+        },
+        {
+          name: 'mora',
+          label: 'sidebar.collections.mora.title',
+          route: '/collections/mora',
+          active: false,
+          permission: 'collections.followups.view'
+        },
+        {
+          name: 'kpis',
+          label: 'sidebar.collections.kpis.title',
+          route: '/collections/kpis',
+          active: false,
+          permission: 'collections.followups.view'
+        },
       ],
     },
     {

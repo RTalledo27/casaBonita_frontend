@@ -471,10 +471,10 @@ export class UserDetailComponent {
 
     // Add files
     if (this.selectedFile) {
-      formData.append('photo', this.selectedFile);
+      formData.append('photo_profile', this.selectedFile);
     }
     if (this.selectedCvFile) {
-      formData.append('cv', this.selectedCvFile);
+      formData.append('cv_file', this.selectedCvFile);
     }
 
     formData.append('_method', 'PATCH');
@@ -489,9 +489,7 @@ export class UserDetailComponent {
         this.selectedFile = null;
         this.selectedCvFile = null;
         // Refresh user data
-        this.user$ = this.route.paramMap.pipe(
-          switchMap((p) => this.usersService.get(+p.get('id')!))
-        );
+        this.user$ = this.usersService.get(userId);
       },
       error: (err) => {
         console.log('Update error:', err);

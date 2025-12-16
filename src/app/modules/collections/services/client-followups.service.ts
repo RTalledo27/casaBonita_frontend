@@ -177,6 +177,18 @@ export class ClientFollowupsService {
     return this.http.post(url, payload);
   }
 
+  listLogs(params: {followup_id?: number|string, client_id?: number|string}) {
+    const q: string[] = [];
+    if (params.followup_id !== undefined && params.followup_id !== null) q.push(`followup_id=${encodeURIComponent(String(params.followup_id))}`);
+    if (params.client_id !== undefined && params.client_id !== null) q.push(`client_id=${encodeURIComponent(String(params.client_id))}`);
+    const url = `${API_ROUTES.COLLECTIONS.BASE}/followup-logs${q.length ? ('?' + q.join('&')) : ''}`;
+    return this.http.get<any>(url).pipe(map(res => (res?.data ?? [])));
+  }
+  sendEmail(to: string, subject: string, html: string) {
+    const url = `${API_ROUTES.COLLECTIONS.BASE}/notifications/send-custom`;
+    return this.http.post(url, { email: to, subject, html });
+  }
+
   setCommitment(id: number, data: {commitment_date: string, commitment_amount: number}) {
     const url = `${this.baseUrl}/${id}/commitment`;
     return this.http.put(url, data).pipe(tap((res: any) => {
@@ -186,5 +198,58 @@ export class ClientFollowupsService {
         this.subject.next(next);
       }
     }));
+  }
+
+  /**
+   * Ejecutar acción rápida de comunicación
+   */
+  quickAction(
+    followupId: number, 
+    channel: 'whatsapp' | 'sms' | 'email' | 'call' | 'letter', 
+    message?: string, 
+    subject?: string,
+    useContractId: boolean = false
+  ) {
+    const url = `${this.baseUrl}/${followupId}/quick-action`;
+    const payload: any = { channel };
+    if (message) payload.message = message;
+    if (subject) payload.subject = subject;
+    if (useContractId) payload.use_contract_id = true;
+    return this.http.post(url, payload);
+  }
+
+  /**
+   * Enviar WhatsApp con mensaje predeterminado o personalizado
+   */
+  sendWhatsApp(followupId: number, customMessage?: string, useContractId: boolean = false) {
+    return this.quickAction(followupId, 'whatsapp', customMessage, undefined, useContractId);
+  }
+
+  /**
+   * Enviar SMS con mensaje predeterminado o personalizado
+   */
+  sendSMS(followupId: number, customMessage?: string, useContractId: boolean = false) {
+    return this.quickAction(followupId, 'sms', customMessage, undefined, useContractId);
+  }
+
+  /**
+   * Enviar Email con asunto y mensaje personalizados
+   */
+  sendEmailAction(followupId: number, subject?: string, message?: string, useContractId: boolean = false) {
+    return this.quickAction(followupId, 'email', message, subject, useContractId);
+  }
+
+  /**
+   * Registrar llamada telefónica
+   */
+  registerCall(followupId: number, notes?: string, useContractId: boolean = false) {
+    return this.quickAction(followupId, 'call', notes, undefined, useContractId);
+  }
+
+  /**
+   * Registrar envío de carta
+   */
+  registerLetter(followupId: number, notes?: string, useContractId: boolean = false) {
+    return this.quickAction(followupId, 'letter', notes, undefined, useContractId);
   }
 }

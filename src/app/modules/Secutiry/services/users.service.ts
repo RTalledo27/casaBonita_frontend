@@ -48,11 +48,14 @@ export class UsersService {
   }
 
   create(fd: FormData): Observable<User> {
-    return this.http.post<User>(this.base, fd);
+    return this.http
+      .post<ApiResponse<User>>(this.base, fd)
+      .pipe(map((res) => res.data));
   }
   update(id: number, fd: FormData): Observable<User> {
-    console.log('update', fd);
-    return this.http.post<User>(`${this.base}/${id}`, fd);
+    return this.http
+      .patch<ApiResponse<User>>(`${this.base}/${id}`, fd)
+      .pipe(map((res) => res.data));
   }
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.base}/${id}`);
