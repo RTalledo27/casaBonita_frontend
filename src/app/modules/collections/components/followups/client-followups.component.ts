@@ -411,6 +411,8 @@ export class ClientFollowupsComponent implements AfterViewInit {
   logsExpandMap = signal<Record<string, boolean>>({});
 
   data = signal<ClientFollowupRecord[]>([]);
+  
+  // Filtros aplicados directamente sobre data()
   filtered = computed(() => {
     const q = this.query().toLowerCase().trim();
     const s = this.status().trim();
@@ -767,7 +769,7 @@ export class ClientFollowupsComponent implements AfterViewInit {
     }
   }
 
-  clearFilters(): void {
+  clearFilters() {
     this.query.set('');
     this.status.set('');
     this.owner.set('');

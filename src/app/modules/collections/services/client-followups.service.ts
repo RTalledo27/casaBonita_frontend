@@ -167,9 +167,24 @@ export class ClientFollowupsService {
     return this.http.get<any>(url).pipe(map(res => (res?.data ?? [])));
   }
 
+  getPreventive(window = 15) {
+    return this.listPreventive(window).pipe(
+      map((arr) => Array.isArray(arr) ? arr as ClientFollowupRecord[] : []),
+      tap((list) => this.subject.next(list))
+    );
+  }
+
   listMora(tramo: '1'|'2'|'3' = '1') {
     const url = `${API_ROUTES.COLLECTIONS.BASE}/segments/mora?tramo=${tramo}`;
     return this.http.get<any>(url).pipe(map(res => (res?.data ?? [])));
+  }
+
+  getMora(tramo: number) {
+    const tramoStr = String(tramo) as '1'|'2'|'3';
+    return this.listMora(tramoStr).pipe(
+      map((arr) => Array.isArray(arr) ? arr as ClientFollowupRecord[] : []),
+      tap((list) => this.subject.next(list))
+    );
   }
 
   logAction(payload: {followup_id?: number, client_id: number, employee_id?: number, channel: string, result?: string, notes?: string, logged_at?: string}) {

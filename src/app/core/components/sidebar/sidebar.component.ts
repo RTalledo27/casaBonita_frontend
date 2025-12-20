@@ -197,35 +197,46 @@ export class SidebarComponent implements OnInit, OnDestroy {
           active: false,
           permission: 'collections.reports'
         },
+      ],
+    },
+    {
+      name: 'followups',
+      label: 'Gestión de Cobranzas',
+      icon: Headphones,
+      route: '/collections/client-followups',
+      expanded: false,
+      active: false,
+      permission: 'collections.followups.view',
+      children: [
         {
-          name: 'followups',
-          label: 'sidebar.collections.followups.title',
+          name: 'all',
+          label: 'Todos los Seguimientos',
           route: '/collections/client-followups',
           active: false,
           permission: 'collections.followups.view'
         },
         {
           name: 'preventive',
-          label: 'sidebar.collections.preventive.title',
+          label: 'Preventivo',
           route: '/collections/preventive',
           active: false,
           permission: 'collections.followups.view'
         },
         {
           name: 'mora',
-          label: 'sidebar.collections.mora.title',
+          label: 'Mora',
           route: '/collections/mora',
           active: false,
           permission: 'collections.followups.view'
         },
         {
           name: 'kpis',
-          label: 'sidebar.collections.kpis.title',
+          label: 'KPIs',
           route: '/collections/kpis',
           active: false,
           permission: 'collections.followups.view'
-        },
-      ],
+        }
+      ]
     },
     {
       name: 'hr',
