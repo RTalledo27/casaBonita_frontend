@@ -78,7 +78,7 @@ export class NotificationService {
 
   // Laravel Echo instance
   private echo: any = null;
-  private websocketEnabled = true; // ✅ ACTIVADO para Laravel Reverb
+  private websocketEnabled = environment.reverb?.enabled ?? false; // ⚠️ Controlado por environment
   private pollingSubscription: Subscription | null = null;
   
   // Preferencias del usuario
@@ -152,18 +152,32 @@ export class NotificationService {
     // Configurar Pusher para Laravel Echo
     (window as any).Pusher = Pusher;
 
+    // Usar configuración del environment o valores por defecto seguros
+    const reverbConfig = environment.reverb || {
+      key: 'qycranehfycpswjvlj7o',
+      wsHost: environment.production ? 'api.casabonita.pe' : '127.0.0.1',
+      wsPort: environment.production ? 443 : 8080,
+      wssPort: environment.production ? 443 : 8080,
+      forceTLS: environment.production,
+      enabled: false, // Deshabilitado por defecto si no está en environment
+    };
+
     this.echo = new Echo({
       broadcaster: 'reverb',
-      key: 'qycranehfycpswjvlj7o',
-      wsHost: '127.0.0.1',
-      wsPort: 8080,
-      wssPort: 8080,
-      forceTLS: false,
-      encrypted: false,
+      key: reverbConfig.key,
+      wsHost: reverbConfig.wsHost,
+      wsPort: reverbConfig.wsPort,
+      wssPort: reverbConfig.wssPort,
+      forceTLS: reverbConfig.forceTLS ?? false,
+      encrypted: reverbConfig.forceTLS ?? false,
       enabledTransports: ['ws', 'wss'],
     });
 
-    console.log('✅ WebSocket inicializado con Laravel Reverb');
+    console.log('✅ WebSocket inicializado con Laravel Reverb', {
+      host: reverbConfig.wsHost,
+      port: reverbConfig.wsPort,
+      tls: reverbConfig.forceTLS
+    });
   }
 
   /**

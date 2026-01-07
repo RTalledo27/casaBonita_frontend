@@ -8,4 +8,12 @@ export const environment = {
     key: '3caa2ab27c5f3a7cd282',
     cluster: 'us2',
   },
+  reverb: {
+    key: 'qycranehfycpswjvlj7o',
+    wsHost: '127.0.0.1',
+    wsPort: 8080,
+    wssPort: 8080,
+    forceTLS: false,
+    enabled: false, // ⚠️ Cambiar a true si tienes Reverb corriendo localmente
+  },
 };

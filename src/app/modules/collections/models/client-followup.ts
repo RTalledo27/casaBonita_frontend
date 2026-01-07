@@ -44,4 +44,10 @@ export interface ClientFollowupRecord {
   assigned_employee_id?: number; // ID del empleado responsable
   general_notes?: string;
   general_reason?: string;
+  // Campos de compromiso de pago
+  commitment_date?: string; // Fecha comprometida para el pago
+  commitment_amount?: number; // Monto comprometido
+  commitment_status?: 'pending' | 'fulfilled' | 'broken' | null; // Estado del compromiso
+  commitment_notes?: string; // Notas sobre el compromiso
+  commitment_fulfilled_date?: string; // Fecha en que se cumplió el compromiso
 }

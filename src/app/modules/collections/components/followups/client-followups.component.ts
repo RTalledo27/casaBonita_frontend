@@ -45,6 +45,7 @@ import { ToastService } from '../../../../core/services/toast.service';
           <button class="px-3 py-1 rounded-full text-xs border" [ngClass]="{'bg-blue-50 text-blue-700 border-blue-200': status()==='in_progress', 'bg-white text-gray-700 border-gray-200 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700': status()!== 'in_progress'}" (click)="status.set('in_progress')">En curso</button>
           <button class="px-3 py-1 rounded-full text-xs border" [ngClass]="{'bg-green-50 text-green-700 border-green-200': status()==='resolved', 'bg-white text-gray-700 border-gray-200 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700': status()!== 'resolved'}" (click)="status.set('resolved')">Resuelto</button>
           <button class="px-3 py-1 rounded-full text-xs border" [ngClass]="{'bg-red-50 text-red-700 border-red-200': overdueMin()==='1', 'bg-white text-gray-700 border-gray-200 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700': overdueMin()!=='1'}" (click)="overdueMin.set('1')">Vencidas 1+</button>
+          <button class="px-3 py-1 rounded-full text-xs border" [ngClass]="{'bg-emerald-50 text-emerald-700 border-emerald-200': showCommitments()==='pending', 'bg-white text-gray-700 border-gray-200 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700': showCommitments()!=='pending'}" (click)="toggleCommitmentFilter()">🤝 Con Compromiso</button>
           <button class="ml-auto px-3 py-1 rounded-full text-xs bg-gray-100 text-gray-700 border border-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600" (click)="clearFilters()">Limpiar</button>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-7 gap-3 items-end">
@@ -124,8 +125,8 @@ import { ToastService } from '../../../../core/services/toast.service';
               <textarea rows="5" [(ngModel)]="actionNotes" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"></textarea>
             </div>
             <div class="flex justify-end gap-2">
-              <button class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600" (click)="actionVisible=false">Cancelar</button>
-              <button class="px-4 py-2 rounded-lg bg-sky-600 hover:bg-sky-700 text-white" (click)="submitAction()">Guardar</button>
+              <button class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600" (click)="actionVisible=false" [disabled]="actionSaving">Cancelar</button>
+              <button class="px-4 py-2 rounded-lg bg-sky-600 hover:bg-sky-700 text-white disabled:opacity-50 disabled:cursor-not-allowed" (click)="submitAction()" [disabled]="actionSaving">{{ actionSaving ? 'Guardando...' : 'Guardar' }}</button>
             </div>
           </div>
         </div>
@@ -200,7 +201,13 @@ import { ToastService } from '../../../../core/services/toast.service';
         <div class="fixed top-0 right-0 h-full w-full sm:w-[460px] bg-white dark:bg-gray-900 z-50 shadow-2xl border-l border-gray-200 dark:border-gray-700">
           <div class="px-6 py-4 bg-gradient-to-r from-indigo-600 to-sky-600 dark:from-indigo-900 dark:to-sky-900 text-white flex items-center justify-between">
             <div class="text-lg font-semibold">{{ 'collections.followups.summary.title' | translate }}</div>
-            <button class="px-2 py-1 rounded bg-white/20 hover:bg-white/30" (click)="summaryVisible=false">{{ 'common.close' | translate }}</button>
+            <div class="flex gap-2">
+              <button class="px-3 py-1 rounded bg-white/20 hover:bg-white/30 flex items-center gap-1" (click)="downloadPersonalReport()">
+                <lucide-angular [img]="fileIcon" [size]="16"></lucide-angular>
+                <span>Descargar Reporte</span>
+              </button>
+              <button class="px-2 py-1 rounded bg-white/20 hover:bg-white/30" (click)="summaryVisible=false">{{ 'common.close' | translate }}</button>
+            </div>
           </div>
           <div class="p-6 space-y-5 h-[calc(100%-64px)] overflow-y-auto">
             <div class="grid grid-cols-1 gap-4">
@@ -313,6 +320,53 @@ import { ToastService } from '../../../../core/services/toast.service';
           </div>
         </div>
       </ng-template>
+      <ng-template [ngIf]="commitmentManageVisible">
+        <div class="fixed inset-0 bg-black/50 z-40" (click)="commitmentManageVisible=false"></div>
+        <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full sm:w-[520px] bg-white dark:bg-gray-900 z-50 shadow-2xl rounded-xl border border-gray-200 dark:border-gray-700">
+          <div class="px-6 py-4 bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-900 dark:to-teal-900 text-white flex items-center justify-between">
+            <div class="text-lg font-semibold">Gestionar Compromiso de Pago</div>
+            <button class="px-2 py-1 rounded bg-white/20 hover:bg-white/30" (click)="commitmentManageVisible=false">Cerrar</button>
+          </div>
+          <div class="p-6 space-y-4">
+            <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+              <div class="text-sm font-medium text-blue-900 dark:text-blue-200 mb-2">Información del Compromiso</div>
+              <div class="space-y-1 text-sm text-blue-800 dark:text-blue-300">
+                <div>📅 Fecha comprometida: <strong>{{ commitmentManageRow?.commitment_date | date:'dd/MM/yyyy' }}</strong></div>
+                <div>💰 Monto comprometido: <strong>S/ {{ (commitmentManageRow?.commitment_amount || 0) | number:'1.2-2' }}</strong></div>
+                <div>👤 Cliente: <strong>{{ commitmentManageRow?.client_name }}</strong></div>
+                <div>📄 Contrato: <strong>{{ commitmentManageRow?.sale_code }}</strong></div>
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Acción</label>
+              <div class="flex gap-2">
+                <button type="button" class="flex-1 px-4 py-3 rounded-lg border-2 transition" 
+                        [ngClass]="commitmentAction === 'fulfill' ? 'border-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300' : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300'"
+                        (click)="commitmentAction = 'fulfill'">
+                  <div class="text-2xl mb-1">✅</div>
+                  <div class="font-semibold">Cumplido</div>
+                  <div class="text-xs">El cliente pagó</div>
+                </button>
+                <button type="button" class="flex-1 px-4 py-3 rounded-lg border-2 transition" 
+                        [ngClass]="commitmentAction === 'break' ? 'border-red-600 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300' : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300'"
+                        (click)="commitmentAction = 'break'">
+                  <div class="text-2xl mb-1">❌</div>
+                  <div class="font-semibold">Incumplido</div>
+                  <div class="text-xs">No pagó</div>
+                </button>
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Observaciones</label>
+              <textarea rows="3" [(ngModel)]="commitmentManageNotes" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100" placeholder="Detalles adicionales sobre el cumplimiento o incumplimiento..."></textarea>
+            </div>
+            <div class="flex justify-end gap-2">
+              <button class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600" (click)="commitmentManageVisible=false">Cancelar</button>
+              <button class="px-4 py-2 rounded-lg text-white" [ngClass]="commitmentAction === 'fulfill' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-red-600 hover:bg-red-700'" (click)="submitCommitmentManage()">Guardar</button>
+            </div>
+          </div>
+        </div>
+      </ng-template>
 
       <ng-template #statusTpl let-row>
         <span [class]="statusClass(row.management_status)">{{ ('collections.followups.status.' + row.management_status) | translate }}</span>
@@ -348,6 +402,30 @@ import { ToastService } from '../../../../core/services/toast.service';
       </ng-template>
       <ng-template #lastContactTpl let-row>
         <span>{{ row.contact_date || '—' }}</span>
+      </ng-template>
+      <ng-template #commitmentTpl let-row>
+        <div *ngIf="row.commitment_date" class="flex flex-col gap-1">
+          <div class="flex items-center gap-2">
+            <span class="text-xs px-2 py-1 rounded-full" [ngClass]="{
+              'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-200': row.commitment_status === 'pending',
+              'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200': row.commitment_status === 'fulfilled',
+              'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200': row.commitment_status === 'broken',
+              'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-200': !row.commitment_status
+            }">
+              {{ row.commitment_status === 'fulfilled' ? '✅ Cumplido' : row.commitment_status === 'broken' ? '❌ Incumplido' : '⏳ Pendiente' }}
+            </span>
+          </div>
+          <div class="text-xs text-gray-600 dark:text-gray-400">
+            <div>📅 {{ row.commitment_date | date:'dd/MM/yyyy' }}</div>
+            <div>💰 S/ {{ row.commitment_amount | number:'1.2-2' }}</div>
+          </div>
+          <button *ngIf="row.commitment_status === 'pending' || !row.commitment_status" 
+                  class="text-xs px-2 py-1 rounded border border-emerald-600 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900" 
+                  (click)="openCommitmentManage(row)">
+            Gestionar
+          </button>
+        </div>
+        <span *ngIf="!row.commitment_date" class="text-gray-400 text-xs">Sin compromiso</span>
       </ng-template>
       <ng-template #ownerTpl let-row>
         <ng-container *ngIf="ownerEditId !== row['followup_id']; else editOwner">
@@ -386,6 +464,7 @@ export class ClientFollowupsComponent implements AfterViewInit {
   clientSearch = signal('');
   contractSearch = signal('');
   overdueMin = signal('');
+  showCommitments = signal('');
   editVisible = false;
   selected?: ClientFollowupRecord;
   createVisible = false;
@@ -402,6 +481,7 @@ export class ClientFollowupsComponent implements AfterViewInit {
   actionChannel: string = 'call';
   actionNotes: string = '';
   actionResult: string = 'contacted';
+  actionSaving = false;
   visitVisible = false;
   visitDate = '';
   visitReason = '';
@@ -409,6 +489,10 @@ export class ClientFollowupsComponent implements AfterViewInit {
   visitNotes = '';
   logsExpanded = false;
   logsExpandMap = signal<Record<string, boolean>>({});
+  commitmentManageVisible = false;
+  commitmentManageRow?: ClientFollowupRecord;
+  commitmentAction: 'fulfill' | 'break' = 'fulfill';
+  commitmentManageNotes = '';
 
   data = signal<ClientFollowupRecord[]>([]);
   
@@ -420,13 +504,15 @@ export class ClientFollowupsComponent implements AfterViewInit {
     const cq = this.clientSearch().toLowerCase().trim();
     const kq = this.contractSearch().toLowerCase().trim();
     const om = this.overdueMin().trim();
+    const sc = this.showCommitments().trim();
     return this.data().filter(r => (
       (!q || [r.sale_code, r.client_name, r.dni, r.lot].some(v => (v || '').toLowerCase().includes(q))) &&
       (!s || r.management_status === s) &&
       (!o || (r.owner || '').toLowerCase().includes(o)) &&
       (!cq || (r.client_name || '').toLowerCase().includes(cq) || String(r.client_id || '').includes(cq)) &&
       (!kq || (r.sale_code || '').toLowerCase().includes(kq) || String(r.contract_id || '').includes(kq)) &&
-      (!om || (Number(r.overdue_installments || 0) >= Number(om)))
+      (!om || (Number(r.overdue_installments || 0) >= Number(om))) &&
+      (!sc || (sc === 'pending' && r.commitment_date && r.commitment_status === 'pending'))
     ));
   });
 
@@ -467,6 +553,7 @@ export class ClientFollowupsComponent implements AfterViewInit {
     { header: 'collections.followups.columns.last_contact', tpl: 'lastContact' },
     { field: 'next_action', header: 'collections.followups.columns.next_action' },
     { header: 'collections.followups.columns.owner', tpl: 'owner' },
+    { header: 'collections.followups.columns.commitment', tpl: 'commitment' },
     { field: 'general_notes', header: 'collections.followups.columns.general_notes', width: '260px' },
     { field: 'general_reason', header: 'collections.followups.columns.general_reason' },
   ];
@@ -479,6 +566,7 @@ export class ClientFollowupsComponent implements AfterViewInit {
   @ViewChild('notesTpl') notesTpl!: TemplateRef<any>;
   @ViewChild('ownerTpl') ownerTpl!: TemplateRef<any>;
   @ViewChild('lastContactTpl') lastContactTpl!: TemplateRef<any>;
+  @ViewChild('commitmentTpl') commitmentTpl!: TemplateRef<any>;
 
   constructor(private followups: ClientFollowupsService, private toast: ToastService, private employeesApi: EmployeeService) {
     this.followups.records$.subscribe(list => this.data.set(list));
@@ -493,6 +581,7 @@ export class ClientFollowupsComponent implements AfterViewInit {
     this.templates['notes'] = this.notesTpl;
     this.templates['owner'] = this.ownerTpl;
     this.templates['lastContact'] = this.lastContactTpl;
+    this.templates['commitment'] = this.commitmentTpl;
   }
 
   ngOnInit(): void {
@@ -595,7 +684,25 @@ export class ClientFollowupsComponent implements AfterViewInit {
       return;
     }
     this.followups.setCommitment(id, data).subscribe({
-      next: () => {
+      next: (res: any) => {
+        // Actualizar el registro local con los datos del compromiso
+        const updated = this.data().map(r => {
+          const same = ((r as any).followup_id === id);
+          if (!same) return r;
+          return { 
+            ...r, 
+            commitment_date: data.commitment_date,
+            commitment_amount: data.commitment_amount,
+            commitment_status: 'pending',
+            management_status: 'in_progress'
+          } as ClientFollowupRecord;
+        });
+        this.data.set(updated);
+        this.followups.setData(updated);
+        
+        // Registrar la acción en el log
+        this.logAction(this.selected!, 'commitment', `Compromiso de pago registrado: S/ ${data.commitment_amount} para el ${data.commitment_date}`, 'contacted');
+        
         this.toast.success('Compromiso registrado');
         this.commitVisible = false;
       },
@@ -637,8 +744,12 @@ export class ClientFollowupsComponent implements AfterViewInit {
         this.data.set(updated);
         this.followups.setData(updated);
         this.actionVisible = false;
+        this.actionSaving = false;
       },
-      error: () => this.toast.error('Error registrando gestión')
+      error: () => {
+        this.toast.error('Error registrando gestión');
+        this.actionSaving = false;
+      }
     });
   }
 
@@ -651,7 +762,8 @@ export class ClientFollowupsComponent implements AfterViewInit {
   }
 
   submitAction() {
-    if (!this.actionRow) { this.actionVisible = false; return; }
+    if (!this.actionRow || this.actionSaving) { return; }
+    this.actionSaving = true;
     this.logAction(this.actionRow, this.actionChannel, this.actionNotes, this.actionResult);
   }
 
@@ -776,6 +888,15 @@ export class ClientFollowupsComponent implements AfterViewInit {
     this.clientSearch.set('');
     this.contractSearch.set('');
     this.overdueMin.set('');
+    this.showCommitments.set('');
+  }
+
+  toggleCommitmentFilter() {
+    if (this.showCommitments() === 'pending') {
+      this.showCommitments.set('');
+    } else {
+      this.showCommitments.set('pending');
+    }
   }
 
   latestNote(notes?: string): string {
@@ -887,5 +1008,69 @@ export class ClientFollowupsComponent implements AfterViewInit {
     if (navigator && 'clipboard' in navigator) {
       navigator.clipboard.writeText(t).catch(() => {});
     }
+  }
+
+  downloadPersonalReport(): void {
+    if (!this.selected) {
+      this.toast.error('No hay registro seleccionado');
+      return;
+    }
+    this.followups.exportPersonalReport(this.selected).then(() => {
+      this.toast.success('Reporte descargado');
+    }).catch(() => {
+      this.toast.error('Error al generar reporte');
+    });
+  }
+
+  openCommitmentManage(row: ClientFollowupRecord): void {
+    this.commitmentManageRow = row;
+    this.commitmentAction = 'fulfill';
+    this.commitmentManageNotes = '';
+    this.commitmentManageVisible = true;
+  }
+
+  submitCommitmentManage(): void {
+    if (!this.commitmentManageRow) {
+      this.commitmentManageVisible = false;
+      return;
+    }
+
+    const fid = (this.commitmentManageRow as any).followup_id;
+    if (!fid) {
+      this.toast.error('Seguimiento sin ID');
+      this.commitmentManageVisible = false;
+      return;
+    }
+
+    const status = this.commitmentAction === 'fulfill' ? 'fulfilled' : 'broken';
+    const patch: Partial<ClientFollowupRecord> = {
+      commitment_status: status,
+      commitment_notes: this.commitmentManageNotes || undefined,
+      commitment_fulfilled_date: this.commitmentAction === 'fulfill' ? new Date().toISOString() : undefined,
+      management_status: this.commitmentAction === 'fulfill' ? 'resolved' : 'in_progress'
+    };
+
+    this.followups.saveRecordPatch(String(fid), patch).then(() => {
+      const updated = this.data().map(r => {
+        const same = ((r as any).followup_id === fid);
+        if (!same) return r;
+        return { ...r, ...patch };
+      });
+      this.data.set(updated);
+      this.followups.setData(updated);
+      
+      // Registrar la acción en el log
+      const logNote = this.commitmentAction === 'fulfill' 
+        ? `Compromiso cumplido: S/ ${this.commitmentManageRow?.commitment_amount || 0}. ${this.commitmentManageNotes || ''}`.trim()
+        : `Compromiso incumplido. ${this.commitmentManageNotes || ''}`.trim();
+      
+      this.logAction(this.commitmentManageRow!, 'commitment', logNote, status === 'fulfilled' ? 'resolved' : 'unreachable');
+      
+      this.toast.success(this.commitmentAction === 'fulfill' ? 'Compromiso marcado como cumplido' : 'Compromiso marcado como incumplido');
+      this.commitmentManageVisible = false;
+    }).catch(() => {
+      this.toast.error('Error actualizando compromiso');
+      this.commitmentManageVisible = false;
+    });
   }
 }
