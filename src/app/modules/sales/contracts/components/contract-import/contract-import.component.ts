@@ -123,21 +123,34 @@ export class ContractImportComponent {
   importSalesFromExternal(forceRefresh: boolean = false) {
     this.salesImporting = true;
     this.salesError = null;
+    
+    // Reset sales preview para indicar que está procesando
+    const previousPreview = [...this.salesPreview];
+    
     this.externalImport.importSales(this.salesStartDate || undefined, this.salesEndDate || undefined, forceRefresh)
-      .pipe(finalize(() => this.salesImporting = false))
+      .pipe(finalize(() => {
+        this.salesImporting = false;
+      }))
       .subscribe({
         next: (res: any) => {
           console.log('Import sales result', res);
           if (res?.success) {
+            // Mostrar resultado exitoso
+            this.salesError = null;
             // Emit completed so parent reloads contracts
             this.importCompleted.emit();
+            // Limpiar preview después de importar exitosamente
+            this.salesPreview = [];
           } else {
             this.salesError = res?.message || 'Importación no completada';
+            this.salesPreview = previousPreview; // Restaurar preview
           }
         },
         error: (err: any) => {
           console.error('Error importing sales', err);
-          this.salesError = err?.error?.message || err.message || 'Error al importar ventas';
+          const errorMsg = err?.error?.message || err?.message || 'Error al importar ventas';
+          this.salesError = `Error al importar: ${errorMsg}`;
+          this.salesPreview = previousPreview; // Restaurar preview
         }
       });
   }

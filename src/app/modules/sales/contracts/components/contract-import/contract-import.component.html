@@ -249,8 +249,38 @@
           </div>
         </div>
 
-        <div *ngIf="salesLoading" class="mb-4 text-sm text-gray-600">Cargando ventas...</div>
-        <div *ngIf="salesError" class="mb-4 text-sm text-red-600">{{ salesError }}</div>
+        <div *ngIf="salesLoading" class="mb-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
+          <div class="flex items-center gap-3">
+            <lucide-angular [img]="loaderIcon" class="animate-spin text-blue-600" size="20"></lucide-angular>
+            <span class="text-sm text-blue-700 dark:text-blue-300 font-medium">Cargando ventas desde Logicware...</span>
+          </div>
+        </div>
+
+        <div *ngIf="salesImporting" class="mb-4 p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-700">
+          <div class="flex items-center gap-3">
+            <lucide-angular [img]="loaderIcon" class="animate-spin text-emerald-600" size="20"></lucide-angular>
+            <div>
+              <p class="text-sm text-emerald-700 dark:text-emerald-300 font-medium">Importando contratos y cronogramas...</p>
+              <p class="text-xs text-emerald-600 dark:text-emerald-400 mt-1">Este proceso puede tardar varios minutos. Por favor, espere.</p>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="salesError" class="mb-4 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-700">
+          <div class="flex items-start gap-3">
+            <lucide-angular [img]="alertIcon" class="text-red-600 flex-shrink-0" size="20"></lucide-angular>
+            <div class="flex-1">
+              <p class="text-sm text-red-700 dark:text-red-300 font-medium">{{ salesError }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="!salesImporting && !salesError && salesPreview?.length === 0 && !salesLoading" class="mb-4 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-700">
+          <div class="flex items-center gap-3">
+            <lucide-angular [img]="checkIcon" class="text-green-600" size="20"></lucide-angular>
+            <span class="text-sm text-green-700 dark:text-green-300 font-medium">Importación completada</span>
+          </div>
+        </div>
 
         <div *ngIf="salesPreview?.length" class="mb-4">
           <h4 class="font-semibold mb-2">Ventas (muestra)</h4>
@@ -270,8 +300,20 @@
         </div>
 
         <div class="flex gap-4">
-          <button (click)="importSalesFromExternal(false)" class="flex-1 px-4 py-3 bg-emerald-500 text-white rounded-lg" [disabled]="salesImporting">Importar</button>
-          <button (click)="importSalesFromExternal(true)" class="px-4 py-3 bg-emerald-600 text-white rounded-lg" [disabled]="salesImporting">Importar (Forzar)</button>
+          <button 
+            (click)="importSalesFromExternal(false)" 
+            class="flex-1 px-4 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2" 
+            [disabled]="salesImporting || salesLoading">
+            <lucide-angular *ngIf="salesImporting" [img]="loaderIcon" class="animate-spin" size="18"></lucide-angular>
+            <span>{{ salesImporting ? 'Importando...' : 'Importar' }}</span>
+          </button>
+          <button 
+            (click)="importSalesFromExternal(true)" 
+            class="px-4 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2" 
+            [disabled]="salesImporting || salesLoading">
+            <lucide-angular *ngIf="salesImporting" [img]="loaderIcon" class="animate-spin" size="18"></lucide-angular>
+            <span>{{ salesImporting ? 'Importando...' : 'Importar (Forzar)' }}</span>
+          </button>
         </div>
       </div>
 
