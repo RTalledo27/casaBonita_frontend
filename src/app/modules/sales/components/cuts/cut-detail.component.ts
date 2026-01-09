@@ -140,13 +140,13 @@ import { SalesCut, SalesCutItem } from '../../models/sales-cut.model';
                     <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                       <div class="flex-1">
                         <p class="font-semibold text-gray-900">
-                          {{ item.contract?.client ? (item.contract.client.first_name + ' ' + item.contract.client.last_name) : 'Cliente' }}
+                          {{ item.contract?.client ? (item.contract.client?.first_name + ' ' + item.contract.client?.last_name) : 'Cliente' }}
                         </p>
                         <p class="text-sm text-gray-600">
                           Contrato: {{ item.contract?.contract_number || 'N/A' }} • 
                           Lote: {{ item.contract?.lot?.num_lot || 'N/A' }}
                           @if (item.employee?.user) {
-                            • Asesor: {{ item.employee.user.first_name }} {{ item.employee.user.last_name }}
+                            • Asesor: {{ item.employee.user?.first_name }} {{ item.employee.user?.last_name }}
                           }
                         </p>
                       </div>
@@ -177,7 +177,7 @@ import { SalesCut, SalesCutItem } from '../../models/sales-cut.model';
                     <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                       <div class="flex-1">
                         <p class="font-semibold text-gray-900">
-                          {{ item.contract?.client ? (item.contract.client.first_name + ' ' + item.contract.client.last_name) : 'Cliente' }}
+                          {{ item.contract?.client ? (item.contract.client?.first_name + ' ' + item.contract.client?.last_name) : 'Cliente' }}
                         </p>
                         <p class="text-sm text-gray-600">
                           Contrato: {{ item.contract?.contract_number || 'N/A' }}
@@ -213,7 +213,7 @@ import { SalesCut, SalesCutItem } from '../../models/sales-cut.model';
                     <div class="flex items-center justify-between p-4 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-100">
                       <div class="flex-1">
                         <p class="font-semibold text-gray-900">
-                          {{ item.employee?.user ? (item.employee.user.first_name + ' ' + item.employee.user.last_name) : 'Asesor' }}
+                          {{ item.employee?.user ? (item.employee.user?.first_name + ' ' + item.employee.user?.last_name) : 'Asesor' }}
                         </p>
                         <p class="text-sm text-gray-600">
                           Contrato: {{ item.contract?.contract_number || 'N/A' }}
@@ -260,7 +260,7 @@ import { SalesCut, SalesCutItem } from '../../models/sales-cut.model';
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                           </svg>
                           <div>
-                            <p class="text-sm font-medium text-gray-900">Cerrado por {{ cut()!.closed_by_user.first_name }} {{ cut()!.closed_by_user.last_name }}</p>
+                            <p class="text-sm font-medium text-gray-900">Cerrado por {{ cut()!.closed_by_user?.first_name }} {{ cut()!.closed_by_user?.last_name }}</p>
                             <p class="text-xs text-gray-600">{{ cut()!.closed_at | date: 'medium' }}</p>
                           </div>
                         </div>
@@ -271,7 +271,7 @@ import { SalesCut, SalesCutItem } from '../../models/sales-cut.model';
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                           </svg>
                           <div>
-                            <p class="text-sm font-medium text-gray-900">Revisado por {{ cut()!.reviewed_by_user.first_name }} {{ cut()!.reviewed_by_user.last_name }}</p>
+                            <p class="text-sm font-medium text-gray-900">Revisado por {{ cut()!.reviewed_by_user?.first_name }} {{ cut()!.reviewed_by_user?.last_name }}</p>
                             <p class="text-xs text-gray-600">{{ cut()!.reviewed_at | date: 'medium' }}</p>
                           </div>
                         </div>
