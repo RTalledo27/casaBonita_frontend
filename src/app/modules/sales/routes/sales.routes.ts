@@ -70,17 +70,22 @@ export const SALES_ROUTES: Route[] = [
   },
   {
     path: 'cuts',
-    component: CutsDashboardComponent,
-    data: { permission: 'sales.cuts.view' },
-  },
-  {
-    path: 'cuts/today',
-    component: TodayCutComponent,
-    data: { permission: 'sales.cuts.view' },
-  },
-  {
-    path: 'cuts/:id',
-    component: CutDetailComponent,
-    data: { permission: 'sales.cuts.view' },
+    children: [
+      {
+        path: '',
+        component: CutsDashboardComponent,
+        data: { permission: 'sales.cuts.view' },
+      },
+      {
+        path: 'today',
+        component: TodayCutComponent,
+        data: { permission: 'sales.cuts.view' },
+      },
+      {
+        path: ':id',
+        component: CutDetailComponent,
+        data: { permission: 'sales.cuts.view' },
+      },
+    ]
   },
 ];
