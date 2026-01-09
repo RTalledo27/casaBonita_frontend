@@ -27,6 +27,16 @@ import { SalesCut, SalesCutItem } from '../../models/sales-cut.model';
               </svg>
               Actualizar
             </button>
+            @if (todayCut()) {
+              <button
+                (click)="exportToExcel()"
+                class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                Exportar Excel
+              </button>
+            }
             @if (todayCut() && todayCut()!.status === 'open') {
               <button
                 (click)="closeCut()"
@@ -86,7 +96,7 @@ import { SalesCut, SalesCutItem } from '../../models/sales-cut.model';
               @if (todayCut()!.closed_by_user) {
                 <div class="text-right">
                   <p class="text-sm text-gray-600">Cerrado por</p>
-                  <p class="font-semibold text-gray-900">{{ todayCut()!.closed_by_user.first_name }} {{ todayCut()!.closed_by_user.last_name }}</p>
+                  <p class="font-semibold text-gray-900">{{ todayCut()!.closed_by_user?.first_name }} {{ todayCut()!.closed_by_user?.last_name }}</p>
                   <p class="text-xs text-gray-500">{{ todayCut()!.closed_at | date: 'short' }}</p>
                 </div>
               }
@@ -156,15 +166,15 @@ import { SalesCut, SalesCutItem } from '../../models/sales-cut.model';
                   </svg>
                 </div>
               </div>
-              <p class="text-3xl font-bold text-gray-900">{{ cutService.formatCurrency(todayCut()!.cash_balance + todayCut()!.bank_balance) }}</p>
+              <p class="text-3xl font-bold text-gray-900">{{ cutService.formatCurrency((todayCut()!.cash_balance ?? 0) + (todayCut()!.bank_balance ?? 0)) }}</p>
               <div class="mt-4 pt-4 border-t border-gray-100 space-y-1">
                 <div class="flex justify-between text-xs">
                   <span class="text-gray-600">Efectivo:</span>
-                  <span class="font-semibold text-green-600">{{ cutService.formatCurrency(todayCut()!.cash_balance) }}</span>
+                  <span class="font-semibold text-green-600">{{ cutService.formatCurrency(todayCut()!.cash_balance ?? 0) }}</span>
                 </div>
                 <div class="flex justify-between text-xs">
                   <span class="text-gray-600">Banco:</span>
-                  <span class="font-semibold text-blue-600">{{ cutService.formatCurrency(todayCut()!.bank_balance) }}</span>
+                  <span class="font-semibold text-blue-600">{{ cutService.formatCurrency(todayCut()!.bank_balance ?? 0) }}</span>
                 </div>
               </div>
             </div>
@@ -364,5 +374,11 @@ export class TodayCutComponent implements OnInit {
       'exported': 'text-yellow-600'
     };
     return classes[this.todayCut()!.status] || 'text-gray-600';
+  }
+
+  exportToExcel(): void {
+    if (this.todayCut()) {
+      this.cutService.exportToExcel(this.todayCut()!.cut_id);
+    }
   }
 }

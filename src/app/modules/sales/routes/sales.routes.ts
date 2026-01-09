@@ -70,6 +70,7 @@ export const SALES_ROUTES: Route[] = [
   },
   {
     path: 'cuts',
+    data: { permission: 'sales.cuts.view' },
     children: [
       {
         path: '',

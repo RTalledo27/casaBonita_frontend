@@ -158,4 +158,38 @@ export class SalesCutService {
     };
     return labels[method] || method;
   }
+
+  /**
+   * Exportar corte a Excel
+   */
+  exportToExcel(id: number): void {
+    const url = `${this.apiUrl}/${id}/export`;
+    const token = localStorage.getItem('token');
+    
+    // Create a temporary link and click it
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('Authorization', `Bearer ${token}`);
+    link.style.display = 'none';
+    
+    // Use fetch to download with authentication
+    fetch(url, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      }
+    })
+    .then(response => response.blob())
+    .then(blob => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `corte_${id}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    });
+  }
 }
