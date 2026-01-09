@@ -5,6 +5,9 @@ import { ContractsComponent } from "../contracts/contracts.component";
 import { ContractFormComponent } from "../contracts/components/contract-form/contract-form.component";
 import { PaymentsComponent } from "../payments/payments.component";
 import { PaymentFormComponent } from "../payments/payment-form/payment-form.component";
+import { CutsDashboardComponent } from "../components/cuts/cuts-dashboard.component";
+import { TodayCutComponent } from "../components/cuts/today-cut.component";
+import { CutDetailComponent } from "../components/cuts/cut-detail.component";
 
 export const SALES_ROUTES: Route[] = [
   { path: '', redirectTo: 'reservations', pathMatch: 'full' },
@@ -64,5 +67,20 @@ export const SALES_ROUTES: Route[] = [
         data: { permission: 'sales.payments.update' },
       },
     ]
+  },
+  {
+    path: 'cuts',
+    component: CutsDashboardComponent,
+    data: { permission: 'sales.cuts.view' },
+  },
+  {
+    path: 'cuts/today',
+    component: TodayCutComponent,
+    data: { permission: 'sales.cuts.view' },
+  },
+  {
+    path: 'cuts/:id',
+    component: CutDetailComponent,
+    data: { permission: 'sales.cuts.view' },
   },
 ];

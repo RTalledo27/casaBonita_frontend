@@ -49,6 +49,9 @@
       },
       "payments": {
         "title": "Pagos"
+      },
+      "cuts": {
+        "title": "Cortes de Ventas"
       }
     },
     "finance": {
