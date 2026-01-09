@@ -114,7 +114,7 @@ import { SalesCut, SalesCutFilters, MonthlyStats } from '../../models/sales-cut.
               [(ngModel)]="filters.status"
               (change)="loadCuts()"
               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-              <option [value]="''">Todos</option>
+              <option [value]="undefined">Todos</option>
               <option value="open">Abierto</option>
               <option value="closed">Cerrado</option>
               <option value="reviewed">Revisado</option>
@@ -128,7 +128,7 @@ import { SalesCut, SalesCutFilters, MonthlyStats } from '../../models/sales-cut.
               [(ngModel)]="filters.type"
               (change)="loadCuts()"
               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-              <option [value]="''">Todos</option>
+              <option [value]="undefined">Todos</option>
               <option value="daily">Diario</option>
               <option value="weekly">Semanal</option>
               <option value="monthly">Mensual</option>
@@ -294,10 +294,10 @@ export class CutsDashboardComponent implements OnInit {
 
   filters: SalesCutFilters = {
     per_page: 15,
-    status: '',
-    type: '',
-    start_date: '',
-    end_date: ''
+    status: undefined,
+    type: undefined,
+    start_date: undefined,
+    end_date: undefined
   };
 
   Math = Math;
