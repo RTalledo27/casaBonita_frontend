@@ -140,13 +140,13 @@ import { SalesCut, SalesCutItem } from '../../models/sales-cut.model';
                     <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                       <div class="flex-1">
                         <p class="font-semibold text-gray-900">
-                          {{ item.contract?.client ? (item.contract.client?.first_name + ' ' + item.contract.client?.last_name) : 'Cliente' }}
+                          {{ item.contract?.client ? (item.contract?.client?.first_name + ' ' + item.contract?.client?.last_name) : 'Cliente' }}
                         </p>
                         <p class="text-sm text-gray-600">
                           Contrato: {{ item.contract?.contract_number || 'N/A' }} • 
                           Lote: {{ item.contract?.lot?.num_lot || 'N/A' }}
                           @if (item.employee?.user) {
-                            • Asesor: {{ item.employee.user?.first_name }} {{ item.employee.user?.last_name }}
+                            • Asesor: {{ item.employee?.user?.first_name }} {{ item.employee?.user?.last_name }}
                           }
                         </p>
                       </div>
@@ -177,7 +177,7 @@ import { SalesCut, SalesCutItem } from '../../models/sales-cut.model';
                     <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                       <div class="flex-1">
                         <p class="font-semibold text-gray-900">
-                          {{ item.contract?.client ? (item.contract.client?.first_name + ' ' + item.contract.client?.last_name) : 'Cliente' }}
+                          {{ item.contract?.client ? (item.contract?.client?.first_name + ' ' + item.contract?.client?.last_name) : 'Cliente' }}
                         </p>
                         <p class="text-sm text-gray-600">
                           Contrato: {{ item.contract?.contract_number || 'N/A' }}
@@ -213,7 +213,7 @@ import { SalesCut, SalesCutItem } from '../../models/sales-cut.model';
                     <div class="flex items-center justify-between p-4 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-100">
                       <div class="flex-1">
                         <p class="font-semibold text-gray-900">
-                          {{ item.employee?.user ? (item.employee.user?.first_name + ' ' + item.employee.user?.last_name) : 'Asesor' }}
+                          {{ item.employee?.user ? (item.employee?.user?.first_name + ' ' + item.employee?.user?.last_name) : 'Asesor' }}
                         </p>
                         <p class="text-sm text-gray-600">
                           Contrato: {{ item.contract?.contract_number || 'N/A' }}
