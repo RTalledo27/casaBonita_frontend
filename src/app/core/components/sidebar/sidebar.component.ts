@@ -144,7 +144,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
         { name: 'contracts', label: 'sidebar.sales.contracts.title', route: '/sales/contracts', active: false, permission: 'sales.contracts.view' },
         { name: 'invoices', label: 'sidebar.sales.invoices.title', route: '/sales/invoices', active: false, permission: 'sales.access' },
         { name: 'payments', label: 'sidebar.sales.payments.title', route: '/sales/payments', active: false, permission: 'sales.access' },
-        { name: 'cuts', label: 'sidebar.sales.cuts.title', route: '/sales/cuts', active: false, permission: 'sales.access' },
+        { name: 'cuts', label: 'sidebar.sales.cuts.title', route: '/sales/cuts', active: false, permission: 'sales.cuts.view' },
       ],
     },
     {
