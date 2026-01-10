@@ -62,7 +62,7 @@
                 <div>
                   <p class="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">Total Unidades</p>
                   <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">
-                    {{ stockData.statistics.total_units }}
+                    {{ stockData?.statistics?.total_units || 0 }}
                   </p>
                 </div>
                 <div class="bg-blue-100 dark:bg-blue-900 p-3 rounded-xl">
@@ -77,7 +77,7 @@
                 <div>
                   <p class="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">Disponibles</p>
                   <p class="text-2xl font-bold text-green-600 dark:text-green-400 mt-1">
-                    {{ stockData.statistics.by_status?.disponible || 0 }}
+                    {{ stockData?.statistics?.by_status?.disponible || 0 }}
                   </p>
                 </div>
                 <div class="bg-green-100 dark:bg-green-900 p-3 rounded-xl">
@@ -92,7 +92,7 @@
                 <div>
                   <p class="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">Reservados</p>
                   <p class="text-2xl font-bold text-yellow-600 dark:text-yellow-400 mt-1">
-                    {{ stockData.statistics.by_status?.reservado || 0 }}
+                    {{ stockData?.statistics?.by_status?.reservado || 0 }}
                   </p>
                 </div>
                 <div class="bg-yellow-100 dark:bg-yellow-900 p-3 rounded-xl">
@@ -107,7 +107,7 @@
                 <div>
                   <p class="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">Vendidos</p>
                   <p class="text-2xl font-bold text-blue-600 dark:text-blue-400 mt-1">
-                    {{ stockData.statistics.by_status?.vendido || 0 }}
+                    {{ stockData?.statistics?.by_status?.vendido || 0 }}
                   </p>
                 </div>
                 <div class="bg-blue-100 dark:bg-blue-900 p-3 rounded-xl">
@@ -122,7 +122,7 @@
                 <div>
                   <p class="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">Con Asesor</p>
                   <p class="text-2xl font-bold text-purple-600 dark:text-purple-400 mt-1">
-                    {{ stockData.statistics.with_advisor }}
+                    {{ stockData?.statistics?.with_advisor || 0 }}
                   </p>
                 </div>
                 <div class="bg-purple-100 dark:bg-purple-900 p-3 rounded-xl">
@@ -201,7 +201,7 @@
           <div class="mt-4 flex justify-between items-center">
             <p class="text-sm text-gray-600 dark:text-gray-400">
               Mostrando <span class="font-bold text-gray-900 dark:text-white">{{ totalFiltered }}</span> de 
-              <span class="font-bold">{{ stockData.statistics.total_units }}</span> unidades
+              <span class="font-bold">{{ stockData?.statistics?.total_units || 0 }}</span> unidades
             </p>
             <button
               (click)="resetFilters()"
