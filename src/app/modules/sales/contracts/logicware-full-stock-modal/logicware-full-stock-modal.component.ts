@@ -88,17 +88,22 @@ export class LogicwareFullStockModalComponent implements OnInit {
 
   get paginatedUnits(): LogicwareUnit[] {
     const filtered = this.filteredUnits;
+    if (!Array.isArray(filtered)) return [];
     const start = (this.currentPage - 1) * this.pageSize;
     const end = start + this.pageSize;
     return filtered.slice(start, end);
   }
 
   get totalPages(): number {
-    return Math.ceil(this.filteredUnits.length / this.pageSize);
+    const filtered = this.filteredUnits;
+    if (!Array.isArray(filtered)) return 0;
+    return Math.ceil(filtered.length / this.pageSize);
   }
 
   get totalFiltered(): number {
-    return this.filteredUnits.length;
+    const filtered = this.filteredUnits;
+    if (!Array.isArray(filtered)) return 0;
+    return filtered.length;
   }
 
   getStatusBadgeClass(status: string): string {
