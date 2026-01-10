@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { API_ROUTES } from '../../../core/constants/api.routes';
 
 // ==================================================================================
@@ -132,9 +133,46 @@ export class LogicwareService {
   getFullStock(forceRefresh: boolean = false): Observable<FullStockResponse> {
     const params = new HttpParams().set('force_refresh', forceRefresh.toString());
     
-    return this.http.get<FullStockResponse>(
+    return this.http.get<any>(
       API_ROUTES.LOGICWARE.FULL_STOCK,
       { params }
+    ).pipe(
+      map((response: any) => {
+        // 🔧 WORKAROUND: Backend aún devuelve estructura antigua
+        // Normalizar respuesta para que coincida con FullStockResponse
+        
+        // Si data.data existe, el backend no ha sido reiniciado
+        const actualData = response.data?.data || response.data || [];
+        
+        // Normalizar nombres de propiedades
+        const normalized: FullStockResponse = {
+          success: response.success ?? true,
+          message: response.message,
+          data: Array.isArray(actualData) ? actualData : [],
+          statistics: response.statistics || response.stats || {
+            total_units: 0,
+            by_status: {},
+            with_advisor: 0,
+            with_client: 0,
+            with_reservation: 0
+          },
+          cache_info: response.cache_info || {
+            cached_at: '',
+            cache_expires_at: '',
+            is_cached: false
+          },
+          api_info: response.api_info || response.api_usage || {
+            daily_requests_used: 0,
+            daily_requests_limit: 4,
+            has_available_requests: true
+          }
+        };
+        
+        console.log('🔧 [Service] Normalized response:', normalized);
+        console.log('🔧 [Service] Data array length:', normalized.data.length);
+        
+        return normalized;
+      })
     );
   }
 
