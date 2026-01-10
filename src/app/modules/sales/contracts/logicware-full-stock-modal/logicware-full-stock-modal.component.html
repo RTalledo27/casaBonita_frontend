@@ -138,14 +138,14 @@
               <lucide-angular [img]="Clock" [size]="14"></lucide-angular>
               <span>
                 <span class="font-medium">Última actualización:</span>
-                {{ formatDate(stockData.cache_info.cached_at) }}
+                {{ formatDate(stockData?.cache_info?.cached_at) }}
               </span>
             </div>
             <div class="flex items-center gap-2">
               <lucide-angular [img]="AlertCircle" [size]="14"></lucide-angular>
               <span>
                 <span class="font-medium">Consultas usadas:</span>
-                {{ stockData.api_info.daily_requests_used }} de {{ stockData.api_info.daily_requests_limit }}
+                {{ stockData?.api_info?.daily_requests_used || 0 }} de {{ stockData?.api_info?.daily_requests_limit || 4 }}
               </span>
             </div>
           </div>
