@@ -350,6 +350,11 @@ export class ContractsComponent implements OnInit {
       this.logicwareService.getFullStock(false).subscribe({
         next: (response) => {
           console.log('✅ Full stock data received:', response);
+          console.log('📊 Response type:', typeof response);
+          console.log('📊 Response.data type:', typeof response?.data);
+          console.log('📊 Response.data is Array?:', Array.isArray(response?.data));
+          console.log('📊 Response.data length:', response?.data?.length);
+          console.log('📊 Full response structure:', JSON.stringify(response, null, 2));
           this.fullStockData = response;
           this.fullStockLoading = false;
           this.cdr.detectChanges();

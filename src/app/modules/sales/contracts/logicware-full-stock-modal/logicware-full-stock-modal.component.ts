@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, X, Database, RefreshCw, Search, Filter, Download, AlertCircle, CheckCircle, Clock, User, Home } from 'lucide-angular';
@@ -11,7 +11,7 @@ import { FullStockResponse, LogicwareUnit } from '../../services/logicware.servi
   templateUrl: './logicware-full-stock-modal.component.html',
   styleUrls: ['./logicware-full-stock-modal.component.scss']
 })
-export class LogicwareFullStockModalComponent implements OnInit {
+export class LogicwareFullStockModalComponent implements OnInit, OnChanges {
   @Input() isOpen = false;
   @Input() stockData: FullStockResponse | null = null;
   @Input() loading = false;
@@ -46,8 +46,24 @@ export class LogicwareFullStockModalComponent implements OnInit {
 
   ngOnInit(): void {}
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['stockData']) {
+      console.log('🔍 [MODAL] stockData changed:', this.stockData);
+      console.log('🔍 [MODAL] stockData?.data type:', typeof this.stockData?.data);
+      console.log('🔍 [MODAL] stockData?.data is Array?:', Array.isArray(this.stockData?.data));
+      console.log('🔍 [MODAL] stockData?.data length:', this.stockData?.data?.length);
+      console.log('🔍 [MODAL] First unit:', this.stockData?.data?.[0]);
+    }
+  }
+
   get filteredUnits(): LogicwareUnit[] {
-    if (!this.stockData?.data) return [];
+    console.log('🔍 [MODAL] filteredUnits getter called');
+    console.log('🔍 [MODAL] this.stockData:', this.stockData);
+    console.log('🔍 [MODAL] this.stockData?.data:', this.stockData?.data);
+    if (!this.stockData?.data) {
+      console.log('⚠️ [MODAL] No stockData or data property!');
+      return [];
+    }
 
     let units = this.stockData.data;
 
