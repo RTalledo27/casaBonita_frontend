@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 import Echo from 'laravel-echo';
 import { environment } from '../../../../environments/environment';
@@ -15,6 +16,8 @@ interface WebhookNotification {
 
 @Component({
   selector: 'app-webhook-notifications',
+  standalone: true,
+  imports: [CommonModule],
   template: `
     <div class="webhook-notifications-container">
       <div 
