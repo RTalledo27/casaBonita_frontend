@@ -102,18 +102,28 @@ export class ContractImportComponent {
   salesImportProcessId: number | null = null;
   salesImportProgress: number = 0;
   salesImportStatus: string | null = null;
+  salesImportProcessedRows: number = 0;
+  salesImportTotalRows: number = 0;
+  salesTotalClients: number = 0;
+  salesTotalDocuments: number = 0;
   private salesImportPollSub: Subscription | null = null;
 
   fetchSalesPreview(forceRefresh: boolean = false) {
     this.salesPreview = [];
     this.salesError = null;
     this.salesLoading = true;
+    this.salesTotalClients = 0;
+    this.salesTotalDocuments = 0;
     this.externalImport.getSales(this.salesStartDate || undefined, this.salesEndDate || undefined, forceRefresh)
       .pipe(finalize(() => this.salesLoading = false))
       .subscribe({
         next: (res: any) => {
           // expected shape: { success, data: { items: [...] } } or direct array
-          if (res?.data?.items) this.salesPreview = res.data.items;
+          if (res?.data?.items) {
+            this.salesPreview = res.data.items;
+            this.salesTotalClients = res?.data?.total_clients || res?.data?.total || 0;
+            this.salesTotalDocuments = res?.data?.total_documents || 0;
+          }
           else if (Array.isArray(res)) this.salesPreview = res;
           else if (res?.data) this.salesPreview = res.data;
           else this.salesPreview = [];
@@ -131,6 +141,8 @@ export class ContractImportComponent {
     this.salesImportProgress = 0;
     this.salesImportProcessId = null;
     this.salesImportStatus = 'pending';
+    this.salesImportProcessedRows = 0;
+    this.salesImportTotalRows = 0;
     if (this.salesImportPollSub) {
       this.salesImportPollSub.unsubscribe();
       this.salesImportPollSub = null;
@@ -176,6 +188,8 @@ export class ContractImportComponent {
               next: (statusRes: any) => {
                 const progress = statusRes?.data?.progress_percentage;
                 this.salesImportProgress = typeof progress === 'number' ? progress : 0;
+                this.salesImportProcessedRows = statusRes?.data?.processed_rows || 0;
+                this.salesImportTotalRows = statusRes?.data?.total_rows || 0;
 
                 const status = statusRes?.data?.status;
                 this.salesImportStatus = status || this.salesImportStatus;

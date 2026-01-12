@@ -264,7 +264,8 @@
                 Importación en curso ({{ salesImportStatus || 'procesando' }})...
               </p>
               <p class="text-xs text-emerald-600 dark:text-emerald-400 mt-1">
-                Proceso: {{ salesImportProcessId || '--' }} · {{ salesImportProgress | number:'1.0-0' }}%
+                Proceso: {{ salesImportProcessId || '--' }} · {{ salesImportProgress | number:'1.0-0' }}% ·
+                {{ salesImportProcessedRows || 0 }}/{{ salesImportTotalRows || 0 }}
               </p>
             </div>
           </div>
@@ -294,7 +295,12 @@
         </div>
 
         <div *ngIf="salesPreview?.length" class="mb-4">
-          <h4 class="font-semibold mb-2">Ventas (muestra)</h4>
+          <h4 class="font-semibold mb-2">
+            Ventas (muestra)
+            <span class="text-xs text-gray-600 ml-2">
+              Total clientes: {{ salesTotalClients || salesPreview.length }} · Total contratos/doc: {{ salesTotalDocuments || '—' }}
+            </span>
+          </h4>
           <div class="max-h-40 overflow-y-auto bg-white/60 rounded p-3">
             <ul class="space-y-2 text-sm">
               <li *ngFor="let s of salesPreview">
