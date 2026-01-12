@@ -15,9 +15,11 @@ export class SidebarService {
     // Inicializar permisos y rol del usuario SOLO al crear el servicio
     const currentUser = this.authService.getCurrentUser();
     if (currentUser) {
-      console.log('🎯 SidebarService: Initializing with', currentUser.permissions.length, 'permissions');
-      this.userPermissionsSignal.set(currentUser.permissions);
-      this.userRoleSignal.set(currentUser.role);
+      const permissions = Array.isArray((currentUser as any).permissions) ? (currentUser as any).permissions : [];
+      const role = typeof (currentUser as any).role === 'string' ? (currentUser as any).role : '';
+      console.log('🎯 SidebarService: Initializing with', permissions.length, 'permissions');
+      this.userPermissionsSignal.set(permissions);
+      this.userRoleSignal.set(role);
     }
 
     // DESACTIVADO: No escuchar cambios automáticos del AuthService
@@ -38,19 +40,21 @@ export class SidebarService {
     console.log('🔄 SidebarService: Refreshing sidebar...');
     const currentUser = this.authService.getCurrentUser();
     if (currentUser) {
+      const permissions = Array.isArray((currentUser as any).permissions) ? (currentUser as any).permissions : [];
+      const role = typeof (currentUser as any).role === 'string' ? (currentUser as any).role : '';
       console.log('👤 SidebarService: Current user:', {
         id: currentUser.id,
         name: currentUser.name,
-        role: currentUser.role,
-        permissionCount: currentUser.permissions.length
+        role,
+        permissionCount: permissions.length
       });
       
       // Actualizar AMBOS signals para forzar la detección de cambios
-      const newPermissions = [...currentUser.permissions];
+      const newPermissions = [...permissions];
       this.userPermissionsSignal.set(newPermissions);
-      this.userRoleSignal.set(currentUser.role);
+      this.userRoleSignal.set(role);
       
-      console.log('✅ SidebarService: Sidebar refreshed with', newPermissions.length, 'permissions and role:', currentUser.role);
+      console.log('✅ SidebarService: Sidebar refreshed with', newPermissions.length, 'permissions and role:', role);
     } else {
       console.warn('⚠️ SidebarService: No current user found');
     }
