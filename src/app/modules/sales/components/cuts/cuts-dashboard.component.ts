@@ -1,14 +1,15 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, signal, inject, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { SalesCutService } from '../../services/sales-cut.service';
 import { SalesCut, SalesCutFilters, MonthlyStats } from '../../models/sales-cut.model';
+import { CalculateCutModalComponent } from './calculate-cut-modal.component';
 
 @Component({
   selector: 'app-cuts-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, CalculateCutModalComponent],
   template: `
     <div class="min-h-screen bg-gray-50 p-6">
       <!-- Header -->
@@ -28,13 +29,12 @@ import { SalesCut, SalesCutFilters, MonthlyStats } from '../../models/sales-cut.
               Corte de Hoy
             </button>
             <button
-              (click)="createNewCut()"
-              [disabled]="isLoading()"
-              class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2 disabled:opacity-50">
+              (click)="openCalculateModal()"
+              class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
               </svg>
-              Crear Corte
+              Calcular Corte
             </button>
           </div>
         </div>
@@ -279,12 +279,21 @@ import { SalesCut, SalesCutFilters, MonthlyStats } from '../../models/sales-cut.
         }
       </div>
     </div>
+
+    <!-- Calculate Cut Modal -->
+    <app-calculate-cut-modal
+      #calculateModal
+      (closed)="onModalClosed()"
+      (cutSaved)="onCutSaved()">
+    </app-calculate-cut-modal>
   `,
   styles: []
 })
 export class CutsDashboardComponent implements OnInit {
   private router = inject(Router);
   cutService = inject(SalesCutService);
+
+  @ViewChild('calculateModal') calculateModal!: CalculateCutModalComponent;
 
   cuts = signal<SalesCut[]>([]);
   monthlyStats = signal<MonthlyStats | null>(null);
@@ -404,6 +413,20 @@ export class CutsDashboardComponent implements OnInit {
         }
       });
     }
+  }
+
+  openCalculateModal() {
+    this.calculateModal.open();
+  }
+
+  onModalClosed() {
+    // Modal cerrado sin guardar
+  }
+
+  onCutSaved() {
+    // Corte guardado exitosamente, recargar lista
+    this.loadCuts();
+    this.loadMonthlyStats();
   }
 
   formatDate(dateString: string): string {

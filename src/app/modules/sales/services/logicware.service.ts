@@ -138,6 +138,34 @@ export class LogicwareService {
       { params }
     ).pipe(
       map((response: any) => {
+        // Manejar respuestas de error (rate limit, etc)
+        if (response.success === false) {
+          console.error('❌ [Service] Error from backend:', response.message, response.error);
+          // Devolver estructura vacía pero válida
+          return {
+            success: false,
+            message: response.message || 'Error desconocido',
+            data: [],
+            statistics: {
+              total_units: 0,
+              by_status: {},
+              with_advisor: 0,
+              with_client: 0,
+              with_reservation: 0
+            },
+            cache_info: {
+              cached_at: '',
+              cache_expires_at: '',
+              is_cached: false
+            },
+            api_info: response.api_info || response.api_usage || {
+              daily_requests_used: 4,
+              daily_requests_limit: 4,
+              has_available_requests: false
+            }
+          };
+        }
+        
         // 🔧 WORKAROUND: Backend aún devuelve estructura antigua
         // Normalizar respuesta para que coincida con FullStockResponse
         

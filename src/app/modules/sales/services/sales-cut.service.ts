@@ -98,6 +98,42 @@ export class SalesCutService {
   }
 
   /**
+   * Calcular corte para un período específico (preview sin guardar)
+   * @param startDate Fecha inicio (YYYY-MM-DD)
+   * @param endDate Fecha fin (YYYY-MM-DD)
+   * @param includeDetails Si incluir detalles (top sales, por asesor, etc.)
+   */
+  calculateCut(startDate: string, endDate: string, includeDetails: boolean = true): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(`${this.apiUrl}/calculate`, {
+      start_date: startDate,
+      end_date: endDate,
+      include_details: includeDetails
+    });
+  }
+
+  /**
+   * Crear y guardar un nuevo corte
+   * @param startDate Fecha inicio (YYYY-MM-DD)
+   * @param endDate Fecha fin (YYYY-MM-DD)
+   * @param notes Notas opcionales
+   */
+  storeCut(startDate: string, endDate: string, notes?: string): Observable<ApiResponse<SalesCut>> {
+    return this.http.post<ApiResponse<SalesCut>>(this.apiUrl, {
+      start_date: startDate,
+      end_date: endDate,
+      notes: notes
+    });
+  }
+
+  /**
+   * Recalcular un corte existente
+   * @param id ID del corte
+   */
+  recalculateCut(id: number): Observable<ApiResponse<SalesCut>> {
+    return this.http.put<ApiResponse<SalesCut>>(`${this.apiUrl}/${id}/recalculate`, {});
+  }
+
+  /**
    * Formatear número como moneda
    */
   formatCurrency(amount: number): string {

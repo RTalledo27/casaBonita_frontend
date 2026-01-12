@@ -209,4 +209,9 @@ export class LogicwareFullStockModalComponent implements OnInit, OnChanges {
     }
     return 'Actualizar datos desde Logicware';
   }
+
+  hasRateLimitError(): boolean {
+    return this.stockData?.success === false && 
+           this.stockData?.api_info?.daily_requests_used >= this.stockData?.api_info?.daily_requests_limit;
+  }
 }

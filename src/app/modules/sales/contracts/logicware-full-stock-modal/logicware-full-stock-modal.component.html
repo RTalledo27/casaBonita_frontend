@@ -288,9 +288,28 @@
               <tr *ngIf="paginatedUnits.length === 0">
                 <td colspan="7" class="px-6 py-12 text-center">
                   <div class="flex flex-col items-center justify-center">
-                    <lucide-angular [img]="AlertCircle" [size]="48" class="text-gray-400 mb-4"></lucide-angular>
-                    <p class="text-gray-500 dark:text-gray-400 font-medium">No se encontraron unidades</p>
-                    <p class="text-sm text-gray-400 dark:text-gray-500 mt-1">Intenta ajustar los filtros de búsqueda</p>
+                    <lucide-angular 
+                      [img]="stockData?.success === false ? AlertCircle : AlertCircle" 
+                      [size]="48" 
+                      [class]="stockData?.success === false ? 'text-red-400 mb-4' : 'text-gray-400 mb-4'">
+                    </lucide-angular>
+                    
+                    <!-- Error State (Rate Limit / Backend Error) -->
+                    <div *ngIf="stockData?.success === false">
+                      <p class="text-red-600 dark:text-red-400 font-semibold text-lg">{{ stockData?.message }}</p>
+                      <p class="text-sm text-red-500 dark:text-red-400 mt-2" *ngIf="hasRateLimitError()">
+                        ⚠️ Límite diario de consultas alcanzado ({{ stockData?.api_info?.daily_requests_used }}/{{ stockData?.api_info?.daily_requests_limit }})
+                      </p>
+                      <p class="text-sm text-gray-500 dark:text-gray-400 mt-3">
+                        Los datos se actualizarán automáticamente cuando se renueve el límite diario
+                      </p>
+                    </div>
+                    
+                    <!-- Empty State (No Results) -->
+                    <div *ngIf="stockData?.success !== false">
+                      <p class="text-gray-500 dark:text-gray-400 font-medium">No se encontraron unidades</p>
+                      <p class="text-sm text-gray-400 dark:text-gray-500 mt-1">Intenta ajustar los filtros de búsqueda</p>
+                    </div>
                   </div>
                 </td>
               </tr>

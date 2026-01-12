@@ -9,7 +9,7 @@ export const environment = {
     cluster: 'us2',
   },
   reverb: {
-    key: 'qycranehfycpswjvlj7o',
+    key: 'g9ojeyfgriywz9fnm40o', // ✅ Debe coincidir con REVERB_APP_KEY del backend
     wsHost: 'api.casabonita.pe',
     wsPort: 443, // Puerto HTTPS
     wssPort: 443,
