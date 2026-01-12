@@ -101,6 +101,7 @@ export class ContractImportComponent {
   salesError: string | null = null;
   salesImportProcessId: number | null = null;
   salesImportProgress: number = 0;
+  salesImportStatus: string | null = null;
   private salesImportPollSub: Subscription | null = null;
 
   fetchSalesPreview(forceRefresh: boolean = false) {
@@ -129,6 +130,7 @@ export class ContractImportComponent {
     this.salesError = null;
     this.salesImportProgress = 0;
     this.salesImportProcessId = null;
+    this.salesImportStatus = 'pending';
     if (this.salesImportPollSub) {
       this.salesImportPollSub.unsubscribe();
       this.salesImportPollSub = null;
@@ -151,6 +153,7 @@ export class ContractImportComponent {
           if (!processId) {
             this.salesImporting = false;
             this.salesError = null;
+            this.salesImportStatus = 'completed';
             this.importCompleted.emit();
             this.salesPreview = [];
             return;
@@ -175,6 +178,7 @@ export class ContractImportComponent {
                 this.salesImportProgress = typeof progress === 'number' ? progress : 0;
 
                 const status = statusRes?.data?.status;
+                this.salesImportStatus = status || this.salesImportStatus;
                 if (status === 'completed') {
                   this.salesError = null;
                   this.importCompleted.emit();
