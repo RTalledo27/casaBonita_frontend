@@ -194,15 +194,17 @@ export class WebhookNotificationsComponent implements OnInit, OnDestroy {
 
   private initializeWebSocketConnection() {
     try {
-      // Configurar Laravel Echo (si no está ya configurado globalmente)
+      // Usar Reverb (igual que las notificaciones)
       const Pusher = (window as any).Pusher;
       
       this.echo = new Echo({
-        broadcaster: 'pusher',
-        key: environment.pusher.key,
-        cluster: environment.pusher.cluster,
-        forceTLS: true,
-        encrypted: true
+        broadcaster: 'reverb',
+        key: environment.reverb.key,
+        wsHost: environment.reverb.wsHost,
+        wsPort: environment.reverb.wsPort,
+        wssPort: environment.reverb.wssPort,
+        forceTLS: environment.reverb.forceTLS,
+        enabledTransports: ['ws', 'wss'],
       });
 
       // Escuchar canal de webhooks
