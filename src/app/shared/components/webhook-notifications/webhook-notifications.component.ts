@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
 import Echo from 'laravel-echo';
-import { environment } from 'src/environments/environment';
+import { environment } from '../../../../environments/environment';
 
 interface WebhookNotification {
   messageId: string;
