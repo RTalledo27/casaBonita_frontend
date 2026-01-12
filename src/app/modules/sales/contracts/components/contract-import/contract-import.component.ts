@@ -102,6 +102,7 @@ export class ContractImportComponent {
   salesImportProcessId: number | null = null;
   salesImportProgress: number = 0;
   salesImportStatus: string | null = null;
+  salesSuccessMessage: string | null = null;
   salesImportProcessedRows: number = 0;
   salesImportTotalRows: number = 0;
   salesTotalClients: number = 0;
@@ -111,6 +112,7 @@ export class ContractImportComponent {
   fetchSalesPreview(forceRefresh: boolean = false) {
     this.salesPreview = [];
     this.salesError = null;
+    this.salesSuccessMessage = null;
     this.salesLoading = true;
     this.salesTotalClients = 0;
     this.salesTotalDocuments = 0;
@@ -138,6 +140,7 @@ export class ContractImportComponent {
   importSalesFromExternal(forceRefresh: boolean = false) {
     this.salesImporting = true;
     this.salesError = null;
+    this.salesSuccessMessage = null;
     this.salesImportProgress = 0;
     this.salesImportProcessId = null;
     this.salesImportStatus = 'pending';
@@ -166,6 +169,7 @@ export class ContractImportComponent {
             this.salesImporting = false;
             this.salesError = null;
             this.salesImportStatus = 'completed';
+            this.salesSuccessMessage = res?.message || 'Importación completada';
             this.importCompleted.emit();
             this.salesPreview = [];
             return;
@@ -187,7 +191,8 @@ export class ContractImportComponent {
             .subscribe({
               next: (statusRes: any) => {
                 const progress = statusRes?.data?.progress_percentage;
-                this.salesImportProgress = typeof progress === 'number' ? progress : 0;
+                const parsedProgress = typeof progress === 'number' ? progress : parseFloat(progress);
+                this.salesImportProgress = Number.isFinite(parsedProgress) ? parsedProgress : 0;
                 this.salesImportProcessedRows = statusRes?.data?.processed_rows || 0;
                 this.salesImportTotalRows = statusRes?.data?.total_rows || 0;
 
@@ -195,11 +200,12 @@ export class ContractImportComponent {
                 this.salesImportStatus = status || this.salesImportStatus;
                 if (status === 'completed') {
                   this.salesError = null;
+                  this.salesSuccessMessage = statusRes?.data?.summary?.message || 'Importación completada';
                   this.importCompleted.emit();
                   this.salesPreview = [];
                 }
                 if (status === 'failed') {
-                  const msg = statusRes?.data?.errors?.message || statusRes?.data?.summary?.message || 'Importación fallida';
+                  const msg = statusRes?.data?.errors?.message || 'Importación fallida';
                   this.salesError = `Error al importar: ${msg}`;
                   this.salesPreview = previousPreview;
                 }
@@ -208,6 +214,7 @@ export class ContractImportComponent {
                 console.error('Error importing sales (status poll)', err);
                 const errorMsg = err?.error?.message || err?.message || 'Error al consultar estado';
                 this.salesError = `Error al importar: ${errorMsg}`;
+                this.salesSuccessMessage = null;
                 this.salesImporting = false;
                 this.salesPreview = previousPreview;
               }
@@ -217,6 +224,7 @@ export class ContractImportComponent {
           console.error('Error importing sales', err);
           const errorMsg = err?.error?.message || err?.message || 'Error al importar ventas';
           this.salesError = `Error al importar: ${errorMsg}`;
+          this.salesSuccessMessage = null;
           this.salesPreview = previousPreview; // Restaurar preview
           this.salesImporting = false;
         }
