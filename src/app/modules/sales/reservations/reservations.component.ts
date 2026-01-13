@@ -7,25 +7,39 @@ import { ModalService } from '../../../core/services/modal.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { LucideAngularModule, Plus } from 'lucide-angular';
 import { BehaviorSubject } from 'rxjs';
-import { Reservation } from '../models/reservation';
 import { ColumnDef, SharedTableComponent } from '../../../shared/components/shared-table/shared-table.component';
 import { TranslateModule } from '@ngx-translate/core';
+import { FormsModule } from '@angular/forms';
+import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 
 @Component({
   selector: 'app-reservations',
   imports: [
     CommonModule,
+    FormsModule,
     TranslateModule,
     LucideAngularModule,
     SharedTableComponent,
+    PaginationComponent,
     RouterOutlet,
   ],
   templateUrl: './reservations.component.html',
   styleUrl: './reservations.component.scss',
 })
 export class ReservationsComponent {
-  private reservationsSubject = new BehaviorSubject<Reservation[]>([]);
+  private reservationsSubject = new BehaviorSubject<any[]>([]);
   reservations$ = this.reservationsSubject.asObservable();
+  loading = false;
+
+  searchTerm = '';
+  statusFilter = '';
+
+  pagination = {
+    currentPage: 1,
+    totalPages: 1,
+    total: 0,
+    perPage: 15,
+  };
 
   columns: ColumnDef[] = [
     { field: 'reservation_id', header: 'ID' },
@@ -53,10 +67,47 @@ export class ReservationsComponent {
     this.loadReservations();
   }
 
-  loadReservations() {
+  loadReservations(page: number = 1) {
+    this.loading = true;
     this.reservationService
-      .list()
-      .subscribe((data) => this.reservationsSubject.next(data));
+      .list({
+        page,
+        per_page: this.pagination.perPage,
+        search: this.searchTerm?.trim() || undefined,
+        status: this.statusFilter || undefined,
+      })
+      .subscribe({
+        next: (res) => {
+          this.reservationsSubject.next(res.data ?? []);
+          this.pagination = {
+            currentPage: res.meta?.current_page || page,
+            totalPages: res.meta?.last_page || 1,
+            total: res.meta?.total || 0,
+            perPage: res.meta?.per_page || this.pagination.perPage,
+          };
+          this.loading = false;
+        },
+        error: () => {
+          this.loading = false;
+          this.reservationsSubject.next([]);
+          this.pagination = { ...this.pagination, currentPage: 1, totalPages: 1, total: 0 };
+        },
+      });
+  }
+
+  onSearchChange(): void {
+    this.pagination.currentPage = 1;
+    this.loadReservations(1);
+  }
+
+  onStatusChange(): void {
+    this.pagination.currentPage = 1;
+    this.loadReservations(1);
+  }
+
+  onPageChange(page: number): void {
+    this.pagination.currentPage = page;
+    this.loadReservations(page);
   }
 
   onCreate() {
