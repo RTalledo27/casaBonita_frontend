@@ -14,6 +14,8 @@ interface CalculatedCut {
   total_sales_count: number;
   total_revenue: number;
   total_down_payments: number;
+  reserved_sales_count?: number;
+  reserved_revenue?: number;
   total_payments_count: number;
   total_payments_received: number;
   paid_installments_count: number;
@@ -128,6 +130,9 @@ interface CalculatedCut {
                   <p class="text-sm text-gray-600 mb-1">Ventas</p>
                   <p class="text-2xl font-bold text-gray-900">{{ calculatedData()!.total_sales_count }}</p>
                   <p class="text-xs text-gray-500 mt-1">{{ formatCurrency(calculatedData()!.total_revenue) }}</p>
+                  <p *ngIf="(calculatedData()!.reserved_sales_count || 0) > 0" class="text-xs text-amber-600 mt-1">
+                    Reservas: {{ calculatedData()!.reserved_sales_count }} ({{ formatCurrency(calculatedData()!.reserved_revenue || 0) }})
+                  </p>
                 </div>
                 <div class="bg-white rounded-lg p-4">
                   <p class="text-sm text-gray-600 mb-1">Pagos</p>
