@@ -12,14 +12,15 @@ export class ContractsService {
 
   constructor(private http: HttpClient) {}
 
-  list(params?: { page?: number; per_page?: number; search?: string; status?: string }): Observable<{data: Contract[], meta: any}> {
+  list(params?: { page?: number; per_page?: number; search?: string; status?: string; with_financing?: 0 | 1 }): Observable<any> {
     let httpParams = new HttpParams();
     if (params?.page) httpParams = httpParams.set('page', params.page.toString());
     if (params?.per_page) httpParams = httpParams.set('per_page', params.per_page.toString());
     if (params?.search) httpParams = httpParams.set('search', params.search);
     if (params?.status) httpParams = httpParams.set('status', params.status);
+    if (params?.with_financing !== undefined) httpParams = httpParams.set('with_financing', params.with_financing.toString());
     
-    return this.http.get<{data: Contract[], meta: any}>(this.base, { params: httpParams });
+    return this.http.get<any>(this.base, { params: httpParams });
   }
 
   get(id: number): Observable<Contract> {

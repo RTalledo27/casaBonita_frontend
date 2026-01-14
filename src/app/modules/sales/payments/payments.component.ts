@@ -76,7 +76,8 @@ export class PaymentsComponent {
       translate: false,
       value: (row) => this.getInstallmentKindLabel(row),
     },
-    { field: 'method', header: 'Método', translate: false },
+    { header: 'Método', translate: false, value: (row) => this.getMethodLabel(row) },
+    { field: 'bank_name', header: 'Banco', translate: false },
     { field: 'reference', header: 'Referencia', translate: false },
     {
       header: 'Fecha',
@@ -227,6 +228,15 @@ export class PaymentsComponent {
       if (t.includes('inicial') || t.includes('down') || t.includes('initial')) return 'Inicial';
     }
     return row.movement_type === 'installment' ? 'Financiamiento' : '—';
+  }
+
+  getMethodLabel(row: any): string {
+    const method = row?.method || '';
+    const bank = row?.bank_name || '';
+    if (method && bank) return `${method} · ${bank}`;
+    if (method) return method;
+    if (row?.source === 'schedule' && !row?.payment_id) return 'Sin registrar';
+    return '—';
   }
 
   openClient(clientId: number) {

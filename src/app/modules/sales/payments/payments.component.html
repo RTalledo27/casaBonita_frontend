@@ -140,7 +140,7 @@
                         <div *ngFor="let p of kpis.top_payments.slice(0, 10)" class="bg-white/90 dark:bg-gray-800/90 border border-gray-200/60 dark:border-gray-700/60 rounded-2xl p-4 flex items-center justify-between">
                             <div class="min-w-0">
                                 <p class="font-semibold text-gray-900 dark:text-gray-100 truncate">{{ p.client_name || 'Cliente' }}</p>
-                                <p class="text-xs text-gray-500 truncate">{{ p.lot_name || 'N/A' }} · {{ p.method || 'N/A' }} · {{ formatDate(p.date) }}</p>
+                                <p class="text-xs text-gray-500 truncate">{{ p.lot_name || 'N/A' }} · {{ getMethodLabel(p) }} · {{ formatDate(p.date) }}</p>
                             </div>
                             <div class="font-bold text-emerald-700 whitespace-nowrap">{{ formatCurrency(p.amount || 0) }}</div>
                         </div>
@@ -289,7 +289,7 @@
                         <div class="bg-white/90 dark:bg-gray-800/90 border border-gray-200/60 dark:border-gray-700/60 rounded-2xl p-4">
                             <p class="text-xs text-gray-500 mb-1">Método</p>
                             <p class="font-semibold text-gray-900 dark:text-gray-100">
-                                {{ detailRow.method || (detailRow.source === 'schedule' && !detailRow.payment_id ? 'Sin registrar' : '—') }}
+                                {{ getMethodLabel(detailRow) }}
                             </p>
                         </div>
                         <div class="bg-white/90 dark:bg-gray-800/90 border border-gray-200/60 dark:border-gray-700/60 rounded-2xl p-4">

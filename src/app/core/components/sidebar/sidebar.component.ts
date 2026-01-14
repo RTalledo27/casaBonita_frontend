@@ -128,8 +128,15 @@ export class SidebarComponent implements OnInit, OnDestroy {
       label: 'sidebar.inventory.title', 
       icon: Package, 
       route: '/inventory', 
+      expanded: false,
       active: false,
-      permission: 'inventory.access'
+      permission: 'inventory.access',
+      children: [
+        { name: 'lots', label: 'sidebar.inventory.lots.title', route: '/inventory/lots', active: false, permission: 'inventory.lots.view' },
+        { name: 'lot-import', label: 'sidebar.inventory.lotImport.title', route: '/inventory/lots/import', active: false, permission: 'inventory.lots.store' },
+        { name: 'logicware-import', label: 'sidebar.inventory.logicwareImport.title', route: '/inventory/lots/external-import', active: false, permission: 'inventory.lots.store' },
+        { name: 'manzana-financing-rules', label: 'sidebar.inventory.manzanaFinancingRules.title', route: '/inventory/manzanas/financing-rules', active: false, permission: 'inventory.manzanas.update' },
+      ]
     },
     {
       name: 'sales',

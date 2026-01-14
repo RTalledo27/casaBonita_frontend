@@ -15,6 +15,8 @@ import { ContractImportComponent } from './components/contract-import/contract-i
 import { ContractCreationModalComponent } from './contract-creation-modal/contract-creation-modal.component';
 import { ContractDetailsModalComponent } from './components/contract-details-modal/contract-details-modal.component';
 import { LogicwareFullStockModalComponent } from './logicware-full-stock-modal/logicware-full-stock-modal.component';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
   selector: 'app-contracts',
@@ -36,13 +38,19 @@ import { LogicwareFullStockModalComponent } from './logicware-full-stock-modal/l
 })
 export class ContractsComponent implements OnInit {
   contracts: Contract[] = [];
-  allContracts: Contract[] = []; // 🔥 Todos los contratos cargados
-  paginatedContracts: Contract[] = []; // 🔥 Contratos de la página actual
   loading = false;
   currentPage = 1;
   pageSize = 10;
-  totalItems = 0;
   searchTerm = '';
+  statusFilter = '';
+  withFinancingOnly = false;
+  readonly pageSizeOptions = [10, 25, 50, 100];
+  readonly statusOptions = [
+    { value: '', label: 'Todos' },
+    { value: 'vigente', label: 'Vigente' },
+    { value: 'resuelto', label: 'Resuelto' },
+    { value: 'cancelado', label: 'Cancelado' },
+  ];
   pagination: any = {
     current_page: 1,
     last_page: 1,
@@ -66,7 +74,7 @@ export class ContractsComponent implements OnInit {
   plus = Plus;
   upload = Upload;
   database = Database;
-  readonly Math = Math; // 🔥 Exponer Math para usar en el template
+  readonly Math = Math;
   isModalOpen = false;
   isImportModalOpen = false;
   isCreationModalOpen = false;
@@ -77,6 +85,7 @@ export class ContractsComponent implements OnInit {
   isFullStockModalOpen = false;
   fullStockData: FullStockResponse | null = null;
   fullStockLoading = false;
+  private search$ = new Subject<string>();
 
   constructor(
     private contractsService: ContractsService,
@@ -88,35 +97,26 @@ export class ContractsComponent implements OnInit {
     public theme: ThemeService,
     private cdr: ChangeDetectorRef
   ) {
-    console.log('🚀 ContractsComponent constructor called');
-    console.log('🔍 Current URL:', window.location.href);
-    console.log('🔍 Router URL:', this.router.url);
   }
 
   ngOnInit(): void {
-    console.log('ContractsComponent ngOnInit called');
-    console.log('Auth service permissions check:', {
-      hasViewPermission: this.authService.hasPermission('sales.contracts.view'),
-      userPermissions: this.authService.userSubject.value?.permissions || []
-    });
     const user = this.authService.userSubject.value;
-    console.log('Current user:', user);
-    console.log('User permissions:', user?.permissions);
-    console.log('Has sales.contracts.view permission:', this.authService.hasPermission('sales.contracts.view'));
     
-    // Verificar si el usuario está autenticado
     if (!user) {
-      console.log('No user found, redirecting to login');
       return;
     }
     
-    // Verificar permisos específicos
     if (!this.authService.hasPermission('sales.contracts.view')) {
-      console.log('User does not have sales.contracts.view permission');
-      console.log('Available permissions:', user.permissions);
       return;
     }
-    
+
+    this.search$
+      .pipe(debounceTime(300), distinctUntilChanged())
+      .subscribe(() => {
+        this.currentPage = 1;
+        this.loadContracts();
+      });
+
     this.loadContracts();
   }
 
@@ -151,99 +151,55 @@ export class ContractsComponent implements OnInit {
 
   loadContracts(): void {
     this.loading = true;
-    console.log('🔄 Cargando TODOS los contratos desde el servidor...');
-    
-    // Cargar TODOS los contratos sin paginación
-    this.contractsService.list({
-      per_page: 9999 // Cargar todos los contratos
-    })
-      .subscribe((response: any) => {
-        console.log('✅ Contratos recibidos del servidor:', response);
-        
-        // Manejar tanto el formato con meta como el formato directo
-        if (response.data) {
-          this.allContracts = response.data;
-        } else if (Array.isArray(response)) {
-          this.allContracts = response;
-        } else {
-          this.allContracts = [];
-        }
-        
-        console.log(`📦 Total de contratos cargados: ${this.allContracts.length}`);
-        
-        // Aplicar filtros y paginación local
-        this.applyLocalFiltersAndPagination();
-        
-        this.loading = false;
-        this.cdr.detectChanges();
-      }, error => {
-        console.error('❌ Error cargando contratos:', error);
-        this.loading = false;
-      });
-  }
+    const search = this.searchTerm?.trim() || undefined;
+    const status = this.statusFilter || undefined;
+    const withFinancing = this.withFinancingOnly ? 1 : 0;
 
-  /**
-   * Aplica filtros de búsqueda y paginación local sin llamar al servidor
-   */
-  applyLocalFiltersAndPagination(): void {
-    console.log('🔍 Aplicando filtros locales y paginación...');
-    
-    // 1. Filtrar por término de búsqueda
-    let filtered = this.allContracts;
-    
-    if (this.searchTerm && this.searchTerm.trim() !== '') {
-      const term = this.searchTerm.toLowerCase().trim();
-      filtered = this.allContracts.filter(contract => 
-        contract.contract_number?.toLowerCase().includes(term) ||
-        contract.client_name?.toLowerCase().includes(term) ||
-        contract.lot_name?.toLowerCase().includes(term) ||
-        contract.advisor_name?.toLowerCase().includes(term)
-      );
-      console.log(`🔎 Filtrados ${filtered.length} contratos de ${this.allContracts.length}`);
-    }
-    
-    // 2. Calcular paginación
-    this.totalItems = filtered.length;
-    const totalPages = Math.ceil(this.totalItems / this.pageSize);
-    
-    // Ajustar página actual si está fuera de rango
-    if (this.currentPage > totalPages && totalPages > 0) {
-      this.currentPage = totalPages;
-    }
-    if (this.currentPage < 1) {
-      this.currentPage = 1;
-    }
-    
-    // 3. Obtener contratos de la página actual
-    const startIndex = (this.currentPage - 1) * this.pageSize;
-    const endIndex = startIndex + this.pageSize;
-    this.paginatedContracts = filtered.slice(startIndex, endIndex);
-    this.contracts = this.paginatedContracts; // Para compatibilidad con la tabla
-    
-    // 4. Actualizar objeto de paginación
-    this.pagination = {
-      current_page: this.currentPage,
-      last_page: totalPages,
-      total: this.totalItems,
-      per_page: this.pageSize,
-      from: startIndex + 1,
-      to: Math.min(endIndex, this.totalItems)
-    };
-    
-    console.log(`📄 Página ${this.currentPage}/${totalPages} - Mostrando ${this.paginatedContracts.length} contratos`);
-    console.log('📊 Paginación:', this.pagination);
+    this.contractsService
+      .list({
+        page: this.currentPage,
+        per_page: this.pageSize,
+        search,
+        status,
+        with_financing: withFinancing,
+      })
+      .subscribe({
+        next: (response: any) => {
+          const data = response?.data;
+          this.contracts = Array.isArray(data) ? data : [];
+          this.pagination = response?.meta || response?.pagination || this.pagination;
+          this.loading = false;
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.contracts = [];
+          this.loading = false;
+        },
+      });
   }
   
   onPageChange(page: number): void {
-    console.log(`📄 Cambiando a página ${page} (sin llamar al servidor)`);
-    this.currentPage = page;
-    this.applyLocalFiltersAndPagination(); // 🔥 Solo repaginar localmente
+    const nextPage = Math.max(1, Math.min(page, this.pagination?.last_page || 1));
+    this.currentPage = nextPage;
+    this.loadContracts();
   }
 
   onSearch(): void {
-    console.log('🔍 Búsqueda activada:', this.searchTerm);
-    this.currentPage = 1; // Resetear a primera página
-    this.applyLocalFiltersAndPagination(); // 🔥 Solo filtrar localmente
+    this.search$.next(this.searchTerm);
+  }
+
+  onFiltersChange(): void {
+    this.currentPage = 1;
+    this.loadContracts();
+  }
+
+  clearFilters(): void {
+    this.searchTerm = '';
+    this.statusFilter = '';
+    this.withFinancingOnly = false;
+    this.pageSize = 10;
+    this.currentPage = 1;
+    this.loadContracts();
   }
 
   openEditModal(id: number): void {

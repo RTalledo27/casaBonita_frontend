@@ -34,7 +34,11 @@
       }
     },
     "inventory": {
-      "title": "Inventario"
+      "title": "Inventario",
+      "lots": { "title": "Lotes" },
+      "lotImport": { "title": "Importar Lotes (Excel)" },
+      "logicwareImport": { "title": "Importar Lotes (Logicware)" },
+      "manzanaFinancingRules": { "title": "Reglas de Financiamiento (Manzanas)" }
     },
     "sales": {
       "title": "Ventas",
