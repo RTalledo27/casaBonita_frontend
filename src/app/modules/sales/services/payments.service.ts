@@ -46,4 +46,14 @@ export class PaymentsService {
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.base}/${id}`);
   }
+
+  uploadVoucher(paymentId: number, file: File): Observable<any> {
+    const fd = new FormData();
+    fd.append('voucher', file);
+    return this.http.post<any>(`${this.base}/${paymentId}/voucher`, fd);
+  }
+
+  downloadVoucher(paymentId: number): Observable<Blob> {
+    return this.http.get(`${this.base}/${paymentId}/voucher`, { responseType: 'blob' });
+  }
 }

@@ -200,8 +200,8 @@
         </ng-template>
 
         <ng-template #installmentTpl let-row>
-            <div class="flex items-center justify-end gap-2">
-                <span class="font-semibold text-gray-900 dark:text-gray-100">
+            <div class="flex items-center gap-2">
+                <span class="w-6 text-right tabular-nums font-semibold text-gray-900 dark:text-gray-100">
                     {{ row.installment_number ?? row.schedule_id ?? '—' }}
                 </span>
                 <span *ngIf="row.movement_type === 'installment'" class="text-xs px-2 py-1 rounded-full"
@@ -288,11 +288,62 @@
                         </div>
                         <div class="bg-white/90 dark:bg-gray-800/90 border border-gray-200/60 dark:border-gray-700/60 rounded-2xl p-4">
                             <p class="text-xs text-gray-500 mb-1">Método</p>
-                            <p class="font-semibold text-gray-900 dark:text-gray-100">{{ detailRow.method || '—' }}</p>
+                            <p class="font-semibold text-gray-900 dark:text-gray-100">
+                                {{ detailRow.method || (detailRow.source === 'schedule' && !detailRow.payment_id ? 'Sin registrar' : '—') }}
+                            </p>
                         </div>
                         <div class="bg-white/90 dark:bg-gray-800/90 border border-gray-200/60 dark:border-gray-700/60 rounded-2xl p-4">
                             <p class="text-xs text-gray-500 mb-1">Referencia</p>
-                            <p class="font-semibold text-gray-900 dark:text-gray-100">{{ detailRow.reference || '—' }}</p>
+                            <p class="font-semibold text-gray-900 dark:text-gray-100">
+                                {{ detailRow.reference || (detailRow.source === 'schedule' && !detailRow.payment_id ? 'Sin registrar' : '—') }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white/90 dark:bg-gray-800/90 border border-gray-200/60 dark:border-gray-700/60 rounded-2xl p-4">
+                        <div class="flex items-center justify-between gap-3">
+                            <div>
+                                <p class="text-sm font-semibold text-gray-900 dark:text-gray-100">Voucher / Comprobante</p>
+                                <p class="text-xs text-gray-500">Disponible solo si existe un pago registrado</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button
+                                    *ngIf="detailRow.payment_id && detailRow.has_voucher"
+                                    type="button"
+                                    class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold transition-colors"
+                                    (click)="downloadVoucher()"
+                                >
+                                    Descargar
+                                </button>
+                                <button
+                                    *ngIf="detailRow.source === 'schedule' && !detailRow.payment_id && detailRow.schedule_id"
+                                    type="button"
+                                    class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold transition-colors"
+                                    (click)="openRegisterPayment(detailRow)"
+                                >
+                                    Registrar pago
+                                </button>
+                            </div>
+                        </div>
+
+                        <div *ngIf="detailRow.payment_id && !detailRow.has_voucher" class="mt-3">
+                            <div class="flex flex-col md:flex-row md:items-center gap-3">
+                                <input
+                                    type="file"
+                                    accept=".jpg,.jpeg,.png,.pdf"
+                                    class="file-input file-input-bordered w-full md:max-w-sm"
+                                    (change)="onVoucherSelected($event)"
+                                />
+                                <button
+                                    type="button"
+                                    class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition-colors disabled:opacity-50"
+                                    [disabled]="!voucherFile || isUploadingVoucher"
+                                    (click)="uploadVoucher()"
+                                >
+                                    {{ isUploadingVoucher ? 'Subiendo...' : 'Subir voucher' }}
+                                </button>
+                            </div>
+                            <div *ngIf="voucherError" class="text-sm text-red-600 mt-2">{{ voucherError }}</div>
                         </div>
                     </div>
 

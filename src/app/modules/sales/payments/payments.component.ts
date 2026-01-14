@@ -39,6 +39,9 @@ export class PaymentsComponent {
   isLoadingLedger = false;
   ledgerError: string | null = null;
   detailRow: any | null = null;
+  voucherFile: File | null = null;
+  isUploadingVoucher = false;
+  voucherError: string | null = null;
 
   columns: ColumnDef[] = [
     {
@@ -64,7 +67,8 @@ export class PaymentsComponent {
     {
       header: 'Cuota',
       translate: false,
-      align: 'right',
+      align: 'left',
+      width: '160px',
       tpl: 'installment',
     },
     {
@@ -242,10 +246,80 @@ export class PaymentsComponent {
 
   openDetail(row: any) {
     this.detailRow = row;
+    this.voucherFile = null;
+    this.voucherError = null;
   }
 
   closeDetail() {
     this.detailRow = null;
+    this.voucherFile = null;
+    this.voucherError = null;
+  }
+
+  onVoucherSelected(ev: Event) {
+    const input = ev.target as HTMLInputElement;
+    const file = input.files && input.files.length ? input.files[0] : null;
+    this.voucherFile = file;
+    this.voucherError = null;
+  }
+
+  uploadVoucher() {
+    if (!this.detailRow?.payment_id) return;
+    if (!this.voucherFile) {
+      this.voucherError = 'Selecciona un archivo (JPG/PNG/PDF) primero';
+      return;
+    }
+
+    this.isUploadingVoucher = true;
+    this.voucherError = null;
+
+    this.paymentService.uploadVoucher(this.detailRow.payment_id, this.voucherFile).subscribe({
+      next: () => {
+        this.isUploadingVoucher = false;
+        this.refresh();
+        this.detailRow = { ...this.detailRow, has_voucher: 1 };
+      },
+      error: () => {
+        this.isUploadingVoucher = false;
+        this.voucherError = 'No se pudo subir el voucher';
+      }
+    });
+  }
+
+  downloadVoucher() {
+    if (!this.detailRow?.payment_id) return;
+    this.paymentService.downloadVoucher(this.detailRow.payment_id).subscribe({
+      next: (blob: Blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `voucher_pago_${this.detailRow.payment_id}`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+      },
+      error: () => {
+        this.voucherError = 'No se pudo descargar el voucher';
+      }
+    });
+  }
+
+  openRegisterPayment(row: any) {
+    if (!row?.schedule_id) return;
+    const qp: any = {
+      schedule_id: row.schedule_id,
+      amount: row.amount,
+      payment_date: (row.date || '').toString().slice(0, 10),
+      method: row.method || 'transferencia',
+      reference: row.reference || '',
+    };
+    this.closeDetail();
+    this.router.navigate([{ outlets: { modal: ['create'] } }], {
+      relativeTo: this.route,
+      queryParams: qp,
+    });
+    this.isModalOpen = true;
   }
 
   getTypeAmount(type: string): number {

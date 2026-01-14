@@ -5,7 +5,8 @@
             <tr>
                 <th *ngFor="let c of columns" [style.width]="c.width" [class.text-right]="c.align === 'right'"
                     [class.text-center]="c.align === 'center'"
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    [class.text-left]="!c.align || c.align === 'left'"
+                    class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     <ng-container *ngIf="c.translate !== false; else plainHeader">
                         {{ c.header | translate }}
                     </ng-container>
