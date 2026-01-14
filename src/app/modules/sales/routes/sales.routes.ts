@@ -52,6 +52,7 @@ export const SALES_ROUTES: Route[] = [
   {
     path: 'payments',
     component: PaymentsComponent,
+    //falta agregar el permiso de sales.payments.view
     data: { permission: 'sales.payments.view' },
     children: [
       {

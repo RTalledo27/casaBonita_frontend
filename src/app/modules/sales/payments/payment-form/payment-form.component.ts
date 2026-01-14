@@ -4,7 +4,6 @@ import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 import { TranslateModule } from '@ngx-translate/core';
 import { PaymentsService } from '../../services/payments.service';
 import { ActivatedRoute } from '@angular/router';
-import { ModalService } from '../../../../core/services/modal.service';
 
 @Component({
   selector: 'app-payment-form',
@@ -23,14 +22,14 @@ export class PaymentFormComponent {
   constructor(
     private fb: FormBuilder,
     private paymentService: PaymentsService,
-    private route: ActivatedRoute,
-    private modalService: ModalService
+    private route: ActivatedRoute
   ) {
     this.form = this.fb.group({
-      contract_id: ['', Validators.required],
-      amount: ['', Validators.required],
+      schedule_id: ['', Validators.required],
+      amount: ['', [Validators.required, Validators.min(0)]],
       payment_date: ['', Validators.required],
-      status: ['pending'],
+      method: ['transferencia', Validators.required],
+      reference: [''],
     });
   }
 
@@ -63,6 +62,5 @@ export class PaymentFormComponent {
 
   cancel() {
     this.modalClosed.emit();
-    this.modalService.close(this.route);
   }
 }

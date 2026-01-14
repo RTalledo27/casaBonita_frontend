@@ -44,6 +44,7 @@ export class SharedTableComponent {
   }
   private _data: any[] = [];
   @Input() loading: boolean = false;
+  @Input() showActions: boolean = true;
 
   constructor(private authService: AuthService, private cdr: ChangeDetectorRef, private router: Router) {}
 

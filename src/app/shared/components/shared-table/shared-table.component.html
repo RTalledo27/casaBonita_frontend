@@ -11,7 +11,7 @@
                     </ng-container>
                     <ng-template #plainHeader>{{ c.header }}</ng-template>
                 </th>
-                <th class="px-6 py-3 w-[120px] text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th *ngIf="showActions" class="px-6 py-3 w-[120px] text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Acciones
                 </th>
             </tr>
@@ -21,7 +21,7 @@
         <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
             <!-- Loading state -->
             <tr *ngIf="loading" class="animate-pulse">
-                <td [attr.colspan]="columns.length + 1" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                <td [attr.colspan]="columns.length + (showActions ? 1 : 0)" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
                     <div class="flex items-center justify-center space-x-2">
                         <div class="w-4 h-4 bg-blue-500 rounded-full animate-bounce"></div>
                         <div class="w-4 h-4 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
@@ -56,7 +56,7 @@
         </ng-container>
 
                 <!-- Acciones -->
-                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <td *ngIf="showActions" class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div class="flex justify-end gap-2">
                         <button *ngIf="canViewDetails()" (click)="onViewClick(getId(row))"
                             [routerLink]="viewRoute ? [viewRoute, getId(row)] : null"
@@ -80,7 +80,7 @@
 
             <!-- Sin datos -->
             <tr *ngIf="!data?.length">
-                <td [attr.colspan]="columns.length + 1" class="px-6 py-12 text-center">
+                <td [attr.colspan]="columns.length + (showActions ? 1 : 0)" class="px-6 py-12 text-center">
                     <div class="flex flex-col items-center gap-3 text-gray-500 dark:text-gray-400">
                         <lucide-icon [name]="database" class="w-12 h-12 text-gray-400 dark:text-gray-500"></lucide-icon>
                         <span class="text-sm font-medium">{{ "common.noData" | translate }}</span>

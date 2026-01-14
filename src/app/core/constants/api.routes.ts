@@ -39,6 +39,7 @@ export const API_ROUTES = {
     RESERVATIONS: `${BASE}/v1/sales/reservations`,
     CONTRACTS: `${BASE}/v1/sales/contracts`,
     CONTRACT_IMPORT: `${BASE}/v1/sales/import/contracts`,
+    PAYMENTS: `${BASE}/v1/sales/payments`,
   },
   FINANCE: {
     BUDGETS: `${BASE}/v1/finance/budgets`,
