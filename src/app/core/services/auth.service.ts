@@ -311,53 +311,30 @@ export class AuthService {
     if (!module) return true; // If no module specified, return true
     const user = this.getCurrentUser();
     if (!user) {
-      console.log('🔍 DEBUG - hasModuleAccess: No user found');
       return false;
     }
     
-    // Debug: Log user permissions
-    console.log('🔍 DEBUG - hasModuleAccess:', {
-      module,
-      userRole: user.role,
-      userPermissions: user.permissions,
-      modulePermissions: user.permissions.filter(p => p.startsWith(module.toLowerCase())),
-      hasReportsAccess: user.permissions.includes('reports.access'),
-      hasReportsView: user.permissions.includes('reports.view'),
-      allReportsPermissions: user.permissions.filter(p => p.includes('reports'))
-    });
-    
     // Check if user has admin role or specific module permissions
     if (user.role === 'admin' || user.role === 'Administrador') {
-      console.log('🔍 DEBUG - User has admin role, allowing access');
       return true;
     }
     
     // Check for specific module access permission
     const moduleAccessPermission = `${module.toLowerCase()}.access`;
     if (user.permissions.includes(moduleAccessPermission)) {
-      console.log('🔍 DEBUG - User has module access permission:', moduleAccessPermission);
       return true;
     }
     
     // Check for module-specific permissions
     const modulePermissions = user.permissions.filter(p => p.startsWith(module.toLowerCase()));
     const hasModulePermissions = modulePermissions.length > 0;
-    
-    console.log('🔍 DEBUG - Module permissions check result:', {
-      hasModulePermissions,
-      modulePermissions
-    });
-    
     return hasModulePermissions;
   }
   
   // Refresh user data from server
   refreshUserData(): Observable<User> {
-    console.log('🔄 AuthService: Fetching fresh user data from /me endpoint...');
     return this.http.get<any>(`${this.apiUrl}/me`).pipe(
       map(response => {
-        console.log('📦 AuthService: Raw response from /me:', response);
-        
         const user: User = {
           id: response.user.user_id || response.user.id,
           name: response.user.full_name || response.user.name || response.user.username,
@@ -372,26 +349,11 @@ export class AuthService {
           last_login_at: response.user.last_login_at
         };
 
-        console.log('✅ AuthService: Mapped user object:', {
-          id: user.id,
-          name: user.name,
-          role: user.role,
-          permissionCount: user.permissions.length,
-          permissions: user.permissions.slice(0, 10) // Solo primeros 10 para no saturar console
-        });
-
         // IMPORTANTE: Actualizar localStorage PRIMERO, ANTES de emitir
         localStorage.setItem('user', JSON.stringify(user));
-        console.log('� AuthService: User saved to localStorage');
-        
-        // NO emitir a currentUserSubject - dejamos que SidebarService maneje la actualización
-        // Al no emitir, evitamos efectos secundarios no deseados
-        console.log('⏭️ AuthService: Skipping currentUserSubject emission for manual refresh');
-        
         return user;
       }),
       catchError(error => {
-        console.error('❌ AuthService: Error refreshing user data:', error);
         throw error;
       })
     );
@@ -411,14 +373,7 @@ export class AuthService {
     // Si no se proporciona expiresIn, usar un valor por defecto de 24 horas (86400 segundos)
     const expiresInSeconds = authResult.expiresIn || 86400;
     const expiresAt = new Date().getTime() + (expiresInSeconds * 1000);
-    
-    console.log('Setting session with expiry:', {
-      expiresIn: authResult.expiresIn,
-      expiresInSeconds,
-      expiresAt,
-      expiresAtDate: new Date(expiresAt)
-    });
-    
+        
     localStorage.setItem('token', authResult.token);
     localStorage.setItem('user', JSON.stringify(authResult.user));
     localStorage.setItem('tokenExpiry', expiresAt.toString());

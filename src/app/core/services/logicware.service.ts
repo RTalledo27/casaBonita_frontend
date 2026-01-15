@@ -106,6 +106,36 @@ export interface LogicwareConnectionStats {
   };
 }
 
+export interface FullStockStatistics {
+  total_units: number;
+  by_status: Record<string, number>;
+  with_seller: number;
+  with_client: number;
+  with_reservation: number;
+  data_source: string;
+}
+
+export interface CacheInfo {
+  cached_at: string;
+  cache_expires_at: string;
+  is_cached: boolean;
+}
+
+export interface ApiInfo {
+  daily_requests_used: number;
+  daily_requests_limit: number;
+  has_available_requests: boolean;
+}
+
+export interface FullStockResponse {
+  success: boolean;
+  data: any[];
+  statistics: FullStockStatistics;
+  cache_info: CacheInfo;
+  api_info: ApiInfo;
+  message?: string;
+}
+
 /**
  * Servicio para integración con LogicWare API
  * Maneja stages, preview y importación de lotes
@@ -117,6 +147,11 @@ export class LogicwareService {
   private readonly baseUrl = `${environment.apiUrl}/logicware`;
 
   constructor(private http: HttpClient) {}
+
+  getFullStock(forceRefresh: boolean = false): Observable<FullStockResponse> {
+    const params = new HttpParams().set('force_refresh', forceRefresh.toString());
+    return this.http.get<FullStockResponse>(`${this.baseUrl}/full-stock`, { params });
+  }
 
   /**
    * Obtener etapas (stages) disponibles del proyecto

@@ -8,7 +8,8 @@ import {
   LogicwareService,
   LogicwareStage,
   LogicwareUnit,
-  LogicwareImportOptions
+  LogicwareImportOptions,
+  FullStockResponse
 } from '../../../../core/services/logicware.service';
 
 interface StageStats {
@@ -63,6 +64,9 @@ export class ExternalLotImportComponent implements OnInit {
 
   // Estadísticas de conexión
   connectionStats = signal<any>(null);
+  fullStockLoading = signal(false);
+  fullStockForceRefresh = false;
+  fullStock = signal<FullStockResponse | null>(null);
 
   // Propiedades para componentes legacy (compatibilidad con HTML antiguo)
   testingConnection = signal(false);
@@ -120,6 +124,27 @@ export class ExternalLotImportComponent implements OnInit {
   ngOnInit(): void {
     this.loadStages();
     this.loadConnectionStats();
+  }
+
+  loadFullStock(): void {
+    this.fullStockLoading.set(true);
+    this.logicwareService.getFullStock(this.fullStockForceRefresh).subscribe({
+      next: (res) => {
+        this.fullStockLoading.set(false);
+        if (res?.success) {
+          this.fullStock.set(res);
+          const cached = res?.cache_info?.is_cached ? 'desde caché' : 'desde API';
+          this.successMessage.set(`✅ Full Stock cargado (${cached}). Total: ${res?.statistics?.total_units ?? 0}`);
+        } else {
+          this.fullStock.set(res || null);
+          this.errorMessage.set(res?.message || 'Error al cargar Full Stock');
+        }
+      },
+      error: (error) => {
+        this.fullStockLoading.set(false);
+        this.errorMessage.set('Error al cargar Full Stock: ' + (error.error?.message || error.message));
+      }
+    });
   }
 
   /**
@@ -516,4 +541,3 @@ export class ExternalLotImportComponent implements OnInit {
     setTimeout(() => this.loading.set(false), 500);
   }
 }
-
