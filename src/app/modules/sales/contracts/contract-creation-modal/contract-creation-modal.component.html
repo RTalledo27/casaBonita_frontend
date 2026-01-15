@@ -422,9 +422,25 @@
 
       <!-- Modal Footer -->
       <div class="flex items-center justify-between p-6 border-t border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 rounded-b-2xl">
-        <div class="text-sm text-gray-600 dark:text-gray-300">
-          <span *ngIf="!isFormValid" class="text-red-600 dark:text-red-400">Complete todos los campos requeridos</span>
-          <span *ngIf="isFormValid" class="text-green-600 dark:text-green-400">✓ Formulario completo</span>
+        <div class="text-sm text-gray-600 dark:text-gray-300 space-y-2">
+          <div>
+            <span *ngIf="!isFormValid" class="text-red-600 dark:text-red-400">Complete todos los campos requeridos</span>
+            <span *ngIf="isFormValid" class="text-green-600 dark:text-green-400">✓ Formulario completo</span>
+          </div>
+
+          <label class="flex items-center gap-2 select-none">
+            <input
+              type="checkbox"
+              [checked]="autoGenerateSchedule()"
+              [disabled]="creatingContract()"
+              (change)="autoGenerateSchedule.set($any($event.target).checked)"
+              class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            />
+            <span>Generar cronograma automáticamente</span>
+          </label>
+
+          <div *ngIf="scheduleGenerating()" class="text-blue-600 dark:text-blue-400">Generando cronograma...</div>
+          <div *ngIf="scheduleError()" class="text-red-600 dark:text-red-400">{{ scheduleError() }}</div>
         </div>
         
         <div class="flex space-x-3">
@@ -450,7 +466,7 @@
             </span>
             <span *ngIf="creatingContract()" class="flex items-center">
               <div class="spinner rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-              Creando...
+              {{ scheduleGenerating() ? 'Creando y generando cronograma...' : 'Creando...' }}
             </span>
           </button>
         </div>

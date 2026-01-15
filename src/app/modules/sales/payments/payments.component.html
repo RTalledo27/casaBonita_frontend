@@ -47,11 +47,11 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 w-full md:w-auto">
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Fecha inicio</label>
-                            <input type="date" class="w-full px-4 py-3 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-2xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200 font-medium" [(ngModel)]="startDate" />
+                            <input type="date" class="w-full px-4 py-3 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-2xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200 font-medium" [(ngModel)]="startDate" (change)="onFiltersChange()" />
                         </div>
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Fecha fin</label>
-                            <input type="date" class="w-full px-4 py-3 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-2xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200 font-medium" [(ngModel)]="endDate" />
+                            <input type="date" class="w-full px-4 py-3 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-2xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200 font-medium" [(ngModel)]="endDate" (change)="onFiltersChange()" />
                         </div>
                     </div>
 
@@ -75,15 +75,25 @@
                         <input
                             type="text"
                             [(ngModel)]="searchTerm"
-                            (input)="applyFilters()"
+                            (input)="onSearch()"
                             placeholder="Buscar por cliente, contrato, lote, cuota, referencia..."
-                            class="w-full px-4 py-3 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-2xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200 font-medium"
+                            class="w-full pr-10 px-4 py-3 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-2xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200 font-medium"
                         />
+                        <button
+                            *ngIf="searchTerm"
+                            type="button"
+                            (click)="searchTerm=''; onSearch()"
+                            class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+                        >
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
                     </div>
                     <div>
                         <select
                             [(ngModel)]="typeFilter"
-                            (change)="applyFilters()"
+                            (change)="onFiltersChange()"
                             class="w-full px-4 py-3 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-2xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200 font-medium"
                         >
                             <option value="">Todos los tipos</option>
@@ -92,7 +102,93 @@
                         </select>
                     </div>
                     <div class="text-sm text-gray-600 dark:text-gray-400 flex items-center">
-                        En tabla: {{ ((payments$ | async) || []).length }} movimientos
+                        En tabla: {{ pagination.total || 0 }} movimientos
+                    </div>
+                </div>
+
+                <div class="mt-4 grid grid-cols-1 md:grid-cols-4 gap-3">
+                    <div>
+                        <select
+                            [(ngModel)]="sourceFilter"
+                            (change)="onFiltersChange()"
+                            class="w-full px-4 py-3 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-2xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200 font-medium"
+                        >
+                            <option value="">Todos los orígenes</option>
+                            <option value="payment">Pago</option>
+                            <option value="schedule">Cuota (sin pago)</option>
+                            <option value="reservation">Separación</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <select
+                            [(ngModel)]="methodFilter"
+                            (change)="onFiltersChange()"
+                            class="w-full px-4 py-3 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-2xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200 font-medium"
+                        >
+                            <option value="">Todos los métodos</option>
+                            <option *ngFor="let m of methodOptions" [value]="m">{{ m }}</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <select
+                            [(ngModel)]="advisorId"
+                            (change)="onFiltersChange()"
+                            class="w-full px-4 py-3 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-2xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200 font-medium"
+                        >
+                            <option [ngValue]="null">Todos los asesores</option>
+                            <option *ngFor="let a of advisors" [ngValue]="a.id">{{ a.name }}</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <select
+                            [(ngModel)]="hasVoucherFilter"
+                            (change)="onFiltersChange()"
+                            class="w-full px-4 py-3 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-2xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200 font-medium"
+                        >
+                            <option value="">Todos (voucher)</option>
+                            <option value="1">Con voucher</option>
+                            <option value="0">Sin voucher</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mt-4 grid grid-cols-1 md:grid-cols-4 gap-3">
+                    <div>
+                        <select
+                            [(ngModel)]="sortBy"
+                            (change)="onFiltersChange()"
+                            class="w-full px-4 py-3 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-2xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200 font-medium"
+                        >
+                            <option *ngFor="let s of sortOptions" [value]="s.value">{{ s.label }}</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end">
+                        <button
+                            (click)="toggleSortDir()"
+                            class="w-full px-4 py-3 rounded-2xl bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors font-semibold"
+                        >
+                            {{ sortDir === 'asc' ? 'Asc' : 'Desc' }}
+                        </button>
+                    </div>
+                    <div>
+                        <select
+                            [ngModel]="pagination.per_page"
+                            (ngModelChange)="pagination.per_page = $event; onFiltersChange()"
+                            class="w-full px-4 py-3 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-2xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200 font-medium"
+                        >
+                            <option *ngFor="let p of pageSizeOptions" [ngValue]="p">{{ p }} / pág</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end justify-end">
+                        <button
+                            (click)="clearFilters()"
+                            class="px-4 py-3 rounded-2xl bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors font-semibold w-full md:w-auto"
+                        >
+                            Limpiar filtros
+                        </button>
                     </div>
                 </div>
 
@@ -152,7 +248,7 @@
                 <div class="relative overflow-x-auto">
                     <app-shared-table
                         [columns]="columns"
-                        [data]="(payments$ | async) || []"
+                        [data]="payments || []"
                         [idField]="idField"
                         [loading]="isLoadingLedger"
                         [templates]="templates"
@@ -160,6 +256,64 @@
                         [permissionPrefix]="'sales'"
                         componentName="payments-ledger"
                     ></app-shared-table>
+                </div>
+            </div>
+
+            <div class="relative border-t border-gray-200/50 dark:border-gray-700/50 bg-gradient-to-r from-white/70 via-slate-50/50 to-white/70 dark:from-gray-800/70 dark:via-gray-700/50 dark:to-gray-800/70 backdrop-blur-sm">
+                <div class="p-6">
+                    <div class="flex items-center justify-between">
+                        <div class="text-sm text-gray-600 dark:text-gray-400">
+                            Mostrando
+                            <span class="font-semibold text-gray-900 dark:text-gray-100">{{ pagination.from || 0 }}</span>
+                            -
+                            <span class="font-semibold text-gray-900 dark:text-gray-100">{{ pagination.to || (payments?.length || 0) }}</span>
+                            de
+                            <span class="font-semibold text-gray-900 dark:text-gray-100">{{ pagination.total || 0 }}</span>
+                            movimientos
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <button
+                                (click)="onPageChange(1)"
+                                [disabled]="pagination.current_page === 1"
+                                class="px-3 py-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            >
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path>
+                                </svg>
+                            </button>
+                            <button
+                                (click)="onPageChange(pagination.current_page - 1)"
+                                [disabled]="pagination.current_page === 1"
+                                class="px-3 py-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            >
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                                </svg>
+                            </button>
+                            <div class="px-4 py-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 font-semibold">
+                                {{ pagination.current_page || 1 }} / {{ pagination.last_page || 1 }}
+                            </div>
+                            <button
+                                (click)="onPageChange(pagination.current_page + 1)"
+                                [disabled]="pagination.current_page === pagination.last_page"
+                                class="px-3 py-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            >
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </button>
+                            <button
+                                (click)="onPageChange(pagination.last_page)"
+                                [disabled]="pagination.current_page === pagination.last_page"
+                                class="px-3 py-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            >
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

@@ -16,18 +16,53 @@ export class PaymentsService {
     return this.http.get<any[]>(this.base);
   }
 
-  ledger(params?: { start_date?: string; end_date?: string; per_page?: number }): Observable<any> {
+  ledger(params?: {
+    start_date?: string;
+    end_date?: string;
+    page?: number;
+    per_page?: number;
+    search?: string;
+    movement_type?: string;
+    source?: string;
+    method?: string;
+    advisor_id?: number;
+    has_voucher?: 0 | 1;
+    sort_by?: string;
+    sort_dir?: 'asc' | 'desc';
+  }): Observable<any> {
     let httpParams = new HttpParams();
     if (params?.start_date) httpParams = httpParams.set('start_date', params.start_date);
     if (params?.end_date) httpParams = httpParams.set('end_date', params.end_date);
+    if (params?.page) httpParams = httpParams.set('page', String(params.page));
     if (params?.per_page) httpParams = httpParams.set('per_page', String(params.per_page));
+    if (params?.search) httpParams = httpParams.set('search', params.search);
+    if (params?.movement_type) httpParams = httpParams.set('movement_type', params.movement_type);
+    if (params?.source) httpParams = httpParams.set('source', params.source);
+    if (params?.method) httpParams = httpParams.set('method', params.method);
+    if (params?.advisor_id) httpParams = httpParams.set('advisor_id', String(params.advisor_id));
+    if (params?.has_voucher !== undefined) httpParams = httpParams.set('has_voucher', String(params.has_voucher));
+    if (params?.sort_by) httpParams = httpParams.set('sort_by', params.sort_by);
+    if (params?.sort_dir) httpParams = httpParams.set('sort_dir', params.sort_dir);
     return this.http.get<any>(`${this.base}/ledger`, { params: httpParams });
   }
 
-  summary(params?: { start_date?: string; end_date?: string }): Observable<any> {
+  summary(params?: {
+    start_date?: string;
+    end_date?: string;
+    movement_type?: string;
+    source?: string;
+    method?: string;
+    advisor_id?: number;
+    has_voucher?: 0 | 1;
+  }): Observable<any> {
     let httpParams = new HttpParams();
     if (params?.start_date) httpParams = httpParams.set('start_date', params.start_date);
     if (params?.end_date) httpParams = httpParams.set('end_date', params.end_date);
+    if (params?.movement_type) httpParams = httpParams.set('movement_type', params.movement_type);
+    if (params?.source) httpParams = httpParams.set('source', params.source);
+    if (params?.method) httpParams = httpParams.set('method', params.method);
+    if (params?.advisor_id) httpParams = httpParams.set('advisor_id', String(params.advisor_id));
+    if (params?.has_voucher !== undefined) httpParams = httpParams.set('has_voucher', String(params.has_voucher));
     return this.http.get<any>(`${this.base}/summary`, { params: httpParams });
   }
 

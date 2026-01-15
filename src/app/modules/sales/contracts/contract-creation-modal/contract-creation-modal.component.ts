@@ -52,6 +52,9 @@ export class ContractCreationModalComponent implements OnInit {
   loadingLots = signal(false);
   loadingClients = signal(false);
   creatingContract = signal(false);
+  autoGenerateSchedule = signal(true);
+  scheduleGenerating = signal(false);
+  scheduleError = signal<string | null>(null);
   
   // Estados de UI
   showClientForm = signal(false);
@@ -476,6 +479,8 @@ export class ContractCreationModalComponent implements OnInit {
   onSubmit() {
     if (this.contractForm.valid && this.selectedClient() && this.selectedLot()) {
       this.creatingContract.set(true);
+      this.scheduleGenerating.set(false);
+      this.scheduleError.set(null);
       
       const contractData = {
         ...this.contractForm.value,
@@ -485,9 +490,36 @@ export class ContractCreationModalComponent implements OnInit {
 
       this.contractsService.create(contractData).subscribe({
         next: (contract) => {
-          this.contractCreated.emit(contract);
-          this.onClose();
-          this.creatingContract.set(false);
+          const contractId = (contract as any)?.data?.contract_id ?? (contract as any)?.contract_id;
+          const financedAmount = Number((contractData as any)?.financed_amount ?? (contractData as any)?.financing_amount ?? 0);
+          const termMonths = Number((contractData as any)?.term_months ?? 0);
+          const shouldGenerate = this.autoGenerateSchedule() && financedAmount > 0 && termMonths > 0 && Number.isFinite(Number(contractId));
+
+          if (!shouldGenerate) {
+            this.contractCreated.emit(contract);
+            this.onClose();
+            this.creatingContract.set(false);
+            return;
+          }
+
+          this.scheduleGenerating.set(true);
+          const today = new Date().toISOString().slice(0, 10);
+          this.contractsService
+            .generateSchedule(Number(contractId), { start_date: today, frequency: 'monthly', notes: 'Generado automáticamente al crear contrato' })
+            .subscribe({
+              next: () => {
+                this.contractCreated.emit(contract);
+                this.onClose();
+                this.creatingContract.set(false);
+                this.scheduleGenerating.set(false);
+              },
+              error: () => {
+                this.scheduleError.set('Contrato creado, pero no se pudo generar el cronograma automáticamente.');
+                this.contractCreated.emit(contract);
+                this.creatingContract.set(false);
+                this.scheduleGenerating.set(false);
+              },
+            });
         },
         error: (error) => {
           console.error('Error creating contract:', error);

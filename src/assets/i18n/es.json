@@ -388,12 +388,13 @@
     "lots": {
       "title": "Lotes",
       "search": "Buscar lotes",
-      "status": {
-        "label": "Estado",
-        "disponible": "Disponible",
-        "reservado": "Reservado",
-        "vendido": "Vendido"
-      },
+        "status": {
+          "label": "Estado",
+          "disponible": "Disponible",
+          "reservado": "Reservado",
+          "bloqueado": "Bloqueado",
+          "vendido": "Vendido"
+        },
       "filterManzana": "N° Manzana",
       "detailTitle": "Detalle del Lote",
       "manzana": "Manzana",

@@ -439,12 +439,13 @@
     "lots": {
       "title": "Lots",
       "search": "Search lots",
-      "status": {
-        "label": "Status",
-        "disponible": "Available",
-        "reservado": "Reserved",
-        "vendido": "Sold"
-      },
+        "status": {
+          "label": "Status",
+          "disponible": "Available",
+          "reservado": "Reserved",
+          "bloqueado": "Blocked",
+          "vendido": "Sold"
+        },
       "filterManzana": "Block #",
       "detailTitle": "Lot Details",
       "manzana": "Block",

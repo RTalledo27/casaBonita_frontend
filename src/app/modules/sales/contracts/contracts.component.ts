@@ -15,8 +15,10 @@ import { ContractImportComponent } from './components/contract-import/contract-i
 import { ContractCreationModalComponent } from './contract-creation-modal/contract-creation-modal.component';
 import { ContractDetailsModalComponent } from './components/contract-details-modal/contract-details-modal.component';
 import { LogicwareFullStockModalComponent } from './logicware-full-stock-modal/logicware-full-stock-modal.component';
-import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { AdvisorsService, AdvisorOption } from '../services/advisors.service';
+import { Subject, of, combineLatest } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, finalize, map, startWith, switchMap, tap } from 'rxjs/operators';
+import { diffCalendarDays, parseApiDate } from '../../../core/utils/date';
 
 @Component({
   selector: 'app-contracts',
@@ -44,12 +46,24 @@ export class ContractsComponent implements OnInit {
   searchTerm = '';
   statusFilter = '';
   withFinancingOnly = false;
+  advisorId: number | null = null;
+  signDateFrom = '';
+  signDateTo = '';
+  sortBy = 'sign_date';
+  sortDir: 'asc' | 'desc' = 'desc';
+  advisors: AdvisorOption[] = [];
   readonly pageSizeOptions = [10, 25, 50, 100];
   readonly statusOptions = [
     { value: '', label: 'Todos' },
     { value: 'vigente', label: 'Vigente' },
     { value: 'resuelto', label: 'Resuelto' },
     { value: 'cancelado', label: 'Cancelado' },
+  ];
+  readonly sortOptions = [
+    { value: 'sign_date', label: 'Fecha de firma' },
+    { value: 'contract_number', label: 'Número de contrato' },
+    { value: 'total_price', label: 'Precio total' },
+    { value: 'status', label: 'Estado' },
   ];
   pagination: any = {
     current_page: 1,
@@ -86,6 +100,7 @@ export class ContractsComponent implements OnInit {
   fullStockData: FullStockResponse | null = null;
   fullStockLoading = false;
   private search$ = new Subject<string>();
+  private refresh$ = new Subject<void>();
 
   constructor(
     private contractsService: ContractsService,
@@ -95,7 +110,8 @@ export class ContractsComponent implements OnInit {
     private modalService: ModalService,
     public authService: AuthService,
     public theme: ThemeService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private advisorsService: AdvisorsService
   ) {
   }
 
@@ -110,14 +126,97 @@ export class ContractsComponent implements OnInit {
       return;
     }
 
-    this.search$
-      .pipe(debounceTime(300), distinctUntilChanged())
-      .subscribe(() => {
-        this.currentPage = 1;
-        this.loadContracts();
+    this.advisorsService
+      .list()
+      .pipe(
+        map((r: any) => (Array.isArray(r?.data) ? r.data : [])),
+        map((items: any[]) =>
+          items
+            .map((e) => ({
+              id: Number(e?.employee_id),
+              name: String(e?.full_name || e?.user?.full_name || e?.user?.first_name || 'Asesor'),
+            }))
+            .filter((a) => Number.isFinite(a.id))
+            .sort((a, b) => a.name.localeCompare(b.name)),
+        ),
+        catchError(() => of([] as AdvisorOption[])),
+      )
+      .subscribe((advisors) => {
+        this.advisors = advisors;
+        this.cdr.detectChanges();
       });
 
-    this.loadContracts();
+    this.search$.pipe(debounceTime(300), distinctUntilChanged()).subscribe((term) => {
+      this.setQueryParams({ search: term || null, page: 1 });
+    });
+
+    const queryState$ = this.route.queryParamMap.pipe(
+        map((pm) => ({
+          page: Number(pm.get('page') || 1),
+          per_page: Number(pm.get('per_page') || 10),
+          search: pm.get('search') || '',
+          status: pm.get('status') || '',
+          with_financing: pm.get('with_financing') === '1',
+          advisor_id: pm.get('advisor_id') ? Number(pm.get('advisor_id')) : null,
+          sign_date_from: pm.get('sign_date_from') || '',
+          sign_date_to: pm.get('sign_date_to') || '',
+          sort_by: pm.get('sort_by') || 'sign_date',
+          sort_dir: (pm.get('sort_dir') === 'asc' ? 'asc' : 'desc') as 'asc' | 'desc',
+        })),
+        map((s) => ({
+          ...s,
+          page: Number.isFinite(s.page) && s.page > 0 ? s.page : 1,
+          per_page: Number.isFinite(s.per_page) && s.per_page > 0 ? s.per_page : 10,
+        })),
+        distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
+      );
+
+    combineLatest([queryState$, this.refresh$.pipe(startWith(undefined))])
+      .pipe(
+        map(([s]) => s),
+        tap((s) => {
+          this.currentPage = s.page;
+          this.pageSize = s.per_page;
+          this.searchTerm = s.search;
+          this.statusFilter = s.status;
+          this.withFinancingOnly = s.with_financing;
+          this.advisorId = s.advisor_id;
+          this.signDateFrom = s.sign_date_from;
+          this.signDateTo = s.sign_date_to;
+          this.sortBy = s.sort_by;
+          this.sortDir = s.sort_dir;
+          this.loading = true;
+          this.cdr.detectChanges();
+        }),
+        switchMap((s) =>
+          this.contractsService
+            .list({
+              page: s.page,
+              per_page: s.per_page,
+              search: s.search || undefined,
+              status: s.status || undefined,
+              with_financing: s.with_financing ? 1 : 0,
+              advisor_id: s.advisor_id ?? undefined,
+              sign_date_from: s.sign_date_from || undefined,
+              sign_date_to: s.sign_date_to || undefined,
+              sort_by: s.sort_by || undefined,
+              sort_dir: s.sort_dir || undefined,
+            })
+            .pipe(
+              catchError(() => of({ data: [], meta: { current_page: 1, last_page: 1, total: 0, per_page: s.per_page } })),
+              finalize(() => {
+                this.loading = false;
+                this.cdr.detectChanges();
+              }),
+            ),
+        ),
+      )
+      .subscribe((response: any) => {
+        const data = response?.data;
+        this.contracts = Array.isArray(data) ? data : [];
+        this.pagination = response?.meta || this.pagination;
+        this.cdr.detectChanges();
+      });
   }
 
   getAdvisorName(contract: any): string {
@@ -132,56 +231,30 @@ export class ContractsComponent implements OnInit {
 
   formatSignDate(date: string): string {
     if (!date) return 'Sin fecha';
-    return new Date(date).toLocaleDateString('es-ES');
+    return parseApiDate(date).toLocaleDateString('es-ES');
   }
 
   getRelativeDate(date: string): string {
     if (!date) return '';
-    const now = new Date();
-    const signDate = new Date(date);
-    const diffTime = Math.abs(now.getTime() - signDate.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    if (diffDays === 0) return 'Hoy';
-    if (diffDays === 1) return 'Ayer';
-    if (diffDays < 7) return `Hace ${diffDays} días`;
-    if (diffDays < 30) return `Hace ${Math.floor(diffDays / 7)} semanas`;
-    return `Hace ${Math.floor(diffDays / 30)} meses`;
+    const today = new Date();
+    const signDate = parseApiDate(date);
+    const dayDiff = diffCalendarDays(today, signDate);
+
+    if (dayDiff === 0) return 'Hoy';
+    if (dayDiff === 1) return 'Ayer';
+    if (dayDiff < 0) return 'Futuro';
+    if (dayDiff < 7) return `Hace ${dayDiff} días`;
+    if (dayDiff < 30) return `Hace ${Math.floor(dayDiff / 7)} semanas`;
+    return `Hace ${Math.floor(dayDiff / 30)} meses`;
   }
 
   loadContracts(): void {
-    this.loading = true;
-    const search = this.searchTerm?.trim() || undefined;
-    const status = this.statusFilter || undefined;
-    const withFinancing = this.withFinancingOnly ? 1 : 0;
-
-    this.contractsService
-      .list({
-        page: this.currentPage,
-        per_page: this.pageSize,
-        search,
-        status,
-        with_financing: withFinancing,
-      })
-      .subscribe({
-        next: (response: any) => {
-          const data = response?.data;
-          this.contracts = Array.isArray(data) ? data : [];
-          this.pagination = response?.meta || response?.pagination || this.pagination;
-          this.loading = false;
-          this.cdr.detectChanges();
-        },
-        error: () => {
-          this.contracts = [];
-          this.loading = false;
-        },
-      });
+    this.refresh$.next();
   }
   
   onPageChange(page: number): void {
     const nextPage = Math.max(1, Math.min(page, this.pagination?.last_page || 1));
-    this.currentPage = nextPage;
-    this.loadContracts();
+    this.setQueryParams({ page: nextPage });
   }
 
   onSearch(): void {
@@ -189,17 +262,61 @@ export class ContractsComponent implements OnInit {
   }
 
   onFiltersChange(): void {
-    this.currentPage = 1;
-    this.loadContracts();
+    this.setQueryParams({
+      page: 1,
+      per_page: this.pageSize,
+      status: this.statusFilter || null,
+      with_financing: this.withFinancingOnly ? 1 : 0,
+      advisor_id: this.advisorId ? this.advisorId : null,
+      sign_date_from: this.signDateFrom || null,
+      sign_date_to: this.signDateTo || null,
+      sort_by: this.sortBy || null,
+      sort_dir: this.sortDir || null,
+    });
   }
 
   clearFilters(): void {
     this.searchTerm = '';
     this.statusFilter = '';
     this.withFinancingOnly = false;
+    this.advisorId = null;
+    this.signDateFrom = '';
+    this.signDateTo = '';
+    this.sortBy = 'sign_date';
+    this.sortDir = 'desc';
     this.pageSize = 10;
-    this.currentPage = 1;
-    this.loadContracts();
+    this.setQueryParams({
+      page: 1,
+      per_page: 10,
+      search: null,
+      status: null,
+      with_financing: 0,
+      advisor_id: null,
+      sign_date_from: null,
+      sign_date_to: null,
+      sort_by: null,
+      sort_dir: null,
+    });
+  }
+
+  toggleSortDir(): void {
+    this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc';
+    this.onFiltersChange();
+  }
+
+  private setQueryParams(params: any): void {
+    const cleaned: Record<string, any> = {};
+    Object.keys(params).forEach((k) => {
+      const v = params[k];
+      cleaned[k] = v === undefined || v === '' ? null : v;
+    });
+
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: cleaned,
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
   }
 
   openEditModal(id: number): void {

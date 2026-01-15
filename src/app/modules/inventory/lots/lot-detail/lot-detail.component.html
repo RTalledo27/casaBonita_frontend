@@ -62,7 +62,15 @@
 
                     <div class="data-item">
                         <span class="data-label">{{ 'inventory.lots.status.label' | translate }}</span>
-                        <span class="data-value status-available">{{ lot.status || '-' }}</span>
+                        <span class="data-value"
+                              [ngClass]="{
+                                'status-available': lot.status === 'disponible',
+                                'status-reserved': lot.status === 'reservado',
+                                'status-blocked': lot.status === 'bloqueado',
+                                'status-sold': lot.status === 'vendido'
+                              }">
+                          {{ ('inventory.lots.status.' + lot.status) | translate }}
+                        </span>
                     </div>
                 </div>
             </div>

@@ -42,7 +42,7 @@ export interface Lot {
   BFH?: number;
   initial_quota?: number;
   currency: string;
-  status: 'disponible' | 'reservado' | 'vendido';
+  status: 'disponible' | 'reservado' | 'bloqueado' | 'vendido';
   external_id?: string | null;
   external_code?: string | null;
   external_sync_at?: string | null;
@@ -52,4 +52,3 @@ export interface Lot {
   street_type?: StreetType;
   media?: LotMedia[];
 }
-
