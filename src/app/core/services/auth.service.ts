@@ -95,7 +95,6 @@ export class AuthService {
         sessionService.initialize();
       });
     } catch (error) {
-      console.error('Error al inicializar tracking:', error);
     }
   }
 
@@ -109,7 +108,6 @@ export class AuthService {
         sessionService.cleanup();
       });
     } catch (error) {
-      console.error('Error al limpiar tracking:', error);
     }
   }
 
@@ -117,26 +115,10 @@ export class AuthService {
   login(credentials: LoginRequest): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${this.apiUrl}/login`, credentials).pipe(
       tap(response => {
-        console.log('Login successful:', response);
         this.setSession(response);
       }),
       catchError(error => {
-        console.error('Login error:', error);
-        console.error('Error status:', error.status);
-        console.error('Error message:', error.message);
-        console.error('Full error:', error);
-        
-        // Re-throw the error instead of using mock token
         throw error;
-        
-        // COMMENTED OUT: Mock login fallback
-        // const mockResponse: LoginResponse = {
-        //   token: 'mock-jwt-token-' + Date.now(),
-        //   user: this.getMockUser(),
-        //   expiresIn: 3600
-        // };
-        // this.setSession(mockResponse);
-        // return of(mockResponse);
       })
     );
   }
@@ -145,12 +127,6 @@ export class AuthService {
   logout(): void {
     // Llamar al backend para registrar el logout
     this.http.post(`${this.apiUrl}/logout`, {}).subscribe({
-      next: () => {
-        console.log('Logout registrado en el servidor');
-      },
-      error: (error) => {
-        console.error('Error al registrar logout:', error);
-      },
       complete: () => {
         // Limpiar sesión local independientemente del resultado
         this.clearSession();
@@ -252,7 +228,17 @@ export class AuthService {
       current_password: currentPassword,
       new_password: newPassword,
       new_password_confirmation: newPassword
-    });
+    }).pipe(
+      tap((response: any) => {
+        if (response?.token && response?.user) {
+          this.setSession({
+            token: response.token,
+            user: response.user,
+            expiresIn: response.expiresIn
+          });
+        }
+      })
+    );
   }
 
   // Forgot password (ruta pública, sin /v1/security)
@@ -364,7 +350,6 @@ export class AuthService {
     try {
       await this.refreshUserData().toPromise();
     } catch (error) {
-      console.error('Error refreshing user:', error);
     }
   }
 
@@ -385,54 +370,4 @@ export class AuthService {
     this.initializeSessionTracking();
   }
 
-  private getMockUser(): User {
-    return {
-      id: 1,
-      name: 'Administrador Casa Bonita',
-      email: 'admin@casabonita.com',
-      role: 'admin',
-      department: 'Administración',
-      position: 'Administrador General',
-      avatar: 'https://ui-avatars.com/api/?name=Admin&background=3B82F6&color=fff',
-      permissions: [
-        // Reports permissions
-        'reports.view',
-        'reports.view_dashboard',
-        'reports.view_sales',
-        'reports.view_payments',
-        'reports.view_projections',
-        'reports.export',
-        'reports.create',
-        'reports.edit',
-        'reports.delete',
-        'reports.admin',
-        
-        // Sales permissions
-        'sales.view',
-        'sales.create',
-        'sales.edit',
-        'sales.delete',
-        'sales.manage',
-        
-        // Collections permissions
-        'collections.view',
-        'collections.manage',
-        'collections.edit_schedule',
-        
-        // HR permissions
-        'hr.view',
-        'hr.manage_employees',
-        
-        // Finance permissions
-        'finance.view',
-        'finance.manage',
-        
-        // Admin permissions
-        'admin.users',
-        'admin.settings',
-        'admin.permissions',
-        'admin.all'
-      ]
-    };
-  }
 }
