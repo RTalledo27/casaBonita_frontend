@@ -44,7 +44,6 @@ export class SharedTableComponent {
   }
   private _data: any[] = [];
   @Input() loading: boolean = false;
-  @Input() showActions: boolean = true;
 
   constructor(private authService: AuthService, private cdr: ChangeDetectorRef, private router: Router) {}
 
@@ -71,6 +70,7 @@ export class SharedTableComponent {
   @Input() componentName: string = '';
 
   @Input() permissionPrefix = 'security';
+  @Input() showActions: boolean = true;
   /** Field that contains the id for each row */
   @Input() idField?: string;
 

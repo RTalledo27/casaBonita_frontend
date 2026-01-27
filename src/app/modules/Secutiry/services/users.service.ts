@@ -34,10 +34,14 @@ export class UsersService {
 
   private base = API_ROUTES.SECURITY.USERS;
 
-  list(page: number = 1, perPage: number = 10): Observable<PaginatedResponse<User>> {
+  list(page: number = 1, perPage: number = 10, search?: string): Observable<PaginatedResponse<User>> {
     let params = new HttpParams()
       .set('page', page.toString())
       .set('per_page', perPage.toString());
+
+    if (search) {
+      params = params.set('search', search);
+    }
 
     return this.http.get<PaginatedResponse<User>>(this.base, { params });
   }

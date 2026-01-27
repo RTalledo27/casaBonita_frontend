@@ -62,15 +62,7 @@
 
                     <div class="data-item">
                         <span class="data-label">{{ 'inventory.lots.status.label' | translate }}</span>
-                        <span class="data-value"
-                              [ngClass]="{
-                                'status-available': lot.status === 'disponible',
-                                'status-reserved': lot.status === 'reservado',
-                                'status-blocked': lot.status === 'bloqueado',
-                                'status-sold': lot.status === 'vendido'
-                              }">
-                          {{ ('inventory.lots.status.' + lot.status) | translate }}
-                        </span>
+                        <span class="data-value status-available">{{ lot.status || '-' }}</span>
                     </div>
                 </div>
             </div>
@@ -89,47 +81,17 @@
                 <div class="data-grid">
                     <div class="data-item">
                         <span class="data-label">{{ 'inventory.lots.totalPrice' | translate }}</span>
-                        <span class="data-value">{{ formatMoney(lot.total_price) }}</span>
+                        <span class="data-value">S/. {{ lot.total_price || '-' }}</span>
+                    </div>
+
+                    <div class="data-item">
+                        <span class="data-label">{{ 'inventory.lots.initialQuota' | translate }}</span>
+                        <span class="data-value">{{ lot.initial_quota || '-' }}</span>
                     </div>
 
                     <div class="data-item">
                         <span class="data-label">{{ 'inventory.lots.currency' | translate }}</span>
                         <span class="data-value">{{ lot.currency || '-' }}</span>
-                    </div>
-
-                    <div class="data-item">
-                        <span class="data-label">Precio por m²</span>
-                        <span class="data-value">{{ lot.external?.price_per_sqm ? formatMoney(lot.external?.price_per_sqm) : '-' }}</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="data-card">
-                <h2 class="card-title">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="title-icon" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6 2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-                    </svg>
-                    Dimensiones
-                </h2>
-
-                <div class="data-grid">
-                    <div class="data-item">
-                        <span class="data-label">Frente</span>
-                        <span class="data-value">{{ lot.external?.frontage ?? '-' }}</span>
-                    </div>
-                    <div class="data-item">
-                        <span class="data-label">Fondo</span>
-                        <span class="data-value">{{ lot.external?.depth ?? '-' }}</span>
-                    </div>
-                    <div class="data-item">
-                        <span class="data-label">Orientación</span>
-                        <span class="data-value">{{ lot.external?.orientation || '-' }}</span>
-                    </div>
-                    <div class="data-item">
-                        <span class="data-label">Esquinero</span>
-                        <span class="data-value">{{ yesNo(lot.external?.is_corner) }}</span>
                     </div>
                 </div>
             </div>
@@ -137,87 +99,31 @@
 
         <!-- Columna de detalles adicionales -->
         <div class="details-column">
-            <div class="data-card" *ngIf="lot.financial_template">
-                <h2 class="card-title">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="title-icon" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m10-8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2m-2-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                    Financiamiento
-                </h2>
-
-                <div class="data-grid">
-                    <div class="data-item">
-                        <span class="data-label">Precio lista</span>
-                        <span class="data-value">{{ formatMoney(lot.financial_template?.precio_lista) }}</span>
-                    </div>
-                    <div class="data-item">
-                        <span class="data-label">Descuento</span>
-                        <span class="data-value">{{ formatMoney(lot.financial_template?.descuento) }}</span>
-                    </div>
-                    <div class="data-item">
-                        <span class="data-label">Precio venta</span>
-                        <span class="data-value">{{ formatMoney(lot.financial_template?.precio_venta) }}</span>
-                    </div>
-                    <div class="data-item">
-                        <span class="data-label">Precio contado</span>
-                        <span class="data-value">{{ lot.financial_template?.precio_contado ? formatMoney(lot.financial_template?.precio_contado) : '-' }}</span>
-                    </div>
-                    <div class="data-item">
-                        <span class="data-label">Cuota inicial</span>
-                        <span class="data-value">{{ formatMoney(lot.financial_template?.cuota_inicial) }}</span>
-                    </div>
-                    <div class="data-item">
-                        <span class="data-label">Cuota balón</span>
-                        <span class="data-value">{{ lot.financial_template?.cuota_balon ? formatMoney(lot.financial_template?.cuota_balon) : '-' }}</span>
-                    </div>
-                    <div class="data-item">
-                        <span class="data-label">Bono BPP</span>
-                        <span class="data-value">{{ lot.financial_template?.bono_bpp ? formatMoney(lot.financial_template?.bono_bpp) : '-' }}</span>
-                    </div>
-                    <div class="data-item">
-                        <span class="data-label">Cuotas disponibles</span>
-                        <span class="data-value" *ngIf="getAvailableInstallments().length === 0">No configurado</span>
-                        <div class="data-value" *ngIf="getAvailableInstallments().length > 0">
-                            <div *ngFor="let i of getAvailableInstallments()">
-                                {{ i.months }} meses: {{ formatMoney(i.amount) }}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
+            <!-- Subsidios -->
             <div class="data-card">
                 <h2 class="card-title">
                     <svg xmlns="http://www.w3.org/2000/svg" class="title-icon" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM10 8.5a.5.5 0 11-1 0 .5.5 0 011 0zm5 5a.5.5 0 11-1 0 .5.5 0 011 0z" />
                     </svg>
-                    Sincronización
+                    {{ 'inventory.lots.subsidiesTitle' | translate }}
                 </h2>
 
                 <div class="data-grid">
                     <div class="data-item">
-                        <span class="data-label">Código externo</span>
-                        <span class="data-value">{{ lot.external_code || '-' }}</span>
+                        <span class="data-label">{{ 'inventory.lots.funding' | translate }}</span>
+                        <span class="data-value">{{ getLotValue('funding') || '-' }}</span>
                     </div>
+
                     <div class="data-item">
-                        <span class="data-label">ID externo</span>
-                        <span class="data-value">{{ lot.external_id || '-' }}</span>
+                        <span class="data-label">{{ 'inventory.lots.BPP' | translate }}</span>
+                        <span class="data-value">{{ getLotValue('BPP') || '-' }}</span>
                     </div>
+
                     <div class="data-item">
-                        <span class="data-label">Fuente</span>
-                        <span class="data-value">{{ lot.external?.source || '-' }}</span>
-                    </div>
-                    <div class="data-item">
-                        <span class="data-label">Última sincronización</span>
-                        <span class="data-value">{{ lot.external_sync_at || '-' }}</span>
-                    </div>
-                    <div class="data-item">
-                        <span class="data-label">Observaciones</span>
-                        <span class="data-value">{{ lot.external?.remarks || '-' }}</span>
+                        <span class="data-label">{{ 'inventory.lots.BFH' | translate }}</span>
+                        <span class="data-value">{{ getLotValue('BFH') || '-' }}</span>
                     </div>
                 </div>
             </div>
@@ -240,7 +146,7 @@
                                 <img *ngIf="m.type !== 'doc'" [src]="backendBaseUrl+m.url" class="media-image"
                                     alt="Media" />
 
-                                <a *ngIf="m.type === 'doc'" [href]="backendBaseUrl+m.url" target="_blank" class="doc-link">
+                                <a *ngIf="m.type === 'doc'" [href]="m.url" target="_blank" class="doc-link">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="doc-icon" fill="none"
                                         viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

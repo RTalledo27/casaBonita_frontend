@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 import { TranslateModule } from '@ngx-translate/core';
 import { PaymentsService } from '../../services/payments.service';
 import { ActivatedRoute } from '@angular/router';
+import { ModalService } from '../../../../core/services/modal.service';
 
 @Component({
   selector: 'app-payment-form',
@@ -15,7 +16,6 @@ export class PaymentFormComponent {
   form: FormGroup;
   isEditMode = false;
   editingId?: number;
-  voucherFile: File | null = null;
 
   @Output() submitForm = new EventEmitter<void>();
   @Output() modalClosed = new EventEmitter<void>();
@@ -23,33 +23,18 @@ export class PaymentFormComponent {
   constructor(
     private fb: FormBuilder,
     private paymentService: PaymentsService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private modalService: ModalService
   ) {
     this.form = this.fb.group({
-      schedule_id: ['', Validators.required],
-      amount: ['', [Validators.required, Validators.min(0)]],
+      contract_id: ['', Validators.required],
+      amount: ['', Validators.required],
       payment_date: ['', Validators.required],
-      method: ['transferencia', Validators.required],
-      reference: [''],
+      status: ['pending'],
     });
   }
 
   ngOnInit() {
-    const qp = this.route.snapshot.queryParamMap;
-    const scheduleId = qp.get('schedule_id');
-    const amount = qp.get('amount');
-    const paymentDate = qp.get('payment_date');
-    const method = qp.get('method');
-    const reference = qp.get('reference');
-
-    const patch: any = {};
-    if (scheduleId) patch.schedule_id = Number(scheduleId);
-    if (amount) patch.amount = Number(amount);
-    if (paymentDate) patch.payment_date = paymentDate;
-    if (method) patch.method = method;
-    if (reference) patch.reference = reference;
-    if (Object.keys(patch).length) this.form.patchValue(patch);
-
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.isEditMode = true;
@@ -58,11 +43,6 @@ export class PaymentFormComponent {
         .get(this.editingId)
         .subscribe((p) => this.form.patchValue(p));
     }
-  }
-
-  onVoucherSelected(ev: Event) {
-    const input = ev.target as HTMLInputElement;
-    this.voucherFile = input.files && input.files.length ? input.files[0] : null;
   }
 
   submit() {
@@ -76,22 +56,13 @@ export class PaymentFormComponent {
       this.isEditMode && this.editingId
         ? this.paymentService.update(this.editingId, fd)
         : this.paymentService.create(fd);
-    req$.subscribe((res: any) => {
-      const payload = res?.data ?? res;
-      const paymentId = (payload?.payment_id ?? this.editingId) as number | undefined;
-      if (!this.voucherFile || !paymentId) {
-        this.submitForm.emit();
-        return;
-      }
-
-      this.paymentService.uploadVoucher(paymentId, this.voucherFile).subscribe({
-        next: () => this.submitForm.emit(),
-        error: () => this.submitForm.emit(),
-      });
+    req$.subscribe(() => {
+      this.submitForm.emit();
     });
   }
 
   cancel() {
     this.modalClosed.emit();
+    this.modalService.close(this.route);
   }
 }

@@ -4,10 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { LucideAngularModule, Upload, Download, FileText, AlertCircle, CheckCircle, X, Loader, BarChart3, Trash2, ChevronUp, ChevronDown, History, FileX, Clock } from 'lucide-angular';
 import { ContractImportService, ImportResponse, ImportLog } from '../../../services/contract-import.service';
-import { finalize, switchMap, takeWhile } from 'rxjs/operators';
+import { finalize } from 'rxjs/operators';
 import { ThemeService } from '../../../../../core/services/theme.service';
 import { ExternalLotImportService } from '../../../../../core/services/external-lot-import.service';
-import { interval, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-contract-import',
@@ -99,33 +98,17 @@ export class ContractImportComponent {
   salesLoading = false;
   salesImporting = false;
   salesError: string | null = null;
-  salesImportProcessId: number | null = null;
-  salesImportProgress: number = 0;
-  salesImportStatus: string | null = null;
-  salesSuccessMessage: string | null = null;
-  salesImportProcessedRows: number = 0;
-  salesImportTotalRows: number = 0;
-  salesTotalClients: number = 0;
-  salesTotalDocuments: number = 0;
-  private salesImportPollSub: Subscription | null = null;
 
   fetchSalesPreview(forceRefresh: boolean = false) {
     this.salesPreview = [];
     this.salesError = null;
-    this.salesSuccessMessage = null;
     this.salesLoading = true;
-    this.salesTotalClients = 0;
-    this.salesTotalDocuments = 0;
     this.externalImport.getSales(this.salesStartDate || undefined, this.salesEndDate || undefined, forceRefresh)
       .pipe(finalize(() => this.salesLoading = false))
       .subscribe({
         next: (res: any) => {
           // expected shape: { success, data: { items: [...] } } or direct array
-          if (res?.data?.items) {
-            this.salesPreview = res.data.items;
-            this.salesTotalClients = res?.data?.total_clients || res?.data?.total || 0;
-            this.salesTotalDocuments = res?.data?.total_documents || 0;
-          }
+          if (res?.data?.items) this.salesPreview = res.data.items;
           else if (Array.isArray(res)) this.salesPreview = res;
           else if (res?.data) this.salesPreview = res.data;
           else this.salesPreview = [];
@@ -140,93 +123,34 @@ export class ContractImportComponent {
   importSalesFromExternal(forceRefresh: boolean = false) {
     this.salesImporting = true;
     this.salesError = null;
-    this.salesSuccessMessage = null;
-    this.salesImportProgress = 0;
-    this.salesImportProcessId = null;
-    this.salesImportStatus = 'pending';
-    this.salesImportProcessedRows = 0;
-    this.salesImportTotalRows = 0;
-    if (this.salesImportPollSub) {
-      this.salesImportPollSub.unsubscribe();
-      this.salesImportPollSub = null;
-    }
     
     // Reset sales preview para indicar que está procesando
     const previousPreview = [...this.salesPreview];
     
-    this.externalImport.importSales(this.salesStartDate || undefined, this.salesEndDate || undefined, forceRefresh, true)
+    this.externalImport.importSales(this.salesStartDate || undefined, this.salesEndDate || undefined, forceRefresh)
+      .pipe(finalize(() => {
+        this.salesImporting = false;
+      }))
       .subscribe({
         next: (res: any) => {
-          if (!res?.success) {
-            this.salesImporting = false;
-            this.salesError = res?.message || 'Importación no completada';
-            this.salesPreview = previousPreview;
-            return;
-          }
-
-          const processId = res?.data?.process_id;
-          if (!processId) {
-            this.salesImporting = false;
+          console.log('Import sales result', res);
+          if (res?.success) {
+            // Mostrar resultado exitoso
             this.salesError = null;
-            this.salesImportStatus = 'completed';
-            this.salesSuccessMessage = res?.message || 'Importación completada';
+            // Emit completed so parent reloads contracts
             this.importCompleted.emit();
+            // Limpiar preview después de importar exitosamente
             this.salesPreview = [];
-            return;
+          } else {
+            this.salesError = res?.message || 'Importación no completada';
+            this.salesPreview = previousPreview; // Restaurar preview
           }
-
-          this.salesImportProcessId = processId;
-
-          this.salesImportPollSub = interval(2500)
-            .pipe(
-              switchMap(() => this.externalImport.getSalesImportStatus(processId)),
-              takeWhile((s: any) => {
-                const status = s?.data?.status;
-                return status !== 'completed' && status !== 'failed';
-              }, true),
-              finalize(() => {
-                this.salesImporting = false;
-              })
-            )
-            .subscribe({
-              next: (statusRes: any) => {
-                const progress = statusRes?.data?.progress_percentage;
-                const parsedProgress = typeof progress === 'number' ? progress : parseFloat(progress);
-                this.salesImportProgress = Number.isFinite(parsedProgress) ? parsedProgress : 0;
-                this.salesImportProcessedRows = statusRes?.data?.processed_rows || 0;
-                this.salesImportTotalRows = statusRes?.data?.total_rows || 0;
-
-                const status = statusRes?.data?.status;
-                this.salesImportStatus = status || this.salesImportStatus;
-                if (status === 'completed') {
-                  this.salesError = null;
-                  this.salesSuccessMessage = statusRes?.data?.summary?.message || 'Importación completada';
-                  this.importCompleted.emit();
-                  this.salesPreview = [];
-                }
-                if (status === 'failed') {
-                  const msg = statusRes?.data?.errors?.message || 'Importación fallida';
-                  this.salesError = `Error al importar: ${msg}`;
-                  this.salesPreview = previousPreview;
-                }
-              },
-              error: (err: any) => {
-                console.error('Error importing sales (status poll)', err);
-                const errorMsg = err?.error?.message || err?.message || 'Error al consultar estado';
-                this.salesError = `Error al importar: ${errorMsg}`;
-                this.salesSuccessMessage = null;
-                this.salesImporting = false;
-                this.salesPreview = previousPreview;
-              }
-            });
         },
         error: (err: any) => {
           console.error('Error importing sales', err);
           const errorMsg = err?.error?.message || err?.message || 'Error al importar ventas';
           this.salesError = `Error al importar: ${errorMsg}`;
-          this.salesSuccessMessage = null;
           this.salesPreview = previousPreview; // Restaurar preview
-          this.salesImporting = false;
         }
       });
   }

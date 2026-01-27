@@ -115,6 +115,13 @@ export class ChangePasswordComponent {
         this.loading = false;
         toast.success('Contraseña cambiada exitosamente');
         
+        // Update user's must_change_password status in localStorage
+        const currentUser = this.authService.getCurrentUser();
+        if (currentUser) {
+          currentUser.must_change_password = false;
+          localStorage.setItem('user', JSON.stringify(currentUser));
+        }
+        
         // Navigate to dashboard
         setTimeout(() => {
           this.router.navigate(['/dashboard']);

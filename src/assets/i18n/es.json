@@ -31,14 +31,13 @@
       },
       "permissions": {
         "title": "Permisos"
+      },
+      "audit": {
+        "title": "Auditoría"
       }
     },
     "inventory": {
-      "title": "Inventario",
-      "lots": { "title": "Lotes" },
-      "lotImport": { "title": "Importar Lotes (Excel)" },
-      "logicwareImport": { "title": "Importar Lotes (Logicware)" },
-      "manzanaFinancingRules": { "title": "Reglas de Financiamiento (Manzanas)" }
+      "title": "Inventario"
     },
     "sales": {
       "title": "Ventas",
@@ -276,12 +275,46 @@
     "next": "Siguiente",
     "previous": "Anterior",
     "finish": "Finalizar",
+    "search": "Buscar",
+    "clear": "Limpiar",
+    "noPermission": "Sin permiso para ver esta información",
     "clearFilters": "Limpiar filtros",
     "verified": "Verificado",
     "unverified": "No verificado"
   },
   "security": {
     "access": "Acceso al Sistema",
+    "audit": {
+      "title": "Auditoría de Seguridad",
+      "subtitle": "Registro de acciones realizadas en el sistema",
+      "filters": {
+        "search": "Buscar en auditoría (IP, detalle, usuario)…",
+        "user_id": "Usuario (buscar por nombre/correo)",
+        "showAdvanced": "Filtros avanzados",
+        "hideAdvanced": "Ocultar avanzados",
+        "actionAny": "Acción (todas)",
+        "actionCustom": "Acción personalizada…",
+        "actionCustomPlaceholder": "Escribe la acción exacta (ej: login)"
+      },
+      "actions": {
+        "http_request": "Request API (técnico)",
+        "login": "Inicio de sesión (login)",
+        "login_failed": "Intento fallido de inicio de sesión",
+        "logout": "Cierre de sesión (logout)",
+        "password_changed": "Cambio de contraseña",
+        "role_assigned": "Rol asignado",
+        "role_removed": "Rol removido",
+        "permission_changed": "Permisos actualizados"
+      },
+      "columns": {
+        "created_at": "Fecha",
+        "action": "Acción",
+        "action_label": "Detalle",
+        "user": "Usuario",
+        "ip": "IP",
+        "details": "Descripción"
+      }
+    },
     "permissions": {
       "title": "Permisos",
       "subtitle": "Gestión de permisos del sistema",
@@ -388,13 +421,12 @@
     "lots": {
       "title": "Lotes",
       "search": "Buscar lotes",
-        "status": {
-          "label": "Estado",
-          "disponible": "Disponible",
-          "reservado": "Reservado",
-          "bloqueado": "Bloqueado",
-          "vendido": "Vendido"
-        },
+      "status": {
+        "label": "Estado",
+        "disponible": "Disponible",
+        "reservado": "Reservado",
+        "vendido": "Vendido"
+      },
       "filterManzana": "N° Manzana",
       "detailTitle": "Detalle del Lote",
       "manzana": "Manzana",

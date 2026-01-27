@@ -31,14 +31,13 @@
       },
       "permissions": {
         "title": "Permissions"
+      },
+      "audit": {
+        "title": "Audit"
       }
     },
     "inventory": {
-      "title": "Inventory",
-      "lots": { "title": "Lots" },
-      "lotImport": { "title": "Import Lots (Excel)" },
-      "logicwareImport": { "title": "Import Lots (Logicware)" },
-      "manzanaFinancingRules": { "title": "Financing Rules (Blocks)" }
+      "title": "Inventory"
     },
     "sales": {
       "title": "Sales",
@@ -325,10 +324,44 @@
     "of": "of",
     "noData": "No records found",
     "next": "Next",
+    "search": "Search",
+    "clear": "Clear",
+    "noPermission": "You don't have permission to view this information",
     "clearFilters": "Clear filters"
   },
   "security": {
     "access": "System Access",
+    "audit": {
+      "title": "Security Audit",
+      "subtitle": "System activity log",
+      "filters": {
+        "search": "Search audit (IP, details, user)…",
+        "user_id": "User (search by name/email)",
+        "showAdvanced": "Advanced filters",
+        "hideAdvanced": "Hide advanced",
+        "actionAny": "Action (all)",
+        "actionCustom": "Custom action…",
+        "actionCustomPlaceholder": "Type exact action (e.g. login)"
+      },
+      "actions": {
+        "http_request": "API Request (technical)",
+        "login": "Login",
+        "login_failed": "Failed login attempt",
+        "logout": "Logout",
+        "password_changed": "Password changed",
+        "role_assigned": "Role assigned",
+        "role_removed": "Role removed",
+        "permission_changed": "Permissions changed"
+      },
+      "columns": {
+        "created_at": "Date",
+        "action": "Action",
+        "action_label": "Detail",
+        "user": "User",
+        "ip": "IP",
+        "details": "Description"
+      }
+    },
     "permissions": {
       "title": "Permissions",
       "subtitle": "System permissions management",
@@ -439,13 +472,12 @@
     "lots": {
       "title": "Lots",
       "search": "Search lots",
-        "status": {
-          "label": "Status",
-          "disponible": "Available",
-          "reservado": "Reserved",
-          "bloqueado": "Blocked",
-          "vendido": "Sold"
-        },
+      "status": {
+        "label": "Status",
+        "disponible": "Available",
+        "reservado": "Reserved",
+        "vendido": "Sold"
+      },
       "filterManzana": "Block #",
       "detailTitle": "Lot Details",
       "manzana": "Block",

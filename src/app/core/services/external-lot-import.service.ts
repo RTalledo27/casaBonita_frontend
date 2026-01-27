@@ -109,20 +109,12 @@ export class ExternalLotImportService {
   /**
    * Importar ventas al sistema local (crea clientes/contratos)
    */
-  importSales(startDate?: string, endDate?: string, forceRefresh: boolean = false, async: boolean = true): Observable<any> {
+  importSales(startDate?: string, endDate?: string, forceRefresh: boolean = false): Observable<any> {
     const body: any = {};
     if (startDate) body.startDate = startDate;
     if (endDate) body.endDate = endDate;
     body.force_refresh = forceRefresh ? 1 : 0;
-    body.async = async ? 1 : 0;
     return this.http.post<any>(`${this.baseUrl}/sales/import`, body);
-  }
-
-  /**
-   * Estado de importación asíncrona de ventas
-   */
-  getSalesImportStatus(processId: number): Observable<any> {
-    return this.http.get<any>(`${this.baseUrl}/sales/import/async/${processId}/status`);
   }
 
   /**

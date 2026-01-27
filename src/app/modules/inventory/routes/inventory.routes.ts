@@ -18,11 +18,6 @@ export const INVENTORY_ROUTES: Route[] = [
     data: { permission: 'inventory.lots.store' },
   },
   {
-    path: 'manzanas/financing-rules',
-    loadComponent: () => import('../components/manzana-financing-rules/manzana-financing-rules.component').then(m => m.ManzanaFinancingRulesComponent),
-    data: { permission: 'inventory.manzanas.update' },
-  },
-  {
     path: 'lots/create',
     loadComponent: () => import('../lots/lot-form/lot-form.component').then(m => m.LotFormComponent),
     data: { permission: 'inventory.lots.store' },

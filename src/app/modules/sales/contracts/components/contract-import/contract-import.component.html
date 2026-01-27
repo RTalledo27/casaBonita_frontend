@@ -260,21 +260,9 @@
           <div class="flex items-center gap-3">
             <lucide-angular [img]="loaderIcon" class="animate-spin text-emerald-600" size="20"></lucide-angular>
             <div>
-              <p class="text-sm text-emerald-700 dark:text-emerald-300 font-medium">
-                Importación en curso ({{ salesImportStatus || 'procesando' }})...
-              </p>
-              <p class="text-xs text-emerald-600 dark:text-emerald-400 mt-1">
-                Proceso: {{ salesImportProcessId || '--' }} · {{ salesImportProgress | number:'1.0-0' }}% ·
-                {{ salesImportProcessedRows || 0 }}/{{ salesImportTotalRows || 0 }}
-              </p>
+              <p class="text-sm text-emerald-700 dark:text-emerald-300 font-medium">Importando contratos y cronogramas...</p>
+              <p class="text-xs text-emerald-600 dark:text-emerald-400 mt-1">Este proceso puede tardar varios minutos. Por favor, espere.</p>
             </div>
-          </div>
-
-          <div class="w-full bg-emerald-100/80 dark:bg-emerald-950/40 rounded-full h-2 mt-3">
-            <div
-              class="bg-emerald-600 h-2 rounded-full transition-all duration-500"
-              [style.width.%]="salesImportProgress"
-            ></div>
           </div>
         </div>
 
@@ -287,20 +275,15 @@
           </div>
         </div>
 
-        <div *ngIf="!salesImporting && !salesError && salesImportStatus === 'completed'" class="mb-4 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-700">
+        <div *ngIf="!salesImporting && !salesError && salesPreview?.length === 0 && !salesLoading" class="mb-4 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-700">
           <div class="flex items-center gap-3">
             <lucide-angular [img]="checkIcon" class="text-green-600" size="20"></lucide-angular>
-            <span class="text-sm text-green-700 dark:text-green-300 font-medium">{{ salesSuccessMessage || 'Importación completada' }}</span>
+            <span class="text-sm text-green-700 dark:text-green-300 font-medium">Importación completada</span>
           </div>
         </div>
 
         <div *ngIf="salesPreview?.length" class="mb-4">
-          <h4 class="font-semibold mb-2">
-            Ventas (muestra)
-            <span class="text-xs text-gray-600 ml-2">
-              Total clientes: {{ salesTotalClients || salesPreview.length }} · Total contratos/doc: {{ salesTotalDocuments || '—' }}
-            </span>
-          </h4>
+          <h4 class="font-semibold mb-2">Ventas (muestra)</h4>
           <div class="max-h-40 overflow-y-auto bg-white/60 rounded p-3">
             <ul class="space-y-2 text-sm">
               <li *ngFor="let s of salesPreview">

@@ -118,8 +118,6 @@ export interface MonthlyStats {
   total_revenue: number;
   total_payments: number;
   total_commissions: number;
-  total_reservations?: number;
-  total_separation?: number;
   daily_average: {
     sales: number;
     revenue: number;

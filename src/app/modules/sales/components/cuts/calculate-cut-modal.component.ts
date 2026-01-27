@@ -14,8 +14,6 @@ interface CalculatedCut {
   total_sales_count: number;
   total_revenue: number;
   total_down_payments: number;
-  reserved_sales_count?: number;
-  reserved_revenue?: number;
   total_payments_count: number;
   total_payments_received: number;
   paid_installments_count: number;
@@ -130,9 +128,6 @@ interface CalculatedCut {
                   <p class="text-sm text-gray-600 mb-1">Ventas</p>
                   <p class="text-2xl font-bold text-gray-900">{{ calculatedData()!.total_sales_count }}</p>
                   <p class="text-xs text-gray-500 mt-1">{{ formatCurrency(calculatedData()!.total_revenue) }}</p>
-                  <p *ngIf="(calculatedData()!.reserved_sales_count || 0) > 0" class="text-xs text-amber-600 mt-1">
-                    Reservas: {{ calculatedData()!.reserved_sales_count }} ({{ formatCurrency(calculatedData()!.reserved_revenue || 0) }})
-                  </p>
                 </div>
                 <div class="bg-white rounded-lg p-4">
                   <p class="text-sm text-gray-600 mb-1">Pagos</p>
@@ -162,55 +157,6 @@ interface CalculatedCut {
                       <p class="text-sm text-gray-500">Lote: {{ sale.lot_name || 'N/A' }}</p>
                     </div>
                     <span class="font-bold text-green-600">{{ formatCurrency(sale.amount) }}</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Payments by Method -->
-              <div *ngIf="calculatedData()!.summary_data?.payments_by_method?.length > 0" class="bg-white rounded-lg p-4 mb-4">
-                <h4 class="font-semibold text-gray-900 mb-3">💳 Pagos por Método</h4>
-                <div class="space-y-2">
-                  <div *ngFor="let item of calculatedData()!.summary_data.payments_by_method"
-                       class="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
-                    <div>
-                      <p class="font-medium text-gray-900">{{ item.method }}</p>
-                      <p class="text-sm text-gray-500">{{ item.count }} pagos</p>
-                    </div>
-                    <span class="font-bold text-gray-900">{{ formatCurrency(item.amount) }}</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Top Payments -->
-              <div *ngIf="calculatedData()!.summary_data?.top_payments?.length > 0" class="bg-white rounded-lg p-4 mb-4">
-                <h4 class="font-semibold text-gray-900 mb-3">💰 Top 10 Pagos</h4>
-                <div class="space-y-2">
-                  <div *ngFor="let payment of calculatedData()!.summary_data.top_payments.slice(0, 10)" 
-                       class="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
-                    <div>
-                      <p class="font-medium text-gray-900">{{ payment.client_name || 'Cliente' }}</p>
-                      <p class="text-sm text-gray-500">
-                        {{ payment.lot_name || 'N/A' }} · {{ payment.method || 'N/A' }} · {{ formatDate(payment.date) }}
-                      </p>
-                    </div>
-                    <span class="font-bold text-emerald-600">{{ formatCurrency(payment.amount) }}</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Collections Alerts -->
-              <div *ngIf="calculatedData()!.summary_data?.collections_alerts" class="bg-white rounded-lg p-4 mb-4">
-                <h4 class="font-semibold text-gray-900 mb-3">🔔 Alertas de Cobranza</h4>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div class="bg-red-50 border border-red-200 rounded-lg p-4">
-                    <p class="text-sm text-red-700 mb-1">Cuotas vencidas</p>
-                    <p class="text-2xl font-bold text-red-700">{{ calculatedData()!.summary_data.collections_alerts.overdue?.count || 0 }}</p>
-                    <p class="text-xs text-red-700 mt-1">{{ formatCurrency(calculatedData()!.summary_data.collections_alerts.overdue?.amount || 0) }}</p>
-                  </div>
-                  <div class="bg-amber-50 border border-amber-200 rounded-lg p-4">
-                    <p class="text-sm text-amber-700 mb-1">Vencen en {{ calculatedData()!.summary_data.collections_alerts.due_soon?.days || 7 }} días</p>
-                    <p class="text-2xl font-bold text-amber-700">{{ calculatedData()!.summary_data.collections_alerts.due_soon?.count || 0 }}</p>
-                    <p class="text-xs text-amber-700 mt-1">{{ formatCurrency(calculatedData()!.summary_data.collections_alerts.due_soon?.amount || 0) }}</p>
                   </div>
                 </div>
               </div>

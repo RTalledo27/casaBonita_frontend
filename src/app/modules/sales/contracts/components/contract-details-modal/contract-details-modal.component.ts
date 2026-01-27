@@ -7,7 +7,6 @@ import { ClientsService } from '../../../../CRM/services/clients.service';
 import { Client } from '../../../../CRM/models/client';
 import { AuthService } from '../../../../../core/services/auth.service';
 import { Router } from '@angular/router';
-import { parseApiDate } from '../../../../../core/utils/date';
 
 @Component({
   selector: 'app-contract-details-modal',
@@ -64,7 +63,7 @@ export class ContractDetailsModalComponent implements OnInit, OnChanges {
     const overdue = schedules.filter((s) => {
       const status = String(s?.status || '').toLowerCase();
       if (status === 'pagado') return false;
-      const due = s?.due_date ? parseApiDate(s.due_date) : null;
+      const due = s?.due_date ? new Date(s.due_date) : null;
       return due ? due.getTime() < today.getTime() : false;
     }).length;
     const pending = Math.max(0, total - paid);
@@ -72,7 +71,7 @@ export class ContractDetailsModalComponent implements OnInit, OnChanges {
       .filter((s) => {
         const status = String(s?.status || '').toLowerCase();
         if (status === 'pagado') return false;
-        const due = s?.due_date ? parseApiDate(s.due_date) : null;
+        const due = s?.due_date ? new Date(s.due_date) : null;
         return due ? due.getTime() >= today.getTime() : false;
       })
       .sort((a, b) => String(a?.due_date || '').localeCompare(String(b?.due_date || '')))[0]?.due_date;
@@ -202,7 +201,7 @@ export class ContractDetailsModalComponent implements OnInit, OnChanges {
 
   formatDate(date: string): string {
     if (!date) return 'No especificada';
-    return parseApiDate(date).toLocaleDateString('es-ES', {
+    return new Date(date).toLocaleDateString('es-ES', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
@@ -311,7 +310,7 @@ export class ContractDetailsModalComponent implements OnInit, OnChanges {
   private isOverdueSchedule(s: any): boolean {
     const status = String(s?.status || '').toLowerCase();
     if (status === 'pagado') return false;
-    const due = s?.due_date ? parseApiDate(s.due_date) : null;
+    const due = s?.due_date ? new Date(s.due_date) : null;
     if (!due) return false;
     const today = new Date();
     today.setHours(0, 0, 0, 0);

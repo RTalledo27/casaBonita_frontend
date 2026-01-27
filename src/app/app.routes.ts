@@ -91,8 +91,34 @@ export const routes: Routes = [
           },
           {
             path: 'security',
-            children: [...userRoutes, ...roleRoutes, ...permissionRoutes],
+            children: [
+              ...userRoutes,
+              ...roleRoutes,
+              ...permissionRoutes,
+              {
+                path: 'audit',
+                pathMatch: 'full',
+                redirectTo: '/audit/security',
+              },
+            ],
             canActivateChild: [permissionGuard], // opcional, si quieres aplicarlo en bloque
+          },
+          {
+            path: 'audit',
+            children: [
+              {
+                path: '',
+                pathMatch: 'full',
+                redirectTo: 'security',
+              },
+              {
+                path: 'security',
+                loadComponent: () =>
+                  import('./modules/Secutiry/audit/audit.component').then(m => m.AuditComponent),
+                data: { permission: 'security.audit.view' },
+              },
+            ],
+            canActivateChild: [permissionGuard],
           },
           {
             path: 'crm',

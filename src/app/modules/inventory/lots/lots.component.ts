@@ -57,7 +57,6 @@ export class LotsComponent implements OnInit, OnDestroy {
     { value: '', label: 'Todos los estados' },
     { value: 'disponible', label: 'Disponible' },
     { value: 'reservado', label: 'Reservado' },
-    { value: 'bloqueado', label: 'Bloqueado' },
     { value: 'vendido', label: 'Vendido' }
   ];
   
@@ -285,7 +284,7 @@ export class LotsComponent implements OnInit, OnDestroy {
           area_m2: Math.floor(Math.random() * 500) + 200,
           total_price: Math.floor(Math.random() * 100000) + 50000,
           currency: 'USD',
-          status: ['disponible', 'reservado', 'bloqueado', 'vendido'][Math.floor(Math.random() * 4)] as 'disponible' | 'reservado' | 'bloqueado' | 'vendido',
+          status: ['disponible', 'reservado', 'vendido'][Math.floor(Math.random() * 3)] as 'disponible' | 'reservado' | 'vendido',
           manzana: {
             manzana_id: Math.floor(Math.random() * 10) + 1,
             name: `Manzana ${Math.ceil(lotNumber / 20)}`
@@ -324,21 +323,6 @@ export class LotsComponent implements OnInit, OnDestroy {
 
   onDelete(id: number) {
     this.onAskDelete(id);
-  }
-
-  onRelease(id: number) {
-    if (!confirm('¿Liberar este lote y marcarlo como disponible?')) return;
-    const fd = new FormData();
-    fd.append('status', 'disponible');
-    fd.append('_method', 'PATCH');
-    this.lotService.update(id, fd).subscribe({
-      next: () => {
-        this.toast.show('common.saved', 'success');
-        this.cache.clear();
-        this.loadLots();
-      },
-      error: () => this.toast.show('common.errorSave', 'error'),
-    });
   }
 
   onAskDelete(id: number) {

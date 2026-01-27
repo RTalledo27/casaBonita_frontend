@@ -1,9 +1,7 @@
 export interface Payment {
   payment_id: number;
-  schedule_id: number;
-  journal_entry_id?: number | null;
+  contract_id: number;
   amount: number;
   payment_date: string;
-  method: 'transferencia' | 'efectivo' | 'tarjeta';
-  reference?: string | null;
+  status: 'pending' | 'paid';
 }

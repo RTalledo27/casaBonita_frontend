@@ -30,53 +30,22 @@ export class LotDetailComponent {
   }
 
   getFileName(url: string): string {
+    console.log(url);
     return url.split('/').pop() ?? url;
   }
 
-  formatNumber(value: any, digits = 2): string {
-    const num = Number(value);
-    if (Number.isNaN(num)) return '-';
-    return new Intl.NumberFormat('es-PE', {
-      minimumFractionDigits: digits,
-      maximumFractionDigits: digits,
-    }).format(num);
-  }
-
-  formatMoney(value: any): string {
-    const num = Number(value);
-    if (Number.isNaN(num)) return '-';
-    const currency = this.lot?.currency || 'PEN';
-    const formatted = new Intl.NumberFormat('es-PE', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(num);
-    if (currency === 'USD') return `US$ ${formatted}`;
-    if (currency === 'PEN') return `S/ ${formatted}`;
-    return `${currency} ${formatted}`;
-  }
-
-  yesNo(value: any): string {
-    if (value === true) return 'Sí';
-    if (value === false) return 'No';
-    return '-';
-  }
-
-  getAvailableInstallments(): Array<{ months: number; amount: number }> {
-    const t = this.lot?.financial_template;
-    if (!t) return [];
-    const rows: Array<{ months: number; amount: number }> = [];
-
-    const pushIf = (months: number, value: any) => {
-      const num = Number(value);
-      if (!Number.isNaN(num) && num > 0) rows.push({ months, amount: num });
-    };
-
-    pushIf(24, t.installments_24);
-    pushIf(40, t.installments_40);
-    pushIf(44, t.installments_44);
-    pushIf(55, t.installments_55);
-
-    return rows;
+  getLotValue(key: string): any {
+    if (!this.lot) return '';
+    switch (key) {
+      case 'funding':
+        return this.lot.funding;
+      case 'BPP':
+        return this.lot.BPP;
+      case 'BFH':
+        return this.lot.BFH;
+      default:
+        return '';
+    }
   }
 
   back() {

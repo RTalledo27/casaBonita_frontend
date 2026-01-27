@@ -16,6 +16,7 @@ export const API_ROUTES = {
     ROLES: `${BASE}/v1/security/roles`,
     PERMISSIONS: `${BASE}/v1/security/permissions`,
     NOTIFICATIONS: `${BASE}/v1/security/notifications`,
+    ACTIVITY_LOGS: `${BASE}/v1/security/activity-logs`,
   },
 
   CRM: {
@@ -31,9 +32,6 @@ export const API_ROUTES = {
     LOT_IMPORT: `${BASE}/v1/inventory/lot-import`,
     //MEDIA: `${BASE}/v1/inventory/lot-media`,
     MANZANAS: `${BASE}/v1/inventory/manzanas`,
-    MANZANA_FINANCING_RULES: `${BASE}/v1/inventory/manzana-financing-rules`,
-    MANZANA_FINANCING_RULES_TEMPLATE: `${BASE}/v1/inventory/manzana-financing-rules/template`,
-    MANZANA_FINANCING_RULES_IMPORT: `${BASE}/v1/inventory/manzana-financing-rules/import`,
     STREET_TYPES: `${BASE}/v1/inventory/street-types`,
     LOT_MEDIA: `${BASE}/v1/inventory/lot-media`,
   },

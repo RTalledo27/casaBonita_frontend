@@ -207,7 +207,7 @@ export class WebhookNotificationsComponent implements OnInit, OnDestroy {
         enabledTransports: ['ws', 'wss'],
       });
 
-      // Escuchar canal de webhooks
+      // Escuchar canal de webhoPoks
       this.echo.channel('webhooks')
         .listen('.webhook.processed', (event: WebhookNotification) => {
           console.log('📥 Webhook notification received:', event);

@@ -67,10 +67,8 @@ export class LotService {
   }
 
   get(id: number): Observable<Lot> {
-    let params = new HttpParams();
-    params = params.set('include_external_data', '1');
     return this.http
-      .get<{ data: Lot }>(`${this.base}/${id}`, { params })
+      .get<{ data: Lot }>(`${this.base}/${id}`)
       .pipe(map((res) => res.data));
   }
 

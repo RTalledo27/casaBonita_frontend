@@ -342,7 +342,7 @@ import { PaymentSchedule, ContractSummary, MarkPaymentPaidRequest } from '../../
                       }
                       @if (schedule.type) {
                         <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold bg-slate-100 text-slate-700 dark:bg-slate-900/40 dark:text-slate-300 ring-1 ring-slate-200/70 dark:ring-slate-700/60">
-                          {{ schedule.type_label || schedule.type }}
+                          {{ schedule.type }}
                         </span>
                       }
                     </div>

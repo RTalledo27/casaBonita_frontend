@@ -42,7 +42,7 @@ import { CalculateCutModalComponent } from './calculate-cut-modal.component';
 
       <!-- Monthly Stats Cards -->
       @if (monthlyStats()) {
-        <div class="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
             <div class="flex items-center justify-between">
               <div>
@@ -53,21 +53,6 @@ import { CalculateCutModalComponent } from './calculate-cut-modal.component';
               <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                 <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-sm font-medium text-gray-600">Reservas / Separación</p>
-                <p class="text-2xl font-bold text-gray-900 mt-2">{{ monthlyStats()!.total_reservations ?? 0 }}</p>
-                <p class="text-xs text-gray-500 mt-1">{{ cutService.formatCurrency(monthlyStats()!.total_separation ?? 0) }}</p>
-              </div>
-              <div class="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center">
-                <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
                 </svg>
               </div>
             </div>
