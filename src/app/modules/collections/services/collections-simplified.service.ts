@@ -139,13 +139,43 @@ export class CollectionsSimplifiedService {
   markPaymentPaid(scheduleId: number, request: MarkPaymentPaidRequest): Observable<{
     success: boolean;
     data: PaymentSchedule;
-    status: string;
+    allocation?: any;
+    status?: string;
   }> {
     return this.http.patch<{
       success: boolean;
       data: PaymentSchedule;
-      status: string;
+      allocation?: any;
+      status?: string;
     }>(`${this.baseUrl}/sales/schedules/${scheduleId}/mark-paid`, request);
+  }
+
+  uploadPaymentVoucher(paymentId: number, voucher: File): Observable<{
+    success: boolean;
+    message: string;
+    data?: any;
+  }> {
+    const form = new FormData();
+    form.append('voucher', voucher);
+    return this.http.post<{
+      success: boolean;
+      message: string;
+      data?: any;
+    }>(`${this.baseUrl}/sales/payments/${paymentId}/voucher`, form);
+  }
+
+  uploadTransactionVoucher(transactionId: number, voucher: File): Observable<{
+    success: boolean;
+    message: string;
+    data?: any;
+  }> {
+    const form = new FormData();
+    form.append('voucher', voucher);
+    return this.http.post<{
+      success: boolean;
+      message: string;
+      data?: any;
+    }>(`${this.baseUrl}/sales/payment-transactions/${transactionId}/voucher`, form);
   }
 
   // Get payment schedule metrics

@@ -16,7 +16,9 @@ export interface PaymentSchedule {
   days_overdue?: number;
   client_name?: string;
   lot_number?: string;
+  lot_name?: string;
   amount_paid?: number;
+  remaining_amount?: number;
 }
 
 export interface PaymentScheduleFilters {
@@ -58,6 +60,7 @@ export interface MarkPaymentPaidRequest {
   payment_date: string;
   amount_paid: number;
   payment_method?: 'cash' | 'transfer' | 'check' | 'card';
+  reference?: string;
   notes?: string;
 }
 

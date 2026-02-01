@@ -1,6 +1,6 @@
 import { Component, TemplateRef, ViewChild } from '@angular/core';
 import { ColumnDef, SharedTableComponent } from '../../../shared/components/shared-table/shared-table.component';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 import { LucideAngularModule, Plus } from 'lucide-angular';
 import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
 import { ModalService } from '../../../core/services/modal.service';
@@ -11,6 +11,7 @@ import { PaymentFormComponent } from './payment-form/payment-form.component';
 import { PaymentsService } from '../services/payments.service';
 import { SalesCutService } from '../services/sales-cut.service';
 import { FormsModule } from '@angular/forms';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-payments',
@@ -20,19 +21,33 @@ import { FormsModule } from '@angular/forms';
 })
 export class PaymentsComponent {
   @ViewChild('actionsTpl', { static: true }) actionsTpl!: TemplateRef<any>;
+  @ViewChild('originTpl', { static: true }) originTpl!: TemplateRef<any>;
   @ViewChild('clientTpl', { static: true }) clientTpl!: TemplateRef<any>;
   @ViewChild('contractTpl', { static: true }) contractTpl!: TemplateRef<any>;
   @ViewChild('lotTpl', { static: true }) lotTpl!: TemplateRef<any>;
   @ViewChild('installmentTpl', { static: true }) installmentTpl!: TemplateRef<any>;
+  @ViewChild('methodTpl', { static: true }) methodTpl!: TemplateRef<any>;
+  @ViewChild('voucherTpl', { static: true }) voucherTpl!: TemplateRef<any>;
+  @ViewChild('referenceTpl', { static: true }) referenceTpl!: TemplateRef<any>;
 
   private paymentsSubject = new BehaviorSubject<any[]>([]);
   payments$ = this.paymentsSubject.asObservable();
   private rawRows: any[] = [];
+  private filterChanges$ = new Subject<string>();
+  private destroy$ = new Subject<void>();
 
   startDate = this.getMonthStartString();
   endDate = this.getTodayString();
   searchTerm = '';
   typeFilter = '';
+  hasVoucherOnly = false;
+  methodFilter = '';
+  perPage = 50;
+  page = 1;
+  total = 0;
+  lastPage = 1;
+  from = 0;
+  to = 0;
   kpis: any | null = null;
   isLoadingKpis = false;
   kpisError: string | null = null;
@@ -42,12 +57,18 @@ export class PaymentsComponent {
   voucherFile: File | null = null;
   isUploadingVoucher = false;
   voucherError: string | null = null;
+  isLoadingVoucherPreview = false;
+  voucherPreviewError: string | null = null;
+  voucherPreviewUrl: string | null = null;
+  voucherPreviewSafeUrl: SafeResourceUrl | null = null;
+  voucherPreviewType: 'image' | 'pdf' | 'other' | null = null;
 
   columns: ColumnDef[] = [
     {
       header: 'Origen',
       translate: false,
-      value: (row) => this.getOriginLabel(row),
+      tpl: 'origin',
+      width: '170px',
     },
     {
       header: 'Cliente',
@@ -76,9 +97,10 @@ export class PaymentsComponent {
       translate: false,
       value: (row) => this.getInstallmentKindLabel(row),
     },
-    { header: 'Método', translate: false, value: (row) => this.getMethodLabel(row) },
+    { header: 'Método', translate: false, tpl: 'method', width: '150px' },
     { field: 'bank_name', header: 'Banco', translate: false },
-    { field: 'reference', header: 'Referencia', translate: false },
+    { header: 'Referencia', translate: false, tpl: 'reference' },
+    { header: 'Voucher', translate: false, tpl: 'voucher', width: '110px', align: 'center' },
     {
       header: 'Fecha',
       translate: false,
@@ -109,18 +131,34 @@ export class PaymentsComponent {
     private router: Router,
     private route: ActivatedRoute,
     private modalService: ModalService,
-    public authService: AuthService
+    public authService: AuthService,
+    private sanitizer: DomSanitizer
   ) {}
 
   ngOnInit() {
     this.templates = {
       actions: this.actionsTpl,
+      origin: this.originTpl,
       client: this.clientTpl,
       contract: this.contractTpl,
       lot: this.lotTpl,
       installment: this.installmentTpl,
+      method: this.methodTpl,
+      voucher: this.voucherTpl,
+      reference: this.referenceTpl,
     };
+    this.filterChanges$
+      .pipe(debounceTime(250), distinctUntilChanged(), takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.page = 1;
+        this.loadPayments();
+      });
     this.refresh();
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   refresh() {
@@ -135,18 +173,32 @@ export class PaymentsComponent {
     this.paymentService.ledger({
       start_date: this.startDate,
       end_date: this.endDate,
-      per_page: 200
+      per_page: this.perPage,
+      page: this.page,
+      q: this.searchTerm?.trim() || undefined,
+      movement_type: this.typeFilter || undefined,
+      method: this.methodFilter || undefined,
+      has_voucher: this.hasVoucherOnly ? 1 : undefined,
     }).subscribe({
       next: (res: any) => {
-        const rows = res?.data?.data ?? res?.data ?? [];
+        const paginated = res?.data;
+        const rows = paginated?.data ?? paginated ?? [];
         this.rawRows = Array.isArray(rows) ? rows : [];
-        this.applyFilters();
+        this.total = Number(paginated?.total || 0);
+        this.lastPage = Number(paginated?.last_page || 1);
+        this.from = Number(paginated?.from || 0);
+        this.to = Number(paginated?.to || 0);
         this.isLoadingLedger = false;
+        this.paymentsSubject.next(this.rawRows);
       },
       error: () => {
         this.isLoadingLedger = false;
         this.ledgerError = 'No se pudo cargar el detalle de movimientos';
         this.rawRows = [];
+        this.total = 0;
+        this.lastPage = 1;
+        this.from = 0;
+        this.to = 0;
         this.paymentsSubject.next([]);
       }
     });
@@ -181,35 +233,24 @@ export class PaymentsComponent {
     }
   }
 
-  applyFilters() {
-    const term = this.searchTerm.trim().toLowerCase();
-    const type = this.typeFilter;
-
-    const filtered = this.rawRows.filter((row) => {
-      if (type && row.movement_type !== type) return false;
-      if (!term) return true;
-
-      const hay = [
-        row.id,
-        row.client_name,
-        row.contract_number,
-        row.contract_id,
-        row.lot_name,
-        row.method,
-        row.reference,
-        row.schedule_id,
-        row.installment_number,
-        row.payment_id,
-        row.reservation_id,
-      ]
-        .filter((v: any) => v !== null && v !== undefined)
-        .map((v: any) => String(v).toLowerCase())
-        .join(' | ');
-
-      return hay.includes(term);
+  onFiltersChanged() {
+    const snapshot = JSON.stringify({
+      startDate: this.startDate,
+      endDate: this.endDate,
+      searchTerm: this.searchTerm?.trim() || '',
+      typeFilter: this.typeFilter || '',
+      methodFilter: this.methodFilter || '',
+      hasVoucherOnly: !!this.hasVoucherOnly,
+      perPage: this.perPage,
     });
+    this.filterChanges$.next(snapshot);
+  }
 
-    this.paymentsSubject.next(filtered);
+  goToPage(nextPage: number) {
+    const safe = Math.max(1, Math.min(this.lastPage || 1, nextPage));
+    if (safe === this.page) return;
+    this.page = safe;
+    this.loadPayments();
   }
 
   getOriginLabel(row: any): string {
@@ -239,6 +280,33 @@ export class PaymentsComponent {
     return '—';
   }
 
+  getMethodPillClass(row: any): string {
+    const base = 'inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold ring-1';
+    const method = String(row?.method || '').toLowerCase();
+    if (method === 'cash') return `${base} bg-emerald-100 text-emerald-700 ring-emerald-200/70 dark:bg-emerald-900/40 dark:text-emerald-200 dark:ring-emerald-800/60`;
+    if (method === 'transfer') return `${base} bg-blue-100 text-blue-700 ring-blue-200/70 dark:bg-blue-900/40 dark:text-blue-200 dark:ring-blue-800/60`;
+    if (method === 'card') return `${base} bg-purple-100 text-purple-700 ring-purple-200/70 dark:bg-purple-900/40 dark:text-purple-200 dark:ring-purple-800/60`;
+    if (method === 'check') return `${base} bg-amber-100 text-amber-700 ring-amber-200/70 dark:bg-amber-900/40 dark:text-amber-200 dark:ring-amber-800/60`;
+    if (row?.source === 'schedule' && !row?.payment_id) return `${base} bg-slate-100 text-slate-700 ring-slate-200/70 dark:bg-slate-900/40 dark:text-slate-200 dark:ring-slate-700/60`;
+    return `${base} bg-slate-100 text-slate-700 ring-slate-200/70 dark:bg-slate-900/40 dark:text-slate-200 dark:ring-slate-700/60`;
+  }
+
+  getMovementTypePillClass(row: any): string {
+    const base = 'inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold ring-1';
+    const type = String(row?.movement_type || '');
+    if (type === 'reservation_deposit') return `${base} bg-amber-100 text-amber-700 ring-amber-200/70 dark:bg-amber-900/40 dark:text-amber-200 dark:ring-amber-800/60`;
+    if (type === 'installment') return `${base} bg-indigo-100 text-indigo-700 ring-indigo-200/70 dark:bg-indigo-900/40 dark:text-indigo-200 dark:ring-indigo-800/60`;
+    return `${base} bg-slate-100 text-slate-700 ring-slate-200/70 dark:bg-slate-900/40 dark:text-slate-200 dark:ring-slate-700/60`;
+  }
+
+  getVoucherPillClass(row: any): string {
+    const base = 'inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold ring-1';
+    if (row?.has_voucher) {
+      return `${base} bg-emerald-100 text-emerald-700 ring-emerald-200/70 dark:bg-emerald-900/40 dark:text-emerald-200 dark:ring-emerald-800/60`;
+    }
+    return `${base} bg-slate-100 text-slate-700 ring-slate-200/70 dark:bg-slate-900/40 dark:text-slate-200 dark:ring-slate-700/60`;
+  }
+
   openClient(clientId: number) {
     if (!clientId) return;
     this.router.navigate(['/crm', 'clients', clientId]);
@@ -258,12 +326,17 @@ export class PaymentsComponent {
     this.detailRow = row;
     this.voucherFile = null;
     this.voucherError = null;
+    this.clearVoucherPreview();
+    if (row?.has_voucher) {
+      this.loadVoucherPreview();
+    }
   }
 
   closeDetail() {
     this.detailRow = null;
     this.voucherFile = null;
     this.voucherError = null;
+    this.clearVoucherPreview();
   }
 
   onVoucherSelected(ev: Event) {
@@ -274,7 +347,7 @@ export class PaymentsComponent {
   }
 
   uploadVoucher() {
-    if (!this.detailRow?.payment_id) return;
+    if (!this.detailRow?.transaction_id && !this.detailRow?.payment_id) return;
     if (!this.voucherFile) {
       this.voucherError = 'Selecciona un archivo (JPG/PNG/PDF) primero';
       return;
@@ -283,11 +356,16 @@ export class PaymentsComponent {
     this.isUploadingVoucher = true;
     this.voucherError = null;
 
-    this.paymentService.uploadVoucher(this.detailRow.payment_id, this.voucherFile).subscribe({
+    const req$ = this.detailRow?.transaction_id
+      ? this.paymentService.uploadTransactionVoucher(this.detailRow.transaction_id, this.voucherFile)
+      : this.paymentService.uploadVoucher(this.detailRow.payment_id, this.voucherFile);
+
+    req$.subscribe({
       next: () => {
         this.isUploadingVoucher = false;
         this.refresh();
         this.detailRow = { ...this.detailRow, has_voucher: 1 };
+        this.loadVoucherPreview();
       },
       error: () => {
         this.isUploadingVoucher = false;
@@ -297,13 +375,20 @@ export class PaymentsComponent {
   }
 
   downloadVoucher() {
-    if (!this.detailRow?.payment_id) return;
-    this.paymentService.downloadVoucher(this.detailRow.payment_id).subscribe({
+    if (!this.detailRow?.transaction_id && !this.detailRow?.payment_id) return;
+
+    const req$ = this.detailRow?.transaction_id
+      ? this.paymentService.downloadTransactionVoucher(this.detailRow.transaction_id)
+      : this.paymentService.downloadVoucher(this.detailRow.payment_id);
+
+    req$.subscribe({
       next: (blob: Blob) => {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `voucher_pago_${this.detailRow.payment_id}`;
+        a.download = this.detailRow?.transaction_id
+          ? `voucher_transaccion_${this.detailRow.transaction_id}`
+          : `voucher_pago_${this.detailRow.payment_id}`;
         document.body.appendChild(a);
         a.click();
         a.remove();
@@ -311,6 +396,51 @@ export class PaymentsComponent {
       },
       error: () => {
         this.voucherError = 'No se pudo descargar el voucher';
+      }
+    });
+  }
+
+  private clearVoucherPreview() {
+    if (this.voucherPreviewUrl) {
+      window.URL.revokeObjectURL(this.voucherPreviewUrl);
+    }
+    this.voucherPreviewUrl = null;
+    this.voucherPreviewSafeUrl = null;
+    this.voucherPreviewType = null;
+    this.voucherPreviewError = null;
+    this.isLoadingVoucherPreview = false;
+  }
+
+  loadVoucherPreview() {
+    if (!this.detailRow?.transaction_id && !this.detailRow?.payment_id) return;
+    if (!this.detailRow?.has_voucher) return;
+
+    this.isLoadingVoucherPreview = true;
+    this.voucherPreviewError = null;
+
+    const req$ = this.detailRow?.transaction_id
+      ? this.paymentService.downloadTransactionVoucher(this.detailRow.transaction_id)
+      : this.paymentService.downloadVoucher(this.detailRow.payment_id);
+
+    req$.subscribe({
+      next: (blob: Blob) => {
+        this.clearVoucherPreview();
+        const url = window.URL.createObjectURL(blob);
+        this.voucherPreviewUrl = url;
+        const type = String(blob.type || '').toLowerCase();
+        if (type.startsWith('image/')) {
+          this.voucherPreviewType = 'image';
+        } else if (type === 'application/pdf') {
+          this.voucherPreviewType = 'pdf';
+          this.voucherPreviewSafeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
+        } else {
+          this.voucherPreviewType = 'other';
+        }
+        this.isLoadingVoucherPreview = false;
+      },
+      error: () => {
+        this.isLoadingVoucherPreview = false;
+        this.voucherPreviewError = 'No se pudo cargar la vista previa del voucher';
       }
     });
   }

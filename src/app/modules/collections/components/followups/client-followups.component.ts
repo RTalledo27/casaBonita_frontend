@@ -19,25 +19,68 @@ import { ToastService } from '../../../../core/services/toast.service';
   imports: [CommonModule, FormsModule, TranslateModule, LucideAngularModule, RouterModule, SharedTableComponent, ClientFollowupEditComponent, FollowupCommitmentComponent],
   template: `
     <div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
-      <div class="mb-6 flex items-center justify-between">
-        <div>
-          <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'collections.followups.title' | translate }}</h1>
-          <p class="text-gray-600 dark:text-gray-400">{{ 'collections.followups.subtitle' | translate }}</p>
+      <div class="max-w-[1400px] mx-auto">
+        <div class="relative overflow-hidden rounded-3xl border border-gray-200/60 dark:border-gray-700/60 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl shadow-xl mb-6">
+          <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-sky-500 to-emerald-500"></div>
+          <div class="p-6 sm:p-8 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+            <div class="min-w-0">
+              <div class="flex items-center gap-3">
+                <div class="h-12 w-12 rounded-2xl bg-gradient-to-br from-indigo-600 to-sky-600 flex items-center justify-center text-white shadow-lg">
+                  <span class="text-xl">📞</span>
+                </div>
+                <div class="min-w-0">
+                  <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white truncate">{{ 'collections.followups.title' | translate }}</h1>
+                  <p class="text-gray-600 dark:text-gray-400">{{ 'collections.followups.subtitle' | translate }}</p>
+                </div>
+              </div>
+              <div class="mt-4 flex flex-wrap items-center gap-2">
+                <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold bg-white/70 dark:bg-slate-900/30 text-slate-700 dark:text-slate-200 ring-1 ring-slate-200/70 dark:ring-slate-700/60">
+                  Total: {{ globalStats().total }}
+                </span>
+                <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-200 ring-1 ring-amber-200/70 dark:ring-amber-800/60">
+                  Pendientes: {{ globalStats().pending }}
+                </span>
+                <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-200 ring-1 ring-blue-200/70 dark:ring-blue-800/60">
+                  En curso: {{ globalStats().inProgress }}
+                </span>
+                <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-200 ring-1 ring-emerald-200/70 dark:ring-emerald-800/60">
+                  Resueltos: {{ globalStats().resolved }}
+                </span>
+                <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-200 ring-1 ring-rose-200/70 dark:ring-rose-800/60">
+                  Con mora: {{ globalStats().overdueCases }}
+                </span>
+                <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-200 ring-1 ring-teal-200/70 dark:ring-teal-800/60">
+                  Compromisos pendientes: {{ globalStats().pendingCommitments }}
+                </span>
+              </div>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-2 sm:items-center">
+              <div class="inline-flex rounded-2xl bg-gray-100 dark:bg-gray-700/60 p-1 border border-gray-200/60 dark:border-gray-600/60">
+                <button type="button" class="px-3 py-2 rounded-xl text-sm font-semibold"
+                  [ngClass]="viewMode() === 'compact' ? 'bg-white dark:bg-gray-900 text-gray-900 dark:text-white shadow' : 'text-gray-600 dark:text-gray-300'"
+                  (click)="setViewMode('compact')">
+                  Vista compacta
+                </button>
+                <button type="button" class="px-3 py-2 rounded-xl text-sm font-semibold"
+                  [ngClass]="viewMode() === 'full' ? 'bg-white dark:bg-gray-900 text-gray-900 dark:text-white shadow' : 'text-gray-600 dark:text-gray-300'"
+                  (click)="setViewMode('full')">
+                  Vista completa
+                </button>
+              </div>
+              <button (click)="openCreate()" class="inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-2xl shadow-lg transition font-semibold">
+                <lucide-angular [img]="plusIcon" [size]="18"></lucide-angular>
+                <span>{{ 'collections.followups.new' | translate }}</span>
+              </button>
+              <button (click)="exportExcel()" class="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-2xl shadow-lg transition font-semibold">
+                <lucide-angular [img]="fileIcon" [size]="18"></lucide-angular>
+                <span>{{ 'collections.followups.exportExcel' | translate }}</span>
+              </button>
+              <button (click)="openEmailTestGlobal()" class="inline-flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2.5 rounded-2xl shadow-lg transition font-semibold">
+                <span>Test Email</span>
+              </button>
+            </div>
+          </div>
         </div>
-        <div class="flex gap-2">
-          <button (click)="openCreate()" class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg shadow-md transition">
-            <lucide-angular [img]="plusIcon" [size]="18"></lucide-angular>
-            <span>{{ 'collections.followups.new' | translate }}</span>
-          </button>
-          <button (click)="exportExcel()" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-md transition">
-            <lucide-angular [img]="fileIcon" [size]="18"></lucide-angular>
-            <span>{{ 'collections.followups.exportExcel' | translate }}</span>
-          </button>
-          <button (click)="openEmailTestGlobal()" class="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg shadow-md transition">
-            <span>Test Email</span>
-          </button>
-        </div>
-      </div>
 
       <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow border border-gray-200 dark:border-gray-700 mb-4">
         <div class="flex flex-wrap gap-2 mb-3 items-center">
@@ -93,8 +136,36 @@ import { ToastService } from '../../../../core/services/toast.service';
         </div>
       </div>
 
-      <app-shared-table [columns]="columns" [data]="filtered()" [templates]="templates" [componentName]="'followups'" [permissionPrefix]="'collections'" [idField]="'sale_code'"
+      <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-lg overflow-hidden">
+        <app-shared-table [columns]="columnsView()" [data]="paged()" [templates]="templates" [componentName]="'followups'" [permissionPrefix]="'collections'" [idField]="'sale_code'" [loading]="loading()"
         (onEdit)="openEdit($event)"></app-shared-table>
+      </div>
+      <div *ngIf="error()" class="mt-3 text-sm font-semibold text-red-600">{{ error() }}</div>
+
+      <div class="mt-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 px-4 py-3">
+        <div class="text-sm text-gray-600 dark:text-gray-300">
+          Mostrando <span class="font-semibold text-gray-900 dark:text-gray-100">{{ from() }}</span> - <span class="font-semibold text-gray-900 dark:text-gray-100">{{ to() }}</span>
+          de <span class="font-semibold text-gray-900 dark:text-gray-100">{{ filteredCount() }}</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Filas</label>
+          <select class="px-3 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg font-semibold" [ngModel]="perPage()" (ngModelChange)="setPerPage($event)">
+            <option [ngValue]="25">25</option>
+            <option [ngValue]="50">50</option>
+            <option [ngValue]="100">100</option>
+            <option [ngValue]="200">200</option>
+          </select>
+          <button type="button" class="px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100 font-semibold disabled:opacity-50" (click)="goToPage(page() - 1)" [disabled]="pageSafe() <= 1">
+            Anterior
+          </button>
+          <div class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+            Página <span class="text-gray-900 dark:text-gray-100">{{ pageSafe() }}</span> / <span class="text-gray-900 dark:text-gray-100">{{ lastPage() }}</span>
+          </div>
+          <button type="button" class="px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100 font-semibold disabled:opacity-50" (click)="goToPage(page() + 1)" [disabled]="pageSafe() >= lastPage()">
+            Siguiente
+          </button>
+        </div>
+      </div>
 
       <app-client-followup-edit [visible]="editVisible" [record]="selected" (save)="onModalSave($event)" (cancel)="closeEdit()"></app-client-followup-edit>
       <app-followup-commitment [visible]="commitVisible" (save)="saveCommit($event)" (cancel)="commitVisible=false"></app-followup-commitment>
@@ -385,6 +456,22 @@ import { ToastService } from '../../../../core/services/toast.service';
           <span class="text-slate-500" [title]="('Lote: ' + (row.lot || '—'))">{{ row.lot || '—' }}</span>
         </ng-template>
       </ng-template>
+      <ng-template #debtTpl let-row>
+        <div class="flex flex-col gap-1 min-w-0">
+          <div class="flex items-center justify-between gap-2">
+            <div class="text-sm font-bold text-rose-700 dark:text-rose-300 truncate">{{ formatCurrency(row.pending_amount || 0) }}</div>
+            <span class="shrink-0 inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold ring-1"
+              [ngClass]="(row.overdue_installments || 0) > 0
+                ? 'bg-rose-100 text-rose-700 ring-rose-200/70 dark:bg-rose-900/40 dark:text-rose-200 dark:ring-rose-800/60'
+                : 'bg-slate-100 text-slate-700 ring-slate-200/70 dark:bg-slate-900/40 dark:text-slate-200 dark:ring-slate-700/60'">
+              Vencidas: {{ row.overdue_installments || 0 }}
+            </span>
+          </div>
+          <div class="text-xs text-slate-600 dark:text-slate-300 truncate">
+            Vence: <span class="font-semibold text-slate-800 dark:text-slate-100">{{ row.due_date || '—' }}</span>
+          </div>
+        </div>
+      </ng-template>
       <ng-template #actionsTpl let-row>
         <div class="flex gap-2">
           <button class="px-2 py-1 text-xs rounded bg-emerald-600 text-white" (click)="openCommit(row.sale_code)">Compromiso</button>
@@ -445,6 +532,7 @@ import { ToastService } from '../../../../core/services/toast.service';
           </div>
         </ng-template>
       </ng-template>
+      </div>
     </div>
   `,
   styleUrls: ['./client-followups.component.scss']
@@ -465,6 +553,7 @@ export class ClientFollowupsComponent implements AfterViewInit {
   contractSearch = signal('');
   overdueMin = signal('');
   showCommitments = signal('');
+  viewMode = signal<'compact' | 'full'>('compact');
   editVisible = false;
   selected?: ClientFollowupRecord;
   createVisible = false;
@@ -493,6 +582,8 @@ export class ClientFollowupsComponent implements AfterViewInit {
   commitmentManageRow?: ClientFollowupRecord;
   commitmentAction: 'fulfill' | 'break' = 'fulfill';
   commitmentManageNotes = '';
+  loading = signal(false);
+  error = signal<string | null>(null);
 
   data = signal<ClientFollowupRecord[]>([]);
   
@@ -515,6 +606,66 @@ export class ClientFollowupsComponent implements AfterViewInit {
       (!sc || (sc === 'pending' && r.commitment_date && r.commitment_status === 'pending'))
     ));
   });
+
+  page = signal(1);
+  perPage = signal(50);
+  filteredCount = computed(() => this.filtered().length);
+  lastPage = computed(() => Math.max(1, Math.ceil(this.filteredCount() / Math.max(1, this.perPage()))));
+  pageSafe = computed(() => Math.min(this.page(), this.lastPage()));
+  from = computed(() => (this.filteredCount() ? ((this.pageSafe() - 1) * this.perPage() + 1) : 0));
+  to = computed(() => Math.min(this.filteredCount(), this.pageSafe() * this.perPage()));
+  paged = computed(() => {
+    const start = (this.pageSafe() - 1) * this.perPage();
+    const end = start + this.perPage();
+    return this.filtered().slice(start, end);
+  });
+
+  globalStats = computed(() => {
+    const rows = this.data();
+    const total = rows.length;
+    let pending = 0;
+    let inProgress = 0;
+    let resolved = 0;
+    let overdueCases = 0;
+    let pendingCommitments = 0;
+    for (const r of rows) {
+      if (r.management_status === 'pending') pending += 1;
+      if (r.management_status === 'in_progress') inProgress += 1;
+      if (r.management_status === 'resolved') resolved += 1;
+      if (Number(r.overdue_installments || 0) > 0) overdueCases += 1;
+      if ((r as any).commitment_date && (r as any).commitment_status === 'pending') pendingCommitments += 1;
+    }
+    return { total, pending, inProgress, resolved, overdueCases, pendingCommitments };
+  });
+
+  columnsCompact: ColumnDef[] = [
+    { field: 'sale_code', header: 'collections.followups.columns.sale_code', width: '110px' },
+    { header: 'Cliente', tpl: 'clientLink', width: '260px', translate: false },
+    { header: 'Lote', tpl: 'lotLink', width: '160px', translate: false },
+    { header: 'Deuda', tpl: 'debt', width: '220px', translate: false },
+    { header: 'Gestión', tpl: 'status', width: '220px', translate: false },
+    { header: 'Acciones', tpl: 'actions', width: '170px', translate: false, align: 'right' },
+  ];
+
+  columnsView = computed<ColumnDef[]>(() => {
+    if (this.viewMode() === 'compact') return this.columnsCompact;
+    return this.columns;
+  });
+
+  setPerPage(value: any) {
+    const n = Number(value) || 50;
+    this.perPage.set(Math.max(1, n));
+    this.page.set(1);
+  }
+
+  goToPage(nextPage: number) {
+    const safe = Math.max(1, Math.min(this.lastPage(), nextPage));
+    this.page.set(safe);
+  }
+
+  setViewMode(mode: 'compact' | 'full') {
+    this.viewMode.set(mode);
+  }
 
   columns: ColumnDef[] = [
     { field: 'sale_code', header: 'collections.followups.columns.sale_code' },
@@ -562,6 +713,7 @@ export class ClientFollowupsComponent implements AfterViewInit {
   @ViewChild('statusTpl') statusTpl!: TemplateRef<any>;
   @ViewChild('clientLinkTpl') clientLinkTpl!: TemplateRef<any>;
   @ViewChild('lotLinkTpl') lotLinkTpl!: TemplateRef<any>;
+  @ViewChild('debtTpl') debtTpl!: TemplateRef<any>;
   @ViewChild('actionsTpl') actionsTpl!: TemplateRef<any>;
   @ViewChild('notesTpl') notesTpl!: TemplateRef<any>;
   @ViewChild('ownerTpl') ownerTpl!: TemplateRef<any>;
@@ -577,6 +729,7 @@ export class ClientFollowupsComponent implements AfterViewInit {
     this.templates['status'] = this.statusTpl;
     this.templates['clientLink'] = this.clientLinkTpl;
     this.templates['lotLink'] = this.lotLinkTpl;
+    this.templates['debt'] = this.debtTpl;
     this.templates['actions'] = this.actionsTpl;
     this.templates['notes'] = this.notesTpl;
     this.templates['owner'] = this.ownerTpl;
@@ -585,7 +738,22 @@ export class ClientFollowupsComponent implements AfterViewInit {
   }
 
   ngOnInit(): void {
-    this.followups.list().subscribe();
+    this.loading.set(true);
+    this.error.set(null);
+    this.followups.list().subscribe({
+      next: () => {
+        this.loading.set(false);
+      },
+      error: () => {
+        this.loading.set(false);
+        this.error.set('No se pudo cargar seguimientos');
+      }
+    });
+  }
+
+  formatCurrency(amount: any): string {
+    const value = Number(amount || 0);
+    return new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN', minimumFractionDigits: 2 }).format(value);
   }
 
   exportExcel(): void {

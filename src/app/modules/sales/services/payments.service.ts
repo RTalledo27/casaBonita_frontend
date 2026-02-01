@@ -31,11 +31,25 @@ export class PaymentsService {
     return this.http.delete<void>(`${this.base}/${id}`);
   }
 
-  ledger(params: { start_date?: string; end_date?: string; per_page?: number }): Observable<any> {
+  ledger(params: {
+    start_date?: string;
+    end_date?: string;
+    per_page?: number;
+    page?: number;
+    q?: string;
+    movement_type?: string;
+    method?: string;
+    has_voucher?: number;
+  }): Observable<any> {
     let httpParams = new HttpParams();
     if (params?.start_date) httpParams = httpParams.set('start_date', params.start_date);
     if (params?.end_date) httpParams = httpParams.set('end_date', params.end_date);
     if (params?.per_page) httpParams = httpParams.set('per_page', String(params.per_page));
+    if (params?.page) httpParams = httpParams.set('page', String(params.page));
+    if (params?.q) httpParams = httpParams.set('q', params.q);
+    if (params?.movement_type) httpParams = httpParams.set('movement_type', params.movement_type);
+    if (params?.method) httpParams = httpParams.set('method', params.method);
+    if (params?.has_voucher !== undefined && params?.has_voucher !== null) httpParams = httpParams.set('has_voucher', String(params.has_voucher));
     return this.http.get<any>(`${this.base}/ledger`, { params: httpParams });
   }
 
@@ -54,5 +68,15 @@ export class PaymentsService {
 
   downloadVoucher(paymentId: number): Observable<Blob> {
     return this.http.get(`${this.base}/${paymentId}/voucher`, { responseType: 'blob' });
+  }
+
+  uploadTransactionVoucher(transactionId: number, file: File): Observable<any> {
+    const form = new FormData();
+    form.append('voucher', file);
+    return this.http.post<any>(`${API_ROUTES.SALES.PAYMENT_TRANSACTIONS}/${transactionId}/voucher`, form);
+  }
+
+  downloadTransactionVoucher(transactionId: number): Observable<Blob> {
+    return this.http.get(`${API_ROUTES.SALES.PAYMENT_TRANSACTIONS}/${transactionId}/voucher`, { responseType: 'blob' });
   }
 }

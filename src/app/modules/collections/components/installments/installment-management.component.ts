@@ -2,9 +2,8 @@ import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute } from '@angular/router';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
+import { Subject, takeUntil, debounceTime, distinctUntilChanged, of } from 'rxjs';
 import { switchMap, catchError, finalize } from 'rxjs/operators';
-import { of } from 'rxjs';
 import { 
   LucideAngularModule, 
   Search, 
@@ -323,6 +322,8 @@ import { PaymentSchedule, ContractSummary, MarkPaymentPaidRequest } from '../../
                 <th class="py-3 px-4 font-semibold">Cuota</th>
                 <th class="py-3 px-4 font-semibold">Vencimiento</th>
                 <th class="py-3 px-4 font-semibold text-right">Monto</th>
+                <th class="py-3 px-4 font-semibold text-right">Pagado</th>
+                <th class="py-3 px-4 font-semibold text-right">Saldo</th>
                 <th class="py-3 px-4 font-semibold">Estado</th>
                 <th class="py-3 px-4 font-semibold">Días Vencido</th>
                 <th class="py-3 px-4 font-semibold text-right">Acciones</th>
@@ -355,6 +356,18 @@ import { PaymentSchedule, ContractSummary, MarkPaymentPaidRequest } from '../../
                   <td class="py-3 px-4 text-right">
                     <span class="font-semibold text-slate-900 dark:text-white">
                       {{ formatCurrency(schedule.amount) }}
+                    </span>
+                  </td>
+
+                  <td class="py-3 px-4 text-right">
+                    <span class="font-semibold text-slate-900 dark:text-white">
+                      {{ formatCurrency(schedule.amount_paid || 0) }}
+                    </span>
+                  </td>
+
+                  <td class="py-3 px-4 text-right">
+                    <span class="font-semibold text-slate-900 dark:text-white">
+                      {{ formatCurrency((schedule.amount || 0) - (schedule.amount_paid || 0)) }}
                     </span>
                   </td>
 
@@ -392,7 +405,7 @@ import { PaymentSchedule, ContractSummary, MarkPaymentPaidRequest } from '../../
                       </button>
                       @if (schedule.status !== 'pagado') {
                         <button
-                          (click)="openMarkPaidModal(schedule)"
+                          (click)="openMarkPaidModalWithContext(schedule, contract)"
                           class="inline-flex items-center justify-center h-8 w-8 rounded-full text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 ring-1 ring-emerald-200/70 dark:ring-emerald-800/60 transition"
                           title="Marcar como pagado"
                         >
@@ -497,10 +510,10 @@ import { PaymentSchedule, ContractSummary, MarkPaymentPaidRequest } from '../../
         <!-- Modern Mark as Paid Modal -->
         @if (showMarkPaidModal()) {
           <div class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div class="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl shadow-2xl max-w-md w-full border border-white/20 dark:border-gray-700/50 relative overflow-hidden">
+            <div class="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl shadow-2xl w-[min(94vw,64rem)] border border-white/20 dark:border-gray-700/50 relative overflow-hidden max-h-[90vh] overflow-y-auto">
               <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500"></div>
               
-              <div class="p-8">
+              <div class="p-6 sm:p-8">
                 <div class="flex justify-between items-center mb-6">
                   <div class="flex items-center gap-4">
                     <div class="bg-gradient-to-br from-green-500 to-emerald-600 p-3 rounded-2xl shadow-lg">
@@ -519,18 +532,46 @@ import { PaymentSchedule, ContractSummary, MarkPaymentPaidRequest } from '../../
                 @if (selectedScheduleForPayment()) {
                   <form [formGroup]="markPaidForm" (ngSubmit)="markAsPaid()" class="space-y-6">
                     <div class="bg-gradient-to-r from-blue-50/80 to-indigo-50/80 dark:from-blue-900/30 dark:to-indigo-900/30 p-6 rounded-2xl border border-blue-200/50 dark:border-blue-700/50">
-                      <div class="space-y-3">
-                        <div class="flex justify-between items-center">
-                          <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Contrato:</span>
-                          <span class="font-bold text-gray-900 dark:text-white">{{ selectedScheduleForPayment()!.contract_id }}</span>
+                      <div class="flex items-start justify-between gap-4">
+                        <div class="min-w-0">
+                          <div class="text-xs font-semibold text-slate-500 dark:text-slate-300">Cliente</div>
+                          <div class="text-base font-bold text-slate-900 dark:text-white truncate">
+                            {{ selectedScheduleForPayment()!.client_name || '—' }}
+                          </div>
+                          <div class="text-xs text-slate-600 dark:text-slate-300 truncate">
+                            {{ selectedScheduleForPayment()!.lot_name || selectedScheduleForPayment()!.lot_number || '' }}
+                          </div>
+                          <div class="mt-2 flex flex-wrap gap-2">
+                            <span class="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold bg-white/70 dark:bg-slate-900/30 text-slate-700 dark:text-slate-200 ring-1 ring-slate-200/70 dark:ring-slate-700/60">
+                              Contrato {{ selectedScheduleForPayment()!.contract_number || selectedScheduleForPayment()!.contract_id }}
+                            </span>
+                            <span class="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold bg-white/70 dark:bg-slate-900/30 text-slate-700 dark:text-slate-200 ring-1 ring-slate-200/70 dark:ring-slate-700/60">
+                              Cuota #{{ selectedScheduleForPayment()!.installment_number }}
+                            </span>
+                            <span class="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold bg-white/70 dark:bg-slate-900/30 text-slate-700 dark:text-slate-200 ring-1 ring-slate-200/70 dark:ring-slate-700/60">
+                              Cronograma #{{ selectedScheduleForPayment()!.schedule_id }}
+                            </span>
+                          </div>
                         </div>
-                        <div class="flex justify-between items-center">
-                          <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Monto:</span>
-                          <span class="font-bold text-green-600 dark:text-green-400 text-lg">{{ formatCurrency(selectedScheduleForPayment()!.amount) }}</span>
+
+                        <div class="text-right shrink-0">
+                          <div class="text-xs font-semibold text-slate-500 dark:text-slate-300">Vencimiento</div>
+                          <div class="font-bold text-slate-900 dark:text-white">{{ formatDate(selectedScheduleForPayment()!.due_date) }}</div>
                         </div>
-                        <div class="flex justify-between items-center">
-                          <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Vencimiento:</span>
-                          <span class="font-bold text-gray-900 dark:text-white">{{ formatDate(selectedScheduleForPayment()!.due_date) }}</span>
+                      </div>
+
+                      <div class="mt-5 grid grid-cols-3 gap-3">
+                        <div class="rounded-2xl bg-white/70 dark:bg-slate-900/30 p-3 ring-1 ring-white/40 dark:ring-slate-700/50">
+                          <div class="text-[11px] font-semibold text-slate-600 dark:text-slate-300">Monto</div>
+                          <div class="text-sm font-bold text-slate-900 dark:text-white">{{ formatCurrency(selectedScheduleForPayment()!.amount) }}</div>
+                        </div>
+                        <div class="rounded-2xl bg-white/70 dark:bg-slate-900/30 p-3 ring-1 ring-white/40 dark:ring-slate-700/50">
+                          <div class="text-[11px] font-semibold text-slate-600 dark:text-slate-300">Pagado</div>
+                          <div class="text-sm font-bold text-emerald-700 dark:text-emerald-300">{{ formatCurrency(selectedScheduleForPayment()!.amount_paid || 0) }}</div>
+                        </div>
+                        <div class="rounded-2xl bg-white/70 dark:bg-slate-900/30 p-3 ring-1 ring-white/40 dark:ring-slate-700/50">
+                          <div class="text-[11px] font-semibold text-slate-600 dark:text-slate-300">Saldo</div>
+                          <div class="text-sm font-bold text-indigo-700 dark:text-indigo-300">{{ formatCurrency((selectedScheduleForPayment()!.remaining_amount ?? (selectedScheduleForPayment()!.amount - (selectedScheduleForPayment()!.amount_paid || 0))) || 0) }}</div>
                         </div>
                       </div>
                     </div>
@@ -546,6 +587,14 @@ import { PaymentSchedule, ContractSummary, MarkPaymentPaidRequest } from '../../
                           >
                           <div class="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-500/10 to-purple-500/10 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                         </div>
+                        <div class="mt-2 flex justify-end">
+                          <button type="button" (click)="setPayToday()" class="text-xs font-semibold text-blue-700 dark:text-blue-300 hover:underline">
+                            Hoy
+                          </button>
+                        </div>
+                        @if (markPaidSubmitted && markPaidForm.get('payment_date')?.errors?.['required']) {
+                          <div class="mt-1 text-xs font-semibold text-red-600">La fecha es requerida</div>
+                        }
                       </div>
                       <div class="group">
                         <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-3 transition-colors group-focus-within:text-green-600">Monto Pagado</label>
@@ -558,6 +607,20 @@ import { PaymentSchedule, ContractSummary, MarkPaymentPaidRequest } from '../../
                           >
                           <div class="absolute inset-0 rounded-2xl bg-gradient-to-r from-green-500/10 to-emerald-500/10 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                         </div>
+                        <div class="mt-2 flex items-center justify-between gap-2">
+                          <div class="text-[11px] text-slate-600 dark:text-slate-300">
+                            Saldo después: {{ formatCurrency(Math.max(0, num(selectedScheduleForPayment()!.amount) - (num(selectedScheduleForPayment()!.amount_paid) + num(markPaidForm.value.amount_paid)))) }}
+                          </div>
+                          <button type="button" (click)="setPayRemaining()" class="text-xs font-semibold text-emerald-700 dark:text-emerald-300 hover:underline">
+                            Completar saldo
+                          </button>
+                        </div>
+                        @if (markPaidSubmitted && markPaidForm.get('amount_paid')?.errors?.['required']) {
+                          <div class="mt-1 text-xs font-semibold text-red-600">El monto es requerido</div>
+                        }
+                        @if (markPaidSubmitted && markPaidForm.get('amount_paid')?.errors?.['min']) {
+                          <div class="mt-1 text-xs font-semibold text-red-600">El monto debe ser mayor a 0</div>
+                        }
                       </div>
                     </div>
 
@@ -578,6 +641,49 @@ import { PaymentSchedule, ContractSummary, MarkPaymentPaidRequest } from '../../
                     </div>
 
                     <div class="group">
+                      <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-3 transition-colors group-focus-within:text-amber-600">Referencia (banco)</label>
+                      <div class="relative">
+                        <input
+                          type="text"
+                          formControlName="reference"
+                          placeholder="No. boleta / referencia / autorización"
+                          class="w-full px-4 py-3 bg-white/80 dark:bg-gray-700/80 border border-gray-200 dark:border-gray-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all duration-300 backdrop-blur-sm shadow-sm hover:shadow-md font-medium placeholder-gray-400 dark:placeholder-gray-500 text-gray-900 dark:text-white"
+                        >
+                        <div class="absolute inset-0 rounded-2xl bg-gradient-to-r from-amber-500/10 to-orange-500/10 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                      </div>
+                      @if (markPaidSubmitted && markPaidForm.get('reference')?.errors?.['required']) {
+                        <div class="mt-1 text-xs font-semibold text-red-600">La referencia es requerida para pagos no en efectivo</div>
+                      }
+                      @if (markPaidSubmitted && markPaidForm.get('reference')?.errors?.['maxlength']) {
+                        <div class="mt-1 text-xs font-semibold text-red-600">Máximo 60 caracteres</div>
+                      }
+                    </div>
+
+                    <div class="group">
+                      <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-3 transition-colors group-focus-within:text-slate-600">Voucher / Comprobante</label>
+                      <div class="relative">
+                        <input
+                          type="file"
+                          accept=".jpg,.jpeg,.png,.pdf"
+                          (change)="onVoucherSelected($event)"
+                          class="w-full px-4 py-3 bg-white/80 dark:bg-gray-700/80 border border-gray-200 dark:border-gray-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-slate-500/50 focus:border-slate-500 transition-all duration-300 backdrop-blur-sm shadow-sm hover:shadow-md font-medium text-gray-900 dark:text-white"
+                        >
+                        <div class="absolute inset-0 rounded-2xl bg-gradient-to-r from-slate-500/10 to-gray-500/10 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                      </div>
+                      <div class="mt-2 flex items-center justify-between gap-3 text-xs text-slate-600 dark:text-slate-300">
+                        <span class="truncate">{{ selectedVoucherFile?.name || 'Sin archivo seleccionado' }}</span>
+                        @if (selectedVoucherFile) {
+                          <button type="button" (click)="clearVoucher()" class="font-semibold text-slate-700 dark:text-slate-200 hover:underline">
+                            Quitar
+                          </button>
+                        }
+                      </div>
+                      @if (voucherFieldError) {
+                        <div class="mt-1 text-xs font-semibold text-red-600">{{ voucherFieldError }}</div>
+                      }
+                    </div>
+
+                    <div class="group">
                       <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-3 transition-colors group-focus-within:text-indigo-600">Notas</label>
                       <div class="relative">
                         <textarea
@@ -588,12 +694,15 @@ import { PaymentSchedule, ContractSummary, MarkPaymentPaidRequest } from '../../
                         ></textarea>
                         <div class="absolute inset-0 rounded-2xl bg-gradient-to-r from-indigo-500/10 to-blue-500/10 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                       </div>
+                      @if (markPaidSubmitted && markPaidForm.get('notes')?.errors?.['maxlength']) {
+                        <div class="mt-1 text-xs font-semibold text-red-600">Máximo 500 caracteres</div>
+                      }
                     </div>
 
                     <div class="flex space-x-4 pt-6">
                       <button
                         type="submit"
-                        [disabled]="markPaidForm.invalid || isMarkingPaid()"
+                        [disabled]="isMarkingPaid()"
                         class="group relative flex-1 flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 font-semibold overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                       >
                         <div class="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -771,6 +880,9 @@ export class InstallmentManagementComponent implements OnInit, OnDestroy {
   filterForm: FormGroup;
   markPaidForm: FormGroup;
   customMessageForm: FormGroup;
+  selectedVoucherFile: File | null = null;
+  voucherFieldError: string | null = null;
+  markPaidSubmitted = false;
 
   // Computed properties - Now using backend pagination
   paginatedContracts = computed(() => {
@@ -801,8 +913,21 @@ export class InstallmentManagementComponent implements OnInit, OnDestroy {
       payment_date: [new Date().toISOString().split('T')[0], Validators.required],
       amount_paid: [0, [Validators.required, Validators.min(0.01)]],
       payment_method: ['cash', Validators.required],
-      notes: ['']
+      reference: ['', [Validators.maxLength(60)]],
+      notes: ['', [Validators.maxLength(500)]]
     });
+
+    this.markPaidForm.get('payment_method')!.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((method: string) => {
+        const referenceControl = this.markPaidForm.get('reference');
+        if (!referenceControl) return;
+        const validators = method === 'cash'
+          ? [Validators.maxLength(60)]
+          : [Validators.required, Validators.maxLength(60)];
+        referenceControl.setValidators(validators);
+        referenceControl.updateValueAndValidity({ emitEvent: false });
+      });
 
     this.customMessageForm = this.fb.group({
       subject: ['Mensaje de Cobranzas', [Validators.required, Validators.minLength(3), Validators.maxLength(150)]],
@@ -925,13 +1050,27 @@ this.collectionsService.getContractsWithSchedulesSummary(paginationFilters)
     console.log('DEBUG: openMarkPaidModal called with schedule:', schedule);
     console.log('DEBUG: schedule_id value:', schedule.schedule_id);
     this.selectedScheduleForPayment.set(schedule);
+    const amount = Number(schedule.amount || 0);
+    const alreadyPaid = Number(schedule.amount_paid || 0);
+    const remaining = Math.max(0, amount - alreadyPaid);
     this.markPaidForm.patchValue({
       payment_date: new Date().toISOString().split('T')[0],
-      amount_paid: schedule.amount,
+      amount_paid: Number(remaining.toFixed(2)),
       payment_method: 'cash',
+      reference: '',
       notes: ''
     });
     this.showMarkPaidModal.set(true);
+  }
+
+  openMarkPaidModalWithContext(schedule: PaymentSchedule, contract: ContractSummary) {
+    const enriched: PaymentSchedule = {
+      ...schedule,
+      contract_number: contract.contract_number,
+      client_name: contract.client_name,
+      lot_name: contract.lot_name,
+    };
+    this.openMarkPaidModal(enriched);
   }
 
   openCustomMessageModal(schedule: PaymentSchedule) {
@@ -1002,10 +1141,43 @@ this.collectionsService.getContractsWithSchedulesSummary(paginationFilters)
   closeMarkPaidModal() {
     this.showMarkPaidModal.set(false);
     this.selectedScheduleForPayment.set(null);
+    this.selectedVoucherFile = null;
+    this.voucherFieldError = null;
+    this.markPaidSubmitted = false;
+  }
+
+  clearVoucher() {
+    this.selectedVoucherFile = null;
+    this.voucherFieldError = null;
+  }
+
+  onVoucherSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files && input.files.length ? input.files[0] : null;
+    this.selectedVoucherFile = file;
+    this.voucherFieldError = null;
+  }
+
+  setPayToday() {
+    this.markPaidForm.patchValue({
+      payment_date: new Date().toISOString().split('T')[0],
+    });
+  }
+
+  setPayRemaining() {
+    const s = this.selectedScheduleForPayment();
+    if (!s) return;
+    const amount = Number(s.amount || 0);
+    const paid = Number((s as any).amount_paid || 0);
+    const remaining = Math.max(0, amount - paid);
+    this.markPaidForm.patchValue({ amount_paid: Number(remaining.toFixed(2)) });
   }
 
   markAsPaid() {
+    this.markPaidSubmitted = true;
+    this.voucherFieldError = null;
     if (this.markPaidForm.invalid) {
+      this.markPaidForm.markAllAsTouched();
       return;
     }
 
@@ -1015,13 +1187,20 @@ this.collectionsService.getContractsWithSchedulesSummary(paginationFilters)
     console.log('DEBUG: markAsPaid - selectedSchedule:', selectedSchedule);
     console.log('DEBUG: markAsPaid - schedule_id:', selectedSchedule.schedule_id);
 
+    const method = this.markPaidForm.value.payment_method;
+    if (method !== 'cash' && !this.selectedVoucherFile) {
+      this.voucherFieldError = 'Voucher requerido para pagos no en efectivo';
+      return;
+    }
+
     this.isMarkingPaid.set(true);
     this.clearMessages();
 
     const request: MarkPaymentPaidRequest = {
       payment_date: this.markPaidForm.value.payment_date,
-      amount_paid: this.markPaidForm.value.amount_paid,
+      amount_paid: this.num(this.markPaidForm.value.amount_paid),
       payment_method: this.markPaidForm.value.payment_method,
+      reference: this.markPaidForm.value.reference,
       notes: this.markPaidForm.value.notes
     };
 
@@ -1038,9 +1217,43 @@ this.collectionsService.getContractsWithSchedulesSummary(paginationFilters)
       .subscribe((response: any) => {
         this.isMarkingPaid.set(false);
         if (response.success) {
-          this.successMessage.set('Pago marcado como pagado exitosamente');
-          this.closeMarkPaidModal();
-          this.loadContracts(); // Reload to get updated data
+          const allocation = response.allocation;
+          if (allocation && typeof allocation === 'object') {
+            const applied = allocation.applied_amount ?? null;
+            const unapplied = allocation.unapplied_amount ?? null;
+            const allocationsCount = Array.isArray(allocation.allocations) ? allocation.allocations.length : null;
+            const parts: string[] = [];
+            if (applied !== null) parts.push(`aplicado ${applied}`);
+            if (unapplied !== null && unapplied > 0) parts.push(`sobrante ${unapplied}`);
+            if (allocationsCount !== null) parts.push(`${allocationsCount} cuota(s)`);
+            const suffix = parts.length ? ` (${parts.join(', ')})` : '';
+            this.successMessage.set('Pago registrado exitosamente' + suffix);
+          } else {
+            this.successMessage.set('Pago marcado como pagado exitosamente');
+          }
+
+          const voucher = this.selectedVoucherFile;
+          const transactionId = response?.transaction?.transaction_id ?? allocation?.transaction_id ?? null;
+
+          if (voucher && typeof transactionId === 'number') {
+            this.collectionsService.uploadTransactionVoucher(transactionId, voucher)
+              .pipe(
+                catchError(() => of({ success: false })),
+                takeUntil(this.destroy$)
+              )
+              .subscribe((res: any) => {
+                if (res?.success) {
+                  this.successMessage.set('Pago registrado y voucher subido');
+                } else {
+                  this.errorMessage.set('Pago registrado, pero no se pudo subir el voucher');
+                }
+                this.closeMarkPaidModal();
+                this.loadContracts();
+              });
+          } else {
+            this.closeMarkPaidModal();
+            this.loadContracts(); // Reload to get updated data
+          }
         }
       });
   }
@@ -1118,6 +1331,13 @@ this.collectionsService.getContractsWithSchedulesSummary(paginationFilters)
   private clearMessages() {
     this.errorMessage.set(null);
     this.successMessage.set(null);
+  }
+
+  num(value: any): number {
+    if (value === null || value === undefined) return 0;
+    if (typeof value === 'number') return Number.isFinite(value) ? value : 0;
+    const parsed = parseFloat(String(value).replace(',', '.'));
+    return Number.isFinite(parsed) ? parsed : 0;
   }
 
   formatCurrency(amount: number): string {

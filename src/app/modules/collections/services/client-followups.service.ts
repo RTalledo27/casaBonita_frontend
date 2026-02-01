@@ -395,6 +395,11 @@ export class ClientFollowupsService {
     return this.http.get<any>(url).pipe(map(res => (res?.data ?? [])));
   }
 
+  ensureFromContract(contractId: number) {
+    const url = `${this.baseUrl}/from-contract/${contractId}`;
+    return this.http.post(url, {});
+  }
+
   getMora(tramo: number) {
     const tramoStr = String(tramo) as '1'|'2'|'3';
     return this.listMora(tramoStr).pipe(
@@ -431,6 +436,17 @@ export class ClientFollowupsService {
     }));
   }
 
+  setCommitmentStatus(id: number, commitment_status: 'pending' | 'fulfilled' | 'broken' | 'cancelled') {
+    const url = `${this.baseUrl}/${id}/commitment-status`;
+    return this.http.put(url, { commitment_status }).pipe(tap((res: any) => {
+      const updated: ClientFollowupRecord = res?.data;
+      if (updated) {
+        const next = this.subject.getValue().map(r => (String(r.sale_code) === String(updated.sale_code)) ? { ...r, ...updated } : r);
+        this.subject.next(next);
+      }
+    }));
+  }
+
   /**
    * Ejecutar acción rápida de comunicación
    */
@@ -439,13 +455,16 @@ export class ClientFollowupsService {
     channel: 'whatsapp' | 'sms' | 'email' | 'call' | 'letter', 
     message?: string, 
     subject?: string,
-    useContractId: boolean = false
+    useContractId: boolean = false,
+    meta?: { notes?: string; result?: string }
   ) {
     const url = `${this.baseUrl}/${followupId}/quick-action`;
     const payload: any = { channel };
     if (message) payload.message = message;
     if (subject) payload.subject = subject;
     if (useContractId) payload.use_contract_id = true;
+    if (meta?.notes) payload.notes = meta.notes;
+    if (meta?.result) payload.result = meta.result;
     return this.http.post(url, payload);
   }
 
@@ -474,13 +493,13 @@ export class ClientFollowupsService {
    * Registrar llamada telefónica
    */
   registerCall(followupId: number, notes?: string, useContractId: boolean = false) {
-    return this.quickAction(followupId, 'call', notes, undefined, useContractId);
+    return this.quickAction(followupId, 'call', undefined, undefined, useContractId, { notes, result: 'contacted' });
   }
 
   /**
    * Registrar envío de carta
    */
   registerLetter(followupId: number, notes?: string, useContractId: boolean = false) {
-    return this.quickAction(followupId, 'letter', notes, undefined, useContractId);
+    return this.quickAction(followupId, 'letter', undefined, undefined, useContractId, { notes, result: 'sent' });
   }
 }

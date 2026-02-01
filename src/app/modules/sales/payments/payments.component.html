@@ -44,7 +44,7 @@
 
             <div class="relative p-6 border-b border-gray-200/50 dark:border-gray-700/50 bg-gradient-to-r from-white/70 via-slate-50/50 to-white/70 dark:from-gray-800/70 dark:via-gray-700/50 dark:to-gray-800/70">
                 <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 w-full md:w-auto">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-3 w-full">
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Fecha inicio</label>
                             <input type="date" class="w-full px-4 py-3 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-2xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200 font-medium" [(ngModel)]="startDate" />
@@ -53,12 +53,54 @@
                             <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Fecha fin</label>
                             <input type="date" class="w-full px-4 py-3 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-2xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200 font-medium" [(ngModel)]="endDate" />
                         </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Buscar</label>
+                            <input
+                                type="text"
+                                class="w-full px-4 py-3 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-2xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200 font-medium"
+                                placeholder="Cliente, contrato, lote, referencia..."
+                                [(ngModel)]="searchTerm"
+                                (ngModelChange)="onFiltersChanged()"
+                            />
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Tipo</label>
+                                <select
+                                    class="w-full px-4 py-3 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-2xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200 font-medium"
+                                    [(ngModel)]="typeFilter"
+                                    (ngModelChange)="onFiltersChanged()"
+                                >
+                                    <option value="">Todos</option>
+                                    <option value="installment">Cuotas</option>
+                                    <option value="reservation_deposit">Separaciones</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Método</label>
+                                <select
+                                    class="w-full px-4 py-3 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-2xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200 font-medium"
+                                    [(ngModel)]="methodFilter"
+                                    (ngModelChange)="onFiltersChanged()"
+                                >
+                                    <option value="">Todos</option>
+                                    <option value="cash">Efectivo</option>
+                                    <option value="transfer">Transferencia</option>
+                                    <option value="card">Tarjeta</option>
+                                    <option value="check">Cheque</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="flex items-center gap-3">
+                        <label class="inline-flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                            <input type="checkbox" class="h-4 w-4 rounded border-gray-300" [(ngModel)]="hasVoucherOnly" (ngModelChange)="onFiltersChanged()" />
+                            Solo con voucher
+                        </label>
                         <button
                             class="inline-flex items-center gap-2 px-5 py-3 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 font-semibold"
-                            (click)="loadKpis()"
+                            (click)="refresh()"
                             [disabled]="isLoadingKpis"
                         >
                             <span *ngIf="!isLoadingKpis">Actualizar resumen</span>
@@ -123,9 +165,256 @@
                         [data]="(payments$ | async) || []"
                         [idField]="idField"
                         (onEdit)="onEdit($event)"
+                        [templates]="templates"
                         [permissionPrefix]="'sales'"
                         componentName="payments"
+                        [showActions]="false"
+                        [loading]="isLoadingLedger"
                     ></app-shared-table>
+                </div>
+                <div *ngIf="ledgerError" class="p-4 text-sm text-red-700 font-semibold">{{ ledgerError }}</div>
+
+                <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between p-4 border-t border-gray-200/60 dark:border-gray-700/60">
+                    <div class="text-sm text-gray-600 dark:text-gray-300">
+                        Mostrando <span class="font-semibold text-gray-900 dark:text-gray-100">{{ from }}</span> - <span class="font-semibold text-gray-900 dark:text-gray-100">{{ to }}</span>
+                        de <span class="font-semibold text-gray-900 dark:text-gray-100">{{ total }}</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Filas</label>
+                        <select
+                            class="px-3 py-2 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-xl font-semibold"
+                            [(ngModel)]="perPage"
+                            (ngModelChange)="onFiltersChanged()"
+                        >
+                            <option [ngValue]="25">25</option>
+                            <option [ngValue]="50">50</option>
+                            <option [ngValue]="100">100</option>
+                            <option [ngValue]="200">200</option>
+                        </select>
+
+                        <button
+                            type="button"
+                            class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-100 font-semibold disabled:opacity-50"
+                            (click)="goToPage(page - 1)"
+                            [disabled]="page <= 1 || isLoadingLedger"
+                        >
+                            Anterior
+                        </button>
+                        <div class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                            Página <span class="text-gray-900 dark:text-gray-100">{{ page }}</span> / <span class="text-gray-900 dark:text-gray-100">{{ lastPage }}</span>
+                        </div>
+                        <button
+                            type="button"
+                            class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-100 font-semibold disabled:opacity-50"
+                            (click)="goToPage(page + 1)"
+                            [disabled]="page >= lastPage || isLoadingLedger"
+                        >
+                            Siguiente
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <ng-template #originTpl let-row>
+            <div class="flex items-center gap-2">
+                <span [class]="getMovementTypePillClass(row)">{{ getInstallmentKindLabel(row) }}</span>
+                <span class="text-xs font-semibold text-gray-800 dark:text-gray-100 truncate">{{ getOriginLabel(row) }}</span>
+            </div>
+        </ng-template>
+
+        <ng-template #clientTpl let-row>
+            <button
+                type="button"
+                class="text-blue-700 hover:underline dark:text-blue-300"
+                (click)="openClient(row.client_id)"
+                [disabled]="!row.client_id"
+            >
+                {{ row.client_name || '—' }}
+            </button>
+        </ng-template>
+
+        <ng-template #contractTpl let-row>
+            <button
+                type="button"
+                class="text-indigo-700 hover:underline dark:text-indigo-300"
+                (click)="openContract(row.contract_id)"
+                [disabled]="!row.contract_id"
+            >
+                {{ row.contract_number || row.contract_id || '—' }}
+            </button>
+        </ng-template>
+
+        <ng-template #lotTpl let-row>
+            <button
+                type="button"
+                class="text-slate-700 hover:underline dark:text-slate-200"
+                (click)="openLot(row.lot_id)"
+                [disabled]="!row.lot_id"
+            >
+                {{ row.lot_name || '—' }}
+            </button>
+        </ng-template>
+
+        <ng-template #installmentTpl let-row>
+            <span class="text-slate-800 dark:text-slate-200">
+                {{ row.installment_number || '—' }}
+            </span>
+        </ng-template>
+
+        <ng-template #methodTpl let-row>
+            <span [class]="getMethodPillClass(row)">{{ getMethodLabel(row) }}</span>
+        </ng-template>
+
+        <ng-template #referenceTpl let-row>
+            <span class="text-sm text-gray-900 dark:text-gray-100 truncate block max-w-[240px]">
+                {{ row.reference || '—' }}
+            </span>
+            <span *ngIf="row.transaction_id" class="text-[11px] text-gray-500 dark:text-gray-400">Tx #{{ row.transaction_id }}</span>
+        </ng-template>
+
+        <ng-template #voucherTpl let-row>
+            <div class="flex items-center justify-center">
+                <span [class]="getVoucherPillClass(row)">
+                    {{ row.has_voucher ? 'Sí' : 'No' }}
+                </span>
+            </div>
+        </ng-template>
+
+        <ng-template #actionsTpl let-row>
+            <div class="flex justify-end gap-2">
+                <button
+                    type="button"
+                    class="px-3 py-1 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600 transition font-semibold"
+                    (click)="openDetail(row)"
+                >
+                    Detalle
+                </button>
+            </div>
+        </ng-template>
+
+        <div *ngIf="detailRow" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div class="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl shadow-2xl w-[min(94vw,64rem)] border border-white/20 dark:border-gray-700/50 overflow-hidden max-h-[90vh] overflow-y-auto relative">
+                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500"></div>
+                <div class="p-6 sm:p-8">
+                    <div class="flex items-start justify-between gap-4 mb-6">
+                        <div class="min-w-0">
+                            <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100 truncate">Detalle de pago</h3>
+                            <div class="text-sm text-gray-600 dark:text-gray-400 truncate">
+                                {{ detailRow.client_name || 'Cliente' }} · {{ detailRow.contract_number || detailRow.contract_id || 'Contrato' }} · {{ detailRow.lot_name || '—' }}
+                            </div>
+                            <div class="mt-3 flex flex-wrap gap-2">
+                                <span class="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold bg-white/70 dark:bg-slate-900/30 text-slate-700 dark:text-slate-200 ring-1 ring-slate-200/70 dark:ring-slate-700/60">
+                                    Pago #{{ detailRow.payment_id || '—' }}
+                                </span>
+                                <span class="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold bg-white/70 dark:bg-slate-900/30 text-slate-700 dark:text-slate-200 ring-1 ring-slate-200/70 dark:ring-slate-700/60">
+                                    Tx #{{ detailRow.transaction_id || '—' }}
+                                </span>
+                                <span class="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold bg-white/70 dark:bg-slate-900/30 text-slate-700 dark:text-slate-200 ring-1 ring-slate-200/70 dark:ring-slate-700/60">
+                                    Cronograma #{{ detailRow.schedule_id || '—' }}
+                                </span>
+                                <span class="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold bg-white/70 dark:bg-slate-900/30 text-slate-700 dark:text-slate-200 ring-1 ring-slate-200/70 dark:ring-slate-700/60">
+                                    Cuota #{{ detailRow.installment_number || '—' }}
+                                </span>
+                                <span [class]="getMethodPillClass(detailRow)">{{ getMethodLabel(detailRow) }}</span>
+                            </div>
+                        </div>
+                        <button type="button" class="px-5 py-3 rounded-2xl bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100 font-semibold" (click)="closeDetail()">
+                            Cerrar
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="rounded-2xl bg-white/70 dark:bg-slate-900/30 p-4 ring-1 ring-slate-200/70 dark:ring-slate-700/60">
+                            <div class="text-xs text-gray-500">Fecha</div>
+                            <div class="text-base font-bold text-gray-900 dark:text-gray-100">{{ formatDate(detailRow.date) }}</div>
+                        </div>
+                        <div class="rounded-2xl bg-white/70 dark:bg-slate-900/30 p-4 ring-1 ring-slate-200/70 dark:ring-slate-700/60">
+                            <div class="text-xs text-gray-500">Monto</div>
+                            <div class="text-base font-bold text-emerald-700 dark:text-emerald-300">{{ formatCurrency(detailRow.amount || 0) }}</div>
+                        </div>
+                        <div class="rounded-2xl bg-white/70 dark:bg-slate-900/30 p-4 ring-1 ring-slate-200/70 dark:ring-slate-700/60">
+                            <div class="text-xs text-gray-500">Referencia</div>
+                            <div class="text-sm font-bold text-gray-900 dark:text-gray-100 truncate">{{ detailRow.reference || '—' }}</div>
+                            <div class="text-[11px] text-gray-500 dark:text-gray-400 truncate">{{ detailRow.bank_name || '' }}</div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 rounded-3xl border border-gray-200/60 dark:border-gray-700/60 bg-white/60 dark:bg-gray-900/30 p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="text-lg font-bold text-gray-900 dark:text-gray-100">Voucher</div>
+                            <div class="text-sm font-semibold" [class.text-emerald-700]="detailRow.has_voucher" [class.text-slate-500]="!detailRow.has_voucher">
+                                {{ detailRow.has_voucher ? 'Disponible' : 'No cargado' }}
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Archivo</label>
+                                <input type="file" accept=".jpg,.jpeg,.png,.pdf" (change)="onVoucherSelected($event)" class="w-full px-4 py-3 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-2xl" />
+                                <div class="mt-2 text-xs text-gray-500 dark:text-gray-400 truncate">{{ voucherFile?.name || 'Sin archivo seleccionado' }}</div>
+                                <div *ngIf="voucherError" class="mt-1 text-xs font-semibold text-red-600">{{ voucherError }}</div>
+                            </div>
+                            <div class="flex gap-3 justify-end">
+                                <button
+                                    type="button"
+                                    class="px-5 py-3 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-semibold disabled:opacity-50"
+                                    (click)="uploadVoucher()"
+                                    [disabled]="isUploadingVoucher || !voucherFile"
+                                >
+                                    {{ isUploadingVoucher ? 'Subiendo...' : 'Subir' }}
+                                </button>
+                                <button
+                                    type="button"
+                                    class="px-5 py-3 rounded-2xl bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-100 font-semibold disabled:opacity-50"
+                                    (click)="downloadVoucher()"
+                                    [disabled]="!detailRow.has_voucher"
+                                >
+                                    Descargar
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 pt-5 border-t border-gray-200/60 dark:border-gray-700/60">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="text-sm font-bold text-gray-900 dark:text-gray-100">Vista previa</div>
+                                <button
+                                    *ngIf="detailRow.has_voucher"
+                                    type="button"
+                                    class="text-xs font-semibold text-blue-700 dark:text-blue-300 hover:underline"
+                                    (click)="loadVoucherPreview()"
+                                    [disabled]="isLoadingVoucherPreview"
+                                >
+                                    {{ isLoadingVoucherPreview ? 'Cargando...' : 'Recargar' }}
+                                </button>
+                            </div>
+
+                            <div *ngIf="voucherPreviewError" class="mb-3 text-xs font-semibold text-red-600">{{ voucherPreviewError }}</div>
+
+                            <div *ngIf="!detailRow.has_voucher" class="text-sm text-slate-600 dark:text-slate-300">
+                                No hay voucher para previsualizar.
+                            </div>
+
+                            <div *ngIf="detailRow.has_voucher && isLoadingVoucherPreview" class="h-48 rounded-2xl bg-slate-100 dark:bg-slate-800 animate-pulse"></div>
+
+                            <div *ngIf="detailRow.has_voucher && !isLoadingVoucherPreview">
+                                <div *ngIf="voucherPreviewType === 'image' && voucherPreviewUrl" class="rounded-2xl overflow-hidden ring-1 ring-slate-200/70 dark:ring-slate-700/60 bg-white dark:bg-slate-900">
+                                    <img [src]="voucherPreviewUrl" class="w-full max-h-[70vh] object-contain" />
+                                </div>
+
+                                <div *ngIf="voucherPreviewType === 'pdf' && voucherPreviewSafeUrl" class="rounded-2xl overflow-hidden ring-1 ring-slate-200/70 dark:ring-slate-700/60 bg-white dark:bg-slate-900">
+                                    <iframe [src]="voucherPreviewSafeUrl" class="w-full h-[70vh]"></iframe>
+                                </div>
+
+                                <div *ngIf="voucherPreviewType === 'other'" class="rounded-2xl p-4 bg-slate-50 dark:bg-slate-800 ring-1 ring-slate-200/70 dark:ring-slate-700/60">
+                                    <div class="text-sm text-slate-700 dark:text-slate-200 font-semibold mb-2">No se puede previsualizar este tipo de archivo.</div>
+                                    <button type="button" class="text-sm font-semibold text-blue-700 dark:text-blue-300 hover:underline" (click)="downloadVoucher()">
+                                        Descargar voucher
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
