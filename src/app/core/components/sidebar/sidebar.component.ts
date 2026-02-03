@@ -50,7 +50,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
           navItem.expanded = false;
         }
       });
-      
+
       // Expandir el módulo solicitado
       item.expanded = true;
     }
@@ -90,11 +90,11 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   // Estructura estática completa de navegación con permisos requeridos
   private staticNavItems = [
-    { 
-      name: 'dashboard', 
-      label: 'sidebar.dashboard.title', 
-      icon: Home, 
-      route: '/dashboard', 
+    {
+      name: 'dashboard',
+      label: 'sidebar.dashboard.title',
+      icon: Home,
+      route: '/dashboard',
       active: false,
       permission: null // Dashboard siempre visible
     },
@@ -123,11 +123,11 @@ export class SidebarComponent implements OnInit, OnDestroy {
         { name: 'permissions', label: 'sidebar.security.permissions.title', route: '/security/permissions', active: false, permission: 'security.permissions.view' },
       ],
     },
-    { 
-      name: 'inventory', 
-      label: 'sidebar.inventory.title', 
-      icon: Package, 
-      route: '/inventory', 
+    {
+      name: 'inventory',
+      label: 'sidebar.inventory.title',
+      icon: Package,
+      route: '/inventory',
       active: false,
       permission: 'inventory.access'
     },
@@ -262,11 +262,11 @@ export class SidebarComponent implements OnInit, OnDestroy {
         { name: 'attendance', label: 'sidebar.hr.attendance.title', route: '/hr/attendance', active: false, permission: 'hr.access' },
       ],
     },
-    { 
-      name: 'accounting', 
-      label: 'sidebar.accounting.title', 
-      icon: DollarSign, 
-      route: '/accounting', 
+    {
+      name: 'accounting',
+      label: 'sidebar.accounting.title',
+      icon: DollarSign,
+      route: '/accounting',
       active: false,
       permission: 'accounting.access' // Agregar al seeder si no existe
     },
@@ -296,22 +296,24 @@ export class SidebarComponent implements OnInit, OnDestroy {
       children: [
         { name: 'dashboard', label: 'sidebar.service-desk.dashboard.title', route: '/service-desk/dashboard', active: false, permission: 'service-desk.tickets.view' },
         { name: 'tickets', label: 'sidebar.service-desk.tickets.title', route: '/service-desk/tickets', active: false, permission: 'service-desk.tickets.view' },
-        { name: 'reportes', label: 'sidebar.service-desk.reportes.title', route: '/service-desk/reportes', active: false, permission: 'service-desk.tickets.view' },
+        { name: 'reports', label: 'sidebar.service-desk.reports.title', route: '/service-desk/reports', active: false, permission: 'service-desk.tickets.view' },
+        { name: 'categories', label: 'sidebar.service-desk.categories.title', route: '/service-desk/categories', active: false, permission: 'service-desk.access' },
+        { name: 'settings', label: 'sidebar.service-desk.settings.title', route: '/service-desk/settings', active: false, permission: 'service-desk.access' },
       ],
     },
-    { 
-      name: 'audit', 
-      label: 'sidebar.audit.title', 
-      icon: ShieldCheck, 
-      route: '/audit/security', 
+    {
+      name: 'audit',
+      label: 'sidebar.audit.title',
+      icon: ShieldCheck,
+      route: '/audit/security',
       active: false,
       permission: 'security.audit.view'
     },
-    { 
-      name: 'settings', 
-      label: 'sidebar.settings.title', 
-      icon: Settings, 
-      route: '/settings', 
+    {
+      name: 'settings',
+      label: 'sidebar.settings.title',
+      icon: Settings,
+      route: '/settings',
       active: false,
       permission: null // Settings siempre visible
     },
@@ -322,50 +324,50 @@ export class SidebarComponent implements OnInit, OnDestroy {
     // IMPORTANTE: Usar SOLO signals reactivos - NO getCurrentUser()
     const userPermissions = this.sidebarService.userPermissionsSignal();
     const userRole = this.sidebarService.userRoleSignal();
-    
+
     console.log('🔄 SidebarComponent: Re-computing navItems');
     console.log('  📊 Signal permissions:', userPermissions.length);
     console.log('  👤 Signal role:', userRole);
-    
+
     // Si no hay permisos, mostrar solo dashboard y settings
     if (userPermissions.length === 0) {
       console.log('  ⚠️ No permissions in signal, showing only public modules');
       return this.staticNavItems.filter(item => item.permission === null);
     }
-    
+
     console.log('  🔐 Using ONLY real permissions (no admin bypass). Role:', userRole);
-    
+
     const filteredItems = this.staticNavItems.filter(item => {
       // Si no requiere permiso (null), siempre mostrar (dashboard, settings)
       if (item.permission === null) {
         console.log('    ✅', item.name, '- No permission required');
         return true;
       }
-      
+
       // USAR PERMISOS DEL SIGNAL - Sin bypass de admin
       // Si tiene el permiso específico del módulo, mostrar
       if (item.permission && userPermissions.includes(item.permission)) {
         console.log('    ✅', item.name, '- Has permission:', item.permission);
         return true;
       }
-      
+
       // Si no tiene el permiso .access pero tiene algún permiso del módulo, mostrar también
       const modulePrefix = item.name.toLowerCase();
-      const hasAnyModulePermission = userPermissions.some(p => 
+      const hasAnyModulePermission = userPermissions.some(p =>
         p.startsWith(`${modulePrefix}.`)
       );
-      
+
       if (hasAnyModulePermission) {
         console.log('    ✅', item.name, '- Has module permission');
       } else {
         console.log('    ❌', item.name, '- No permission');
       }
-      
+
       return hasAnyModulePermission;
     });
-    
+
     console.log('  📋 Total visible modules:', filteredItems.length);
-    
+
     return filteredItems.map(item => {
       // Si el item tiene children, filtrarlos también por permisos
       if (item.children && item.children.length > 0) {
@@ -374,14 +376,14 @@ export class SidebarComponent implements OnInit, OnDestroy {
           if (!child.permission) {
             return true;
           }
-          
+
           // USAR PERMISOS DEL SIGNAL - Sin bypass de admin
           return userPermissions.includes(child.permission);
         });
-        
+
         return { ...item, children: filteredChildren };
       }
-      
+
       return item;
     });
   });

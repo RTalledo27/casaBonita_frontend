@@ -1,187 +1,303 @@
-<!-- Selector de periodo -->
-<div class="flex items-center gap-2 mb-6 p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-    <label class="text-xs text-gray-400 dark:text-gray-300">Periodo:</label>
-    <select [(ngModel)]="period" (change)="onPeriodChange()" class="bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5">
-        <option value="today">Hoy</option>
-        <option value="week">Esta semana</option>
-        <option value="month">Este mes</option>
-        <option value="custom">Personalizado</option>
-    </select>
-    <ng-container *ngIf="period === 'custom'">
-        <input type="date" [(ngModel)]="customStart" (change)="onPeriodChange()" class="bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5" />
-        <span class="mx-1 text-gray-400 dark:text-gray-300">a</span>
-        <input type="date" [(ngModel)]="customEnd" (change)="onPeriodChange()" class="bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5" />
+<div class="min-h-screen p-6">
+    <!-- Encabezado con Selector de Periodo -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800 dark:text-white">Dashboard de Incidencias</h1>
+            <p class="text-gray-500 dark:text-gray-400 mt-1">Monitorea el estado de las incidencias del sistema</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <select [(ngModel)]="period" (change)="onPeriodChange()"
+                class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-white rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
+                <option value="today">Hoy</option>
+                <option value="week">Esta semana</option>
+                <option value="month">Este mes</option>
+                <option value="quarter">Este trimestre</option>
+                <option value="custom">Personalizado</option>
+            </select>
+            <ng-container *ngIf="period === 'custom'">
+                <input type="date" [(ngModel)]="customStart" (change)="onPeriodChange()"
+                    class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-white rounded-xl px-4 py-2.5 text-sm" />
+                <span class="text-gray-400">a</span>
+                <input type="date" [(ngModel)]="customEnd" (change)="onPeriodChange()"
+                    class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-white rounded-xl px-4 py-2.5 text-sm" />
+            </ng-container>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <ng-container *ngIf="loading">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div *ngFor="let i of [1,2,3,4]"
+                class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700 animate-pulse">
+                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-4"></div>
+                <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mb-2"></div>
+                <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div>
+            </div>
+        </div>
+    </ng-container>
+
+    <!-- Content Loaded -->
+    <ng-container *ngIf="!loading">
+        <!-- KPI Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <!-- Total Tickets -->
+            <div
+                class="group bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl border border-gray-100 dark:border-gray-700 transition-all duration-300 hover:scale-105">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Tickets</span>
+                    <div
+                        class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl flex items-center justify-center transform group-hover:rotate-6 transition-transform">
+                        <lucide-icon [name]="ticket" class="w-5 h-5 text-white"></lucide-icon>
+                    </div>
+                </div>
+                <div class="flex items-baseline gap-2">
+                    <span class="text-3xl font-bold text-gray-800 dark:text-white">{{ data.total_tickets || 0 }}</span>
+                </div>
+                <div class="mt-2 flex items-center gap-1 text-sm"
+                    [ngClass]="getTrendDirection(data.total_tickets_trend) === 'up' ? 'text-green-500' : getTrendDirection(data.total_tickets_trend) === 'down' ? 'text-red-500' : 'text-gray-400'">
+                    <lucide-icon
+                        [name]="getTrendDirection(data.total_tickets_trend) === 'up' ? arrowUp : getTrendDirection(data.total_tickets_trend) === 'down' ? arrowDown : minus"
+                        class="w-4 h-4"></lucide-icon>
+                    <span>{{ data.total_tickets_trend || '0%' }} vs periodo anterior</span>
+                </div>
+            </div>
+
+            <!-- Tickets Abiertos -->
+            <div
+                class="group bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl border border-gray-100 dark:border-gray-700 transition-all duration-300 hover:scale-105">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Tickets Abiertos</span>
+                    <div
+                        class="w-10 h-10 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center transform group-hover:rotate-6 transition-transform">
+                        <lucide-icon [name]="alert" class="w-5 h-5 text-white"></lucide-icon>
+                    </div>
+                </div>
+                <div class="flex items-baseline gap-2">
+                    <span class="text-3xl font-bold text-gray-800 dark:text-white">{{ data.open_tickets || 0 }}</span>
+                </div>
+                <div class="mt-2 flex items-center gap-1 text-sm"
+                    [ngClass]="getTrendDirection(data.open_tickets_trend) === 'up' ? 'text-red-500' : getTrendDirection(data.open_tickets_trend) === 'down' ? 'text-green-500' : 'text-gray-400'">
+                    <lucide-icon
+                        [name]="getTrendDirection(data.open_tickets_trend) === 'up' ? arrowUp : getTrendDirection(data.open_tickets_trend) === 'down' ? arrowDown : minus"
+                        class="w-4 h-4"></lucide-icon>
+                    <span>{{ data.open_tickets_trend || '0%' }} vs periodo anterior</span>
+                </div>
+            </div>
+
+            <!-- SLA Cumplido -->
+            <div
+                class="group bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl border border-gray-100 dark:border-gray-700 transition-all duration-300 hover:scale-105">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">SLA Cumplido</span>
+                    <div
+                        class="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center transform group-hover:rotate-6 transition-transform">
+                        <lucide-icon [name]="check_circle" class="w-5 h-5 text-white"></lucide-icon>
+                    </div>
+                </div>
+                <div class="flex items-baseline gap-2">
+                    <span class="text-3xl font-bold text-gray-800 dark:text-white">{{ data.sla_rate || '0%' }}</span>
+                </div>
+                <div class="mt-2 flex items-center gap-1 text-sm"
+                    [ngClass]="getTrendDirection(data.sla_trend) === 'up' ? 'text-green-500' : getTrendDirection(data.sla_trend) === 'down' ? 'text-red-500' : 'text-gray-400'">
+                    <lucide-icon
+                        [name]="getTrendDirection(data.sla_trend) === 'up' ? arrowUp : getTrendDirection(data.sla_trend) === 'down' ? arrowDown : minus"
+                        class="w-4 h-4"></lucide-icon>
+                    <span>{{ data.sla_trend || '0%' }} vs periodo anterior</span>
+                </div>
+            </div>
+
+            <!-- Tiempo Promedio -->
+            <div
+                class="group bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl border border-gray-100 dark:border-gray-700 transition-all duration-300 hover:scale-105">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Tiempo Promedio</span>
+                    <div
+                        class="w-10 h-10 bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-xl flex items-center justify-center transform group-hover:rotate-6 transition-transform">
+                        <lucide-icon [name]="clock" class="w-5 h-5 text-white"></lucide-icon>
+                    </div>
+                </div>
+                <div class="flex items-baseline gap-2">
+                    <span class="text-3xl font-bold text-gray-800 dark:text-white">{{ data.avg_time || '0h' }}</span>
+                </div>
+                <div class="mt-2 flex items-center gap-1 text-sm"
+                    [ngClass]="getTrendDirection(data.avg_time_trend) === 'down' ? 'text-green-500' : getTrendDirection(data.avg_time_trend) === 'up' ? 'text-red-500' : 'text-gray-400'">
+                    <lucide-icon
+                        [name]="getTrendDirection(data.avg_time_trend) === 'up' ? arrowUp : getTrendDirection(data.avg_time_trend) === 'down' ? arrowDown : minus"
+                        class="w-4 h-4"></lucide-icon>
+                    <span>{{ data.avg_time_trend || '0%' }} vs periodo anterior</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <!-- Tickets por Estado -->
+            <div
+                class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
+                <h3 class="text-lg font-bold text-gray-800 dark:text-white mb-6">Tickets por Estado</h3>
+                <div class="h-64 flex items-center justify-center"
+                    *ngIf="hasChartData(statusChartData); else noStatusData">
+                    <canvas baseChart [data]="statusChartData" [type]="'doughnut'"
+                        [options]="doughnutChartOptions"></canvas>
+                </div>
+                <ng-template #noStatusData>
+                    <div class="h-64 flex flex-col items-center justify-center text-center">
+                        <div
+                            class="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
+                            <lucide-icon name="pie-chart" class="w-8 h-8 text-gray-400"></lucide-icon>
+                        </div>
+                        <p class="text-gray-500 dark:text-gray-400">Sin datos para mostrar</p>
+                    </div>
+                </ng-template>
+            </div>
+
+            <!-- Tickets por Prioridad -->
+            <div
+                class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
+                <h3 class="text-lg font-bold text-gray-800 dark:text-white mb-6">Tickets por Prioridad</h3>
+                <div class="h-64" *ngIf="hasChartData(priorityChartData); else noPriorityData">
+                    <canvas baseChart [data]="priorityChartData" [type]="'bar'" [options]="barChartOptions"></canvas>
+                </div>
+                <ng-template #noPriorityData>
+                    <div class="h-64 flex flex-col items-center justify-center text-center">
+                        <div
+                            class="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
+                            <lucide-icon name="bar-chart-3" class="w-8 h-8 text-gray-400"></lucide-icon>
+                        </div>
+                        <p class="text-gray-500 dark:text-gray-400">Sin datos para mostrar</p>
+                    </div>
+                </ng-template>
+            </div>
+        </div>
+
+        <!-- Alertas y Tickets Recientes -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <!-- Alertas -->
+            <div
+                class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
+                <h3 class="text-lg font-bold text-gray-800 dark:text-white mb-4">Alertas</h3>
+                <div class="space-y-3" *ngIf="alerts?.length; else noAlerts">
+                    <div *ngFor="let alert of alerts" class="flex items-start gap-3 p-3 rounded-xl" [ngClass]="{
+                            'bg-red-50 dark:bg-red-900/20': alert.type === 'danger',
+                            'bg-yellow-50 dark:bg-yellow-900/20': alert.type === 'warning',
+                            'bg-blue-50 dark:bg-blue-900/20': alert.type === 'info'
+                        }">
+                        <lucide-icon
+                            [name]="alert.type === 'danger' ? alert_triangle : alert.type === 'warning' ? alert_triangle : info"
+                            class="w-5 h-5 mt-0.5" [ngClass]="{
+                                'text-red-500': alert.type === 'danger',
+                                'text-yellow-500': alert.type === 'warning',
+                                'text-blue-500': alert.type === 'info'
+                            }"></lucide-icon>
+                        <div>
+                            <p class="text-sm font-medium text-gray-800 dark:text-white">{{ alert.message }}</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ alert.detail }}</p>
+                        </div>
+                    </div>
+                </div>
+                <ng-template #noAlerts>
+                    <div class="flex flex-col items-center justify-center py-8 text-center">
+                        <div
+                            class="w-12 h-12 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center mb-3">
+                            <lucide-icon [name]="check_circle" class="w-6 h-6 text-green-500"></lucide-icon>
+                        </div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Todo en orden, sin alertas</p>
+                    </div>
+                </ng-template>
+            </div>
+
+            <!-- Tickets Recientes -->
+            <div
+                class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold text-gray-800 dark:text-white">Tickets Recientes</h3>
+                    <a routerLink="/service-desk/tickets"
+                        class="text-sm text-indigo-500 hover:text-indigo-600 font-medium">Ver todos</a>
+                </div>
+                <div class="overflow-x-auto" *ngIf="recentTickets?.length; else noTickets">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
+                                <th class="pb-3 pr-4">ID</th>
+                                <th class="pb-3 pr-4">Estado</th>
+                                <th class="pb-3 pr-4">Prioridad</th>
+                                <th class="pb-3">Descripción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let ticket of recentTickets"
+                                class="border-t border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer transition-colors"
+                                (click)="navigateToTicket(ticket.ticket_id)">
+                                <td class="py-3 pr-4">
+                                    <span class="font-medium text-gray-800 dark:text-white">#{{ ticket.ticket_id
+                                        }}</span>
+                                </td>
+                                <td class="py-3 pr-4">
+                                    <span class="px-2 py-1 rounded-full text-xs font-semibold" [ngClass]="{
+                                            'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400': ticket.status === 'abierto',
+                                            'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400': ticket.status === 'en_proceso',
+                                            'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400': ticket.status === 'cerrado'
+                                        }">
+                                        {{ getStatusLabel(ticket.status) }}
+                                    </span>
+                                </td>
+                                <td class="py-3 pr-4">
+                                    <span class="px-2 py-1 rounded-full text-xs font-semibold" [ngClass]="{
+                                            'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400': ticket.priority === 'baja',
+                                            'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400': ticket.priority === 'media',
+                                            'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400': ticket.priority === 'alta',
+                                            'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400': ticket.priority === 'critica'
+                                        }">
+                                        {{ ticket.priority | titlecase }}
+                                    </span>
+                                </td>
+                                <td class="py-3 text-sm text-gray-600 dark:text-gray-300 truncate max-w-xs">
+                                    {{ ticket.description }}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <ng-template #noTickets>
+                    <div class="flex flex-col items-center justify-center py-12 text-center">
+                        <div
+                            class="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
+                            <lucide-icon name="inbox" class="w-8 h-8 text-gray-400"></lucide-icon>
+                        </div>
+                        <p class="text-gray-500 dark:text-gray-400 mb-2">Sin tickets recientes</p>
+                        <a routerLink="/service-desk/tickets"
+                            class="text-sm text-indigo-500 hover:text-indigo-600 font-medium">Crear primer ticket</a>
+                    </div>
+                </ng-template>
+            </div>
+        </div>
+
+        <!-- Top Técnicos -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700"
+            *ngIf="topTechs?.length">
+            <h3 class="text-lg font-bold text-gray-800 dark:text-white mb-4">Top Técnicos</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div *ngFor="let tech of topTechs; let i = index"
+                    class="flex items-center gap-4 p-4 rounded-xl bg-gray-50 dark:bg-gray-700/50">
+                    <div class="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold bg-gradient-to-br"
+                        [ngClass]="{
+                            'from-yellow-400 to-amber-500': i === 0,
+                            'from-gray-300 to-gray-400': i === 1,
+                            'from-amber-600 to-amber-700': i === 2,
+                            'from-indigo-500 to-indigo-600': i > 2
+                        }">
+                        {{ getInitials(tech.first_name, tech.last_name) }}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="font-medium text-gray-800 dark:text-white truncate">
+                            {{ tech.first_name }} {{ tech.last_name }}
+                        </p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">
+                            {{ tech.assigned_tickets_count || 0 }} tickets cerrados
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </ng-container>
 </div>
-
-<!-- Rango personalizado incompleto -->
-<div *ngIf="period === 'custom' && (!customStart || !customEnd)" class="flex flex-col items-center mt-10 p-8 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-    <lucide-icon [name]="calendar" class="w-14 h-14 text-gray-500 dark:text-gray-400 mb-3"></lucide-icon>
-    <div class="text-lg text-gray-300 dark:text-gray-400 font-semibold">Selecciona ambas fechas para ver el análisis</div>
-    <div class="text-sm text-gray-500 dark:text-gray-500">Completa el rango personalizado para mostrar los datos del dashboard.</div>
-</div>
-
-<!-- Dashboard principal -->
-<div *ngIf="period !== 'custom' || (customStart && customEnd)">
-
-    <!-- KPIs -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-        <div
-            class="rounded-2xl border border-slate-700 dark:border-gray-600 bg-slate-950 dark:bg-gray-800 px-6 py-5 flex flex-col text-white min-w-[230px] shadow-sm">
-            <div class="flex justify-between items-center mb-1">
-                <span class="font-semibold">Total Tickets</span>
-                <lucide-icon [name]="ticket" class="w-7 h-7 text-indigo-400"></lucide-icon>
-            </div>
-            <div class="text-4xl font-extrabold my-2 tracking-tight">{{ data.total_tickets || 0 }}</div>
-            <div class="text-xs text-gray-400 font-medium">+{{ data.variation_tickets || 0 }}% vs mes anterior</div>
-        </div>
-        <div class="rounded-2xl border border-red-700 dark:border-red-600 bg-slate-950 dark:bg-gray-800 px-6 py-5 flex flex-col text-white shadow-sm">
-            <div class="flex justify-between items-center mb-1">
-                <span class="font-semibold">Tickets Abiertos</span>
-                <lucide-icon [name]="alert_triangle" class="w-7 h-7 text-red-400"></lucide-icon>
-            </div>
-            <div class="text-4xl font-extrabold my-2 tracking-tight text-red-500">{{ data.open_tickets || 0 }}</div>
-            <div class="text-xs text-red-400 font-medium">{{ data.open_tickets_note || '-' }}</div>
-        </div>
-        <div class="rounded-2xl border border-yellow-700 dark:border-yellow-600 bg-slate-950 dark:bg-gray-800 px-6 py-5 flex flex-col text-white shadow-sm">
-            <div class="flex justify-between items-center mb-1">
-                <span class="font-semibold">SLA Cumplido</span>
-                <lucide-icon [name]="check_circle" class="w-7 h-7 text-yellow-400"></lucide-icon>
-            </div>
-            <div class="text-4xl font-extrabold my-2 tracking-tight text-yellow-300">{{ data.sla_rate || '0%' }}</div>
-            <div class="text-xs text-yellow-400 font-medium">+{{ data.variation_sla || '0' }}% vs mes anterior</div>
-        </div>
-        <div class="rounded-2xl border border-cyan-700 dark:border-cyan-600 bg-slate-950 dark:bg-gray-800 px-6 py-5 flex flex-col text-white shadow-sm">
-            <div class="flex justify-between items-center mb-1">
-                <span class="font-semibold">Tiempo Promedio</span>
-                <lucide-icon [name]="clock" class="w-7 h-7 text-cyan-400"></lucide-icon>
-            </div>
-            <div class="text-4xl font-extrabold my-2 tracking-tight text-cyan-300">{{ data.avg_time || '0h' }}</div>
-            <div class="text-xs text-cyan-400 font-medium">{{ data.avg_time_note || '-' }}</div>
-        </div>
-    </div>
-
-    <!-- Gráficos + Alertas -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-7 mt-3 mb-2 w-full">
-        <!-- Tickets por Estado -->
-        <div class="rounded-2xl border border-slate-800 dark:border-gray-700 bg-slate-950 dark:bg-gray-800 p-6 flex flex-col items-center justify-center min-h-[330px] shadow-lg relative w-full
-                  max-w-[420px] lg:max-w-full mx-auto lg:mx-0 transition-all">
-            <h4 class="font-semibold mb-2 self-start text-base text-white dark:text-gray-100">Tickets por Estado</h4>
-            <canvas baseChart [data]="statusChartData" [type]="'doughnut'" [options]="{
-          responsive: true,
-          cutout: '68%',
-          plugins: {
-            legend: {
-              position: 'bottom',
-              labels: {
-                color: 'white',
-                font: { size: 15, family: 'Inter, Roboto, sans-serif' },
-                boxWidth: 20,
-                padding: 12
-              }
-            }
-          }
-        }" width="310" height="180" class="!max-w-[310px] !max-h-[180px] mx-auto select-none"></canvas>
-        </div>
-        <!-- Tickets por Prioridad -->
-        <div class="rounded-2xl border border-slate-800 dark:border-gray-700 bg-slate-950 dark:bg-gray-800 p-6 flex flex-col items-center justify-center min-h-[330px] shadow-lg relative w-full
-                  max-w-[420px] lg:max-w-full mx-auto lg:mx-0 transition-all">
-            <h4 class="font-semibold mb-2 self-start text-base text-white dark:text-gray-100">Tickets por Prioridad</h4>
-            <canvas baseChart [data]="priorityChartData" [type]="'bar'" [options]="{
-          responsive: true,
-          plugins: {
-            legend: { display: false, labels: { color: 'white' } }
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              ticks: { color: 'white', font: { size: 13 }, precision: 0 },
-              grid: { color: '#33415544' }
-            },
-            x: {
-              ticks: { color: 'white', font: { size: 13 } },
-              grid: { color: '#33415544' }
-            }
-          }
-        }" width="310" height="180" class="!max-w-[310px] !max-h-[180px] mx-auto select-none"></canvas>
-        </div>
-        <!-- Alertas -->
-        <div class="rounded-2xl border border-slate-800 dark:border-gray-700 bg-slate-950 dark:bg-gray-800 p-6 text-white dark:text-gray-100 shadow-lg flex flex-col justify-start min-h-[330px] w-full
-                  max-w-[420px] lg:max-w-full mx-auto lg:mx-0 transition-all">
-            <h4 class="font-semibold mb-3 text-base">Alertas</h4>
-            <ng-container *ngIf="alerts?.length; else noAlerts">
-                <div *ngFor="let alert of alerts" class="flex items-center mb-3 p-2 rounded bg-opacity-20" [ngClass]="{
-            'bg-red-700 text-red-300': alert.type === 'danger',
-            'bg-yellow-700 text-yellow-300': alert.type === 'warning',
-            'bg-cyan-700 text-cyan-300': alert.type === 'info'
-          }">
-                    <lucide-icon [name]="alert.icon" class="w-5 h-5 mr-2"></lucide-icon>
-                    <span class="ml-1 text-sm">{{ alert.message }}</span>
-                </div>
-            </ng-container>
-            <ng-template #noAlerts>
-                <div class="flex flex-col items-center justify-center h-full text-gray-400 opacity-60 pt-8">
-                    <lucide-icon name="bell-minus" class="w-10 h-10 mb-2"></lucide-icon>
-                    <span class="text-sm">Sin alertas en este periodo</span>
-                </div>
-            </ng-template>
-        </div>
-    </div>
-
-    <!-- Tickets recientes y técnicos top -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-9">
-        <!-- Tickets recientes -->
-        <div class="md:col-span-2 rounded-2xl border border-slate-800 dark:border-gray-700 bg-slate-950 dark:bg-gray-800 p-6 text-white dark:text-gray-100 shadow-sm">
-            <div class="flex justify-between items-center mb-4">
-                <h4 class="font-semibold text-base">Tickets Recientes</h4>
-                <a routerLink="/service-desk/tickets" class="text-indigo-400 dark:text-indigo-300 underline text-sm hover:text-indigo-300 dark:hover:text-indigo-200">Ver todos</a>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-white dark:text-gray-100 border-separate border-spacing-y-2">
-                    <thead>
-                        <tr class="text-xs text-slate-400 dark:text-gray-400 font-semibold bg-slate-900 dark:bg-gray-700">
-                            <th class="py-1">ID</th>
-                            <th>Descripción</th>
-                            <th>Prioridad</th>
-                            <th>Estado</th>
-                            <th>Creado</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr *ngFor="let t of recentTickets" class="bg-slate-900/60 dark:bg-gray-700/60">
-                            <td class="font-mono tracking-widest text-xs py-2">{{ t.ticket_id }}</td>
-                            <td class="text-sm truncate max-w-[260px]" title="{{ t.description }}">{{ t.description }}
-                            </td>
-                            <td>
-                                <span class="px-2 py-1 rounded-full text-xs font-semibold" [ngClass]="{
-                    'bg-red-700 text-red-100': t.priority === 'alta',
-                    'bg-yellow-700 text-yellow-100': t.priority === 'media',
-                    'bg-cyan-700 text-cyan-100': t.priority === 'baja',
-                    'bg-pink-700 text-pink-100': t.priority === 'critica'
-                  }">{{ t.priority | titlecase }}</span>
-                            </td>
-                            <td>
-                                <span class="px-2 py-1 rounded-full text-xs font-semibold" [ngClass]="{
-                    'bg-blue-700 text-blue-100': t.status === 'abierto',
-                    'bg-yellow-700 text-yellow-100': t.status === 'en_proceso',
-                    'bg-green-700 text-green-100': t.status === 'cerrado'
-                  }">{{ t.status | titlecase }}</span>
-                            </td>
-                            <td class="text-xs">{{ t.created_at | date:'short' }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        <!-- Técnicos más activos -->
-        <div class="rounded-2xl border border-slate-800 dark:border-gray-700 bg-slate-950 dark:bg-gray-800 p-6 text-white dark:text-gray-100 shadow-sm h-fit">
-            <h4 class="font-semibold mb-3 text-base">Técnicos más activos</h4>
-            <div *ngFor="let tech of topTechs" class="flex justify-between items-center mb-2">
-                <span class="text-sm font-medium">{{ tech.username }}</span>
-                <span class="badge bg-indigo-700 dark:bg-indigo-600 px-3 py-1 rounded-full text-xs text-white">{{ tech.assigned_tickets_count || 0 }}
-                    tickets</span>
-            </div>
-        </div>
-    </div>
-</div>
-  

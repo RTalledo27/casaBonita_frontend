@@ -1,66 +1,279 @@
-<ng-template #tipoTpl let-row>
-    <span class="px-2 py-1 rounded font-semibold text-xs" [ngClass]="{
-        'bg-cyan-500 text-white': row.ticket_type === 'incidente',
-        'bg-green-700 text-white': row.ticket_type === 'solicitud',
-        'bg-yellow-400 text-white': row.ticket_type === 'cambio'
-      }">{{ row.ticket_type | titlecase }}</span>
-</ng-template>
+<div class="min-h-screen p-6">
+    <!-- Page Header -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+        <div>
+            <nav class="text-xs text-gray-400 flex items-center gap-1 mb-1">
+                <a routerLink="/service-desk/dashboard" class="hover:text-indigo-400 transition-colors">Service Desk</a>
+                <lucide-icon name="chevron-right" class="w-3 h-3"></lucide-icon>
+                <span>Tickets</span>
+            </nav>
+            <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Gestión de Tickets</h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Administra las incidencias, solicitudes y cambios del
+                sistema</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <button *ngIf="canCreate()" (click)="onCreate()"
+                class="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+                <lucide-icon [name]="plus" class="w-5 h-5"></lucide-icon>
+                Nuevo Ticket
+            </button>
+        </div>
+    </div>
 
-<ng-template #prioridadTpl let-row>
-    <span class="px-2 py-1 rounded-full text-xs font-bold" [ngClass]="{
-        'bg-red-400 text-white': row.priority === 'alta',
-        'bg-gray-500 text-white': row.priority === 'media',
-        'bg-cyan-400 text-white': row.priority === 'baja',
-        'bg-pink-700 text-white': row.priority === 'critica'
-      }">{{ row.priority | titlecase }}</span>
-</ng-template>
+    <!-- Filter Bar -->
+    <div
+        class="flex flex-wrap items-center gap-3 p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-sm mb-6">
+        <div class="flex-1 min-w-[200px] relative">
+            <lucide-icon name="search"
+                class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"></lucide-icon>
+            <input type="text" [(ngModel)]="filter" placeholder="Buscar por ID, descripción..."
+                (input)="onFilterChange()"
+                class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-white text-sm rounded-lg pl-10 pr-4 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all" />
+        </div>
+        <select [(ngModel)]="status" (change)="onFilterChange()"
+            class="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-white text-sm rounded-lg px-4 py-2.5 min-w-[140px] focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
+            <option value="">Todos los estados</option>
+            <option value="abierto">Abierto</option>
+            <option value="en_proceso">En Proceso</option>
+            <option value="cerrado">Cerrado</option>
+        </select>
+        <select [(ngModel)]="priority" (change)="onFilterChange()"
+            class="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-white text-sm rounded-lg px-4 py-2.5 min-w-[140px] focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
+            <option value="">Todas las prioridades</option>
+            <option value="critica">Crítica</option>
+            <option value="alta">Alta</option>
+            <option value="media">Media</option>
+            <option value="baja">Baja</option>
+        </select>
+        <button *ngIf="filter || status || priority" (click)="clearFilters()"
+            class="flex items-center gap-1 px-4 py-2.5 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white transition-colors">
+            <lucide-icon name="x" class="w-4 h-4"></lucide-icon>
+            Limpiar
+        </button>
+    </div>
 
-<ng-template #estadoTpl let-row>
-    <span class="px-2 py-1 rounded-full text-xs font-bold" [ngClass]="{
-        'bg-blue-600 text-white': row.status === 'abierto',
-        'bg-yellow-400 text-white': row.status === 'en_proceso',
-        'bg-green-700 text-white': row.status === 'cerrado'
-      }">{{ row.status | estadoTicket }}</span>
-</ng-template>
+    <!-- Stats Summary -->
+    <div class="flex flex-wrap items-center gap-6 text-sm text-gray-500 dark:text-gray-400 mb-4"
+        *ngIf="(tickets$ | async) as tickets">
+        <div class="flex items-center gap-2">
+            <lucide-icon name="ticket" class="w-4 h-4"></lucide-icon>
+            Total: <span class="font-semibold text-gray-800 dark:text-white">{{ tickets.length }}</span>
+        </div>
+        <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+            Abiertos: <span class="font-semibold text-gray-800 dark:text-white">{{ countByStatus(tickets, 'abierto')
+                }}</span>
+        </div>
+        <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-yellow-500"></span>
+            En Proceso: <span class="font-semibold text-gray-800 dark:text-white">{{ countByStatus(tickets,
+                'en_proceso') }}</span>
+        </div>
+        <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-green-500"></span>
+            Cerrados: <span class="font-semibold text-gray-800 dark:text-white">{{ countByStatus(tickets, 'cerrado')
+                }}</span>
+        </div>
+    </div>
 
-<ng-template #slaTpl let-row>
-    <ng-container [ngSwitch]="row.sla_status">
-        <span *ngSwitchCase="'cumplido'" class="flex items-center gap-1 text-green-600 font-semibold">
-            <lucide-icon [name]="checkCircle" class="w-4 h-4"></lucide-icon> Cumplido
+    <!-- Templates for Table Cells -->
+    <ng-template #tipoTpl let-row>
+        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold" [ngClass]="{
+                'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400': row.ticket_type === 'incidente',
+                'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400': row.ticket_type === 'solicitud',
+                'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400': row.ticket_type === 'cambio',
+                'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400': row.ticket_type === 'garantia',
+                'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400': row.ticket_type === 'mantenimiento',
+                'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-400': row.ticket_type === 'otro'
+            }">
+            <lucide-icon [name]="getTypeIcon(row.ticket_type)" class="w-3.5 h-3.5"></lucide-icon>
+            {{ row.ticket_type | titlecase }}
         </span>
-        <span *ngSwitchCase="'pendiente'" class="flex items-center gap-1 text-gray-500">
-            <lucide-icon [name]="clock" class="w-4 h-4"></lucide-icon> Pendiente
-        </span>
-        <span *ngSwitchDefault class="flex items-center gap-1 text-red-500 font-semibold">
-            <lucide-icon [name]="clock" class="w-4 h-4"></lucide-icon> {{ row.sla_text }}
-        </span>
-    </ng-container>
-</ng-template>
+    </ng-template>
 
-<ng-template #accionesTpl let-row>
-    <button class="btn-icon" (click)="onView(row)">
-        <lucide-icon name="eye" class="w-5 h-5"></lucide-icon>
-    </button>
-    <button class="btn-icon" (click)="onEdit(row)">
-        <lucide-icon name="pencil" class="w-5 h-5"></lucide-icon>
-    </button>
-</ng-template>
+    <ng-template #prioridadTpl let-row>
+        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold text-white"
+            [ngClass]="{
+                'bg-gradient-to-r from-cyan-500 to-cyan-600': row.priority === 'baja',
+                'bg-gradient-to-r from-yellow-500 to-amber-500': row.priority === 'media',
+                'bg-gradient-to-r from-red-500 to-red-600': row.priority === 'alta',
+                'bg-gradient-to-r from-pink-500 to-rose-600 animate-pulse': row.priority === 'critica'
+            }">
+            {{ row.priority | titlecase }}
+        </span>
+    </ng-template>
 
-<div>
-    PRueba de componente de tickets
+    <ng-template #estadoTpl let-row>
+        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold" [ngClass]="{
+                'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400': row.status === 'abierto',
+                'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400': row.status === 'en_proceso',
+                'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400': row.status === 'cerrado'
+            }">
+            {{ row.status | estadoTicket }}
+        </span>
+    </ng-template>
+
+    <ng-template #slaTpl let-row>
+        <div class="flex items-center gap-1.5 text-xs font-medium" [ngClass]="{
+                'text-green-500': getSlaClass(row) === 'cumplido',
+                'text-gray-400': getSlaClass(row) === 'pendiente',
+                'text-red-500': getSlaClass(row) === 'vencido',
+                'text-yellow-500': getSlaClass(row) === 'por-vencer'
+            }">
+            <lucide-icon [name]="getSlaIcon(row)" class="w-4 h-4"></lucide-icon>
+            {{ getSlaText(row) }}
+        </div>
+    </ng-template>
+
+    <ng-template #accionesTpl let-row>
+        <div class="flex items-center gap-1">
+            <button (click)="onView(row)"
+                class="flex items-center justify-center w-8 h-8 rounded-lg text-gray-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all"
+                title="Ver detalle">
+                <lucide-icon name="eye" class="w-4 h-4"></lucide-icon>
+            </button>
+            <button (click)="onEdit(row)"
+                class="flex items-center justify-center w-8 h-8 rounded-lg text-gray-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all"
+                title="Editar">
+                <lucide-icon name="pencil" class="w-4 h-4"></lucide-icon>
+            </button>
+            <!-- Quick Actions -->
+            <button *ngIf="row.status !== 'cerrado'" (click)="openAssignModal(row)"
+                class="flex items-center justify-center w-8 h-8 rounded-lg text-gray-400 hover:text-cyan-500 hover:bg-cyan-50 dark:hover:bg-cyan-900/20 transition-all"
+                title="Asignar técnico">
+                <lucide-icon name="user-plus" class="w-4 h-4"></lucide-icon>
+            </button>
+            <button *ngIf="row.status !== 'cerrado'" (click)="openStatusModal(row)"
+                class="flex items-center justify-center w-8 h-8 rounded-lg text-gray-400 hover:text-yellow-500 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 transition-all"
+                title="Cambiar estado">
+                <lucide-icon name="repeat" class="w-4 h-4"></lucide-icon>
+            </button>
+            <button *ngIf="row.status !== 'cerrado' && !row.escalated_at" (click)="quickEscalate(row)"
+                class="flex items-center justify-center w-8 h-8 rounded-lg text-gray-400 hover:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-all"
+                title="Escalar">
+                <lucide-icon name="arrow-up-circle" class="w-4 h-4"></lucide-icon>
+            </button>
+            <button *ngIf="row.status !== 'cerrado'" (click)="quickResolve(row)"
+                class="flex items-center justify-center w-8 h-8 rounded-lg text-gray-400 hover:text-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 transition-all"
+                title="Resolver">
+                <lucide-icon name="check-circle" class="w-4 h-4"></lucide-icon>
+            </button>
+        </div>
+    </ng-template>
+
+    <!-- Table Content -->
+    <div
+        class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
+        <ng-container *ngIf="(tickets$ | async) as tickets">
+            <ng-container *ngIf="(tickets | serviceDeskFilter: filter : priority : status) as filteredTickets">
+                <!-- Empty State -->
+                <div *ngIf="filteredTickets.length === 0"
+                    class="flex flex-col items-center justify-center py-16 px-8 text-center">
+                    <div
+                        class="w-20 h-20 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-6">
+                        <lucide-icon name="inbox" class="w-10 h-10 text-gray-400"></lucide-icon>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-600 dark:text-gray-300 mb-2">
+                        {{ tickets.length === 0 ? 'No hay tickets registrados' : 'No se encontraron resultados' }}
+                    </h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 max-w-sm mb-6">
+                        {{ tickets.length === 0
+                        ? 'Crea tu primer ticket para comenzar a gestionar las incidencias del sistema.'
+                        : 'Intenta ajustar los filtros de búsqueda para encontrar lo que buscas.'
+                        }}
+                    </p>
+                    <button *ngIf="tickets.length === 0 && canCreate()" (click)="onCreate()"
+                        class="flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all">
+                        <lucide-icon [name]="plus" class="w-5 h-5"></lucide-icon>
+                        Crear Primer Ticket
+                    </button>
+                    <button *ngIf="tickets.length > 0" (click)="clearFilters()"
+                        class="flex items-center gap-1 text-indigo-500 hover:text-indigo-600 font-medium transition-colors">
+                        <lucide-icon name="refresh-cw" class="w-4 h-4"></lucide-icon>
+                        Limpiar filtros
+                    </button>
+                </div>
+
+                <!-- Table -->
+                <app-shared-table *ngIf="filteredTickets.length > 0" [columns]="columns" [data]="filteredTickets"
+                    [idField]="idField" [templates]="{
+                        tipoTpl: tipoTpl,
+                        prioridadTpl: prioridadTpl,
+                        estadoTpl: estadoTpl,
+                        slaTpl: slaTpl,
+                        accionesTpl: accionesTpl
+                    }" [componentName]="'tickets'" [permissionPrefix]="'service-desk'" (onEdit)="onEdit($event)"
+                    (onViewDetails)="onView($event)" (delete)="onDelete($event)">
+                </app-shared-table>
+            </ng-container>
+        </ng-container>
+    </div>
 </div>
-  
 
-<ng-container *ngIf="(tickets$ | async) as tickets">
-    <app-shared-table [columns]="columns" [data]="tickets | serviceDeskFilter: filter : priority : status"
-        [idField]="idField" [templates]="{
-        tipoTpl: tipoTpl,
-        prioridadTpl: prioridadTpl,
-        estadoTpl: estadoTpl,
-        slaTpl: slaTpl,
-        accionesTpl: accionesTpl
-      }" [componentName]="'tickets'" [permissionPrefix]="'service-desk'" (onEdit)="onEdit($event)"
-        (onViewDetails)="onView($event)" (delete)="onDelete($event)">
-    </app-shared-table>
-</ng-container>
+<!-- Assign Modal -->
+<div *ngIf="showAssignModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Asignar Técnico</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                Ticket #{{ selectedTicketForAction?.ticket_id }}
+            </p>
+        </div>
+        <div class="p-6">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Seleccionar técnico</label>
+            <select [(ngModel)]="selectedTechId"
+                class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-white text-sm rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
+                <option [ngValue]="null">-- Seleccionar --</option>
+                <option *ngFor="let tech of technicians" [value]="tech.user_id">
+                    {{ tech.first_name }} {{ tech.last_name }}
+                </option>
+            </select>
+        </div>
+        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 flex justify-end gap-3">
+            <button (click)="closeAssignModal()"
+                class="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white transition-colors">
+                Cancelar
+            </button>
+            <button (click)="confirmAssign()" [disabled]="actionLoading || !selectedTechId"
+                class="px-5 py-2 text-sm font-semibold text-white bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 rounded-lg shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                {{ actionLoading ? 'Asignando...' : 'Asignar' }}
+            </button>
+        </div>
+    </div>
+</div>
 
+<!-- Status Modal -->
+<div *ngIf="showStatusModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Cambiar Estado</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                Ticket #{{ selectedTicketForAction?.ticket_id }}
+            </p>
+        </div>
+        <div class="p-6">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nuevo estado</label>
+            <select [(ngModel)]="selectedStatus"
+                class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-white text-sm rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
+                <option value="abierto">Abierto</option>
+                <option value="en_proceso">En Proceso</option>
+                <option value="cerrado">Cerrado</option>
+            </select>
+        </div>
+        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 flex justify-end gap-3">
+            <button (click)="closeStatusModal()"
+                class="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white transition-colors">
+                Cancelar
+            </button>
+            <button (click)="confirmStatusChange()" [disabled]="actionLoading"
+                class="px-5 py-2 text-sm font-semibold text-white bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 rounded-lg shadow-lg transition-all disabled:opacity-50">
+                {{ actionLoading ? 'Guardando...' : 'Cambiar' }}
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Ticket Create/Edit Modal -->
+<app-ticket-form-modal [isOpen]="isModalOpen" [ticket]="selectedTicket" (close)="closeModal()"
+    (saved)="onTicketSaved($event)">
+</app-ticket-form-modal>

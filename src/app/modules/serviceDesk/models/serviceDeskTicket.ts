@@ -5,7 +5,7 @@ import { ServiceDeskAction } from "./serviceDeskAction";
 export interface ServiceDeskTicket {
   ticket_id: number;
   contract_id?: number | null;
-  
+
   contract?: Contract | null; // <-- Mejor para mostrar
   opened_by: User; // <-- Usuario que creó
   opened_at: string;
@@ -15,6 +15,7 @@ export interface ServiceDeskTicket {
   description?: string | null;
   sla_due_at?: string | null;
   escalated_at?: string | null;
+  closed_at?: string | null;  // When the ticket was closed
   assigned_to?: User | null; // <-- Técnico asignado
   actions?: ServiceDeskAction[];
   created_at?: string;

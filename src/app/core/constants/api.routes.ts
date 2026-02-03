@@ -96,6 +96,7 @@ export const API_ROUTES = {
   },
 
   SERVICEDESK: {
+    BASE: `${BASE}/v1/servicedesk`,
     DASHBOARD: `${BASE}/v1/servicedesk/dashboard`,
     TICKETS: `${BASE}/v1/servicedesk/requests`,
     RESPONSES: `${BASE}/v1/servicedesk/responses`,

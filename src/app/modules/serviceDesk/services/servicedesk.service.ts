@@ -18,7 +18,7 @@ interface ApiResponse<T> {
   providedIn: 'root',
 })
 export class ServiceDeskTicketsService {
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   private base = API_ROUTES.SERVICEDESK.TICKETS; // Debe ser '/api/service-requests'
 
@@ -78,5 +78,125 @@ export class ServiceDeskTicketsService {
    */
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.base}/${id}`);
+  }
+
+  // ========== ENTERPRISE METHODS ==========
+
+  /**
+   * Assign ticket to a technician
+   */
+  assign(ticketId: number, userId: number): Observable<ServiceDeskTicket> {
+    return this.http
+      .post<ApiResponse<ServiceDeskTicket>>(`${this.base}/${ticketId}/assign`, { user_id: userId })
+      .pipe(map((res) => res.data));
+  }
+
+  /**
+   * Change ticket status
+   */
+  changeStatus(ticketId: number, status: string, notes?: string): Observable<ServiceDeskTicket> {
+    return this.http
+      .post<ApiResponse<ServiceDeskTicket>>(`${this.base}/${ticketId}/status`, { status, notes })
+      .pipe(map((res) => res.data));
+  }
+
+  /**
+   * Escalate a ticket
+   */
+  escalate(ticketId: number, reason?: string): Observable<ServiceDeskTicket> {
+    return this.http
+      .post<ApiResponse<ServiceDeskTicket>>(`${this.base}/${ticketId}/escalate`, { reason })
+      .pipe(map((res) => res.data));
+  }
+
+  /**
+   * Add a comment/action to a ticket
+   */
+  /**
+   * Add a comment/action to a ticket
+   */
+  addComment(ticketId: number, notes: string, actionType: string = 'comentario'): Observable<ServiceDeskTicket> {
+    return this.http
+      .post<ApiResponse<ServiceDeskTicket>>(`${this.base}/${ticketId}/comment`, { notes, action_type: actionType })
+      .pipe(map((res) => res.data));
+  }
+
+  /**
+   * Get ticket actions/history
+   */
+  getActions(ticketId: number): Observable<any[]> {
+    return this.http
+      .get<{ data: any[] }>(`${this.base}/${ticketId}/actions`)
+      .pipe(map((res) => res.data));
+  }
+
+  /**
+   * Get available technicians for assignment
+   */
+  getTechnicians(): Observable<any[]> {
+    // Uses existing users endpoint with role filter
+    return this.http
+      .get<{ data: any[] }>(`${API_ROUTES.SECURITY.USERS}`, { params: { role: 'tecnico' } })
+      .pipe(map((res) => res.data || []));
+  }
+
+  // ========== SLA CONFIGURATION METHODS ==========
+
+  /**
+   * Get all SLA configurations
+   */
+  getSlaConfigs(): Observable<any> {
+    return this.http.get<any>(`${API_ROUTES.SERVICEDESK.BASE}/sla-configs`);
+  }
+
+  /**
+   * Update SLA configurations in bulk
+   */
+  updateSlaConfigs(configs: { id: number; response_hours: number; resolution_hours: number }[]): Observable<any> {
+    return this.http.post<any>(`${API_ROUTES.SERVICEDESK.BASE}/sla-configs/bulk`, { configs });
+  }
+
+  // ========== CATEGORY METHODS ==========
+
+  /**
+   * Get all categories
+   */
+  getCategories(): Observable<any> {
+    return this.http.get<any>(`${API_ROUTES.SERVICEDESK.BASE}/categories`);
+  }
+
+  /**
+   * Get active categories only
+   */
+  getActiveCategories(): Observable<any> {
+    return this.http.get<any>(`${API_ROUTES.SERVICEDESK.BASE}/categories/active`);
+  }
+
+  /**
+   * Create a new category
+   */
+  createCategory(data: { name: string; description: string; icon: string; color: string }): Observable<any> {
+    return this.http.post<any>(`${API_ROUTES.SERVICEDESK.BASE}/categories`, data);
+  }
+
+  /**
+   * Update an existing category
+   */
+  updateCategory(id: number, data: { name: string; description: string; icon: string; color: string }): Observable<any> {
+    return this.http.put<any>(`${API_ROUTES.SERVICEDESK.BASE}/categories/${id}`, data);
+  }
+
+  /**
+   * Delete a category
+   */
+  deleteCategory(id: number): Observable<any> {
+    return this.http.delete<any>(`${API_ROUTES.SERVICEDESK.BASE}/categories/${id}`);
+  }
+
+  /**
+   * Toggle category active status
+   */
+  toggleCategoryStatus(id: number): Observable<any> {
+    return this.http.post<any>(`${API_ROUTES.SERVICEDESK.BASE}/categories/${id}/toggle`, {});
   }
 }

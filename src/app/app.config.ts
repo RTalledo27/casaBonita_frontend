@@ -3,12 +3,30 @@ import { provideRouter } from '@angular/router';
 import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common/http';
 import { routes } from './app.routes';
 import { provideCharts, ThemeService, withDefaultRegisterables } from 'ng2-charts';
-import { provideAnimations }      from '@angular/platform-browser/animations';
+import { provideAnimations } from '@angular/platform-browser/animations';
 import { tokenInterceptor } from './core/interceptors/token.interceptor';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
-import { LucideAngularModule, LucideIconProvider, Moon, Sun } from 'lucide-angular';
+import {
+  LucideAngularModule, LucideIconProvider, Moon,
+  Sun, X, AlertTriangle, MessageSquare,
+  RefreshCw, Shield, Wrench, HelpCircle,
+  Loader2, PieChart, BarChart3, Inbox,
+  Clock, CheckCircle, AlertCircle,
+  TrendingUp, TrendingDown, Users,
+  Ticket, Calendar, Search, Filter,
+  Download, Upload, Plus, Edit,
+  Trash2, Eye, ArrowLeft, ArrowRight,
+  ChevronDown, ChevronUp, ChevronLeft,
+  ChevronRight, Settings, Bell, Mail,
+  Phone, MapPin, FileText, CreditCard, DollarSign,
+  User, Home, Building, Key, Lock, Save, Camera, Award,
+  Briefcase, Crown, Info, ExternalLink, Copy, MoreVertical,
+  MoreHorizontal, Zap, Target, Activity,
+  PlusCircle, ArrowUpCircle, UserPlus, MessageSquarePlus, MessageCircle,
+  EyeOff, XCircle, Send, Paperclip, History, Pencil
+} from 'lucide-angular';
 
 //import {traslate}
 
@@ -24,7 +42,16 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideCharts(withDefaultRegisterables()),
     provideHttpClient(withInterceptors([tokenInterceptor, errorInterceptor])),
-    importProvidersFrom(LucideAngularModule.pick({ Sun, Moon }),),
+    importProvidersFrom(LucideAngularModule.pick({
+      Sun, Moon, X, AlertTriangle, MessageSquare, RefreshCw, Shield, Wrench, HelpCircle, Loader2,
+      PieChart, BarChart3, Inbox, Clock, CheckCircle, AlertCircle, TrendingUp, TrendingDown,
+      Users, Ticket, Calendar, Search, Filter, Download, Upload, Plus, Edit, Trash2, Eye,
+      ArrowLeft, ArrowRight, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Settings, Bell,
+      Mail, Phone, MapPin, FileText, CreditCard, DollarSign, User, Home, Building, Key, Lock,
+      Save, Camera, Award, Briefcase, Crown, Info, ExternalLink, Copy, MoreVertical, MoreHorizontal,
+      Zap, Target, Activity, PlusCircle, ArrowUpCircle, UserPlus, MessageSquarePlus, MessageCircle,
+      EyeOff, XCircle, Send, Paperclip, History, Pencil
+    }),),
     provideAnimations(),
     importProvidersFrom(
       TranslateModule.forRoot({
