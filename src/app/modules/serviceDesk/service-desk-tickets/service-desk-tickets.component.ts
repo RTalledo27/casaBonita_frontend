@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import {
   SharedTableComponent,
   ColumnDef,
@@ -8,7 +8,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { ServiceDeskTicketsService } from '../services/servicedesk.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { ServiceDeskTicket } from '../models/serviceDeskTicket';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { Observable, BehaviorSubject, Subscription } from 'rxjs';
 import { ServiceDeskFilterPipe } from '../pipes/service-desk-filter.pipe';
 import { FormsModule } from '@angular/forms';
 import {
@@ -32,6 +32,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import Swal from 'sweetalert2';
 import { TicketFormModalComponent } from '../ticket-form-modal/ticket-form-modal.component';
+import { EchoService } from '../../../core/services/echo.service';
 
 @Component({
   selector: 'app-service-desk-tickets',
@@ -50,7 +51,7 @@ import { TicketFormModalComponent } from '../ticket-form-modal/ticket-form-modal
   templateUrl: './service-desk-tickets.component.html',
   styleUrl: './service-desk-tickets.component.scss',
 })
-export class ServiceDeskTicketsComponent implements OnInit {
+export class ServiceDeskTicketsComponent implements OnInit, OnDestroy {
   private ticketsSubject = new BehaviorSubject<ServiceDeskTicket[]>([]);
   tickets$ = this.ticketsSubject.asObservable();
   filter = '';
@@ -58,6 +59,7 @@ export class ServiceDeskTicketsComponent implements OnInit {
   status = '';
   isModalOpen = false;
   selectedTicket: ServiceDeskTicket | null = null;
+  private echoSubscription?: Subscription;
 
   // Icons
   clock = Clock;
@@ -137,11 +139,19 @@ export class ServiceDeskTicketsComponent implements OnInit {
     private toast: ToastService,
     private auth: AuthService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private echoService: EchoService
   ) { }
 
   ngOnInit(): void {
     this.loadTickets();
+
+    // Subscribe to real-time ticket updates
+    this.echoSubscription = this.echoService.ticketUpdate$.subscribe(update => {
+      console.log('🔔 Real-time ticket update received:', update);
+      this.toast.info(`Ticket #${update.ticket_id} ${update.action === 'created' ? 'creado' : update.action === 'deleted' ? 'eliminado' : 'actualizado'}`);
+      this.loadTickets(); // Reload the list
+    });
 
     // Handle edit queryParam from detail page
     this.route.queryParams.subscribe(params => {
@@ -155,6 +165,10 @@ export class ServiceDeskTicketsComponent implements OnInit {
         });
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.echoSubscription?.unsubscribe();
   }
 
   loadTickets(): void {
@@ -179,9 +193,18 @@ export class ServiceDeskTicketsComponent implements OnInit {
     this.toast.success('Ticket guardado correctamente');
   }
 
-  onEdit(event: any): void {
-    this.selectedTicket = event;
-    this.isModalOpen = true;
+  onEdit(ticketId: number): void {
+    // SharedTable emits only the ID, so we need to fetch the full ticket
+    this.ticketsService.get(ticketId).subscribe({
+      next: (ticket) => {
+        this.selectedTicket = ticket;
+        this.isModalOpen = true;
+      },
+      error: (err) => {
+        console.error('Error loading ticket for edit:', err);
+        this.toast.error('Error al cargar el ticket para editar');
+      }
+    });
   }
 
   onView(row: any): void {
@@ -189,10 +212,19 @@ export class ServiceDeskTicketsComponent implements OnInit {
     this.router.navigate(['/service-desk/tickets', id]);
   }
 
-  onDelete(ticket: any): void {
+  onDelete(ticketOrId: any): void {
+    // Handle both: ID from SharedTable or object from custom action buttons
+    const ticketId = typeof ticketOrId === 'object' ? ticketOrId.ticket_id : ticketOrId;
+
+    if (!ticketId) {
+      console.error('Invalid ticket ID for delete:', ticketOrId);
+      this.toast.error('Error: ID de ticket inválido');
+      return;
+    }
+
     Swal.fire({
       title: '¿Eliminar ticket?',
-      text: `¿Estás seguro de eliminar el ticket #${ticket.ticket_id}? Esta acción no se puede deshacer.`,
+      text: `¿Estás seguro de eliminar el ticket #${ticketId}? Esta acción no se puede deshacer.`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#ef4444',
@@ -203,12 +235,13 @@ export class ServiceDeskTicketsComponent implements OnInit {
       color: '#f8fafc',
     }).then((result) => {
       if (result.isConfirmed) {
-        this.ticketsService.delete(ticket.ticket_id).subscribe({
+        this.ticketsService.delete(ticketId).subscribe({
           next: () => {
             this.toast.success('Ticket eliminado correctamente');
             this.loadTickets();
           },
-          error: () => {
+          error: (err) => {
+            console.error('Error deleting ticket:', err);
             this.toast.error('Error al eliminar el ticket');
           },
         });

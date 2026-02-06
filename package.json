@@ -36,7 +36,7 @@
     "jspdf": "^3.0.3",
     "jspdf-autotable": "^5.0.2",
     "jszip": "^3.10.1",
-    "laravel-echo": "^2.2.4",
+    "laravel-echo": "^2.3.0",
     "lucide-angular": "^0.525.0",
     "ng2-charts": "^8.0.0",
     "ngx-sonner": "^3.1.0",

@@ -9,6 +9,7 @@ import { PusherTestComponent } from "./core/services/pusher-test/pusher-test.com
 import { ThemeService } from './core/services/theme.service';
 import { AuthService } from './core/services/auth.service';
 import { PermissionSyncService } from './core/services/permission-sync.service';
+import { EchoService } from './core/services/echo.service';
 
 @Component({
   selector: 'app-root',
@@ -24,11 +25,12 @@ import { PermissionSyncService } from './core/services/permission-sync.service';
 })
 export class AppComponent implements OnInit {
   title = 'casaBonita_frontend';
-  
+
   constructor(
     private theme: ThemeService,
     private authService: AuthService,
-    private permissionSync: PermissionSyncService
+    private permissionSync: PermissionSyncService,
+    private echoService: EchoService // Initializes WebSocket connection
   ) {
     // Forzar la inicialización del tema
     console.log('ThemeService initialized, current theme:', this.theme.isDark ? 'dark' : 'light');
@@ -38,7 +40,7 @@ export class AppComponent implements OnInit {
     // DESACTIVADO: El polling automático está causando problemas
     // Solo se usará el botón manual de refresh en el navbar
     console.log('⚠️ Automatic permission sync is DISABLED. Use manual refresh button.');
-    
+
     // NO iniciar el polling automáticamente
     // if (this.authService.isAuthenticated()) {
     //   this.permissionSync.startSync();

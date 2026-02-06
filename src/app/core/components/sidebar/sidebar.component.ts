@@ -148,6 +148,14 @@ export class SidebarComponent implements OnInit, OnDestroy {
       ],
     },
     {
+      name: 'billing',
+      label: 'Facturación SUNAT',
+      icon: Receipt,
+      route: '/billing/dashboard',
+      active: false,
+      permission: 'billing.access'  // Permiso específico
+    },
+    {
       name: 'finance',
       label: 'sidebar.finance.title',
       icon: TrendingUp,

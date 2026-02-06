@@ -9,11 +9,11 @@ export const environment = {
     cluster: 'us2',
   },
   reverb: {
-    key: 'g9ojeyfgriywz9fnm40o', // ✅ Debe coincidir con REVERB_APP_KEY del backend
+    key: 'qycranehfycpswjvlj7o', // ✅ Debe coincidir con REVERB_APP_KEY del backend
     wsHost: '127.0.0.1',
     wsPort: 8080,
     wssPort: 8080,
     forceTLS: false,
-    enabled: false, // ⚠️ Cambiar a true si tienes Reverb corriendo localmente
+    enabled: true, // ✅ Habilitado para WebSocket
   },
 };

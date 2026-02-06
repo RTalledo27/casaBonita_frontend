@@ -60,17 +60,15 @@ export class ServiceDeskTicketsService {
 
   /**
    * Actualiza un ticket existente.
-   * Usa POST si tu backend lo espera así, o PATCH/PUT si cambias la convención.
+   * Usa PUT como espera el backend (Laravel resource route)
    */
   update(
     id: number,
     fd: FormData | ServiceDeskTicket
   ): Observable<ServiceDeskTicket> {
     return this.http
-      .post<ApiResponse<ServiceDeskTicket>>(`${this.base}/${id}`, fd)
+      .put<ApiResponse<ServiceDeskTicket>>(`${this.base}/${id}`, fd)
       .pipe(map((res) => res.data));
-    // Si usas PATCH:
-    // return this.http.patch<ApiResponse<ServiceDeskTicket>>(`${this.base}/${id}`, fd).pipe(map((res) => res.data));
   }
 
   /**

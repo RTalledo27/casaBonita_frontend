@@ -157,7 +157,7 @@ export const routes: Routes = [
               import('./modules/collections/collections-simplified.routes').then(
                 (m) => m.COLLECTIONS_SIMPLIFIED_ROUTES
               ),
-              
+
             canActivateChild: [permissionGuard],
           },
           {
@@ -175,6 +175,10 @@ export const routes: Routes = [
                 (m) => m.serviceDeskRoutes
               ),
             canActivateChild: [permissionGuard],
+          },
+          {
+            path: 'billing',
+            loadChildren: () => import('./modules/billing/billing.routes').then(m => m.BILLING_ROUTES),
           },
           {
             path: 'reports',
@@ -232,4 +236,4 @@ export const routes: Routes = [
     ],
   },
 ];
-  
+
