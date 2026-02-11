@@ -1,20 +1,23 @@
-import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
+import { Component, Input, Output, EventEmitter, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, X, Upload, FileText, CheckCircle, AlertCircle } from 'lucide-angular';
+import { LucideAngularModule, X, Upload, FileText, CheckCircle, AlertCircle, Building2, Users, Layers, ChevronRight, ChevronLeft, Eye, Check, RefreshCw, Briefcase } from 'lucide-angular';
 import { toast } from 'ngx-sonner';
 import { EmployeeService } from '../../services/employee.service';
 
-interface ImportValidationResult {
-  success: boolean;
-  message: string;
-  data?: {
-    total_rows: number;
-    headers: string[];
-    preview: any[];
-  };
-  errors?: string[];
-  warnings?: string[];
+interface ImportPreview {
+  total_employees: number;
+  new_employees: number;
+  existing_employees: number;
+  offices: { name: string; is_new: boolean }[];
+  teams: { name: string; is_new: boolean }[];
+  areas: { name: string; is_new: boolean }[];
+  positions: { name: string; is_new: boolean; category: string }[];
+  employees: { row: number; name: string; dni: string; email: string; office: string; team: string; area: string; position: string; status: string }[];
+  new_offices: number;
+  new_teams: number;
+  new_areas: number;
+  new_positions: number;
 }
 
 interface ImportResult {
@@ -24,354 +27,430 @@ interface ImportResult {
   errors: string[];
 }
 
-interface ImportProgress {
-  current: number;
-  total: number;
-  percentage: number;
-  currentEmployee?: string;
-}
-
 @Component({
   selector: 'app-employee-import-modal',
   standalone: true,
   imports: [CommonModule, FormsModule, LucideAngularModule],
   template: `
-<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 modal-backdrop" *ngIf="isOpen">
- 
-  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto hover-lift dynamic-shadow animate-slide-in-up">
-
+<div class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50" *ngIf="isOpen">
+  <div class="bg-white dark:bg-gray-900 rounded-3xl shadow-2xl w-full max-w-5xl mx-4 max-h-[90vh] overflow-hidden flex flex-col border border-gray-200/50 dark:border-gray-700/50">
+    
     <!-- Header -->
-    <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-600 bg-gradient-to-r from-blue-600 to-purple-700 dark:from-gray-800 dark:to-gray-900 rounded-t-xl">
-      <div class="flex items-center space-x-4 animate-slide-in-left">
-        <div class="bg-white/20 dark:bg-white/10 p-3 rounded-xl backdrop-blur-sm animate-bounce-in">
-          <lucide-angular [img]="FileText" class="w-7 h-7 text-white"></lucide-angular>
+    <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600">
+      <div class="flex items-center gap-4">
+        <div class="bg-white/20 p-3 rounded-2xl backdrop-blur-sm">
+          <lucide-angular [img]="Upload" class="w-7 h-7 text-white"></lucide-angular>
         </div>
         <div>
-          <h2 class="text-2xl font-bold text-white drop-shadow-sm">
-            Importar Empleados desde Excel
-          </h2>
-          <p class="text-blue-100 dark:text-gray-300 text-sm mt-1">
-            Gestiona y administra todos los empleados disponibles
-          </p>
+          <h2 class="text-2xl font-bold text-white">Importar Empleados</h2>
+          <p class="text-blue-100 text-sm mt-0.5">{{ getStepDescription() }}</p>
         </div>
       </div>
-      <button 
-        (click)="closeModal()" 
-        class="text-white/80 hover:text-white dark:text-gray-300 dark:hover:text-white transition-all duration-200 hover:scale-110 p-3 rounded-xl hover:bg-white/10 dark:hover:bg-white/5 backdrop-blur-sm"
-      >
+      <button (click)="closeModal()" class="text-white/80 hover:text-white p-2 rounded-xl hover:bg-white/10 transition-all">
         <lucide-angular [img]="X" class="w-6 h-6"></lucide-angular>
       </button>
     </div>
 
-    <!-- Content -->
-    <div class="p-6">
-      <!-- Template Download -->
-      <div class="mb-6 p-6 bg-gradient-to-br from-emerald-500/10 via-green-500/10 to-teal-500/10 dark:from-emerald-900/30 dark:via-green-900/30 dark:to-teal-900/30 rounded-2xl border border-emerald-200/50 dark:border-emerald-700/50 shadow-xl hover:shadow-2xl transition-all duration-300 hover-lift animate-slide-in-up backdrop-blur-sm">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center space-x-5">
-            <div class="bg-gradient-to-br from-emerald-400 to-green-500 dark:from-emerald-600 dark:to-green-700 p-4 rounded-2xl shadow-lg animate-bounce-in">
-              <lucide-angular [img]="FileText" class="w-8 h-8 text-white drop-shadow-sm"></lucide-angular>
+    <!-- Step Indicator -->
+    <div class="px-8 py-4 bg-gray-50/80 dark:bg-gray-800/80 border-b border-gray-200/50 dark:border-gray-700/50">
+      <div class="flex items-center justify-between max-w-2xl mx-auto">
+        @for (step of steps; track step.id; let i = $index) {
+          <div class="flex items-center">
+            <div class="flex flex-col items-center">
+              <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-all"
+                   [class]="currentStep() > i ? 'bg-emerald-500 text-white' : currentStep() === i ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg' : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'">
+                @if (currentStep() > i) {
+                  <lucide-angular [img]="Check" class="w-5 h-5"></lucide-angular>
+                } @else {
+                  {{ i + 1 }}
+                }
+              </div>
+              <span class="text-xs mt-2 font-medium" [class]="currentStep() >= i ? 'text-gray-900 dark:text-white' : 'text-gray-400'">{{ step.label }}</span>
             </div>
-            <div>
-              <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-1">
-                Plantilla de Importación
-              </h3>
-              <p class="text-sm text-gray-600 dark:text-gray-300">
-                Descarga la plantilla con el formato requerido
-              </p>
+            @if (i < steps.length - 1) {
+              <div class="w-16 h-0.5 mx-2" [class]="currentStep() > i ? 'bg-emerald-500' : 'bg-gray-200 dark:bg-gray-700'"></div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="flex-1 overflow-y-auto p-6">
+      
+      <!-- Step 1: Upload -->
+      @if (currentStep() === 0) {
+        <div class="space-y-6">
+          <!-- Template Download -->
+          <div class="p-5 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 rounded-2xl border border-emerald-200/50 dark:border-emerald-700/30">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-4">
+                <div class="bg-gradient-to-br from-emerald-500 to-teal-600 p-3 rounded-xl shadow-lg">
+                  <lucide-angular [img]="FileText" class="w-6 h-6 text-white"></lucide-angular>
+                </div>
+                <div>
+                  <h3 class="font-bold text-gray-900 dark:text-white">Plantilla de Importación</h3>
+                  <p class="text-sm text-gray-600 dark:text-gray-400">Descarga la plantilla con el formato requerido</p>
+                </div>
+              </div>
+              <button (click)="downloadTemplate()" class="px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-xl font-semibold text-sm shadow-lg hover:shadow-xl transition-all flex items-center gap-2">
+                <lucide-angular [img]="FileText" class="w-4 h-4"></lucide-angular>
+                Descargar
+              </button>
             </div>
           </div>
-          <button 
-            (click)="downloadTemplate()"
-            class="bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 dark:from-emerald-600 dark:to-green-700 dark:hover:from-emerald-700 dark:hover:to-green-800 text-white px-8 py-4 rounded-2xl font-semibold transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl animate-pulse-glow flex items-center space-x-3 backdrop-blur-sm"
-          >
-            <lucide-angular [img]="FileText" class="w-6 h-6"></lucide-angular>
-            <span>Descargar Plantilla</span>
-          </button>
-        </div>
-      </div>
 
-      <!-- File Upload Area -->
-      <div class="mb-8">
-        <label class="block text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">
-          Seleccionar archivo
-        </label>
-        
-        <div class="border-2 border-dashed rounded-3xl p-10 text-center transition-all duration-300 hover-lift animate-fade-in border-gray-300/60 dark:border-gray-600/60 bg-gradient-to-br from-blue-50/50 via-indigo-50/30 to-purple-50/50 dark:from-gray-800/50 dark:via-gray-700/30 dark:to-gray-800/50 shadow-xl hover:shadow-2xl backdrop-blur-sm">
-          <div class="flex flex-col items-center animate-bounce-in space-y-6">
-            <div class="bg-gradient-to-br from-blue-400 to-indigo-500 dark:from-blue-600 dark:to-indigo-700 p-6 rounded-full shadow-lg animate-pulse-glow">
-              <lucide-angular [img]="Upload" class="w-16 h-16 text-white drop-shadow-sm"></lucide-angular>
-            </div>
-            
-            <div class="space-y-4">
-              <h3 class="text-2xl font-bold text-gray-800 dark:text-white">
-                Arrastra y suelta tu archivo aquí, o haz clic para seleccionar
-              </h3>
-              <p class="text-lg text-gray-600 dark:text-gray-300 max-w-md mx-auto">
-                Formatos soportados: .xlsx, .xls
-              </p>
-            </div>
-            
-            <div class="pt-2">
+          <!-- File Upload -->
+          <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-2xl p-10 text-center hover:border-blue-400 dark:hover:border-blue-500 transition-colors bg-gradient-to-br from-blue-50/30 to-indigo-50/30 dark:from-blue-900/10 dark:to-indigo-900/10">
+            <div class="flex flex-col items-center gap-4">
+              <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-5 rounded-full shadow-lg">
+                <lucide-angular [img]="Upload" class="w-10 h-10 text-white"></lucide-angular>
+              </div>
+              <div>
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white">Arrastra y suelta tu archivo aquí</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">o haz clic para seleccionar • Formatos: .xlsx, .xls</p>
+              </div>
               <input type="file" id="fileInput" class="hidden" accept=".xlsx,.xls" (change)="onFileSelected($event)">
-              <label for="fileInput" class="cursor-pointer px-10 py-4 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 dark:from-blue-600 dark:to-indigo-700 dark:hover:from-blue-700 dark:hover:to-indigo-800 text-white rounded-2xl font-semibold text-lg transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl animate-pulse-glow flex items-center gap-3 backdrop-blur-sm">
-                <lucide-angular [img]="Upload" class="w-6 h-6"></lucide-angular>
+              <label for="fileInput" class="cursor-pointer px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-xl font-semibold transition-all shadow-lg hover:shadow-xl flex items-center gap-2">
+                <lucide-angular [img]="Upload" class="w-5 h-5"></lucide-angular>
                 Seleccionar archivo
               </label>
             </div>
           </div>
-        </div>
-      </div>
 
-      <!-- Selected File Info -->
-      <div *ngIf="selectedFile" class="mb-8 p-6 bg-gradient-to-br from-blue-500/10 via-indigo-500/10 to-purple-500/10 dark:from-blue-900/30 dark:via-indigo-900/30 dark:to-purple-900/30 rounded-2xl border border-blue-200/50 dark:border-blue-700/50 shadow-xl hover:shadow-2xl transition-all duration-300 animate-slide-in-left backdrop-blur-sm">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center space-x-5">
-            <div class="bg-gradient-to-br from-blue-400 to-indigo-500 dark:from-blue-600 dark:to-indigo-700 p-4 rounded-2xl shadow-lg animate-bounce-in">
-              <lucide-angular [img]="FileText" class="w-10 h-10 text-white drop-shadow-sm"></lucide-angular>
-            </div>
-            <div>
-              <h4 class="text-xl font-bold text-gray-800 dark:text-white mb-1">{{ selectedFile.name }}</h4>
-              <p class="text-sm text-gray-600 dark:text-gray-300 font-medium">
-                Tamaño: {{ (selectedFile.size / 1024 / 1024).toFixed(2) }} MB | 
-                Tipo: {{ selectedFile.type || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }}
-              </p>
-            </div>
-          </div>
-          <button 
-            (click)="selectedFile = null; validationResult = null; importResult = null" 
-            class="text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 transition-all duration-300 hover:scale-110 p-3 rounded-2xl hover:bg-red-50 dark:hover:bg-red-900/20 shadow-md hover:shadow-lg backdrop-blur-sm"
-          >
-            <lucide-angular [img]="X" class="w-6 h-6"></lucide-angular>
-          </button>
-        </div>
-      </div>
-
-      <!-- Validation Actions -->
-      <div *ngIf="selectedFile && !validationResult && !isValidating" class="mb-8">
-        <div class="p-6 bg-gradient-to-br from-slate-50/50 via-gray-50/30 to-slate-50/50 dark:from-gray-800/50 dark:via-gray-700/30 dark:to-gray-800/50 rounded-2xl border border-gray-200/50 dark:border-gray-600/50 shadow-xl backdrop-blur-sm">
-          <h3 class="text-lg font-bold text-gray-800 dark:text-white mb-4 text-center">
-            Validar Archivo
-          </h3>
-          <div class="flex gap-4">
-            <button 
-              (click)="validateFile()"
-              class="flex-1 flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 dark:from-blue-600 dark:to-indigo-700 dark:hover:from-blue-700 dark:hover:to-indigo-800 text-white rounded-2xl font-semibold transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl animate-pulse-glow backdrop-blur-sm"
-            >
-              <lucide-angular [img]="CheckCircle" class="w-6 h-6"></lucide-angular>
-              <span>Validar Archivo</span>
-            </button>
-          </div>
-          <p class="text-sm text-gray-600 dark:text-gray-300 mt-4 text-center bg-white/50 dark:bg-gray-800/50 p-3 rounded-xl backdrop-blur-sm">
-            <strong>Proceso:</strong> Se verificará la estructura y contenido del archivo antes de la importación.
-          </p>
-        </div>
-      </div>
-
-      <!-- Validation Progress -->
-      <div *ngIf="isValidating" class="mb-8 p-8 bg-gradient-to-br from-amber-500/10 via-yellow-500/10 to-orange-500/10 dark:from-amber-900/30 dark:via-yellow-900/30 dark:to-orange-900/30 rounded-3xl border border-amber-200/50 dark:border-amber-700/50 shadow-xl hover:shadow-2xl transition-all duration-300 animate-slide-in-up backdrop-blur-sm">
-        <div class="flex items-center space-x-6 mb-6">
-          <div class="bg-gradient-to-br from-amber-400 to-orange-500 dark:from-amber-600 dark:to-orange-700 p-4 rounded-2xl shadow-lg animate-bounce-in">
-            <div class="w-10 h-10 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
-          </div>
-          <div class="flex-1">
-            <h3 class="text-2xl font-bold text-gray-800 dark:text-white mb-1">Validando archivo</h3>
-            <p class="text-gray-600 dark:text-gray-300">Verificando estructura y contenido del archivo...</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Validation Result -->
-      <div *ngIf="validationResult && !isValidating" class="mb-8">
-        <div 
-          class="p-6 rounded-2xl border shadow-xl hover:shadow-2xl transition-all duration-300 animate-slide-in-up backdrop-blur-sm"
-          [ngClass]="{
-            'bg-gradient-to-br from-emerald-500/10 via-green-500/10 to-teal-500/10 dark:from-emerald-900/30 dark:via-green-900/30 dark:to-teal-900/30 border-emerald-200/50 dark:border-emerald-700/50': validationResult.success,
-            'bg-gradient-to-br from-red-500/10 via-rose-500/10 to-pink-500/10 dark:from-red-900/30 dark:via-rose-900/30 dark:to-pink-900/30 border-red-200/50 dark:border-red-700/50': !validationResult.success
-          }"
-        >
-          <div class="flex items-start space-x-5">
-            <div class="p-3 rounded-2xl shadow-lg animate-bounce-in"
-                 [ngClass]="{
-                   'bg-gradient-to-br from-emerald-400 to-green-500 dark:from-emerald-600 dark:to-green-700': validationResult.success,
-                   'bg-gradient-to-br from-red-400 to-rose-500 dark:from-red-600 dark:to-rose-700': !validationResult.success
-                 }">
-              <lucide-angular 
-                [img]="validationResult.success ? CheckCircle : AlertCircle" 
-                class="w-8 h-8 text-white drop-shadow-sm"
-              ></lucide-angular>
-            </div>
-            <div class="flex-1">
-              <h4 
-                class="text-xl font-bold mb-2"
-                [ngClass]="{
-                  'text-emerald-800 dark:text-emerald-200': validationResult.success,
-                  'text-red-800 dark:text-red-200': !validationResult.success
-                }"
-              >
-                {{ validationResult.message }}
-              </h4>
-              
-              <!-- Data Info -->
-              <div *ngIf="validationResult.success && validationResult.data" class="mt-3 p-3 bg-white/70 dark:bg-gray-800/70 rounded-xl shadow-md backdrop-blur-sm">
-                <div class="text-sm text-gray-700 dark:text-gray-300">
-                  <strong>Total de filas:</strong> {{ validationResult.data.total_rows }}
+          <!-- Selected File -->
+          @if (selectedFile) {
+            <div class="p-5 bg-blue-50 dark:bg-blue-900/20 rounded-2xl border border-blue-200/50 dark:border-blue-700/30 flex items-center justify-between">
+              <div class="flex items-center gap-4">
+                <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-3 rounded-xl">
+                  <lucide-angular [img]="FileText" class="w-6 h-6 text-white"></lucide-angular>
+                </div>
+                <div>
+                  <h4 class="font-bold text-gray-900 dark:text-white">{{ selectedFile.name }}</h4>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">{{ (selectedFile.size / 1024).toFixed(1) }} KB</p>
                 </div>
               </div>
-              
-              <!-- Validation Errors -->
-              <div *ngIf="validationResult.errors?.length" class="mt-4">
-                <div class="text-lg font-semibold text-red-800 dark:text-red-200 mb-3">Errores encontrados:</div>
-                <ul class="text-sm text-red-700 dark:text-red-300 space-y-2">
-                  <li *ngFor="let error of (validationResult.errors || []).slice(0, 5)" class="flex items-start gap-2 p-2 bg-red-50/50 dark:bg-red-900/20 rounded-lg">
-                    <span class="text-red-500 mt-0.5 font-bold">•</span>
-                    <span>{{ error }}</span>
-                  </li>
-                  <li *ngIf="validationResult.errors && (validationResult.errors?.length || 0) > 5" class="text-red-600 dark:text-red-400 italic font-medium">
-                    ... y {{ (validationResult.errors?.length || 0) - 5 }} errores más
-                  </li>
+              <button (click)="clearFile()" class="text-red-500 hover:text-red-600 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+                <lucide-angular [img]="X" class="w-5 h-5"></lucide-angular>
+              </button>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Step 2: Preview -->
+      @if (currentStep() === 1) {
+        @if (isAnalyzing()) {
+          <div class="flex flex-col items-center justify-center py-16">
+            <div class="w-16 h-16 border-4 border-blue-500/20 border-t-blue-600 rounded-full animate-spin mb-4"></div>
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white">Analizando archivo...</h3>
+            <p class="text-gray-500 dark:text-gray-400">Verificando datos y detectando entidades</p>
+          </div>
+        } @else if (preview()) {
+          <div class="space-y-6">
+            <!-- Summary Cards -->
+            <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+              <!-- Employees -->
+              <div class="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-2xl border border-blue-200/30 dark:border-blue-700/30">
+                <div class="flex items-center gap-3 mb-2">
+                  <div class="p-2 bg-blue-500 rounded-lg">
+                    <lucide-angular [img]="Users" class="w-4 h-4 text-white"></lucide-angular>
+                  </div>
+                  <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Empleados</span>
+                </div>
+                <div class="text-2xl font-bold text-gray-900 dark:text-white">{{ preview()!.total_employees }}</div>
+                <div class="flex gap-2 mt-1 text-xs">
+                  <span class="text-emerald-600 dark:text-emerald-400">{{ preview()!.new_employees }} nuevos</span>
+                  <span class="text-blue-600 dark:text-blue-400">{{ preview()!.existing_employees }} actualizar</span>
+                </div>
+              </div>
+
+              <!-- Offices -->
+              <div class="p-4 bg-gradient-to-br from-purple-50 to-fuchsia-50 dark:from-purple-900/20 dark:to-fuchsia-900/20 rounded-2xl border border-purple-200/30 dark:border-purple-700/30">
+                <div class="flex items-center gap-3 mb-2">
+                  <div class="p-2 bg-purple-500 rounded-lg">
+                    <lucide-angular [img]="Building2" class="w-4 h-4 text-white"></lucide-angular>
+                  </div>
+                  <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Oficinas</span>
+                </div>
+                <div class="text-2xl font-bold text-gray-900 dark:text-white">{{ preview()!.offices.length }}</div>
+                <div class="text-xs text-emerald-600 dark:text-emerald-400 mt-1">{{ preview()!.new_offices }} se crearán</div>
+              </div>
+
+              <!-- Teams -->
+              <div class="p-4 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-2xl border border-amber-200/30 dark:border-amber-700/30">
+                <div class="flex items-center gap-3 mb-2">
+                  <div class="p-2 bg-amber-500 rounded-lg">
+                    <lucide-angular [img]="Users" class="w-4 h-4 text-white"></lucide-angular>
+                  </div>
+                  <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Equipos</span>
+                </div>
+                <div class="text-2xl font-bold text-gray-900 dark:text-white">{{ preview()!.teams.length }}</div>
+                <div class="text-xs text-emerald-600 dark:text-emerald-400 mt-1">{{ preview()!.new_teams }} se crearán</div>
+              </div>
+
+              <!-- Areas -->
+              <div class="p-4 bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20 rounded-2xl border border-teal-200/30 dark:border-teal-700/30">
+                <div class="flex items-center gap-3 mb-2">
+                  <div class="p-2 bg-teal-500 rounded-lg">
+                    <lucide-angular [img]="Layers" class="w-4 h-4 text-white"></lucide-angular>
+                  </div>
+                  <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Áreas</span>
+                </div>
+                <div class="text-2xl font-bold text-gray-900 dark:text-white">{{ preview()!.areas.length }}</div>
+                <div class="text-xs text-emerald-600 dark:text-emerald-400 mt-1">{{ preview()!.new_areas }} se crearán</div>
+              </div>
+
+              <!-- Positions (Cargos) -->
+              <div class="p-4 bg-gradient-to-br from-rose-50 to-pink-50 dark:from-rose-900/20 dark:to-pink-900/20 rounded-2xl border border-rose-200/30 dark:border-rose-700/30">
+                <div class="flex items-center gap-3 mb-2">
+                  <div class="p-2 bg-rose-500 rounded-lg">
+                    <lucide-angular [img]="Briefcase" class="w-4 h-4 text-white"></lucide-angular>
+                  </div>
+                  <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Cargos</span>
+                </div>
+                <div class="text-2xl font-bold text-gray-900 dark:text-white">{{ preview()!.positions.length }}</div>
+                <div class="text-xs text-emerald-600 dark:text-emerald-400 mt-1">{{ preview()!.new_positions }} se crearán</div>
+              </div>
+            </div>
+
+            <!-- Entity Lists -->
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
+              <!-- Offices -->
+              @if (preview()!.offices.length > 0) {
+                <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200/60 dark:border-gray-700/60 overflow-hidden">
+                  <div class="px-4 py-3 bg-purple-50 dark:bg-purple-900/20 border-b border-gray-200/60 dark:border-gray-700/60">
+                    <h4 class="font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                      <lucide-angular [img]="Building2" class="w-4 h-4 text-purple-600"></lucide-angular>
+                      Oficinas
+                    </h4>
+                  </div>
+                  <div class="p-3 max-h-40 overflow-y-auto">
+                    @for (office of preview()!.offices; track office.name) {
+                      <div class="flex items-center justify-between py-1.5">
+                        <span class="text-sm text-gray-700 dark:text-gray-300">{{ office.name }}</span>
+                        <span class="px-2 py-0.5 text-xs font-bold rounded-full" [class]="office.is_new ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'">
+                          {{ office.is_new ? 'NUEVO' : 'EXISTE' }}
+                        </span>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+
+              <!-- Teams -->
+              @if (preview()!.teams.length > 0) {
+                <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200/60 dark:border-gray-700/60 overflow-hidden">
+                  <div class="px-4 py-3 bg-amber-50 dark:bg-amber-900/20 border-b border-gray-200/60 dark:border-gray-700/60">
+                    <h4 class="font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                      <lucide-angular [img]="Users" class="w-4 h-4 text-amber-600"></lucide-angular>
+                      Equipos
+                    </h4>
+                  </div>
+                  <div class="p-3 max-h-40 overflow-y-auto">
+                    @for (team of preview()!.teams; track team.name) {
+                      <div class="flex items-center justify-between py-1.5">
+                        <span class="text-sm text-gray-700 dark:text-gray-300">{{ team.name }}</span>
+                        <span class="px-2 py-0.5 text-xs font-bold rounded-full" [class]="team.is_new ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'">
+                          {{ team.is_new ? 'NUEVO' : 'EXISTE' }}
+                        </span>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+
+              <!-- Areas -->
+              @if (preview()!.areas.length > 0) {
+                <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200/60 dark:border-gray-700/60 overflow-hidden">
+                  <div class="px-4 py-3 bg-teal-50 dark:bg-teal-900/20 border-b border-gray-200/60 dark:border-gray-700/60">
+                    <h4 class="font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                      <lucide-angular [img]="Layers" class="w-4 h-4 text-teal-600"></lucide-angular>
+                      Áreas
+                    </h4>
+                  </div>
+                  <div class="p-3 max-h-40 overflow-y-auto">
+                    @for (area of preview()!.areas; track area.name) {
+                      <div class="flex items-center justify-between py-1.5">
+                        <span class="text-sm text-gray-700 dark:text-gray-300">{{ area.name }}</span>
+                        <span class="px-2 py-0.5 text-xs font-bold rounded-full" [class]="area.is_new ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'">
+                          {{ area.is_new ? 'NUEVO' : 'EXISTE' }}
+                        </span>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+
+              <!-- Positions (Cargos) -->
+              @if (preview()!.positions.length > 0) {
+                <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200/60 dark:border-gray-700/60 overflow-hidden">
+                  <div class="px-4 py-3 bg-rose-50 dark:bg-rose-900/20 border-b border-gray-200/60 dark:border-gray-700/60">
+                    <h4 class="font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                      <lucide-angular [img]="Briefcase" class="w-4 h-4 text-rose-600"></lucide-angular>
+                      Cargos
+                    </h4>
+                  </div>
+                  <div class="p-3 max-h-40 overflow-y-auto">
+                    @for (position of preview()!.positions; track position.name) {
+                      <div class="flex items-center justify-between py-1.5">
+                        <div class="flex items-center gap-2">
+                          <span class="text-sm text-gray-700 dark:text-gray-300">{{ position.name }}</span>
+                          <span class="px-1.5 py-0.5 text-[10px] font-medium rounded bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400 uppercase">{{ position.category }}</span>
+                        </div>
+                        <span class="px-2 py-0.5 text-xs font-bold rounded-full" [class]="position.is_new ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'">
+                          {{ position.is_new ? 'NUEVO' : 'EXISTE' }}
+                        </span>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+
+            <!-- Employee Preview Table -->
+            @if (preview()!.employees.length > 0) {
+              <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200/60 dark:border-gray-700/60 overflow-hidden">
+                <div class="px-4 py-3 bg-gray-50 dark:bg-gray-800/80 border-b border-gray-200/60 dark:border-gray-700/60 flex items-center justify-between">
+                  <h4 class="font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                    <lucide-angular [img]="Eye" class="w-4 h-4 text-blue-600"></lucide-angular>
+                    Vista Previa de Empleados (primeras {{ preview()!.employees.length }} filas)
+                  </h4>
+                </div>
+                <div class="overflow-x-auto">
+                  <table class="min-w-full text-sm">
+                    <thead class="bg-gray-50 dark:bg-gray-700/50">
+                      <tr>
+                        <th class="px-4 py-2 text-left text-xs font-bold text-gray-600 dark:text-gray-300 uppercase">#</th>
+                        <th class="px-4 py-2 text-left text-xs font-bold text-gray-600 dark:text-gray-300 uppercase">Nombre</th>
+                        <th class="px-4 py-2 text-left text-xs font-bold text-gray-600 dark:text-gray-300 uppercase">DNI</th>
+                        <th class="px-4 py-2 text-left text-xs font-bold text-gray-600 dark:text-gray-300 uppercase">Email</th>
+                        <th class="px-4 py-2 text-left text-xs font-bold text-gray-600 dark:text-gray-300 uppercase">Cargo</th>
+                        <th class="px-4 py-2 text-left text-xs font-bold text-gray-600 dark:text-gray-300 uppercase">Oficina</th>
+                        <th class="px-4 py-2 text-left text-xs font-bold text-gray-600 dark:text-gray-300 uppercase">Equipo</th>
+                        <th class="px-4 py-2 text-left text-xs font-bold text-gray-600 dark:text-gray-300 uppercase">Estado</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200/60 dark:divide-gray-700/60">
+                      @for (emp of preview()!.employees; track emp.row) {
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                          <td class="px-4 py-2 text-gray-500">{{ emp.row }}</td>
+                          <td class="px-4 py-2 font-medium text-gray-900 dark:text-white">{{ emp.name }}</td>
+                          <td class="px-4 py-2 text-gray-700 dark:text-gray-300">{{ emp.dni }}</td>
+                          <td class="px-4 py-2 text-gray-700 dark:text-gray-300 truncate max-w-[150px]">{{ emp.email }}</td>
+                          <td class="px-4 py-2 text-gray-700 dark:text-gray-300">{{ emp.position }}</td>
+                          <td class="px-4 py-2 text-gray-700 dark:text-gray-300">{{ emp.office }}</td>
+                          <td class="px-4 py-2 text-gray-700 dark:text-gray-300">{{ emp.team }}</td>
+                          <td class="px-4 py-2">
+                            <span class="px-2 py-0.5 text-xs font-bold rounded-full" [class]="emp.status === 'new' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'">
+                              {{ emp.status === 'new' ? 'NUEVO' : 'ACTUALIZAR' }}
+                            </span>
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      }
+
+      <!-- Step 3: Import -->
+      @if (currentStep() === 2) {
+        @if (isImporting()) {
+          <div class="flex flex-col items-center justify-center py-16">
+            <div class="w-20 h-20 border-4 border-blue-500/20 border-t-blue-600 rounded-full animate-spin mb-6"></div>
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Importando empleados...</h3>
+            <p class="text-gray-500 dark:text-gray-400">Este proceso puede tomar unos segundos</p>
+          </div>
+        } @else if (importResult()) {
+          <div class="flex flex-col items-center justify-center py-12">
+            <div class="w-20 h-20 rounded-full flex items-center justify-center mb-6" [class]="importResult()!.success ? 'bg-emerald-100 dark:bg-emerald-900/40' : 'bg-red-100 dark:bg-red-900/40'">
+              <lucide-angular [img]="importResult()!.success ? CheckCircle : AlertCircle" class="w-10 h-10" [class]="importResult()!.success ? 'text-emerald-600' : 'text-red-600'"></lucide-angular>
+            </div>
+            <h3 class="text-2xl font-bold mb-2" [class]="importResult()!.success ? 'text-emerald-700 dark:text-emerald-400' : 'text-red-700 dark:text-red-400'">
+              {{ importResult()!.success ? '¡Importación Exitosa!' : 'Error en la Importación' }}
+            </h3>
+            <p class="text-gray-600 dark:text-gray-400 text-center max-w-md">{{ importResult()!.message }}</p>
+            
+            @if (importResult()!.success) {
+              <div class="mt-6 px-8 py-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl text-center">
+                <div class="text-4xl font-bold text-emerald-600 dark:text-emerald-400">{{ importResult()!.imported_count }}</div>
+                <div class="text-sm text-gray-600 dark:text-gray-400">Empleados importados</div>
+              </div>
+            }
+
+            @if (importResult()!.errors && importResult()!.errors.length > 0) {
+              <div class="mt-6 w-full max-w-lg p-4 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-200/50 dark:border-red-700/30">
+                <h4 class="font-bold text-red-800 dark:text-red-300 mb-2">Errores encontrados:</h4>
+                <ul class="text-sm text-red-700 dark:text-red-400 space-y-1 max-h-32 overflow-y-auto">
+                  @for (error of importResult()!.errors.slice(0, 5); track error) {
+                    <li class="flex items-start gap-2">
+                      <span class="text-red-500">•</span>
+                      <span>{{ error }}</span>
+                    </li>
+                  }
+                  @if (importResult()!.errors.length > 5) {
+                    <li class="text-red-500 italic">... y {{ importResult()!.errors.length - 5 }} errores más</li>
+                  }
                 </ul>
               </div>
-            </div>
+            }
           </div>
-        </div>
-      </div>
+        }
+      }
 
-      <!-- Import Actions -->
-      <div *ngIf="validationResult?.success && !isImporting" class="mb-8">
-        <div class="p-6 bg-gradient-to-br from-slate-50/50 via-gray-50/30 to-slate-50/50 dark:from-gray-800/50 dark:via-gray-700/30 dark:to-gray-800/50 rounded-2xl border border-gray-200/50 dark:border-gray-600/50 shadow-xl backdrop-blur-sm">
-          <h3 class="text-lg font-bold text-gray-800 dark:text-white mb-4 text-center">
-            Opciones de Importación
-          </h3>
-          <div class="flex gap-4">
-            <button 
-              (click)="importFile()"
-              class="flex-1 flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 dark:from-emerald-600 dark:to-green-700 dark:hover:from-emerald-700 dark:hover:to-green-800 text-white rounded-2xl font-semibold transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl animate-pulse-glow backdrop-blur-sm"
-            >
-              <lucide-angular [img]="Upload" class="w-6 h-6"></lucide-angular>
-              <span>Importar Empleados</span>
-            </button>
-          </div>
-          <p class="text-sm text-gray-600 dark:text-gray-300 mt-4 text-center bg-white/50 dark:bg-gray-800/50 p-3 rounded-xl backdrop-blur-sm">
-            <strong>Proceso:</strong> Se validará y procesará cada empleado del archivo Excel.
-          </p>
-        </div>
-      </div>
+    </div>
 
-      <!-- Import Progress -->
-      <div *ngIf="isImporting" class="mb-8">
-        <div class="p-8 bg-gradient-to-br from-blue-50/80 via-indigo-50/60 to-purple-50/80 dark:from-blue-900/30 dark:via-indigo-900/20 dark:to-purple-900/30 rounded-3xl border border-blue-200/50 dark:border-blue-600/30 shadow-2xl backdrop-blur-sm animate-slide-in-up">
-          <div class="text-center mb-6">
-            <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full mb-4 animate-bounce-in">
-              <div class="animate-spin rounded-full h-8 w-8 border-2 border-white border-t-transparent"></div>
-            </div>
-            <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-2">Importando Empleados</h3>
-            <p class="text-gray-600 dark:text-gray-300">Procesando archivo, por favor espere...</p>
-          </div>
-          
-          <div *ngIf="importProgress" class="relative mb-4">
-             <div class="w-full bg-gray-200/50 dark:bg-gray-700/50 rounded-full h-4 overflow-hidden backdrop-blur-sm">
-               <div class="bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 h-4 rounded-full transition-all duration-500 ease-out animate-pulse-glow relative overflow-hidden" 
-                    [style.width.%]="importProgress?.percentage || 0">
-                 <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer"></div>
-               </div>
-             </div>
-             <div class="absolute -top-8 left-1/2 transform -translate-x-1/2">
-               <span class="inline-block px-3 py-1 bg-white/90 dark:bg-gray-800/90 text-sm font-semibold text-gray-800 dark:text-white rounded-full shadow-lg backdrop-blur-sm">
-                 {{ importProgress?.percentage || 0 }}%
-               </span>
-             </div>
-           </div>
-          
-          <div class="text-center">
-            <p class="text-sm text-gray-500 dark:text-gray-400">Este proceso puede tomar unos momentos</p>
-            <p *ngIf="importProgress?.currentEmployee" class="text-sm text-blue-700 dark:text-blue-300 mt-2 font-medium">
-               {{ importProgress?.currentEmployee }}
-             </p>
-          </div>
-        </div>
-      </div>
+    <!-- Footer -->
+    <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50/80 dark:bg-gray-800/80 flex items-center justify-between">
+      <button 
+        *ngIf="currentStep() > 0 && !isImporting() && !importResult()"
+        (click)="prevStep()"
+        class="px-5 py-2.5 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-xl font-medium transition-colors flex items-center gap-2"
+      >
+        <lucide-angular [img]="ChevronLeft" class="w-4 h-4"></lucide-angular>
+        Anterior
+      </button>
+      <div *ngIf="currentStep() === 0"></div>
 
-      <!-- Import Result -->
-      <div *ngIf="importResult && !isImporting" class="mb-8">
-        <div 
-          class="p-8 rounded-3xl shadow-2xl backdrop-blur-sm animate-slide-in-up"
-          [ngClass]="{
-            'bg-gradient-to-br from-emerald-50/80 via-green-50/60 to-teal-50/80 dark:from-emerald-900/30 dark:via-green-900/20 dark:to-teal-900/30 border border-emerald-200/50 dark:border-emerald-600/30': importResult.success,
-            'bg-gradient-to-br from-red-50/80 via-rose-50/60 to-pink-50/80 dark:from-red-900/30 dark:via-rose-900/20 dark:to-pink-900/30 border border-red-200/50 dark:border-red-600/30': !importResult.success
-          }"
-        >
-          <div class="text-center mb-8">
-            <div class="inline-flex items-center justify-center w-20 h-20 rounded-full mb-4 animate-bounce-in" 
-                 [ngClass]="{
-                   'bg-gradient-to-r from-emerald-500 to-green-600': importResult.success,
-                   'bg-gradient-to-r from-red-500 to-rose-600': !importResult.success
-                 }">
-              <lucide-angular 
-                [img]="importResult.success ? CheckCircle : AlertCircle" 
-                class="w-10 h-10 text-white drop-shadow-lg"
-              ></lucide-angular>
-            </div>
-            <h3 class="text-2xl font-bold mb-2" 
-                [ngClass]="{
-                  'text-emerald-800 dark:text-emerald-200': importResult.success,
-                  'text-red-800 dark:text-red-200': !importResult.success
-                }">
-              {{ importResult.success ? '¡Importación Completada!' : 'Error en la Importación' }}
-            </h3>
-            <p class="text-lg" 
-               [ngClass]="{
-                 'text-emerald-600 dark:text-emerald-300': importResult.success,
-                 'text-red-600 dark:text-red-300': !importResult.success
-               }">
-              {{ importResult.message }}
-            </p>
-          </div>
-          
-          <div *ngIf="importResult.success" class="bg-white/50 dark:bg-gray-800/50 rounded-2xl p-6 backdrop-blur-sm">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div class="text-center">
-                <div class="text-3xl font-bold text-emerald-600 dark:text-emerald-400 mb-2">{{ importResult.imported_count }}</div>
-                <div class="text-sm text-gray-600 dark:text-gray-300">Empleados Importados</div>
-              </div>
-            </div>
-          </div>
-          
-          <div *ngIf="importResult.errors?.length" class="mt-6 p-4 bg-red-50/50 dark:bg-red-900/20 rounded-xl">
-            <h4 class="text-lg font-semibold text-red-800 dark:text-red-200 mb-3">Errores encontrados:</h4>
-            <ul class="text-sm text-red-700 dark:text-red-300 space-y-1">
-              <li *ngFor="let error of importResult.errors" class="flex items-start gap-2">
-                <span class="text-red-500 mt-0.5">•</span>
-                <span>{{ error }}</span>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
+      <div class="flex items-center gap-3">
+        <button (click)="closeModal()" class="px-5 py-2.5 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-xl font-medium transition-colors">
+          {{ importResult() ? 'Cerrar' : 'Cancelar' }}
+        </button>
 
-      <!-- Preview Table -->
-      <div *ngIf="getPreviewKeys().length" class="mb-8 bg-white/70 dark:bg-gray-800/70 backdrop-blur-md rounded-2xl border border-gray-200/60 dark:border-gray-700/60 overflow-hidden shadow-xl">
-        <div class="px-6 py-4 border-b border-gray-200/60 dark:border-gray-700/60 bg-gradient-to-r from-gray-50/80 to-blue-50/80 dark:from-gray-800/80 dark:to-blue-900/80">
-          <h4 class="text-lg font-bold text-gray-900 dark:text-gray-100">Vista previa (primeras 5 filas)</h4>
-        </div>
-        <div class="overflow-x-auto">
-          <table class="min-w-full">
-            <thead class="bg-gradient-to-r from-gray-50 via-blue-50/40 to-indigo-50/40 dark:from-gray-800 dark:via-blue-900/40 dark:to-indigo-900/40">
-              <tr class="border-b border-gray-200/60 dark:border-gray-700/60">
-                <th *ngFor="let key of getPreviewKeys()" class="px-4 py-3 text-left text-xs tracking-wider font-bold text-gray-600 dark:text-gray-300 uppercase">
-                  {{ key }}
-                </th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200/60 dark:divide-gray-700/60">
-              <tr *ngFor="let row of (validationResult?.data?.preview || []).slice(0, 5); let i = index" class="hover:bg-white/60 dark:hover:bg-gray-700/60 transition-colors">
-                <td *ngFor="let key of getPreviewKeys()" class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
-                  {{ row[key] || '-' }}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        @if (currentStep() === 0) {
+          <button 
+            [disabled]="!selectedFile"
+            (click)="analyzeFile()"
+            class="px-6 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all flex items-center gap-2"
+          >
+            Analizar
+            <lucide-angular [img]="ChevronRight" class="w-4 h-4"></lucide-angular>
+          </button>
+        }
+
+        @if (currentStep() === 1 && preview()) {
+          <button 
+            (click)="startImport()"
+            class="px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all flex items-center gap-2"
+          >
+            Importar {{ preview()!.total_employees }} Empleados
+            <lucide-angular [img]="ChevronRight" class="w-4 h-4"></lucide-angular>
+          </button>
+        }
+
+        @if (currentStep() === 2 && importResult()?.success) {
+          <button 
+            (click)="closeAndRefresh()"
+            class="px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all flex items-center gap-2"
+          >
+            <lucide-angular [img]="RefreshCw" class="w-4 h-4"></lucide-angular>
+            Actualizar Lista
+          </button>
+        }
       </div>
     </div>
   </div>
@@ -391,138 +470,154 @@ export class EmployeeImportModalComponent {
   FileText = FileText;
   CheckCircle = CheckCircle;
   AlertCircle = AlertCircle;
+  Building2 = Building2;
+  Users = Users;
+  Layers = Layers;
+  ChevronRight = ChevronRight;
+  ChevronLeft = ChevronLeft;
+  Eye = Eye;
+  Check = Check;
+  RefreshCw = RefreshCw;
+  Briefcase = Briefcase;
 
+  steps = [
+    { id: 0, label: 'Subir Archivo' },
+    { id: 1, label: 'Vista Previa' },
+    { id: 2, label: 'Importar' }
+  ];
+
+  currentStep = signal(0);
   selectedFile: File | null = null;
-  isValidating = false;
-  isImporting = false;
-  validationResult: ImportValidationResult | null = null;
-  importResult: ImportResult | null = null;
-  importProgress: ImportProgress | null = null;
+  isAnalyzing = signal(false);
+  preview = signal<ImportPreview | null>(null);
+  isImporting = signal(false);
+  importResult = signal<ImportResult | null>(null);
+
+  getStepDescription(): string {
+    switch (this.currentStep()) {
+      case 0: return 'Paso 1: Selecciona el archivo Excel';
+      case 1: return 'Paso 2: Revisa lo que se va a importar';
+      case 2: return 'Paso 3: Resultado de la importación';
+      default: return '';
+    }
+  }
 
   closeModal(): void {
+    this.resetState();
     this.closeModalEvent.emit();
+  }
+
+  resetState(): void {
+    this.currentStep.set(0);
+    this.selectedFile = null;
+    this.preview.set(null);
+    this.importResult.set(null);
+    this.isAnalyzing.set(false);
+    this.isImporting.set(false);
   }
 
   onFileSelected(event: any): void {
     const file = event.target.files[0];
     if (file) {
       this.selectedFile = file;
-      this.validationResult = null;
-      this.importResult = null;
+      this.preview.set(null);
+      this.importResult.set(null);
     }
   }
 
-  async validateFile(): Promise<void> {
+  clearFile(): void {
+    this.selectedFile = null;
+    this.preview.set(null);
+  }
+
+  downloadTemplate(): void {
+    this.employeeService.downloadTemplate();
+    toast.success('Descargando plantilla...');
+  }
+
+  async analyzeFile(): Promise<void> {
     if (!this.selectedFile) {
       toast.error('Por favor selecciona un archivo');
       return;
     }
 
-    this.isValidating = true;
-    this.validationResult = null;
+    this.currentStep.set(1);
+    this.isAnalyzing.set(true);
+    this.preview.set(null);
 
     try {
       const formData = new FormData();
       formData.append('file', this.selectedFile);
 
-      const result = await this.employeeService.validateImport(formData);
-      this.validationResult = result;
+      const result = await this.employeeService.analyzeImport(formData);
 
       if (result.success) {
-        toast.success('Archivo validado correctamente');
+        this.preview.set(result.data);
+        toast.success('Archivo analizado correctamente');
       } else {
-        toast.error(result.message || 'Se encontraron errores en el archivo');
+        toast.error(result.message || 'Error al analizar el archivo');
+        this.currentStep.set(0);
       }
     } catch (error: any) {
-      console.error('Error validating file:', error);
-      toast.error(error.error?.message || 'Error al validar el archivo');
+      console.error('Error analyzing file:', error);
+      toast.error(error.error?.message || 'Error al analizar el archivo');
+      this.currentStep.set(0);
     } finally {
-      this.isValidating = false;
+      this.isAnalyzing.set(false);
     }
   }
 
-  async importFile(): Promise<void> {
-    if (!this.selectedFile || !this.validationResult?.success) {
-      toast.error('Por favor valida el archivo primero');
+  prevStep(): void {
+    if (this.currentStep() > 0) {
+      this.currentStep.set(this.currentStep() - 1);
+    }
+  }
+
+  async startImport(): Promise<void> {
+    if (!this.selectedFile) {
+      toast.error('No hay archivo seleccionado');
       return;
     }
 
-    this.isImporting = true;
-    this.importResult = null;
-    this.importProgress = null;
+    this.currentStep.set(2);
+    this.isImporting.set(true);
+    this.importResult.set(null);
 
     try {
-      const totalRows = this.validationResult.data?.total_rows || 0;
-      
-      // Inicializar progreso
-      this.importProgress = {
-        current: 0,
-        total: totalRows,
-        percentage: 0,
-        currentEmployee: 'Iniciando importación...'
-      };
-
-      // Obtener nombres de empleados para mostrar en el progreso
-      const employeeNames = this.validationResult.data?.preview?.map(row => row['colaborador'] || row['COLABORADOR'] || `Empleado ${Math.random().toString(36).substr(2, 5)}`) || [];
-      
-      // Simular progreso durante la importación
-      let currentIndex = 0;
-      const progressInterval = setInterval(() => {
-        if (this.importProgress && currentIndex < this.importProgress.total) {
-          currentIndex++;
-          this.importProgress.current = currentIndex;
-          this.importProgress.percentage = Math.round((currentIndex / this.importProgress.total) * 100);
-          
-          // Mostrar nombre del empleado actual o genérico
-          const currentEmployeeName = employeeNames[currentIndex - 1] || `Empleado ${currentIndex}`;
-          this.importProgress.currentEmployee = `Procesando: ${currentEmployeeName}`;
-        }
-      }, Math.random() * 300 + 150); // Tiempo variable entre 150-450ms
-
       const formData = new FormData();
       formData.append('file', this.selectedFile);
 
       const result = await this.employeeService.importEmployees(formData);
-      
-      // Limpiar el intervalo
-      clearInterval(progressInterval);
-      
-      // Completar progreso
-      if (this.importProgress) {
-        this.importProgress.current = this.importProgress.total;
-        this.importProgress.percentage = 100;
-        this.importProgress.currentEmployee = 'Importación completada';
-      }
-      
-      // Esperar un momento para mostrar el 100%
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      this.importResult = result;
+      const importedCount = result.data?.imported || result.imported_count || 0;
 
-      if (result.success) {
-        toast.success(`Importación exitosa: ${result.imported_count} empleados importados`);
-        this.importSuccessEvent.emit();
+      this.importResult.set({
+        success: result.success || (importedCount > 0),
+        message: result.message || `Se importaron ${importedCount} empleados`,
+        imported_count: importedCount,
+        errors: result.data?.errors || result.errors || []
+      });
+
+      if (result.success || importedCount > 0) {
+        toast.success(`¡Importación exitosa! ${importedCount} empleados procesados`);
       } else {
         toast.error('Error en la importación');
       }
     } catch (error: any) {
       console.error('Error importing file:', error);
-      toast.error(error.error?.message || 'Error al importar el archivo');
+      this.importResult.set({
+        success: false,
+        message: error.error?.message || 'Error al importar el archivo',
+        imported_count: 0,
+        errors: [error.error?.message || 'Error desconocido']
+      });
+      toast.error('Error al importar el archivo');
     } finally {
-      this.isImporting = false;
-      this.importProgress = null;
+      this.isImporting.set(false);
     }
   }
 
-  downloadTemplate(): void {
-    this.employeeService.downloadTemplate();
-    toast.success('Descargando template...');
-  }
-
-  getPreviewKeys(): string[] {
-    if (!this.validationResult?.data?.preview || !Array.isArray(this.validationResult.data.preview) || this.validationResult.data.preview.length === 0) {
-      return [];
-    }
-    return Object.keys(this.validationResult.data.preview[0]);
+  closeAndRefresh(): void {
+    this.importSuccessEvent.emit();
+    this.closeModal();
   }
 }

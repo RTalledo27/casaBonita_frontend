@@ -241,6 +241,9 @@ export class CommissionSchemesComponent implements OnInit {
     }
   }
 
+  /** ID del esquema expandido actualmente */
+  expandedSchemeId: number | null = null;
+
   // ==========================================
   // DATA LOADING
   // ==========================================
@@ -254,7 +257,32 @@ export class CommissionSchemesComponent implements OnInit {
     // Cargar esquemas
     this.svc.listSchemes().subscribe({
       next: (r) => {
-        this.schemes = r.data || [];
+        let schemes = r.data || [];
+
+        // Ordenar esquemas por relevancia: Activos > Futuros > Default > Pasados
+        schemes.sort((a: CommissionScheme, b: CommissionScheme) => {
+          const statusA = this.getSchemeStatus(a);
+          const statusB = this.getSchemeStatus(b);
+
+          const priority = { 'active': 1, 'future': 2, 'past': 3 };
+          if (statusA !== statusB) {
+            return priority[statusA] - priority[statusB];
+          }
+
+          // Si tienen el mismo estado, el más nuevo primero
+          return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+        });
+
+        this.schemes = schemes;
+
+        // Auto-expandir el primer esquema activo
+        const activeScheme = this.schemes.find(s => this.getSchemeStatus(s) === 'active');
+        if (activeScheme) {
+          this.expandedSchemeId = activeScheme.id!;
+        } else if (this.schemes.length > 0) {
+          this.expandedSchemeId = this.schemes[0].id!;
+        }
+
         this.isLoading = false;
       },
       error: (e) => {
@@ -270,6 +298,51 @@ export class CommissionSchemesComponent implements OnInit {
       },
       error: () => { }
     });
+  }
+
+  // ==========================================
+  // VIEW HELPERS
+  // ==========================================
+
+  /**
+   * Determina el estado de un esquema basado en sus fechas
+   */
+  getSchemeStatus(scheme: CommissionScheme): 'active' | 'future' | 'past' {
+    const now = new Date();
+    // Resetear hora para comparar solo fechas
+    now.setHours(0, 0, 0, 0);
+
+    const from = scheme.effective_from ? new Date(scheme.effective_from) : null;
+    if (from) from.setHours(0, 0, 0, 0);
+
+    const to = scheme.effective_to ? new Date(scheme.effective_to) : null;
+    if (to) to.setHours(0, 0, 0, 0);
+
+    // Futuro: empieza después de hoy
+    if (from && from > now) {
+      return 'future';
+    }
+
+    // Pasado: terminó antes de hoy
+    if (to && to < now) {
+      return 'past';
+    }
+
+    // Activo: dentro del rango (o indefinido)
+    return 'active';
+  }
+
+  getRulesForScheme(schemeId: number): any[] {
+    return this.rules.filter(r => r.scheme_id === schemeId)
+      .sort((a, b) => b.priority - a.priority); // Ordenar por prioridad
+  }
+
+  toggleScheme(id: number) {
+    if (this.expandedSchemeId === id) {
+      this.expandedSchemeId = null;
+    } else {
+      this.expandedSchemeId = id;
+    }
   }
 
   // ==========================================
@@ -364,12 +437,17 @@ export class CommissionSchemesComponent implements OnInit {
 
   /**
    * Abre el modal para crear una nueva regla
+   * @param schemeId - Opcional: ID del esquema preseleccionado
    */
-  openRuleForm() {
+  openRuleForm(schemeId?: number) {
     this.editingRule = null;
     this.ruleFormError = null;
+
+    // Si se pasa un schemeId, usarlo como default. Si no, usar el expandido o el primero.
+    const defaultSchemeId = schemeId || this.expandedSchemeId || this.schemes[0]?.id || null;
+
     this.ruleForm.reset({
-      scheme_id: this.schemes[0]?.id || null,
+      scheme_id: defaultSchemeId,
       min_sales: 0,
       max_sales: null,
       term_min_months: null,

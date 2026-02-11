@@ -2,12 +2,14 @@ import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
-import { LucideAngularModule, Save, ArrowLeft, User, Mail, Phone, Calendar, DollarSign, Building, Users } from 'lucide-angular';
+import { LucideAngularModule, Save, ArrowLeft, User, Mail, Phone, Calendar, DollarSign, Building, Users, Briefcase } from 'lucide-angular';
 import { EmployeeService } from '../../services/employee.service';
 import { Employee } from '../../models/employee';
 import { User as UserModel } from '../../../Secutiry/users/models/user';
 import { Team } from '../../models/team';
 import { ToastService } from '../../../../core/services/toast.service';
+import { PositionService } from '../../services/position.service';
+import { Position } from '../../models/position';
 
 @Component({
   selector: 'app-employee-form',
@@ -22,6 +24,7 @@ export class EmployeeFormComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private toastService = inject(ToastService);
+  private positionService = inject(PositionService);
 
   // Señales para el estado del componente
   loading = signal<boolean>(false);
@@ -31,6 +34,7 @@ export class EmployeeFormComponent implements OnInit {
   employeeId = signal<number | null>(null);
   users = signal<UserModel[]>([]);
   teams = signal<Team[]>([]);
+  positions = signal<Position[]>([]);
 
   // Iconos de Lucide
   Save = Save;
@@ -42,6 +46,7 @@ export class EmployeeFormComponent implements OnInit {
   DollarSign = DollarSign;
   Building = Building;
   Users = Users;
+  Briefcase = Briefcase;
 
   // Formulario reactivo
   employeeForm: FormGroup;
@@ -65,7 +70,8 @@ export class EmployeeFormComponent implements OnInit {
     this.employeeForm = this.fb.group({
       user_id: ['', [Validators.required]],
       employee_code: ['', [Validators.required, Validators.minLength(3)]],
-      employee_type: ['', [Validators.required]],
+      employee_type: [''],
+      position_id: ['', [Validators.required]],
       employment_status: ['activo', [Validators.required]],
       hire_date: ['', [Validators.required]],
       base_salary: ['', [Validators.required, Validators.min(0)]],
@@ -96,6 +102,15 @@ export class EmployeeFormComponent implements OnInit {
 
       this.users.set(users || []);
       this.teams.set(teams || []);
+
+      // Load positions
+      this.positionService.getPositions({ active: true }).subscribe({
+        next: (response) => {
+          const data = Array.isArray(response.data) ? response.data : [];
+          this.positions.set(data);
+        },
+        error: (err) => console.error('Error loading positions:', err)
+      });
     } catch (error) {
       console.error('Error loading initial data:', error);
       this.error.set('Error al cargar los datos iniciales');
@@ -133,7 +148,8 @@ export class EmployeeFormComponent implements OnInit {
     this.employeeForm.patchValue({
       user_id: employee.user_id,
       employee_code: employee.employee_code,
-      employee_type: employee.employee_type,
+      employee_type: employee.employee_type || '',
+      position_id: (employee as any).position_id || '',
       employment_status: employee.employment_status,
       hire_date: employee.hire_date,
       base_salary: employee.base_salary,
@@ -159,7 +175,7 @@ export class EmployeeFormComponent implements OnInit {
 
     try {
       const formData = this.employeeForm.value;
-      
+
       // Convertir valores vacíos a null para campos opcionales
       Object.keys(formData).forEach(key => {
         if (formData[key] === '') {
@@ -225,7 +241,7 @@ export class EmployeeFormComponent implements OnInit {
 
   // Filtrar usuarios que no son empleados (opcional)
   getAvailableUsers() {
-    return this.users().filter(user => 
+    return this.users().filter(user =>
       // Aquí podrías filtrar usuarios que ya son empleados si es necesario
       true
     );

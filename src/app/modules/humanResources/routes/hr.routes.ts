@@ -69,6 +69,18 @@ export const HR_ROUTES: Routes = [
         ]
       },
       {
+        path: 'offices',
+        loadComponent: () => import('../components/office-list/office-list.component').then(m => m.OfficeListComponent)
+      },
+      {
+        path: 'areas',
+        loadComponent: () => import('../components/area-list/area-list.component').then(m => m.AreaListComponent)
+      },
+      {
+        path: 'positions',
+        loadComponent: () => import('../components/position-list/position-list.component').then(m => m.PositionListComponent)
+      },
+      {
         path: 'bonuses',
         children: [
           {

@@ -23,6 +23,8 @@ export interface CommissionScheme {
     effective_to?: string | null;
     is_default?: boolean;
     rules?: CommissionRule[];
+    created_at?: string;
+    updated_at?: string;
 }
 
 /**

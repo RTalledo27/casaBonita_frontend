@@ -1,134 +1,172 @@
 <div class="commission-schemes-container">
   <div class="content-wrapper">
-    <!-- Card: Esquemas de Comisión -->
-    <div class="card card-primary">
-      <div class="card-header">
-        <h2 class="card-title">
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="header-title">
+        <h2 class="page-title">
           <svg class="icon-title" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+            </path>
           </svg>
           Esquemas de Comisión
         </h2>
-        <button (click)="openCreate()" class="btn btn-primary">
-          <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-          </svg>
-          Nuevo Esquema
-        </button>
+        <p class="page-subtitle">Gestiona los esquemas de comisiones y sus reglas vigentes.</p>
       </div>
-
-      <!-- Error Message -->
-      <div *ngIf="error" class="alert alert-error">{{ error }}</div>
-
-      <!-- Loading State -->
-      <div *ngIf="isLoading" class="loading-state">Cargando...</div>
-
-      <!-- Schemes Table -->
-      <div *ngIf="!isLoading" class="table-container">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Vigencia</th>
-              <th>Default</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let s of schemes" class="table-row">
-              <td class="font-semibold">{{ s.name }}</td>
-              <td>{{ s.effective_from || '-' }} — {{ s.effective_to || '-' }}</td>
-              <td>
-                <span [ngClass]="s.is_default ? 'badge badge-success' : 'badge badge-default'">
-                  {{ s.is_default ? 'Sí' : 'No' }}
-                </span>
-              </td>
-              <td class="action-buttons">
-                <button (click)="edit(s)" class="btn btn-warning btn-sm">
-                  <svg class="btn-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536M9 13h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                  </svg>
-                  Editar
-                </button>
-                <button (click)="remove(s)" class="btn btn-danger btn-sm">
-                  <svg class="btn-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                  </svg>
-                  Eliminar
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <button (click)="openCreate()" class="btn btn-primary">
+        <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        Nuevo Esquema
+      </button>
     </div>
 
-    <!-- Card: Reglas (global) -->
-    <div class="card card-secondary">
-      <div class="card-header-with-info">
-        <h3 class="card-title-sm">
-          <svg class="icon-title-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-          </svg>
-          Reglas (global)
-          <button type="button" class="info-button" (click)="rulesHelpPop.toggle($event)" aria-haspopup="dialog" aria-controls="rulesHelpPop">ℹ️</button>
-        </h3>
-        <app-tooltip-popover #rulesHelpPop [text]="'Prioridad: valores Term min/max > ventana de vigencia (Desde/Hasta) > Term group (legacy). Las reglas solo aplican si la venta cae dentro de la ventana de vigencia.'"></app-tooltip-popover>
-        <button (click)="openRuleForm()" class="btn btn-success">
-          <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-          </svg>
-          Nueva Regla
-        </button>
-      </div>
+    <!-- Error Message -->
+    <div *ngIf="error" class="alert alert-error">{{ error }}</div>
 
-      <!-- Rules Table -->
-      <div class="table-container">
-        <table class="data-table data-table-rules">
-          <thead>
-            <tr>
-              <th>Scheme</th>
-              <th>Ventas min</th>
-              <th>Ventas max</th>
-              <th>Term min (meses)</th>
-              <th>Term max (meses)</th>
-              <th>Desde</th>
-              <th>Hasta</th>
-              <th>Term group</th>
-              <th>Tipo venta</th>
-              <th>%</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let r of rules" class="table-row">
-              <td>{{ getSchemeName(r.scheme_id) }}</td>
-              <td>{{ r.min_sales }}</td>
-              <td>{{ r.max_sales || '-' }}</td>
-              <td>{{ r.term_min_months ?? '-' }}</td>
-              <td>{{ r.term_max_months ?? '-' }}</td>
-              <td>{{ r.effective_from || '-' }}</td>
-              <td>{{ r.effective_to || '-' }}</td>
-              <td>{{ r.term_group }}</td>
-              <td>{{ r.sale_type || 'both' }}</td>
-              <td>{{ r.percentage }}%</td>
-              <td class="action-buttons">
-                <button (click)="editRule(r)" class="btn btn-warning btn-sm">
-                  <svg class="btn-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536M9 13h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                  </svg>
-                  Editar
-                </button>
-                <button (click)="deleteRule(r)" class="btn btn-danger btn-sm">
-                  <svg class="btn-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                  </svg>
-                  Eliminar
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-state">Cargando datos...</div>
+
+    <!-- Schemes List (Accordion) -->
+    <div *ngIf="!isLoading" class="schemes-list">
+      <div *ngFor="let s of schemes" class="card scheme-card" [class.expanded]="expandedSchemeId === s.id">
+        <!-- Card Header (Clickable) -->
+        <div class="card-header scheme-header" (click)="toggleScheme(s.id!)">
+          <div class="scheme-info">
+            <div class="scheme-title-row">
+              <h3 class="scheme-title">{{ s.name }}</h3>
+
+              <!-- Status Badges -->
+              <span class="badge" [ngClass]="{
+                  'badge-success': getSchemeStatus(s) === 'active',
+                  'badge-info': getSchemeStatus(s) === 'future',
+                  'badge-default': getSchemeStatus(s) === 'past'
+                }">
+                {{ getSchemeStatus(s) === 'active' ? 'Vigente' : (getSchemeStatus(s) === 'future' ? 'Futuro' : 'Pasado')
+                }}
+              </span>
+
+              <span *ngIf="s.is_default" class="badge badge-warning">Default</span>
+            </div>
+            <div class="scheme-meta">
+              <span class="meta-item">
+                <svg class="meta-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                {{ s.effective_from || 'Inicio' }} — {{ s.effective_to || 'Indefinido' }}
+              </span>
+              <span class="meta-item">
+                <svg class="meta-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+                {{ getRulesForScheme(s.id!).length }} reglas
+              </span>
+            </div>
+          </div>
+
+          <div class="scheme-actions">
+            <button (click)="edit(s); $event.stopPropagation()" class="btn-icon-only" title="Editar Esquema">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M15.232 5.232l3.536 3.536M9 13h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </button>
+            <button (click)="remove(s); $event.stopPropagation()" class="btn-icon-only text-red-500"
+              title="Eliminar Esquema">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+            <span class="chevron" [class.rotated]="expandedSchemeId === s.id">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </span>
+          </div>
+        </div>
+
+        <!-- Card Body (Rules) -->
+        <div class="card-body" *ngIf="expandedSchemeId === s.id">
+          <div class="scheme-details">
+            <p class="scheme-description" *ngIf="s.description">{{ s.description }}</p>
+
+            <div class="rules-header-row">
+              <h4 class="rules-title">Reglas de Comisión</h4>
+              <button (click)="openRuleForm(s.id!)" class="btn btn-success btn-sm">
+                <svg class="btn-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                Agregar Regla
+              </button>
+            </div>
+
+            <!-- Rules Table -->
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Tipo Venta</th>
+                    <th>Ventas (Min/Max)</th>
+                    <th>Plazo (Meses)</th>
+                    <th>Tasa (%)</th>
+                    <th>Prioridad</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let r of getRulesForScheme(s.id!)" class="table-row">
+                    <td>
+                      <span class="badge" [ngClass]="{
+                        'badge-cash': r.sale_type === 'cash',
+                        'badge-financed': r.sale_type === 'financed',
+                        'badge-default': !r.sale_type || r.sale_type === 'both'
+                      }">
+                        {{ r.sale_type === 'cash' ? 'Contado' : (r.sale_type === 'financed' ? 'Financiado' : 'Ambas') }}
+                      </span>
+                    </td>
+                    <td>
+                      {{ r.min_sales }}
+                      <span *ngIf="r.max_sales"> a {{ r.max_sales }}</span>
+                      <span *ngIf="!r.max_sales">+</span>
+                    </td>
+                    <td>
+                      <div class="term-info">
+                        <span *ngIf="r.term_min_months || r.term_max_months">
+                          Month: {{ r.term_min_months || 0 }} - {{ r.term_max_months || '∞' }}
+                        </span>
+                        <span class="text-xs text-gray-500">Group: {{ r.term_group === 'short' ? 'Corto' : 'Largo'
+                          }}</span>
+                      </div>
+                    </td>
+                    <td class="font-bold text-lg text-blue-600">{{ r.percentage }}%</td>
+                    <td>{{ r.priority }}</td>
+                    <td class="action-buttons">
+                      <button (click)="editRule(r)" class="btn-icon-only" title="Editar Regla">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15.232 5.232l3.536 3.536M9 13h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                      </button>
+                      <button (click)="deleteRule(r)" class="btn-icon-only text-red-500" title="Eliminar Regla">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </td>
+                  </tr>
+                  <tr *ngIf="getRulesForScheme(s.id!).length === 0">
+                    <td colspan="6" class="text-center py-4 text-gray-500">No hay reglas definidas para este esquema.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -136,13 +174,16 @@
   <!-- Modal: Scheme Create/Edit -->
   <div *ngIf="showForm" class="modal-backdrop" (click)="closeForm()">
     <div class="modal-container">
-      <div id="schemeModal" class="modal" (click)="$event.stopPropagation()" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="schemeModalTitle" (keydown)="handleKeydown($event)">
+      <div id="schemeModal" class="modal" (click)="$event.stopPropagation()" tabindex="-1" role="dialog"
+        aria-modal="true" aria-labelledby="schemeModalTitle" (keydown)="handleKeydown($event)">
         <!-- Modal Header -->
         <div class="modal-header modal-header-primary">
           <div class="modal-header-content">
             <div class="modal-icon-wrapper">
               <svg class="modal-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                </path>
               </svg>
             </div>
             <div>
@@ -164,12 +205,12 @@
               <label class="form-label">Nombre</label>
               <input formControlName="name" class="form-input" />
             </div>
-            
+
             <div class="form-group">
               <label class="form-label">Descripción</label>
               <textarea formControlName="description" class="form-textarea"></textarea>
             </div>
-            
+
             <div class="form-row">
               <div class="form-group flex-1">
                 <label class="form-label">Desde</label>
@@ -184,7 +225,7 @@
                 <input type="checkbox" formControlName="is_default" class="form-checkbox" />
               </div>
             </div>
-            
+
             <div class="form-actions">
               <button type="button" (click)="closeForm()" class="btn btn-secondary">Cancelar</button>
               <button type="submit" [disabled]="form.invalid" class="btn btn-primary">Guardar</button>
@@ -198,7 +239,8 @@
   <!-- Modal: Rule Create/Edit -->
   <div *ngIf="showRuleFormFlag" class="modal-backdrop" (click)="closeRuleForm()">
     <div class="modal-container">
-      <div id="ruleModal" class="modal modal-lg" (click)="$event.stopPropagation()" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="ruleModalTitle" (keydown)="handleKeydown($event)">
+      <div id="ruleModal" class="modal modal-lg" (click)="$event.stopPropagation()" tabindex="-1" role="dialog"
+        aria-modal="true" aria-labelledby="ruleModalTitle" (keydown)="handleKeydown($event)">
         <!-- Modal Header -->
         <div class="modal-header modal-header-secondary">
           <div>
@@ -206,7 +248,8 @@
             <p class="modal-subtitle">Define la regla que aplicará para ventas según rango, plazo y tipo de venta.</p>
           </div>
           <button aria-label="Cerrar" (click)="closeRuleForm()" class="modal-close-btn">
-            <svg xmlns="http://www.w3.org/2000/svg" class="modal-close-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" class="modal-close-icon" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
@@ -224,7 +267,7 @@
                   </select>
                   <span class="select-arrow">
                     <svg class="select-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                     </svg>
                   </span>
                 </div>
@@ -240,7 +283,7 @@
                   </select>
                   <span class="select-arrow">
                     <svg class="select-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                     </svg>
                   </span>
                 </div>
@@ -267,7 +310,7 @@
                     <input type="number" placeholder="Max" formControlName="term_max_months" class="form-input" />
                   </div>
                 </div>
-                
+
                 <div class="form-subgrid">
                   <div class="form-group">
                     <label class="form-label">Desde</label>
@@ -290,7 +333,7 @@
                   </select>
                   <span class="select-arrow">
                     <svg class="select-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                     </svg>
                   </span>
                 </div>
@@ -299,7 +342,8 @@
               <div class="form-group">
                 <label class="form-label">Porcentaje</label>
                 <div class="input-group">
-                  <input type="number" step="0.01" formControlName="percentage" placeholder="%" class="form-input input-group-field" />
+                  <input type="number" step="0.01" formControlName="percentage" placeholder="%"
+                    class="form-input input-group-field" />
                   <span class="input-group-addon">%</span>
                 </div>
               </div>
@@ -312,7 +356,8 @@
 
             <div class="form-actions">
               <button type="button" (click)="closeRuleForm()" class="btn btn-secondary">Cancelar</button>
-              <button type="submit" [disabled]="ruleForm.invalid" class="btn btn-primary" [attr.aria-disabled]="ruleForm.invalid ? 'true' : 'false'">Guardar</button>
+              <button type="submit" [disabled]="ruleForm.invalid" class="btn btn-primary"
+                [attr.aria-disabled]="ruleForm.invalid ? 'true' : 'false'">Guardar</button>
             </div>
           </form>
         </div>

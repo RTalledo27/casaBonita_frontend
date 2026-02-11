@@ -203,6 +203,11 @@ export class EmployeeService {
     return this.http.post<any>(`${API_ROUTES.HR.EMPLOYEES.replace('/employees', '/employee-import')}/validate`, formData).toPromise();
   }
 
+  analyzeImport(formData: FormData): Promise<any> {
+    // Analiza el archivo Excel y devuelve un preview de lo que se va a crear
+    return this.http.post<any>(`${API_ROUTES.HR.EMPLOYEES.replace('/employees', '/employee-import')}/analyze`, formData).toPromise();
+  }
+
   importEmployees(formData: FormData): Promise<any> {
     // El token interceptor se encarga de agregar automáticamente el header de autorización
     return this.http.post<any>(`${API_ROUTES.HR.EMPLOYEES.replace('/employees', '/employee-import')}/import`, formData).toPromise();
