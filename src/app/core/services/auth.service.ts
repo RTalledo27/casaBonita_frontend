@@ -17,6 +17,8 @@ export interface User {
   must_change_password?: boolean;
   password_changed_at?: string;
   last_login_at?: string;
+  employee_id?: number;
+  employee_type?: string;
 }
 
 export interface UserResource {
@@ -31,6 +33,8 @@ export interface UserResource {
   must_change_password?: boolean;
   password_changed_at?: string;
   last_login_at?: string;
+  employee_id?: number;
+  employee_type?: string;
 }
 
 export interface LoginRequest {
@@ -369,7 +373,9 @@ export class AuthService {
           position: response.user.position,
           must_change_password: response.user.must_change_password,
           password_changed_at: response.user.password_changed_at,
-          last_login_at: response.user.last_login_at
+          last_login_at: response.user.last_login_at,
+          employee_id: response.user.employee_id,
+          employee_type: response.user.employee_type
         };
 
         console.log('✅ AuthService: Mapped user object:', {

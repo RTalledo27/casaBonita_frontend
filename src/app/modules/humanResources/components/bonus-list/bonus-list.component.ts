@@ -87,7 +87,7 @@ export class BonusListComponent implements OnInit {
         bonus.bonus_type?.type_name?.toLowerCase().includes(search);
 
       const matchesStatus = !status || bonus.payment_status === status;
-      const matchesType = !type || bonus.bonus_type?.type_code === type;
+      const matchesType = !type || bonus.bonus_type_id?.toString() === type;
 
       return matchesSearch && matchesStatus && matchesType;
     });

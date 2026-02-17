@@ -1,4 +1,5 @@
 import { BonusType } from "./bonus-type";
+import { Office } from "./office";
 import { Team } from "./team";
 
 export interface BonusGoal {
@@ -13,6 +14,7 @@ export interface BonusGoal {
   bonus_percentage?: number;
   employee_type?: string;
   team_id?: number;
+  office_id?: number;
   is_active: boolean;
   valid_from: string;
   valid_until?: string;
@@ -23,4 +25,5 @@ export interface BonusGoal {
   // Relaciones
   bonus_type?: BonusType;
   team?: Team;
+  office?: Office;
 }

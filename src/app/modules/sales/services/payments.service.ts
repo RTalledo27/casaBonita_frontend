@@ -31,6 +31,14 @@ export class PaymentsService {
     return this.http.delete<void>(`${this.base}/${id}`);
   }
 
+  updateSchedule(scheduleId: number, data: any): Observable<any> {
+    return this.http.put<any>(`${this.base}/schedule/${scheduleId}`, data);
+  }
+
+  revertSchedule(scheduleId: number): Observable<void> {
+    return this.http.delete<void>(`${this.base}/schedule/${scheduleId}`);
+  }
+
   ledger(params: {
     start_date?: string;
     end_date?: string;
@@ -58,6 +66,20 @@ export class PaymentsService {
     if (params?.start_date) httpParams = httpParams.set('start_date', params.start_date);
     if (params?.end_date) httpParams = httpParams.set('end_date', params.end_date);
     return this.http.get<any>(`${this.base}/summary`, { params: httpParams });
+  }
+
+  fivePercentReport(params?: { start_date?: string; end_date?: string }): Observable<any> {
+    let httpParams = new HttpParams();
+    if (params?.start_date) httpParams = httpParams.set('start_date', params.start_date);
+    if (params?.end_date) httpParams = httpParams.set('end_date', params.end_date);
+    return this.http.get<any>(`${this.base}/five-percent-report`, { params: httpParams });
+  }
+
+  exportFivePercentReport(params?: { start_date?: string; end_date?: string }): Observable<Blob> {
+    let httpParams = new HttpParams();
+    if (params?.start_date) httpParams = httpParams.set('start_date', params.start_date);
+    if (params?.end_date) httpParams = httpParams.set('end_date', params.end_date);
+    return this.http.get(`${this.base}/five-percent-report/export`, { responseType: 'blob', params: httpParams });
   }
 
   uploadVoucher(paymentId: number, file: File): Observable<any> {

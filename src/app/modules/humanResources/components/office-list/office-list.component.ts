@@ -1,7 +1,7 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, Plus, Edit, Trash2, Search, Building2, MapPin, X, Check } from 'lucide-angular';
+import { LucideAngularModule, Plus, Edit, Trash2, Search, Building2, MapPin, X, Check, Target, Users } from 'lucide-angular';
 import { OfficeService } from '../../services/office.service';
 import { Office } from '../../models/office';
 
@@ -24,6 +24,8 @@ export class OfficeListComponent implements OnInit {
     readonly MapPin = MapPin;
     readonly X = X;
     readonly Check = Check;
+    readonly Target = Target;
+    readonly Users = Users;
 
     // Signals
     offices = signal<Office[]>([]);
@@ -197,6 +199,11 @@ export class OfficeListComponent implements OnInit {
     updateFormIsActive(value: boolean) {
         const current = this.formData();
         this.formData.set({ ...current, is_active: value });
+    }
+
+    getTeamsGoalTotal(office: Office): number {
+        if (!office.teams || office.teams.length === 0) return 0;
+        return office.teams.reduce((sum: number, team: any) => sum + (team.monthly_goal || 0), 0);
     }
 
     getStatusClass(isActive: boolean): string {

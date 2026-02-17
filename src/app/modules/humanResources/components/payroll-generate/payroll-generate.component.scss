@@ -20,6 +20,22 @@
   background-color: rgba(156, 163, 175, 0.7); /* gray-400/70 */
 }
 
+// Generate button - bypasses Tailwind purge for custom primary colors
+.btn-generate {
+  background-color: #6366f1;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background-color: #4f46e5;
+  }
+
+  &:disabled {
+    background-color: #9ca3af;
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
 // Dark mode scrollbar
 :host ::ng-deep [data-theme="dark"] .overflow-y-auto::-webkit-scrollbar-thumb {
   background-color: rgba(107, 114, 128, 0.5); /* gray-500/50 */

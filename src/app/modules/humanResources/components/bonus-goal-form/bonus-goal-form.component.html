@@ -99,21 +99,35 @@
               }
             </div>
 
-            <!-- Team (Optional) -->
+            <!-- Team -->
             <div class="form-group">
               <label for="team_id" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                Equipo (Opcional)
+                <lucide-angular [img]="Users" class="w-4 h-4 inline mr-1 text-blue-600"></lucide-angular>
+                Equipo
               </label>
               <select
                 id="team_id"
                 formControlName="team_id"
                 class="app-select w-full px-4 py-3 rounded-xl border border-gray-300/70 dark:border-gray-600/60 bg-white/70 dark:bg-gray-700/50 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500/60 focus:border-blue-500/60 transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500">
-                <option value="">Todos los equipos</option>
+                <option value="">Seleccionar equipo</option>
                 @for (team of getActiveTeams(); track team.team_id) {
-                  <option [value]="team.team_id">{{ team.team_name }}</option>
+                  <option [value]="team.team_id">{{ team.team_name }}{{ team.office ? ' · ' + team.office.name : '' }}</option>
                 }
               </select>
             </div>
+
+            <!-- Office (auto-derived from team) -->
+            @if (getSelectedTeamOffice()) {
+              <div class="p-3 bg-teal-50/80 dark:bg-teal-900/20 rounded-xl border border-teal-200/60 dark:border-teal-800/40">
+                <div class="flex items-center gap-2">
+                  <lucide-icon [img]="Building2" size="16" class="text-teal-600 dark:text-teal-400"></lucide-icon>
+                  <div>
+                    <p class="text-xs font-medium text-teal-600 dark:text-teal-400 uppercase tracking-wide">Oficina del equipo</p>
+                    <p class="text-sm font-semibold text-teal-800 dark:text-teal-200">{{ getSelectedTeamOffice()!.name }}</p>
+                  </div>
+                </div>
+              </div>
+            }
 
             <!-- Status -->
             <div class="form-group">

@@ -1,0 +1,512 @@
+<!-- Loading State -->
+<div class="min-h-[80vh] flex items-center justify-center" *ngIf="loading()">
+    <div class="text-center">
+        <div class="relative">
+            <div class="animate-spin rounded-full h-16 w-16 border-4 border-gray-200 dark:border-gray-700 border-t-amber-500 mx-auto"></div>
+        </div>
+        <p class="mt-6 text-gray-600 dark:text-gray-400 font-medium">Cargando tu dashboard...</p>
+        <div class="mt-2 flex justify-center space-x-1">
+            <div class="w-2 h-2 bg-amber-500 rounded-full animate-bounce"></div>
+            <div class="w-2 h-2 bg-amber-500 rounded-full animate-bounce" style="animation-delay: 0.1s;"></div>
+            <div class="w-2 h-2 bg-amber-500 rounded-full animate-bounce" style="animation-delay: 0.2s;"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Error State / No Employee -->
+<div class="min-h-[80vh] flex items-center justify-center p-6" *ngIf="!loading() && error()">
+    <div class="max-w-md text-center">
+        <div class="w-20 h-20 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
+            <lucide-icon [name]="alertCircle" class="w-10 h-10 text-red-500"></lucide-icon>
+        </div>
+        <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-3">No disponible</h2>
+        <p class="text-gray-600 dark:text-gray-400 mb-6">{{ error() }}</p>
+        <p class="text-sm text-gray-500 dark:text-gray-500">
+            Contacta al administrador para vincular tu usuario con un registro de empleado.
+        </p>
+    </div>
+</div>
+
+<!-- Dashboard Content -->
+<div class="py-6 px-4 sm:px-6 lg:px-8" *ngIf="!loading() && !error() && dashboard()">
+    <div class="max-w-7xl mx-auto space-y-6">
+
+        <!-- ===== SHARED HEADER: Greeting + Period Selector ===== -->
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div class="flex items-center gap-4">
+                <div class="w-14 h-14 bg-gradient-to-br from-amber-400 to-amber-600 rounded-2xl flex items-center justify-center shadow-lg shadow-amber-500/20">
+                    <span class="text-white font-bold text-lg">{{ getEmployeeInitials() }}</span>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 font-medium">{{ getUserGreeting() }}</p>
+                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+                        {{ currentUser()?.name || 'Usuario' }}
+                    </h1>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1.5 mt-0.5">
+                        <lucide-icon [name]="briefcase" class="w-3.5 h-3.5"></lucide-icon>
+                        {{ currentUser()?.position || 'Empleado' }}
+                        <span *ngIf="currentUser()?.department">· {{ currentUser()?.department }}</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Period Selector -->
+            <div class="flex items-center gap-3 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 px-4 py-2.5">
+                <div class="p-1.5 bg-amber-50 dark:bg-amber-900/30 rounded-lg">
+                    <lucide-icon [name]="calendar" class="w-4 h-4 text-amber-600"></lucide-icon>
+                </div>
+                <select
+                    [(ngModel)]="selectedMonth"
+                    (change)="onPeriodChange()"
+                    class="border-0 bg-transparent text-sm font-medium text-gray-700 dark:text-gray-300 focus:ring-0 cursor-pointer pr-6">
+                    <option *ngFor="let month of availableMonths" [value]="month.value">
+                        {{ month.label }}
+                    </option>
+                </select>
+                <div class="w-px h-4 bg-gray-300 dark:bg-gray-600"></div>
+                <select
+                    [(ngModel)]="selectedYear"
+                    (change)="onPeriodChange()"
+                    class="border-0 bg-transparent text-sm font-medium text-gray-700 dark:text-gray-300 focus:ring-0 cursor-pointer pr-6">
+                    <option *ngFor="let year of availableYears" [value]="year">
+                        {{ year }}
+                    </option>
+                </select>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- ===== ADVISOR / SALES VIEW ===== -->
+        <!-- ============================================================ -->
+        <ng-container *ngIf="isAdvisor()">
+
+            <!-- Achievement Badge -->
+            <div class="flex flex-wrap items-center gap-3 px-4 py-3 rounded-xl border"
+                 [ngClass]="getAchievementBadge(dashboard()!.sales_summary.achievement_percentage).class">
+                <span class="text-xl">{{ getAchievementBadge(dashboard()!.sales_summary.achievement_percentage).icon }}</span>
+                <span class="font-semibold text-sm">
+                    {{ getAchievementBadge(dashboard()!.sales_summary.achievement_percentage).label }}
+                </span>
+                <span class="text-sm opacity-75">—</span>
+                <span class="text-sm">
+                    {{ dashboard()!.sales_summary.count }} de {{ dashboard()!.sales_summary.goal }} contratos en {{ getCurrentMonthLabel() }}
+                </span>
+                <span class="text-sm opacity-75" *ngIf="getRemainingContracts() > 0">
+                    · Faltan {{ getRemainingContracts() }}
+                </span>
+            </div>
+
+            <!-- KPI Cards Row -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- Ventas del Mes -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 hover:shadow-md transition-shadow duration-200">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="p-2.5 bg-blue-100 dark:bg-blue-900/40 rounded-xl">
+                            <lucide-icon [name]="trendingUp" class="w-5 h-5 text-blue-600 dark:text-blue-400"></lucide-icon>
+                        </div>
+                        <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                    </div>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 font-medium">Ventas del Mes</p>
+                    <p class="text-3xl font-bold text-gray-900 dark:text-white mt-1">
+                        {{ dashboard()!.sales_summary.count }}
+                    </p>
+                    <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                        Meta: {{ dashboard()!.sales_summary.goal }} contratos
+                    </p>
+                </div>
+
+                <!-- Monto Total -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 hover:shadow-md transition-shadow duration-200">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="p-2.5 bg-green-100 dark:bg-green-900/40 rounded-xl">
+                            <lucide-icon [name]="dollarSign" class="w-5 h-5 text-green-600 dark:text-green-400"></lucide-icon>
+                        </div>
+                        <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    </div>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 font-medium">Monto Total</p>
+                    <p class="text-3xl font-bold text-gray-900 dark:text-white mt-1">
+                        {{ dashboard()!.sales_summary.total_amount | currency:'S/':'symbol':'1.0-0' }}
+                    </p>
+                    <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Ventas acumuladas del periodo</p>
+                </div>
+
+                <!-- Cumplimiento -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 hover:shadow-md transition-shadow duration-200">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="p-2.5 bg-amber-100 dark:bg-amber-900/40 rounded-xl">
+                            <lucide-icon [name]="target" class="w-5 h-5 text-amber-600 dark:text-amber-400"></lucide-icon>
+                        </div>
+                        <div class="w-9 h-9 relative">
+                            <svg class="w-9 h-9 transform -rotate-90" viewBox="0 0 36 36">
+                                <circle cx="18" cy="18" r="15" stroke="currentColor" stroke-width="3" fill="none"
+                                        class="text-gray-200 dark:text-gray-700"></circle>
+                                <circle cx="18" cy="18" r="15" stroke="currentColor" stroke-width="3" fill="none"
+                                        class="text-amber-500" stroke-linecap="round"
+                                        [style.stroke-dasharray]="94.25"
+                                        [style.stroke-dashoffset]="94.25 - (94.25 * Math.min(dashboard()!.sales_summary.achievement_percentage, 100) / 100)">
+                                </circle>
+                            </svg>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 font-medium">Cumplimiento</p>
+                    <p class="text-3xl font-bold mt-1" [ngClass]="getPercentageClass(dashboard()!.sales_summary.achievement_percentage)">
+                        {{ dashboard()!.sales_summary.achievement_percentage }}%
+                    </p>
+                    <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">de la meta mensual</p>
+                </div>
+
+                <!-- Ranking -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 hover:shadow-md transition-shadow duration-200"
+                     *ngIf="dashboard()!.performance.is_eligible_for_ranking">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="p-2.5 bg-purple-100 dark:bg-purple-900/40 rounded-xl">
+                            <lucide-icon [name]="award" class="w-5 h-5 text-purple-600 dark:text-purple-400"></lucide-icon>
+                        </div>
+                        <div *ngIf="dashboard()!.performance.ranking && dashboard()!.performance.ranking! <= 3"
+                             class="px-2 py-0.5 bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 rounded-full text-xs font-bold">
+                            Top {{ dashboard()!.performance.ranking }}
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 font-medium">Ranking</p>
+                    <p class="text-3xl font-bold text-gray-900 dark:text-white mt-1">
+                        {{ dashboard()!.performance.ranking || 'N/A' }}
+                        <span class="text-base font-normal text-gray-400 dark:text-gray-500" *ngIf="dashboard()!.performance.ranking">
+                            / {{ dashboard()!.performance.total_advisors }}
+                        </span>
+                    </p>
+                    <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">entre todos los asesores</p>
+                </div>
+
+                <!-- Ingreso Estimado (si no ranking) -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 hover:shadow-md transition-shadow duration-200"
+                     *ngIf="!dashboard()!.performance.is_eligible_for_ranking">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="p-2.5 bg-purple-100 dark:bg-purple-900/40 rounded-xl">
+                            <lucide-icon [name]="star" class="w-5 h-5 text-purple-600 dark:text-purple-400"></lucide-icon>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 font-medium">Ingreso Estimado</p>
+                    <p class="text-3xl font-bold text-green-600 dark:text-green-400 mt-1">
+                        {{ dashboard()!.earnings_summary.total_estimated | currency:'S/':'symbol':'1.0-0' }}
+                    </p>
+                    <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">salario + comisiones + bonos</p>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                        <lucide-icon [name]="target" class="w-4 h-4 text-amber-600"></lucide-icon>
+                        <span class="font-semibold text-gray-900 dark:text-white text-sm">Progreso de Meta</span>
+                    </div>
+                    <span class="font-bold text-lg" [ngClass]="getPercentageClass(dashboard()!.sales_summary.achievement_percentage)">
+                        {{ dashboard()!.sales_summary.achievement_percentage }}%
+                    </span>
+                </div>
+                <div class="relative">
+                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3.5 overflow-hidden">
+                        <div class="h-3.5 rounded-full transition-all duration-1000 ease-out relative overflow-hidden"
+                            [ngClass]="getProgressBarClass(dashboard()!.sales_summary.achievement_percentage)"
+                            [style.width.%]="Math.min(dashboard()!.sales_summary.achievement_percentage, 100)">
+                            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-20 animate-pulse"></div>
+                        </div>
+                    </div>
+                    <div class="absolute top-0 right-0 -mt-0.5 -mr-0.5" *ngIf="dashboard()!.sales_summary.achievement_percentage >= 100">
+                        <div class="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                            <lucide-icon [name]="check" class="w-3 h-3 text-white"></lucide-icon>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-2">
+                    <span>{{ dashboard()!.sales_summary.count }} logrados</span>
+                    <span>Meta: {{ dashboard()!.sales_summary.goal }}</span>
+                </div>
+            </div>
+
+            <!-- Two Column: Earnings + Contracts -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Resumen de Ingresos -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+                    <div class="px-5 py-4 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-7 h-7 bg-green-600 rounded-lg flex items-center justify-center">
+                                <lucide-icon [name]="dollarSign" class="w-4 h-4 text-white"></lucide-icon>
+                            </div>
+                            <h3 class="font-semibold text-gray-900 dark:text-white">Resumen de Ingresos</h3>
+                        </div>
+                    </div>
+                    <div class="p-5 space-y-3">
+                        <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-2 h-2 bg-gray-400 rounded-full"></div>
+                                <span class="text-sm text-gray-700 dark:text-gray-300">Salario Base</span>
+                            </div>
+                            <span class="font-semibold text-sm text-gray-600 dark:text-gray-400">
+                                {{ dashboard()!.earnings_summary.base_salary | currency:'S/':'symbol':'1.2-2' }}
+                            </span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-100 dark:border-green-900/40">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                                <span class="text-sm text-gray-700 dark:text-gray-300">Comisiones</span>
+                            </div>
+                            <span class="font-semibold text-sm text-green-600 dark:text-green-400">
+                                {{ dashboard()!.earnings_summary.commissions | currency:'S/':'symbol':'1.2-2' }}
+                            </span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-900/40">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                <span class="text-sm text-gray-700 dark:text-gray-300">Bonos</span>
+                            </div>
+                            <span class="font-semibold text-sm text-blue-600 dark:text-blue-400">
+                                {{ dashboard()!.earnings_summary.bonuses | currency:'S/':'symbol':'1.2-2' }}
+                            </span>
+                        </div>
+                        <hr class="border-gray-200 dark:border-gray-700">
+                        <div class="flex justify-between items-center p-4 bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 rounded-xl border-2 border-green-200 dark:border-green-800">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-3 h-3 bg-green-600 rounded-full"></div>
+                                <span class="font-bold text-gray-900 dark:text-white">Total Estimado</span>
+                            </div>
+                            <span class="text-xl font-bold text-green-700 dark:text-green-400">
+                                {{ dashboard()!.earnings_summary.total_estimated | currency:'S/':'symbol':'1.2-2' }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contratos Recientes -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+                    <div class="px-5 py-4 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-7 h-7 bg-blue-600 rounded-lg flex items-center justify-center">
+                                    <lucide-icon [name]="fileText" class="w-4 h-4 text-white"></lucide-icon>
+                                </div>
+                                <h3 class="font-semibold text-gray-900 dark:text-white">Contratos Recientes</h3>
+                            </div>
+                            <span class="text-xs bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 px-2 py-1 rounded-full font-medium">
+                                {{ dashboard()!.recent_contracts.length }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <div class="space-y-3" *ngIf="dashboard()!.recent_contracts.length > 0; else noContracts">
+                            <div *ngFor="let contract of dashboard()!.recent_contracts; let i = index"
+                                 class="flex items-center justify-between p-3 rounded-xl border border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors duration-150">
+                                <div class="flex items-center gap-3 flex-1 min-w-0">
+                                    <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900/40 rounded-lg flex items-center justify-center flex-shrink-0">
+                                        <span class="text-xs font-bold text-blue-600 dark:text-blue-400">{{ i + 1 }}</span>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p class="font-semibold text-sm text-gray-900 dark:text-white truncate">{{ contract.contract_number }}</p>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ contract.client_name }}</p>
+                                    </div>
+                                </div>
+                                <div class="text-right flex-shrink-0 ml-3">
+                                    <p class="font-bold text-sm text-green-600 dark:text-green-400">
+                                        {{ contract.total_price | currency:'S/':'symbol':'1.0-0' }}
+                                    </p>
+                                    <p class="text-xs text-gray-400 dark:text-gray-500">{{ contract.sign_date | date:'dd/MM/yy' }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <ng-template #noContracts>
+                            <div class="text-center py-10">
+                                <div class="w-14 h-14 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <lucide-icon [name]="fileText" class="w-7 h-7 text-gray-400"></lucide-icon>
+                                </div>
+                                <p class="text-gray-500 dark:text-gray-400 font-medium text-sm">Sin contratos este periodo</p>
+                                <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Los contratos aparecerán aquí cuando se registren</p>
+                            </div>
+                        </ng-template>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions: Advisor -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <a routerLink="/crm/clients"
+                   class="group bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md hover:border-blue-200 dark:hover:border-blue-800 transition-all duration-200 text-center">
+                    <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900/40 rounded-xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
+                        <lucide-icon [name]="users" class="w-5 h-5 text-blue-600 dark:text-blue-400"></lucide-icon>
+                    </div>
+                    <span class="text-xs font-medium text-gray-700 dark:text-gray-300">Mis Clientes</span>
+                </a>
+                <a routerLink="/sales/contracts"
+                   class="group bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md hover:border-purple-200 dark:hover:border-purple-800 transition-all duration-200 text-center">
+                    <div class="w-10 h-10 bg-purple-100 dark:bg-purple-900/40 rounded-xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
+                        <lucide-icon [name]="fileText" class="w-5 h-5 text-purple-600 dark:text-purple-400"></lucide-icon>
+                    </div>
+                    <span class="text-xs font-medium text-gray-700 dark:text-gray-300">Contratos</span>
+                </a>
+                <a routerLink="/sales/reservations"
+                   class="group bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md hover:border-amber-200 dark:hover:border-amber-800 transition-all duration-200 text-center">
+                    <div class="w-10 h-10 bg-amber-100 dark:bg-amber-900/40 rounded-xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
+                        <lucide-icon [name]="clock" class="w-5 h-5 text-amber-600 dark:text-amber-400"></lucide-icon>
+                    </div>
+                    <span class="text-xs font-medium text-gray-700 dark:text-gray-300">Reservas</span>
+                </a>
+                <a routerLink="/inventory"
+                   class="group bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md hover:border-teal-200 dark:hover:border-teal-800 transition-all duration-200 text-center">
+                    <div class="w-10 h-10 bg-teal-100 dark:bg-teal-900/40 rounded-xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
+                        <lucide-icon [name]="barChart3" class="w-5 h-5 text-teal-600 dark:text-teal-400"></lucide-icon>
+                    </div>
+                    <span class="text-xs font-medium text-gray-700 dark:text-gray-300">Inventario</span>
+                </a>
+            </div>
+
+        </ng-container>
+
+        <!-- ============================================================ -->
+        <!-- ===== GENERAL EMPLOYEE VIEW (Non-Advisor) ===== -->
+        <!-- ============================================================ -->
+        <ng-container *ngIf="!isAdvisor()">
+
+            <!-- Role Badge -->
+            <div class="flex items-center gap-3 px-4 py-3 rounded-xl border bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
+                <span class="text-xl">👋</span>
+                <span class="font-semibold text-sm text-blue-700 dark:text-blue-300">
+                    {{ getEmployeeTypeLabel() }}
+                </span>
+                <span class="text-sm text-blue-600 dark:text-blue-400 opacity-75">—</span>
+                <span class="text-sm text-blue-600 dark:text-blue-400">
+                    Resumen de {{ getCurrentMonthLabel() }} {{ selectedYear }}
+                </span>
+            </div>
+
+            <!-- Employee KPI Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <!-- Salario Base -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 hover:shadow-md transition-shadow duration-200">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="p-2.5 bg-gray-100 dark:bg-gray-700 rounded-xl">
+                            <lucide-icon [name]="dollarSign" class="w-5 h-5 text-gray-600 dark:text-gray-400"></lucide-icon>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 font-medium">Salario Base</p>
+                    <p class="text-3xl font-bold text-gray-900 dark:text-white mt-1">
+                        {{ dashboard()!.earnings_summary.base_salary | currency:'S/':'symbol':'1.0-0' }}
+                    </p>
+                    <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Remuneración mensual</p>
+                </div>
+
+                <!-- Bonos -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 hover:shadow-md transition-shadow duration-200">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="p-2.5 bg-blue-100 dark:bg-blue-900/40 rounded-xl">
+                            <lucide-icon [name]="award" class="w-5 h-5 text-blue-600 dark:text-blue-400"></lucide-icon>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 font-medium">Bonos</p>
+                    <p class="text-3xl font-bold text-blue-600 dark:text-blue-400 mt-1">
+                        {{ dashboard()!.earnings_summary.bonuses | currency:'S/':'symbol':'1.0-0' }}
+                    </p>
+                    <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Bonificaciones del periodo</p>
+                </div>
+
+                <!-- Total Estimado -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 hover:shadow-md transition-shadow duration-200">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="p-2.5 bg-green-100 dark:bg-green-900/40 rounded-xl">
+                            <lucide-icon [name]="star" class="w-5 h-5 text-green-600 dark:text-green-400"></lucide-icon>
+                        </div>
+                        <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    </div>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 font-medium">Total Estimado</p>
+                    <p class="text-3xl font-bold text-green-600 dark:text-green-400 mt-1">
+                        {{ dashboard()!.earnings_summary.total_estimated | currency:'S/':'symbol':'1.0-0' }}
+                    </p>
+                    <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Salario + bonos del mes</p>
+                </div>
+            </div>
+
+            <!-- Detalle de Ingresos -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+                <div class="px-5 py-4 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-7 h-7 bg-green-600 rounded-lg flex items-center justify-center">
+                            <lucide-icon [name]="dollarSign" class="w-4 h-4 text-white"></lucide-icon>
+                        </div>
+                        <h3 class="font-semibold text-gray-900 dark:text-white">Detalle de Ingresos</h3>
+                    </div>
+                </div>
+                <div class="p-5 space-y-3">
+                    <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-2 h-2 bg-gray-400 rounded-full"></div>
+                            <span class="text-sm text-gray-700 dark:text-gray-300">Salario Base</span>
+                        </div>
+                        <span class="font-semibold text-sm text-gray-600 dark:text-gray-400">
+                            {{ dashboard()!.earnings_summary.base_salary | currency:'S/':'symbol':'1.2-2' }}
+                        </span>
+                    </div>
+                    <div class="flex justify-between items-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-900/40" *ngIf="dashboard()!.earnings_summary.bonuses > 0">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                            <span class="text-sm text-gray-700 dark:text-gray-300">Bonos</span>
+                        </div>
+                        <span class="font-semibold text-sm text-blue-600 dark:text-blue-400">
+                            {{ dashboard()!.earnings_summary.bonuses | currency:'S/':'symbol':'1.2-2' }}
+                        </span>
+                    </div>
+                    <div class="flex justify-between items-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-100 dark:border-green-900/40" *ngIf="dashboard()!.earnings_summary.commissions > 0">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                            <span class="text-sm text-gray-700 dark:text-gray-300">Comisiones</span>
+                        </div>
+                        <span class="font-semibold text-sm text-green-600 dark:text-green-400">
+                            {{ dashboard()!.earnings_summary.commissions | currency:'S/':'symbol':'1.2-2' }}
+                        </span>
+                    </div>
+                    <hr class="border-gray-200 dark:border-gray-700">
+                    <div class="flex justify-between items-center p-4 bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 rounded-xl border-2 border-green-200 dark:border-green-800">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-3 h-3 bg-green-600 rounded-full"></div>
+                            <span class="font-bold text-gray-900 dark:text-white">Total Estimado</span>
+                        </div>
+                        <span class="text-xl font-bold text-green-700 dark:text-green-400">
+                            {{ dashboard()!.earnings_summary.total_estimated | currency:'S/':'symbol':'1.2-2' }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions: General Employee -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <a routerLink="/service-desk/dashboard"
+                   class="group bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md hover:border-pink-200 dark:hover:border-pink-800 transition-all duration-200 text-center">
+                    <div class="w-10 h-10 bg-pink-100 dark:bg-pink-900/40 rounded-xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
+                        <lucide-icon [name]="headphones" class="w-5 h-5 text-pink-600 dark:text-pink-400"></lucide-icon>
+                    </div>
+                    <span class="text-xs font-medium text-gray-700 dark:text-gray-300">Mesa de Ayuda</span>
+                </a>
+                <a routerLink="/inventory"
+                   class="group bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md hover:border-teal-200 dark:hover:border-teal-800 transition-all duration-200 text-center">
+                    <div class="w-10 h-10 bg-teal-100 dark:bg-teal-900/40 rounded-xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
+                        <lucide-icon [name]="barChart3" class="w-5 h-5 text-teal-600 dark:text-teal-400"></lucide-icon>
+                    </div>
+                    <span class="text-xs font-medium text-gray-700 dark:text-gray-300">Inventario</span>
+                </a>
+                <a routerLink="/crm/clients"
+                   class="group bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md hover:border-blue-200 dark:hover:border-blue-800 transition-all duration-200 text-center">
+                    <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900/40 rounded-xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
+                        <lucide-icon [name]="users" class="w-5 h-5 text-blue-600 dark:text-blue-400"></lucide-icon>
+                    </div>
+                    <span class="text-xs font-medium text-gray-700 dark:text-gray-300">Clientes</span>
+                </a>
+                <a routerLink="/reports/dashboard"
+                   class="group bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md hover:border-orange-200 dark:hover:border-orange-800 transition-all duration-200 text-center">
+                    <div class="w-10 h-10 bg-orange-100 dark:bg-orange-900/40 rounded-xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
+                        <lucide-icon [name]="trendingUp" class="w-5 h-5 text-orange-600 dark:text-orange-400"></lucide-icon>
+                    </div>
+                    <span class="text-xs font-medium text-gray-700 dark:text-gray-300">Reportes</span>
+                </a>
+            </div>
+
+        </ng-container>
+
+    </div>
+</div>

@@ -1,7 +1,7 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
-import { LucideAngularModule, ArrowLeft, Edit, Users, Crown, Mail, Phone, Calendar, TrendingUp, Award } from 'lucide-angular';
+import { LucideAngularModule, ArrowLeft, Edit, Users, Crown, Mail, Phone, Calendar, TrendingUp, Award, Building2, Target, UserCheck, Briefcase, Hash, ChevronRight } from 'lucide-angular';
 import { TeamService } from '../../services/team.service';
 import { EmployeeService } from '../../services/employee.service';
 import { Team } from '../../models/team';
@@ -30,6 +30,12 @@ export class TeamDetailComponent implements OnInit {
   readonly Calendar = Calendar;
   readonly TrendingUp = TrendingUp;
   readonly Award = Award;
+  readonly Building2 = Building2;
+  readonly Target = Target;
+  readonly UserCheck = UserCheck;
+  readonly Briefcase = Briefcase;
+  readonly Hash = Hash;
+  readonly ChevronRight = ChevronRight;
 
   // Signals
   team = signal<Team | null>(null);
@@ -121,8 +127,11 @@ export class TeamDetailComponent implements OnInit {
   getEmployeeStatusClass(status: string): string {
     const classes: Record<string, string> = {
       'activo': 'text-green-600',
+      'active': 'text-green-600',
       'inactivo': 'text-red-600',
-      'suspendido': 'text-yellow-600'
+      'inactive': 'text-red-600',
+      'suspendido': 'text-yellow-600',
+      'suspended': 'text-yellow-600'
     };
     return classes[status] || 'text-gray-600';
   }
@@ -130,8 +139,11 @@ export class TeamDetailComponent implements OnInit {
   getEmployeeStatusLabel(status: string): string {
     const labels: Record<string, string> = {
       'activo': 'Activo',
+      'active': 'Activo',
       'inactivo': 'Inactivo',
-      'suspendido': 'Suspendido'
+      'inactive': 'Inactivo',
+      'suspendido': 'Suspendido',
+      'suspended': 'Suspendido'
     };
     return labels[status] || status;
   }
@@ -149,7 +161,7 @@ export class TeamDetailComponent implements OnInit {
     console.log('📊 Calculando estadísticas para miembros:', members);
     
     // Usar 'active' en lugar de 'activo' según la respuesta de la API
-    const activeMembers = members.filter(m => m.status === 'active').length;
+    const activeMembers = members.filter(m => m.status === 'activo' || m.status === 'active').length;
     const advisors = members.filter(m => m.employee_type === 'asesor_inmobiliario').length;
     const sellers = members.filter(m => m.employee_type === 'vendedor').length;
     

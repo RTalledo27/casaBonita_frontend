@@ -2,7 +2,7 @@
 
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Employee } from '../models/employee';
+import { Employee, Position } from '../models/employee';
 import { map, Observable } from 'rxjs';
 import { API_ROUTES } from '../../../core/constants/api.routes';
 import { User } from '../../Secutiry/users/models/user';
@@ -56,7 +56,10 @@ export interface TopPerformer {
 export class EmployeeService {
   constructor(private http: HttpClient) { }
 
-
+  getPositions(): Observable<Position[]> {
+    return this.http.get<{ success: boolean; data: Position[] }>(API_ROUTES.HR.POSITIONS)
+      .pipe(map(response => response.data));
+  }
 
   getEmployees(filters: EmployeeFilters = {}): Observable<EmployeeResponse> {
     let params = new HttpParams();

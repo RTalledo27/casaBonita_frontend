@@ -38,9 +38,6 @@ export class CommissionListComponent implements OnInit {
   private toastService = inject(ToastService);
 
   constructor() {
-    console.log('🚀 CommissionListComponent constructor ejecutado');
-    // Cargar comisiones al inicializar
-    this.loadCommissions();
   }
 
   // Señales para el estado del componente
@@ -154,21 +151,9 @@ export class CommissionListComponent implements OnInit {
   groupedCommissions = computed(() => {
     const commissions = this.filteredCommissions();
 
-    console.log('=== DEBUG: Procesando groupedCommissions ===');
-    console.log('Comisiones filtradas:', commissions.length);
-
     const parentCommissions = commissions.filter(commission =>
       !commission.parent_commission_id
     );
-
-    parentCommissions.forEach(commission => {
-      const advisorId = commission.employee?.employee_id || 'unknown';
-      const advisorName = commission.employee?.user ?
-        `${commission.employee.user.first_name} ${commission.employee.user.last_name}` :
-        'Sin nombre';
-
-      console.log(`Procesando comisión - ID Asesor: ${advisorId}, Nombre: ${advisorName}`);
-    });
 
     const groups: { [key: string]: AdvisorGroup } = {};
 
@@ -218,24 +203,16 @@ export class CommissionListComponent implements OnInit {
     });
 
     const result = Object.values(groups);
-    console.log('Grupos finales:', result.length);
     return result;
   });
 
   // Computed property for paginated grouped commissions
   paginatedGroupedCommissions = computed(() => {
     const allGroups = this.groupedCommissions();
-    console.log('=== PAGINATED COMMISSIONS ===');
-    console.log('Filtered commissions count:', allGroups.length);
-    console.log('Current page:', this.currentPage());
-    console.log('Items per page:', 10);
     const itemsPerPage = 10;
     const startIndex = (this.currentPage() - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
-    const paginated = allGroups.slice(startIndex, endIndex);
-    console.log('Paginated result count:', paginated.length);
-    console.log('Paginated advisors:', paginated.map(a => a.commissions[0]?.employee?.user?.first_name + ' ' + a.commissions[0]?.employee?.user?.last_name || 'Nombre no disponible'));
-    return paginated;
+    return allGroups.slice(startIndex, endIndex);
   });
 
   // Computed para estadísticas - Solo comisiones padre
@@ -265,14 +242,10 @@ export class CommissionListComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    console.log('🚀 COMMISSION LIST COMPONENT LOADED!');
-    console.log('🚀 COMMISSION LIST COMPONENT ngOnInit CALLED');
-    console.log('Component initialized successfully');
     this.loadCommissions();
   }
 
   async loadCommissions() {
-    console.log('📊 Loading commissions...');
     this.loading.set(true);
     this.error.set(null);
 
@@ -288,47 +261,10 @@ export class CommissionListComponent implements OnInit {
       }).toPromise();
 
       if (response && response.data) {
-        console.log(`✅ Loaded ${response.data.length} commissions`);
-
-        // Debug logging: mostrar estructura completa de las primeras 2 comisiones
-        console.log('=== DEBUG: Estructura de comisiones recibidas ===');
-        console.log('Total comisiones:', response.data.length);
-        if (response.data.length > 0) {
-          console.log('Primera comisión completa:', JSON.stringify(response.data[0], null, 2));
-          console.log('employee.user de primera comisión:', response.data[0].employee?.user);
-          console.log('Nombre completo primera comisión:', response.data[0].employee?.user?.first_name, response.data[0].employee?.user?.last_name);
-        }
-        if (response.data.length > 1) {
-          console.log('Segunda comisión completa:', JSON.stringify(response.data[1], null, 2));
-          console.log('employee.user de segunda comisión:', response.data[1].employee?.user);
-          console.log('Nombre completo segunda comisión:', response.data[1].employee?.user?.first_name, response.data[1].employee?.user?.last_name);
-        }
-
-        // Logging detallado de las primeras 2 comisiones
-        if (response.data.length > 0) {
-          console.log('🔍 DETAILED COMMISSION STRUCTURE - First 2 commissions:');
-          const firstTwoCommissions = response.data.slice(0, 2);
-          firstTwoCommissions.forEach((commission, index) => {
-            console.log(`Commission ${index + 1}:`, {
-              commission_id: commission.commission_id,
-              employee: commission.employee,
-              employee_id: commission.employee?.employee_id,
-              employee_code: commission.employee?.employee_code,
-              user_object: commission.employee?.user,
-              first_name: commission.employee?.user?.first_name,
-              last_name: commission.employee?.user?.last_name,
-              full_name_constructed: `${commission.employee?.user?.first_name || ''} ${commission.employee?.user?.last_name || ''}`.trim(),
-              has_employee: !!commission.employee,
-              has_user: !!commission.employee?.user,
-              user_keys: commission.employee?.user ? Object.keys(commission.employee.user) : 'No user object'
-            });
-          });
-        }
-
         this.commissions.set(response.data);
       }
     } catch (error) {
-      console.error('❌ Error loading commissions:', error);
+      console.error('Error loading commissions:', error);
       this.error.set('Error al cargar las comisiones');
       this.toastService.error('Error al cargar las comisiones');
     } finally {

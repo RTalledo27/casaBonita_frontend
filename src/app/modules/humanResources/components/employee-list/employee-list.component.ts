@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { LucideAngularModule, Plus, Search, Filter, Edit, Trash2, Eye, Users, UserCheck, UserX, Upload, UserPlus, Grid, List, Download, Phone, Mail, Calendar, Briefcase, DollarSign } from 'lucide-angular';
 import { EmployeeService, EmployeeFilters } from '../../services/employee.service';
-import { Employee } from '../../models/employee';
+import { Employee, Position } from '../../models/employee';
 import { ToastService } from '../../../../core/services/toast.service';
 import { GenerateUserModalComponent } from '../generate-user-modal/generate-user-modal.component';
 import { EmployeeImportModalComponent } from '../employee-import-modal/employee-import-modal.component';
@@ -28,6 +28,8 @@ export class EmployeeListComponent implements OnInit {
   searchTerm = signal<string>('');
   selectedStatus = signal<string>('');
   selectedType = signal<string>('');
+  selectedPosition = signal<string>('');
+  positions = signal<Position[]>([]);
   currentPage = signal<number>(1);
   itemsPerPage = signal<number>(10); // Empleados por página
   viewMode = signal<'table' | 'cards'>('cards'); // Vista por defecto: cards
@@ -69,14 +71,24 @@ export class EmployeeListComponent implements OnInit {
     { value: 'suspendido', label: 'Suspendido' }
   ];
 
-  typeOptions = [
-    { value: '', label: 'Todos los tipos' },
-    { value: 'asesor_inmobiliario', label: 'Asesor Inmobiliario' },
-    { value: 'vendedor', label: 'Vendedor' },
-    { value: 'administrativo', label: 'Administrativo' },
-    { value: 'gerente', label: 'Gerente' },
-    { value: 'supervisor', label: 'Supervisor' }
-  ];
+  // Opciones de áreas dinámicas desde empleados cargados
+  typeOptions = computed(() => {
+    const employees = this.allEmployees();
+    const uniqueTypes = [...new Set(employees.map(e => e.employee_type).filter(Boolean))].sort();
+    return [
+      { value: '', label: 'Todas las áreas' },
+      ...uniqueTypes.map(t => ({ value: t, label: this.getTypeLabel(t) }))
+    ];
+  });
+
+  // Opciones de cargos dinámicas desde BD
+  positionOptions = computed(() => {
+    const positions = this.positions();
+    return [
+      { value: '', label: 'Todos los cargos' },
+      ...positions.map(p => ({ value: p.position_id.toString(), label: p.name }))
+    ];
+  });
 
   // Computed para empleados filtrados (todos, sin paginar)
   filteredEmployees = computed(() => {
@@ -85,17 +97,23 @@ export class EmployeeListComponent implements OnInit {
     const status = this.selectedStatus();
     const type = this.selectedType();
 
+    const positionId = this.selectedPosition();
+
     return employees.filter((employee: Employee) => {
       const matchesSearch = !search || 
         employee.user?.first_name?.toLowerCase().includes(search) ||
         employee.user?.last_name?.toLowerCase().includes(search) ||
         employee.user?.email?.toLowerCase().includes(search) ||
-        employee.employee_code?.toLowerCase().includes(search);
+        employee.employee_code?.toLowerCase().includes(search) ||
+        this.getPositionName(employee)?.toLowerCase().includes(search);
 
       const matchesStatus = !status || employee.employment_status === status;
       const matchesType = !type || employee.employee_type === type;
+      const matchesPosition = !positionId || 
+        employee.position_id?.toString() === positionId ||
+        (employee.position && typeof employee.position === 'object' && (employee.position as Position).position_id?.toString() === positionId);
 
-      return matchesSearch && matchesStatus && matchesType;
+      return matchesSearch && matchesStatus && matchesType && matchesPosition;
     });
   });
 
@@ -140,6 +158,7 @@ export class EmployeeListComponent implements OnInit {
 
   ngOnInit() {
     this.loadEmployees();
+    this.loadPositions();
   }
 
   async loadEmployees() {
@@ -165,6 +184,28 @@ export class EmployeeListComponent implements OnInit {
     } finally {
       this.loading.set(false);
     }
+  }
+
+  async loadPositions() {
+    try {
+      const positions = await this.employeeService.getPositions().toPromise();
+      if (positions) {
+        this.positions.set(positions);
+      }
+    } catch (error) {
+      console.error('Error loading positions:', error);
+    }
+  }
+
+  // Obtener nombre del cargo de un empleado
+  getPositionName(employee: Employee): string {
+    if (employee.position && typeof employee.position === 'object') {
+      return (employee.position as Position).name;
+    }
+    if (typeof employee.position === 'string') {
+      return employee.position;
+    }
+    return '';
   }
 
   onSearch() {
@@ -218,19 +259,6 @@ export class EmployeeListComponent implements OnInit {
     }
   }
 
-  getStatusClass(status: string): string {
-    switch (status) {
-      case 'activo':
-        return 'bg-green-100 text-green-800';
-      case 'inactivo':
-        return 'bg-gray-100 text-gray-800';
-      case 'suspendido':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  }
-
   getStatusLabel(status: string): string {
     switch (status) {
       case 'activo':
@@ -241,23 +269,6 @@ export class EmployeeListComponent implements OnInit {
         return 'Suspendido';
       default:
         return status;
-    }
-  }
-
-  getTypeClass(type: string): string {
-    switch (type) {
-      case 'asesor_inmobiliario':
-        return 'bg-blue-100 text-blue-800';
-      case 'vendedor':
-        return 'bg-purple-100 text-purple-800';
-      case 'administrativo':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'gerente':
-        return 'bg-green-100 text-green-800';
-      case 'supervisor':
-        return 'bg-indigo-100 text-indigo-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
     }
   }
 
@@ -278,32 +289,62 @@ export class EmployeeListComponent implements OnInit {
     }
   }
 
-  trackByEmployeeId(index: number, employee: Employee): number {
-    return employee.employee_id;
+  // Badge de tipo con estilo profesional
+  getTypeBadgeClass(type: string): string {
+    switch (type) {
+      case 'asesor_inmobiliario':
+        return 'bg-blue-50 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300';
+      case 'vendedor':
+        return 'bg-purple-50 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300';
+      case 'administrativo':
+        return 'bg-amber-50 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300';
+      case 'gerente':
+        return 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300';
+      case 'supervisor':
+        return 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300';
+      default:
+        return 'bg-gray-50 text-gray-700 dark:bg-gray-700 dark:text-gray-300';
+    }
   }
 
-  // Obtener gradiente según tipo de empleado (estilo empresarial pastel)
-  getCardGradient(employee: Employee): string {
+  // Borde lateral de card según tipo de empleado
+  getCardBorderClass(employee: Employee): string {
     switch (employee.employee_type) {
       case 'asesor_inmobiliario':
-        // Azul lavanda suave - coincide con el tema del ERP
-        return 'from-blue-200/80 via-indigo-200/70 to-purple-200/80 dark:from-blue-500 dark:via-indigo-500 dark:to-purple-500';
+        return '!border-l-blue-500';
       case 'vendedor':
-        // Rosa pastel suave - profesional y distinguido
-        return 'from-pink-200/80 via-rose-200/70 to-red-200/80 dark:from-pink-500 dark:via-rose-500 dark:to-red-500';
+        return '!border-l-purple-500';
       case 'administrativo':
-        // Melocotón/durazno suave - cálido pero profesional
-        return 'from-orange-200/80 via-amber-200/70 to-yellow-200/80 dark:from-orange-500 dark:via-amber-500 dark:to-yellow-500';
+        return '!border-l-amber-500';
       case 'gerente':
-        // Verde menta suave - como el badge "Activo" del sistema
-        return 'from-emerald-200/80 via-teal-200/70 to-cyan-200/80 dark:from-emerald-500 dark:via-teal-500 dark:to-cyan-500';
+        return '!border-l-emerald-500';
       case 'supervisor':
-        // Lila suave - elegante y con autoridad
-        return 'from-violet-200/80 via-purple-200/70 to-fuchsia-200/80 dark:from-violet-500 dark:via-purple-500 dark:to-fuchsia-500';
+        return '!border-l-indigo-500';
       default:
-        // Gris perla suave - neutral y profesional
-        return 'from-gray-200/80 via-slate-200/70 to-zinc-200/80 dark:from-gray-500 dark:via-slate-500 dark:to-zinc-500';
+        return '!border-l-gray-400';
     }
+  }
+
+  // Avatar con colores sutiles según tipo
+  getAvatarClass(employee: Employee): string {
+    switch (employee.employee_type) {
+      case 'asesor_inmobiliario':
+        return 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300';
+      case 'vendedor':
+        return 'bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300';
+      case 'administrativo':
+        return 'bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300';
+      case 'gerente':
+        return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300';
+      case 'supervisor':
+        return 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300';
+      default:
+        return 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300';
+    }
+  }
+
+  trackByEmployeeId(index: number, employee: Employee): number {
+    return employee.employee_id;
   }
 
   // Toggle entre vista de tabla y cards

@@ -1,477 +1,399 @@
-<div
-  class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-indigo-900/30 relative overflow-hidden">
-  <!-- Background Patterns -->
-  <div
-    class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.10),transparent_50%)] dark:bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.05),transparent_50%)]">
-  </div>
-  <div
-    class="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.08),transparent_50%)] dark:bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.04),transparent_50%)]">
-  </div>
-
-  <div class="relative p-6">
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900">
+  <div class="max-w-[1600px] mx-auto px-6 py-8">
 
     <!-- Header -->
-    <div class="mb-8">
-      <div
-        class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/50 p-6 relative overflow-hidden">
-        <!-- Header Gradient -->
-        <div
-          class="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/5 to-indigo-500/10 dark:from-blue-600/20 dark:via-purple-600/10 dark:to-indigo-600/20">
+    <div class="mb-6">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+            <lucide-angular [img]="Users" class="w-5 h-5 text-white"></lucide-angular>
+          </div>
+          <div>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-50 tracking-tight">
+              Gestión de Empleados
+            </h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+              {{ totalEmployees() }} empleados registrados
+            </p>
+          </div>
         </div>
-        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500"></div>
 
-        <div class="relative flex justify-between items-center">
-          <div class="flex items-start gap-4">
-            <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-4 rounded-2xl shadow-lg">
-              <lucide-angular [img]="Users" class="w-7 h-7 text-white"></lucide-angular>
-            </div>
-            <div>
-              <h1
-                class="text-3xl font-extrabold bg-gradient-to-r from-gray-900 via-blue-800 to-indigo-800 dark:from-white dark:via-blue-200 dark:to-indigo-200 bg-clip-text text-transparent">
-                Gestión de Empleados
-              </h1>
-              <p class="text-gray-600 dark:text-gray-400 mt-1 font-medium">
-                Administra todos los empleados del sistema
-              </p>
-            </div>
-          </div>
-
-          <div class="flex gap-3">
-            <!-- Toggle View Buttons -->
-            <div class="flex bg-white/90 dark:bg-gray-700/90 rounded-2xl p-1 shadow-md">
-              <button (click)="toggleView('table')" [class.bg-gradient-to-r]="viewMode() === 'table'"
-                [class.from-blue-600]="viewMode() === 'table'" [class.to-indigo-600]="viewMode() === 'table'"
-                [class.text-white]="viewMode() === 'table'" [class.text-gray-600]="viewMode() !== 'table'"
-                [class.dark:text-gray-300]="viewMode() !== 'table'"
-                class="px-4 py-2 rounded-xl transition-all duration-300 font-medium" title="Vista de tabla">
-                <lucide-angular [img]="List" class="w-5 h-5"></lucide-angular>
-              </button>
-              <button (click)="toggleView('cards')" [class.bg-gradient-to-r]="viewMode() === 'cards'"
-                [class.from-blue-600]="viewMode() === 'cards'" [class.to-indigo-600]="viewMode() === 'cards'"
-                [class.text-white]="viewMode() === 'cards'" [class.text-gray-600]="viewMode() !== 'cards'"
-                [class.dark:text-gray-300]="viewMode() !== 'cards'"
-                class="px-4 py-2 rounded-xl transition-all duration-300 font-medium" title="Vista de tarjetas">
-                <lucide-angular [img]="Grid" class="w-5 h-5"></lucide-angular>
-              </button>
-            </div>
-
-            <!-- Export Button -->
-            <button (click)="exportToExcel()"
-              class="group relative flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 font-semibold overflow-hidden"
-              title="Exportar a Excel">
-              <div
-                class="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-              </div>
-              <lucide-angular [img]="Download" class="w-5 h-5 relative z-10"></lucide-angular>
-              <span class="relative z-10 hidden lg:inline">Exportar</span>
+        <div class="flex items-center gap-2">
+          <!-- Toggle View -->
+          <div class="flex bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700/60 rounded-lg p-0.5">
+            <button (click)="toggleView('table')"
+              [class]="viewMode() === 'table' ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'"
+              class="px-3 py-1.5 rounded-md transition-all text-sm font-medium" title="Vista de tabla">
+              <lucide-angular [img]="List" class="w-4 h-4"></lucide-angular>
             </button>
-
-            <button (click)="createEmployee()"
-              class="group relative flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 font-semibold overflow-hidden">
-              <div
-                class="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-              </div>
-              <lucide-angular [img]="Plus" class="w-5 h-5 relative z-10"></lucide-angular>
-              <span class="relative z-10 hidden lg:inline">Nuevo</span>
-            </button>
-
-            <button (click)="importEmployees()"
-              class="group relative flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 font-semibold overflow-hidden">
-              <div
-                class="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-              </div>
-              <lucide-angular [img]="Upload" class="w-5 h-5 relative z-10"></lucide-angular>
-              <span class="relative z-10 hidden lg:inline">Importar</span>
+            <button (click)="toggleView('cards')"
+              [class]="viewMode() === 'cards' ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'"
+              class="px-3 py-1.5 rounded-md transition-all text-sm font-medium" title="Vista de tarjetas">
+              <lucide-angular [img]="Grid" class="w-4 h-4"></lucide-angular>
             </button>
           </div>
+
+          <div class="w-px h-8 bg-gray-200 dark:bg-gray-700"></div>
+
+          <!-- Export -->
+          <button (click)="exportToExcel()"
+            class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700/60 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            title="Exportar a Excel">
+            <lucide-angular [img]="Download" class="w-4 h-4"></lucide-angular>
+            <span class="hidden lg:inline">Exportar</span>
+          </button>
+
+          <!-- Import -->
+          <button (click)="importEmployees()"
+            class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700/60 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            <lucide-angular [img]="Upload" class="w-4 h-4"></lucide-angular>
+            <span class="hidden lg:inline">Importar</span>
+          </button>
+
+          <!-- New Employee -->
+          <button (click)="createEmployee()"
+            class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors shadow-sm">
+            <lucide-angular [img]="Plus" class="w-4 h-4"></lucide-angular>
+            <span class="hidden lg:inline">Nuevo Empleado</span>
+          </button>
         </div>
       </div>
     </div>
 
     <!-- Stats Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
       <!-- Total -->
-      <div
-        class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 dark:border-gray-700/50 p-5 relative overflow-hidden">
-        <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-indigo-500/5 to-purple-500/5"></div>
-        <div class="flex items-center justify-between relative">
+      <div class="bg-white dark:bg-gray-800/70 rounded-xl border border-gray-200 dark:border-gray-700/50 p-4">
+        <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Empleados</p>
-            <p class="text-3xl font-extrabold text-gray-900 dark:text-gray-100 mt-1">{{ totalEmployees() }}</p>
+            <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total</p>
+            <p class="text-2xl font-bold text-gray-900 dark:text-gray-50 mt-1">{{ totalEmployees() }}</p>
           </div>
-          <div class="p-3 rounded-xl bg-blue-100 dark:bg-blue-900/40">
-            <lucide-angular [img]="Users" class="w-6 h-6 text-blue-600 dark:text-blue-300"></lucide-angular>
+          <div class="w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center">
+            <lucide-angular [img]="Users" class="w-5 h-5 text-blue-600 dark:text-blue-400"></lucide-angular>
           </div>
         </div>
       </div>
 
       <!-- Activos -->
-      <div
-        class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 dark:border-gray-700/50 p-5 relative overflow-hidden">
-        <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/5 via-green-500/5 to-teal-500/5"></div>
-        <div class="flex items-center justify-between relative">
+      <div class="bg-white dark:bg-gray-800/70 rounded-xl border border-gray-200 dark:border-gray-700/50 p-4">
+        <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Empleados Activos</p>
-            <p class="text-3xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-1">{{ activeEmployeesCount() }}
-            </p>
+            <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Activos</p>
+            <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">{{ activeEmployeesCount() }}</p>
           </div>
-          <div class="p-3 rounded-xl bg-emerald-100 dark:bg-emerald-900/40">
-            <lucide-angular [img]="UserCheck" class="w-6 h-6 text-emerald-600 dark:text-emerald-300"></lucide-angular>
+          <div class="w-10 h-10 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center">
+            <lucide-angular [img]="UserCheck" class="w-5 h-5 text-emerald-600 dark:text-emerald-400"></lucide-angular>
           </div>
         </div>
       </div>
 
       <!-- Inactivos -->
-      <div
-        class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 dark:border-gray-700/50 p-5 relative overflow-hidden">
-        <div class="absolute inset-0 bg-gradient-to-br from-rose-500/5 via-red-500/5 to-orange-500/5"></div>
-        <div class="flex items-center justify-between relative">
+      <div class="bg-white dark:bg-gray-800/70 rounded-xl border border-gray-200 dark:border-gray-700/50 p-4">
+        <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Empleados Inactivos</p>
-            <p class="text-3xl font-extrabold text-rose-600 dark:text-rose-400 mt-1">{{ inactiveEmployeesCount() }}</p>
+            <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Inactivos</p>
+            <p class="text-2xl font-bold text-rose-600 dark:text-rose-400 mt-1">{{ inactiveEmployeesCount() }}</p>
           </div>
-          <div class="p-3 rounded-xl bg-rose-100 dark:bg-rose-900/40">
-            <lucide-angular [img]="UserX" class="w-6 h-6 text-rose-600 dark:text-rose-300"></lucide-angular>
+          <div class="w-10 h-10 rounded-lg bg-rose-50 dark:bg-rose-900/30 flex items-center justify-center">
+            <lucide-angular [img]="UserX" class="w-5 h-5 text-rose-600 dark:text-rose-400"></lucide-angular>
           </div>
         </div>
       </div>
 
       <!-- Asesores -->
-      <div
-        class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 dark:border-gray-700/50 p-5 relative overflow-hidden">
-        <div class="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-indigo-500/5 to-fuchsia-500/5"></div>
-        <div class="flex items-center justify-between relative">
+      <div class="bg-white dark:bg-gray-800/70 rounded-xl border border-gray-200 dark:border-gray-700/50 p-4">
+        <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Asesores</p>
-            <p class="text-3xl font-extrabold text-purple-600 dark:text-purple-400 mt-1">{{ advisorsCount() }}</p>
+            <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Asesores</p>
+            <p class="text-2xl font-bold text-violet-600 dark:text-violet-400 mt-1">{{ advisorsCount() }}</p>
           </div>
-          <div class="p-3 rounded-xl bg-purple-100 dark:bg-purple-900/40">
-            <lucide-angular [img]="Users" class="w-6 h-6 text-purple-600 dark:text-purple-300"></lucide-angular>
+          <div class="w-10 h-10 rounded-lg bg-violet-50 dark:bg-violet-900/30 flex items-center justify-center">
+            <lucide-angular [img]="Briefcase" class="w-5 h-5 text-violet-600 dark:text-violet-400"></lucide-angular>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Filters -->
-    <div
-      class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-3xl shadow-xl border border-white/20 dark:border-gray-700/50 p-6 mb-8 relative overflow-hidden">
-      <div class="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-indigo-500/5"></div>
-      <div class="relative grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div class="bg-white dark:bg-gray-800/70 rounded-xl border border-gray-200 dark:border-gray-700/50 p-4 mb-6">
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
         <!-- Search -->
-        <div class="group relative">
+        <div class="relative">
           <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <lucide-angular [img]="Search"
-              class="w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors"></lucide-angular>
+            <lucide-angular [img]="Search" class="w-4 h-4 text-gray-400"></lucide-angular>
           </div>
-          <input type="text" [(ngModel)]="searchTerm" (input)="onSearch()" placeholder="Buscar empleados..."
-            class="block w-full pl-10 pr-3 py-3 bg-white/80 dark:bg-gray-700/80 border border-gray-200 dark:border-gray-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition-all text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 shadow-sm" />
+          <input type="text" [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)" (input)="onSearch()" placeholder="Buscar por nombre, cargo, email o código..."
+            class="block w-full pl-9 pr-3 py-2.5 text-sm bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500" />
         </div>
 
         <!-- Status Filter -->
-        <select [(ngModel)]="selectedStatus" (change)="onFilterChange()"
-          class="block w-full px-3 py-3 bg-white/80 dark:bg-gray-700/80 border border-gray-200 dark:border-gray-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition-all text-gray-900 dark:text-gray-100 shadow-sm">
+        <select [ngModel]="selectedStatus()" (ngModelChange)="selectedStatus.set($event); onFilterChange()"
+          class="block w-full px-3 py-2.5 text-sm bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 text-gray-900 dark:text-gray-100">
           <option *ngFor="let option of statusOptions" [value]="option.value">
             {{ option.label }}
           </option>
         </select>
 
-        <!-- Type Filter -->
-        <select [(ngModel)]="selectedType" (change)="onFilterChange()"
-          class="block w-full px-3 py-3 bg-white/80 dark:bg-gray-700/80 border border-gray-200 dark:border-gray-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition-all text-gray-900 dark:text-gray-100 shadow-sm">
-          <option *ngFor="let option of typeOptions" [value]="option.value">
+        <!-- Área Filter -->
+        <select [ngModel]="selectedType()" (ngModelChange)="selectedType.set($event); onFilterChange()"
+          class="block w-full px-3 py-2.5 text-sm bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 text-gray-900 dark:text-gray-100">
+          <option *ngFor="let option of typeOptions()" [value]="option.value">
+            {{ option.label }}
+          </option>
+        </select>
+
+        <!-- Cargo/Position Filter -->
+        <select [ngModel]="selectedPosition()" (ngModelChange)="selectedPosition.set($event); onFilterChange()"
+          class="block w-full px-3 py-2.5 text-sm bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 text-gray-900 dark:text-gray-100">
+          <option *ngFor="let option of positionOptions()" [value]="option.value">
             {{ option.label }}
           </option>
         </select>
 
         <!-- Clear Filters -->
-        <button (click)="searchTerm.set(''); selectedStatus.set(''); selectedType.set(''); onFilterChange()"
-          class="group relative flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 dark:from-gray-700 dark:to-gray-600 dark:hover:from-gray-600 dark:hover:to-gray-500 text-gray-700 dark:text-gray-300 rounded-2xl shadow-sm hover:shadow-md transition-all font-semibold">
-          <div
-            class="absolute inset-0 bg-gradient-to-r from-white/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-          </div>
-          <lucide-angular [img]="Filter" class="w-5 h-5"></lucide-angular>
-          <span>Limpiar Filtros</span>
+        <button (click)="searchTerm.set(''); selectedStatus.set(''); selectedType.set(''); selectedPosition.set(''); onFilterChange()"
+          class="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+          <lucide-angular [img]="Filter" class="w-4 h-4"></lucide-angular>
+          Limpiar Filtros
         </button>
       </div>
     </div>
 
     <!-- Loading State -->
-    <div *ngIf="loading()" class="flex justify-center items-center py-16">
-      <div class="animate-spin rounded-full h-10 w-10 border-4 border-blue-500/20 border-t-blue-600"></div>
+    <div *ngIf="loading()" class="flex flex-col items-center justify-center py-20">
+      <div class="animate-spin rounded-full h-8 w-8 border-2 border-blue-600 border-t-transparent"></div>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-3">Cargando empleados...</p>
     </div>
 
     <!-- Error State -->
     <div *ngIf="error()"
-      class="bg-red-50/80 dark:bg-red-900/20 border border-red-200/60 dark:border-red-800/60 rounded-2xl p-5 mb-8 backdrop-blur-xl">
-      <div class="flex items-start gap-3">
-        <div class="p-2 rounded-lg bg-red-100 dark:bg-red-900/40">
+      class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/40 flex items-center justify-center flex-shrink-0">
           <lucide-angular [img]="Trash2" class="w-4 h-4 text-red-600 dark:text-red-400"></lucide-angular>
         </div>
         <div>
-          <h3 class="text-sm font-bold text-red-800 dark:text-red-400">Error</h3>
-          <p class="text-sm text-red-700 dark:text-red-300 mt-1">{{ error() }}</p>
+          <p class="text-sm font-medium text-red-800 dark:text-red-300">{{ error() }}</p>
         </div>
       </div>
     </div>
 
-    <!-- Employees Table/Cards -->
+    <!-- Employees Content -->
     <div *ngIf="!loading() && !error()"
-      class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/30 dark:border-gray-700/50 overflow-hidden relative">
-      <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500"></div>
+      class="bg-white/80 dark:bg-gray-800/80 rounded-xl border border-gray-200 dark:border-gray-700/50 overflow-hidden">
 
       <!-- Cards View -->
-      <div *ngIf="viewMode() === 'cards'" class="p-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div *ngIf="viewMode() === 'cards'" class="p-5">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           <div *ngFor="let employee of paginatedEmployees(); trackBy: trackByEmployeeId"
-            class="group relative bg-white/95 dark:bg-gray-700/90 rounded-2xl shadow-md hover:shadow-xl border border-gray-100 dark:border-gray-600/60 overflow-hidden transition-all duration-300 hover:-translate-y-1 backdrop-blur-sm">
-            <!-- Card Header with Dynamic Gradient - Estilo Empresarial Pastel -->
-            <div class="h-24 bg-gradient-to-br relative overflow-hidden" [ngClass]="getCardGradient(employee)">
-              <!-- Glassmorphism overlay sutil -->
-              <div class="absolute inset-0 backdrop-blur-[2px] bg-white/20 dark:bg-black/10"></div>
-              <!-- Patrón decorativo ultra sutil -->
-              <div class="absolute inset-0 opacity-30">
-                <div class="absolute top-0 right-0 w-32 h-32 bg-white/40 rounded-full blur-3xl"></div>
-                <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/30 rounded-full blur-3xl"></div>
-              </div>
-              <!-- Badge de estado con estilo mejorado -->
-              <div class="absolute top-3 right-3 z-10">
-                <span
-                  class="inline-flex px-3 py-1.5 text-xs font-bold rounded-xl text-white shadow-lg backdrop-blur-md border border-white/30"
-                  [class]="employee.employment_status === 'activo' ? 'bg-emerald-500/95 dark:bg-emerald-500/90' : 'bg-rose-500/95 dark:bg-rose-500/90'">
-                  {{ getStatusLabel(employee.employment_status) }}
-                </span>
-              </div>
-            </div>
+            class="group bg-white dark:bg-gray-700/60 rounded-xl border border-gray-200 dark:border-gray-600/50 overflow-hidden hover:border-blue-300 dark:hover:border-blue-500/60 hover:shadow-md transition-all duration-200"
+            [class.border-l-4]="true"
+            [ngClass]="getCardBorderClass(employee)">
 
-            <!-- Avatar con estilo glassmorphism -->
-            <div class="relative px-6 -mt-12">
-              <div
-                class="h-24 w-24 rounded-2xl bg-white/95 dark:bg-gray-600/90 shadow-xl border-4 border-white dark:border-gray-800 flex items-center justify-center backdrop-blur-sm ring-2 ring-gray-100/50 dark:ring-gray-700/50">
-                <span
-                  class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-500 dark:from-blue-400 dark:via-indigo-400 dark:to-purple-400">
+            <!-- Card Top -->
+            <div class="p-4">
+              <div class="flex items-start gap-3">
+                <!-- Avatar -->
+                <div class="w-11 h-11 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0"
+                  [ngClass]="getAvatarClass(employee)">
                   {{ (employee.user?.first_name || '')[0] }}{{ (employee.user?.last_name || '')[0] }}
+                </div>
+
+                <!-- Name & Info -->
+                <div class="flex-1 min-w-0">
+                  <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate leading-tight">
+                    {{ employee.user?.first_name }} {{ employee.user?.last_name }}
+                  </h3>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 font-mono">
+                    {{ employee.employee_code }}
+                  </p>
+                  <div class="flex items-center gap-2 mt-1.5">
+                    <span class="inline-flex items-center px-2 py-0.5 text-[11px] font-medium rounded-md"
+                      [ngClass]="getTypeBadgeClass(employee.employee_type)">
+                      {{ getTypeLabel(employee.employee_type) }}
+                    </span>
+                    <span *ngIf="getPositionName(employee)" class="inline-flex items-center px-2 py-0.5 text-[11px] font-medium rounded-md bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300">
+                      {{ getPositionName(employee) }}
+                    </span>
+                    <span class="inline-flex items-center gap-1 text-[11px] font-medium"
+                      [class]="employee.employment_status === 'activo' ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400 dark:text-gray-500'">
+                      <span class="w-1.5 h-1.5 rounded-full"
+                        [class]="employee.employment_status === 'activo' ? 'bg-emerald-500' : 'bg-gray-400'"></span>
+                      {{ getStatusLabel(employee.employment_status) }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card Details -->
+            <div class="px-4 pb-3 space-y-1.5">
+              <div class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
+                <lucide-angular [img]="Mail" class="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 flex-shrink-0"></lucide-angular>
+                <span class="truncate" [title]="employee.user?.email">{{ employee.user?.email }}</span>
+              </div>
+              <div *ngIf="employee.phone" class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
+                <lucide-angular [img]="Phone" class="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 flex-shrink-0"></lucide-angular>
+                <span>{{ employee.phone }}</span>
+              </div>
+              <div class="flex items-center justify-between text-xs text-gray-600 dark:text-gray-400">
+                <div class="flex items-center gap-2">
+                  <lucide-angular [img]="Calendar" class="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 flex-shrink-0"></lucide-angular>
+                  <span>{{ employee.hire_date | date:'dd/MM/yyyy' }}</span>
+                </div>
+                <span class="font-semibold text-gray-900 dark:text-gray-100">
+                  S/ {{ employee.base_salary | number:'1.0-0' }}
                 </span>
               </div>
             </div>
 
-            <!-- Card Body -->
-            <div class="px-6 pt-4 pb-5">
-              <!-- Name & Code -->
-              <div class="mb-3">
-                <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100 truncate mb-1">
-                  {{ employee.user?.first_name }} {{ employee.user?.last_name }}
-                </h3>
-                <p class="text-xs font-semibold text-gray-500 dark:text-gray-400">
-                  #{{ employee.employee_code }}
-                </p>
-              </div>
-
-              <!-- Type Badge -->
-              <div class="mb-4">
-                <span class="inline-flex px-3 py-1 text-xs font-semibold rounded-full"
-                  [class]="getTypeClass(employee.employee_type)">
-                  {{ getTypeLabel(employee.employee_type) }}
-                </span>
-              </div>
-
-              <!-- Info Grid -->
-              <div class="space-y-2.5 mb-4">
-                <!-- Email -->
-                <div class="flex items-center gap-2 text-sm">
-                  <div
-                    class="flex-shrink-0 w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center">
-                    <lucide-angular [img]="Mail" class="w-4 h-4 text-blue-600 dark:text-blue-400"></lucide-angular>
-                  </div>
-                  <span class="text-gray-700 dark:text-gray-300 truncate text-xs" [title]="employee.user?.email">
-                    {{ employee.user?.email }}
-                  </span>
-                </div>
-
-                <!-- Phone -->
-                <div class="flex items-center gap-2 text-sm" *ngIf="employee.phone">
-                  <div
-                    class="flex-shrink-0 w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center">
-                    <lucide-angular [img]="Phone"
-                      class="w-4 h-4 text-emerald-600 dark:text-emerald-400"></lucide-angular>
-                  </div>
-                  <span class="text-gray-700 dark:text-gray-300 text-xs">
-                    {{ employee.phone }}
-                  </span>
-                </div>
-
-                <!-- Hire Date -->
-                <div class="flex items-center gap-2 text-sm">
-                  <div
-                    class="flex-shrink-0 w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-900/40 flex items-center justify-center">
-                    <lucide-angular [img]="Calendar"
-                      class="w-4 h-4 text-purple-600 dark:text-purple-400"></lucide-angular>
-                  </div>
-                  <span class="text-gray-700 dark:text-gray-300 text-xs">
-                    Ingreso: {{ employee.hire_date | date:'dd/MM/yyyy' }}
-                  </span>
-                </div>
-
-                <!-- Salary -->
-                <div class="flex items-center gap-2 text-sm">
-                  <div
-                    class="flex-shrink-0 w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center">
-                    <lucide-angular [img]="DollarSign"
-                      class="w-4 h-4 text-amber-600 dark:text-amber-400"></lucide-angular>
-                  </div>
-                  <span class="text-gray-700 dark:text-gray-300 font-semibold text-xs">
-                    S/ {{ employee.base_salary | number:'1.0-0' }}
-                  </span>
-                </div>
-              </div>
-
-              <!-- Actions -->
-              <div class="flex items-center gap-2 pt-3 border-t border-gray-200 dark:border-gray-600">
-                <button (click)="viewEmployee(employee)"
-                  class="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-xl transition-colors text-xs font-semibold"
-                  title="Ver detalles">
-                  <lucide-angular [img]="Eye" class="w-3.5 h-3.5"></lucide-angular>
-                  Ver
-                </button>
-
-                <button (click)="editEmployee(employee)"
-                  class="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-amber-50 hover:bg-amber-100 dark:bg-amber-900/30 dark:hover:bg-amber-900/50 text-amber-600 dark:text-amber-400 rounded-xl transition-colors text-xs font-semibold"
-                  title="Editar">
-                  <lucide-angular [img]="Edit" class="w-3.5 h-3.5"></lucide-angular>
-                  Editar
-                </button>
-
-                <button *ngIf="!hasUser(employee)" (click)="openGenerateUserModal(employee)"
-                  class="flex items-center justify-center px-3 py-2 bg-purple-50 hover:bg-purple-100 dark:bg-purple-900/30 dark:hover:bg-purple-900/50 text-purple-600 dark:text-purple-400 rounded-xl transition-colors"
-                  title="Generar Usuario">
-                  <lucide-angular [img]="UserPlus" class="w-3.5 h-3.5"></lucide-angular>
-                </button>
-
-                <button (click)="deleteEmployee(employee)"
-                  class="flex items-center justify-center px-3 py-2 bg-rose-50 hover:bg-rose-100 dark:bg-rose-900/30 dark:hover:bg-rose-900/50 text-rose-600 dark:text-rose-400 rounded-xl transition-colors"
-                  title="Eliminar">
-                  <lucide-angular [img]="Trash2" class="w-3.5 h-3.5"></lucide-angular>
-                </button>
-              </div>
+            <!-- Card Actions -->
+            <div class="flex items-center border-t border-gray-100 dark:border-gray-600/40 divide-x divide-gray-100 dark:divide-gray-600/40">
+              <button (click)="viewEmployee(employee)"
+                class="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50/50 dark:hover:bg-blue-900/20 transition-colors"
+                title="Ver detalles">
+                <lucide-angular [img]="Eye" class="w-3.5 h-3.5"></lucide-angular>
+                Ver
+              </button>
+              <button (click)="editEmployee(employee)"
+                class="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50/50 dark:hover:bg-amber-900/20 transition-colors"
+                title="Editar">
+                <lucide-angular [img]="Edit" class="w-3.5 h-3.5"></lucide-angular>
+                Editar
+              </button>
+              <button *ngIf="!hasUser(employee)" (click)="openGenerateUserModal(employee)"
+                class="flex items-center justify-center px-3 py-2.5 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-violet-50/50 dark:hover:bg-violet-900/20 transition-colors"
+                title="Generar Usuario">
+                <lucide-angular [img]="UserPlus" class="w-3.5 h-3.5"></lucide-angular>
+              </button>
+              <button (click)="deleteEmployee(employee)"
+                class="flex items-center justify-center px-3 py-2.5 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50/50 dark:hover:bg-rose-900/20 transition-colors"
+                title="Eliminar">
+                <lucide-angular [img]="Trash2" class="w-3.5 h-3.5"></lucide-angular>
+              </button>
             </div>
           </div>
         </div>
       </div>
 
       <!-- Table View -->
-      <div *ngIf="viewMode() === 'table'" class="relative overflow-x-auto">
-        <table class="min-w-full">
-          <thead
-            class="bg-gradient-to-r from-gray-50 via-blue-50/40 to-indigo-50/40 dark:from-gray-800 dark:via-blue-900/40 dark:to-indigo-900/40">
-            <tr class="border-b border-gray-200/60 dark:border-gray-700/60">
-              <th
-                class="px-6 py-4 text-left text-[11px] tracking-wider font-bold text-gray-600 dark:text-gray-300 uppercase">
+      <div *ngIf="viewMode() === 'table'" class="overflow-x-auto">
+        <table class="w-full">
+          <thead>
+            <tr class="bg-gray-50 dark:bg-gray-800/60 border-b border-gray-200 dark:border-gray-700/50">
+              <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Empleado</th>
-              <th
-                class="px-6 py-4 text-left text-[11px] tracking-wider font-bold text-gray-600 dark:text-gray-300 uppercase">
+              <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Código</th>
-              <th
-                class="px-6 py-4 text-left text-[11px] tracking-wider font-bold text-gray-600 dark:text-gray-300 uppercase">
+              <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Tipo</th>
-              <th
-                class="px-6 py-4 text-left text-[11px] tracking-wider font-bold text-gray-600 dark:text-gray-300 uppercase">
+              <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                Cargo</th>
+              <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Estado</th>
-              <th
-                class="px-6 py-4 text-left text-[11px] tracking-wider font-bold text-gray-600 dark:text-gray-300 uppercase">
+              <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Fecha Ingreso</th>
-              <th
-                class="px-6 py-4 text-left text-[11px] tracking-wider font-bold text-gray-600 dark:text-gray-300 uppercase">
+              <th class="px-5 py-3 text-right text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Salario</th>
-              <th
-                class="px-6 py-4 text-right text-[11px] tracking-wider font-bold text-gray-600 dark:text-gray-300 uppercase">
+              <th class="px-5 py-3 text-right text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Acciones</th>
             </tr>
           </thead>
 
-          <tbody class="divide-y divide-gray-200/60 dark:divide-gray-700/60">
+          <tbody class="divide-y divide-gray-100 dark:divide-gray-700/50">
             <tr *ngFor="let employee of paginatedEmployees(); trackBy: trackByEmployeeId"
-              class="hover:bg-white/60 dark:hover:bg-gray-700/60 transition-colors">
+              class="hover:bg-gray-50/70 dark:hover:bg-gray-700/40 transition-colors">
               <!-- Empleado -->
-              <td class="px-6 py-4">
-                <div class="flex items-center">
-                  <div class="flex-shrink-0">
-                    <div
-                      class="h-10 w-10 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/40 dark:to-indigo-900/40 flex items-center justify-center shadow-sm">
-                      <span class="text-sm font-bold text-blue-700 dark:text-blue-300">
-                        {{ (employee.user?.first_name || '')[0] }}{{ (employee.user?.last_name || '')[0] }}
-                      </span>
-                    </div>
+              <td class="px-5 py-3.5">
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
+                    [ngClass]="getAvatarClass(employee)">
+                    {{ (employee.user?.first_name || '')[0] }}{{ (employee.user?.last_name || '')[0] }}
                   </div>
-                  <div class="ml-4">
-                    <div class="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                  <div class="min-w-0">
+                    <p class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
                       {{ employee.user?.first_name }} {{ employee.user?.last_name }}
-                    </div>
-                    <div class="text-xs text-gray-500 dark:text-gray-400">
+                    </p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
                       {{ employee.user?.email }}
-                    </div>
+                    </p>
                   </div>
                 </div>
               </td>
 
               <!-- Código -->
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
-                {{ employee.employee_code }}
+              <td class="px-5 py-3.5">
+                <span class="text-sm font-mono text-gray-700 dark:text-gray-300">{{ employee.employee_code }}</span>
               </td>
 
               <!-- Tipo -->
-              <td class="px-6 py-4 whitespace-nowrap">
-                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
-                  [class]="getTypeClass(employee.employee_type)">
+              <td class="px-5 py-3.5">
+                <span class="inline-flex items-center px-2.5 py-1 text-xs font-medium rounded-md"
+                  [ngClass]="getTypeBadgeClass(employee.employee_type)">
                   {{ getTypeLabel(employee.employee_type) }}
                 </span>
               </td>
 
+              <!-- Cargo -->
+              <td class="px-5 py-3.5">
+                <span class="text-sm text-gray-700 dark:text-gray-300">
+                  {{ getPositionName(employee) || '—' }}
+                </span>
+              </td>
+
               <!-- Estado -->
-              <td class="px-6 py-4 whitespace-nowrap">
-                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
-                  [class]="getStatusClass(employee.employment_status)">
-                  {{ getStatusLabel(employee.employment_status) }}
+              <td class="px-5 py-3.5">
+                <span class="inline-flex items-center gap-1.5 text-xs font-medium">
+                  <span class="w-1.5 h-1.5 rounded-full"
+                    [class]="employee.employment_status === 'activo' ? 'bg-emerald-500' : employee.employment_status === 'suspendido' ? 'bg-red-500' : 'bg-gray-400'"></span>
+                  <span [class]="employee.employment_status === 'activo' ? 'text-emerald-700 dark:text-emerald-400' : employee.employment_status === 'suspendido' ? 'text-red-700 dark:text-red-400' : 'text-gray-500 dark:text-gray-400'">
+                    {{ getStatusLabel(employee.employment_status) }}
+                  </span>
                 </span>
               </td>
 
               <!-- Fecha -->
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+              <td class="px-5 py-3.5 text-sm text-gray-700 dark:text-gray-300">
                 {{ employee.hire_date | date:'dd/MM/yyyy' }}
               </td>
 
               <!-- Salario -->
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
-                S/ {{ employee.base_salary | number:'1.0-0' }}
+              <td class="px-5 py-3.5 text-right">
+                <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                  S/ {{ employee.base_salary | number:'1.0-0' }}
+                </span>
               </td>
 
               <!-- Acciones -->
-              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                <div class="flex justify-end space-x-2">
+              <td class="px-5 py-3.5">
+                <div class="flex justify-end items-center gap-1">
                   <button (click)="viewEmployee(employee)"
-                    class="p-1 rounded-xl text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-blue-50/60 dark:hover:bg-blue-900/30 transition-colors"
+                    class="p-1.5 rounded-md text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors"
                     title="Ver detalles">
                     <lucide-angular [img]="Eye" class="w-4 h-4"></lucide-angular>
                   </button>
 
                   <button (click)="viewDashboard(employee)"
-                    class="p-1 rounded-xl text-emerald-600 hover:text-emerald-800 dark:text-emerald-400 dark:hover:text-emerald-300 hover:bg-emerald-50/60 dark:hover:bg-emerald-900/30 transition-colors"
+                    class="p-1.5 rounded-md text-gray-400 dark:text-gray-500 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-colors"
                     title="Ver dashboard">
                     <lucide-angular [img]="Users" class="w-4 h-4"></lucide-angular>
                   </button>
 
                   <button (click)="editEmployee(employee)"
-                    class="p-1 rounded-xl text-amber-600 hover:text-amber-800 dark:text-amber-400 dark:hover:text-amber-300 hover:bg-amber-50/60 dark:hover:bg-amber-900/30 transition-colors"
+                    class="p-1.5 rounded-md text-gray-400 dark:text-gray-500 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/30 transition-colors"
                     title="Editar">
                     <lucide-angular [img]="Edit" class="w-4 h-4"></lucide-angular>
                   </button>
 
                   <button *ngIf="!hasUser(employee)" (click)="openGenerateUserModal(employee)"
-                    class="p-1 rounded-xl text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-300 hover:bg-purple-50/60 dark:hover:bg-purple-900/30 transition-colors"
+                    class="p-1.5 rounded-md text-gray-400 dark:text-gray-500 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/30 transition-colors"
                     title="Generar Usuario">
                     <lucide-angular [img]="UserPlus" class="w-4 h-4"></lucide-angular>
                   </button>
 
                   <button (click)="deleteEmployee(employee)"
-                    class="p-1 rounded-xl text-rose-600 hover:text-rose-800 dark:text-rose-400 dark:hover:text-rose-300 hover:bg-rose-50/60 dark:hover:bg-rose-900/30 transition-colors"
+                    class="p-1.5 rounded-md text-gray-400 dark:text-gray-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/30 transition-colors"
                     title="Eliminar">
                     <lucide-angular [img]="Trash2" class="w-4 h-4"></lucide-angular>
                   </button>
@@ -485,21 +407,20 @@
 
       <!-- Empty State -->
       <div *ngIf="totalEmployees() === 0" class="text-center py-16 px-6">
-        <div
-          class="bg-gradient-to-br from-gray-100 to-slate-100 dark:from-gray-700 dark:to-gray-600 p-6 rounded-3xl inline-flex items-center justify-center mb-4">
-          <lucide-angular [img]="Users" class="w-12 h-12 text-gray-400 dark:text-gray-500"></lucide-angular>
+        <div class="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mx-auto mb-4">
+          <lucide-angular [img]="Users" class="w-7 h-7 text-gray-400 dark:text-gray-500"></lucide-angular>
         </div>
-        <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100 mb-1">No se encontraron empleados</h3>
-        <p class="text-gray-500 dark:text-gray-400 mb-5">No hay empleados que coincidan con los filtros aplicados.</p>
+        <h3 class="text-base font-semibold text-gray-900 dark:text-gray-100 mb-1">No se encontraron empleados</h3>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">No hay empleados que coincidan con los filtros aplicados.</p>
         <div class="flex gap-3 justify-center">
           <button (click)="createEmployee()"
-            class="group relative inline-flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300">
-            <lucide-angular [img]="Plus" class="w-5 h-5"></lucide-angular>
-            Crear Primer Empleado
+            class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors shadow-sm">
+            <lucide-angular [img]="Plus" class="w-4 h-4"></lucide-angular>
+            Crear Empleado
           </button>
           <button (click)="importEmployees()"
-            class="group relative inline-flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300">
-            <lucide-angular [img]="Upload" class="w-5 h-5"></lucide-angular>
+            class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700/60 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            <lucide-angular [img]="Upload" class="w-4 h-4"></lucide-angular>
             Importar Excel
           </button>
         </div>
@@ -507,143 +428,94 @@
 
       <!-- Pagination -->
       <div *ngIf="totalEmployees() > 0"
-        class="relative border-t border-gray-200/60 dark:border-gray-700/60 bg-gradient-to-r from-white/70 via-slate-50/60 to-white/70 dark:from-gray-800/70 dark:via-gray-700/60 dark:to-gray-800/70 backdrop-blur-sm">
-        <div class="px-6 py-4">
-          <!-- Info Row -->
-          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-            <!-- Items per page selector -->
-            <div class="flex items-center gap-3">
-              <label class="text-sm font-medium text-gray-700 dark:text-gray-300">
-                Mostrar:
-              </label>
-              <select [ngModel]="itemsPerPage()" (ngModelChange)="onItemsPerPageChange($event)"
-                class="px-3 py-2 bg-white/90 dark:bg-gray-700/90 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/40 text-sm font-medium text-gray-700 dark:text-gray-300 shadow-sm">
-                <option *ngFor="let option of itemsPerPageOptions" [value]="option">
-                  {{ option }}
-                </option>
-              </select>
-              <span class="text-sm text-gray-600 dark:text-gray-400">
-                por página
+        class="border-t border-gray-200 dark:border-gray-700/50 bg-gray-50/50 dark:bg-gray-800/40">
+        <div class="px-5 py-3">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <!-- Left: Items per page + info -->
+            <div class="flex items-center gap-4 text-sm">
+              <div class="flex items-center gap-2">
+                <label class="text-gray-500 dark:text-gray-400">Mostrar</label>
+                <select [ngModel]="itemsPerPage()" (ngModelChange)="onItemsPerPageChange($event)"
+                  class="px-2 py-1.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-md text-sm text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500/30">
+                  <option *ngFor="let option of itemsPerPageOptions" [value]="option">{{ option }}</option>
+                </select>
+              </div>
+              <span class="text-gray-500 dark:text-gray-400">
+                {{ (currentPage() - 1) * itemsPerPage() + 1 }}-{{ Math.min(currentPage() * itemsPerPage(), totalEmployees()) }}
+                de <span class="font-medium text-gray-700 dark:text-gray-300">{{ totalEmployees() }}</span>
               </span>
             </div>
 
-            <!-- Showing info -->
-            <div class="text-sm text-gray-700 dark:text-gray-300 font-medium">
-              Mostrando
-              <span class="font-bold text-blue-600 dark:text-blue-400">{{ (currentPage() - 1) * itemsPerPage() + 1
-                }}</span>
-              -
-              <span class="font-bold text-blue-600 dark:text-blue-400">{{ Math.min(currentPage() * itemsPerPage(),
-                totalEmployees()) }}</span>
-              de
-              <span class="font-bold text-blue-600 dark:text-blue-400">{{ totalEmployees() }}</span>
-              empleados
-            </div>
-          </div>
+            <!-- Right: Pagination controls -->
+            <div class="flex items-center gap-1">
+              <!-- Mobile -->
+              <div class="flex sm:hidden items-center gap-2 w-full justify-between">
+                <button [disabled]="currentPage() === 1" (click)="onPageChange(currentPage() - 1)"
+                  class="px-3 py-1.5 text-sm font-medium text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+                  Anterior
+                </button>
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {{ currentPage() }} / {{ totalPages() }}
+                </span>
+                <button [disabled]="currentPage() === totalPages()" (click)="onPageChange(currentPage() + 1)"
+                  class="px-3 py-1.5 text-sm font-medium text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+                  Siguiente
+                </button>
+              </div>
 
-          <!-- Pagination Controls -->
-          <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <!-- Mobile -->
-            <div class="flex-1 flex justify-between sm:hidden w-full">
-              <button [disabled]="currentPage() === 1" (click)="onPageChange(currentPage() - 1)"
-                class="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-xl text-gray-700 dark:text-gray-300 bg-white/80 dark:bg-gray-700/80 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
-                ← Anterior
-              </button>
-              <span class="inline-flex items-center px-4 py-2 text-sm font-bold text-gray-700 dark:text-gray-300">
-                {{ currentPage() }} / {{ totalPages() }}
-              </span>
-              <button [disabled]="currentPage() === totalPages()" (click)="onPageChange(currentPage() + 1)"
-                class="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-xl text-gray-700 dark:text-gray-300 bg-white/80 dark:bg-gray-700/80 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
-                Siguiente →
-              </button>
-            </div>
-
-            <!-- Desktop -->
-            <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-center">
-              <nav class="relative z-0 inline-flex rounded-xl shadow-sm gap-1" aria-label="Pagination">
-                <!-- First Page -->
+              <!-- Desktop -->
+              <nav class="hidden sm:flex items-center gap-1" aria-label="Pagination">
                 <button [disabled]="currentPage() === 1" (click)="onPageChange(1)"
-                  class="relative inline-flex items-center px-3 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white/80 dark:bg-gray-700/80 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  class="px-2 py-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/60 rounded-md disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                   title="Primera página">
                   «
                 </button>
-
-                <!-- Previous -->
                 <button [disabled]="currentPage() === 1" (click)="onPageChange(currentPage() - 1)"
-                  class="relative inline-flex items-center px-3 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white/80 dark:bg-gray-700/80 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
-                  ‹ Anterior
+                  class="px-2 py-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/60 rounded-md disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+                  ‹
                 </button>
 
-                <!-- Page Numbers (smart pagination) -->
+                <!-- Page Numbers -->
                 <ng-container *ngIf="totalPages() <= 7">
-                  <!-- Show all pages if 7 or less -->
                   <button *ngFor="let page of [].constructor(totalPages()); let i = index" (click)="onPageChange(i + 1)"
-                    [class]="
-                      'relative inline-flex items-center px-4 py-2 border text-sm font-bold rounded-xl transition-all ' +
-                      (currentPage() === i + 1
-                        ? 'bg-gradient-to-r from-blue-500 to-indigo-600 border-blue-500 text-white shadow-lg shadow-blue-500/30'
-                        : 'bg-white/80 dark:bg-gray-700/80 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600')
-                    ">
+                    [class]="currentPage() === i + 1
+                      ? 'px-3 py-1.5 text-sm font-medium bg-blue-600 text-white rounded-md'
+                      : 'px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/60 rounded-md transition-colors'">
                     {{ i + 1 }}
                   </button>
                 </ng-container>
 
                 <ng-container *ngIf="totalPages() > 7">
-                  <!-- Smart pagination for many pages -->
-                  <!-- First page -->
-                  <button (click)="onPageChange(1)" [class]="
-                      'relative inline-flex items-center px-4 py-2 border text-sm font-bold rounded-xl transition-all ' +
-                      (currentPage() === 1
-                        ? 'bg-gradient-to-r from-blue-500 to-indigo-600 border-blue-500 text-white shadow-lg shadow-blue-500/30'
-                        : 'bg-white/80 dark:bg-gray-700/80 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600')
-                    ">
+                  <button (click)="onPageChange(1)"
+                    [class]="currentPage() === 1
+                      ? 'px-3 py-1.5 text-sm font-medium bg-blue-600 text-white rounded-md'
+                      : 'px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/60 rounded-md transition-colors'">
                     1
                   </button>
-
-                  <!-- Ellipsis before current -->
-                  <span *ngIf="currentPage() > 3"
-                    class="relative inline-flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300">
-                    ...
-                  </span>
-
-                  <!-- Pages around current -->
+                  <span *ngIf="currentPage() > 3" class="px-2 py-1.5 text-sm text-gray-400 dark:text-gray-500">...</span>
                   <button *ngFor="let offset of [-1, 0, 1]"
                     [hidden]="currentPage() + offset <= 1 || currentPage() + offset >= totalPages()"
-                    (click)="onPageChange(currentPage() + offset)" [class]="
-                      'relative inline-flex items-center px-4 py-2 border text-sm font-bold rounded-xl transition-all ' +
-                      (offset === 0
-                        ? 'bg-gradient-to-r from-blue-500 to-indigo-600 border-blue-500 text-white shadow-lg shadow-blue-500/30'
-                        : 'bg-white/80 dark:bg-gray-700/80 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600')
-                    ">
+                    (click)="onPageChange(currentPage() + offset)"
+                    [class]="offset === 0
+                      ? 'px-3 py-1.5 text-sm font-medium bg-blue-600 text-white rounded-md'
+                      : 'px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/60 rounded-md transition-colors'">
                     {{ currentPage() + offset }}
                   </button>
-
-                  <!-- Ellipsis after current -->
-                  <span *ngIf="currentPage() < totalPages() - 2"
-                    class="relative inline-flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300">
-                    ...
-                  </span>
-
-                  <!-- Last page -->
-                  <button (click)="onPageChange(totalPages())" [class]="
-                      'relative inline-flex items-center px-4 py-2 border text-sm font-bold rounded-xl transition-all ' +
-                      (currentPage() === totalPages()
-                        ? 'bg-gradient-to-r from-blue-500 to-indigo-600 border-blue-500 text-white shadow-lg shadow-blue-500/30'
-                        : 'bg-white/80 dark:bg-gray-700/80 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600')
-                    ">
+                  <span *ngIf="currentPage() < totalPages() - 2" class="px-2 py-1.5 text-sm text-gray-400 dark:text-gray-500">...</span>
+                  <button (click)="onPageChange(totalPages())"
+                    [class]="currentPage() === totalPages()
+                      ? 'px-3 py-1.5 text-sm font-medium bg-blue-600 text-white rounded-md'
+                      : 'px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/60 rounded-md transition-colors'">
                     {{ totalPages() }}
                   </button>
                 </ng-container>
 
-                <!-- Next -->
                 <button [disabled]="currentPage() === totalPages()" (click)="onPageChange(currentPage() + 1)"
-                  class="relative inline-flex items-center px-3 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white/80 dark:bg-gray-700/80 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
-                  Siguiente ›
+                  class="px-2 py-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/60 rounded-md disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+                  ›
                 </button>
-
-                <!-- Last Page -->
                 <button [disabled]="currentPage() === totalPages()" (click)="onPageChange(totalPages())"
-                  class="relative inline-flex items-center px-3 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white/80 dark:bg-gray-700/80 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  class="px-2 py-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/60 rounded-md disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                   title="Última página">
                   »
                 </button>

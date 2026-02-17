@@ -53,7 +53,23 @@ export class PaymentsComponent {
   kpisError: string | null = null;
   isLoadingLedger = false;
   ledgerError: string | null = null;
+
+  // 5% report
+  fivePercentData: any | null = null;
+  isLoadingFivePercent = false;
+  fivePercentError: string | null = null;
+  showFivePercentDetail = false;
+  isExportingFivePercent = false;
+  fivePercentStartDate = '';
+  fivePercentEndDate = '';
   detailRow: any | null = null;
+  isEditingPayment = false;
+  editForm: any = {};
+  isSavingEdit = false;
+  editError: string | null = null;
+  isDeletingPayment = false;
+  showDeleteConfirm = false;
+  deleteError: string | null = null;
   voucherFile: File | null = null;
   isUploadingVoucher = false;
   voucherError: string | null = null;
@@ -99,7 +115,7 @@ export class PaymentsComponent {
     },
     { header: 'Método', translate: false, tpl: 'method', width: '150px' },
     { field: 'bank_name', header: 'Banco', translate: false },
-    { header: 'Referencia', translate: false, tpl: 'reference' },
+    { header: 'Nº Operación', translate: false, tpl: 'reference' },
     { header: 'Voucher', translate: false, tpl: 'voucher', width: '110px', align: 'center' },
     {
       header: 'Fecha',
@@ -164,6 +180,7 @@ export class PaymentsComponent {
   refresh() {
     this.loadPayments();
     this.loadKpis();
+    this.loadFivePercentReport();
   }
 
   loadPayments() {
@@ -216,6 +233,56 @@ export class PaymentsComponent {
       error: () => {
         this.kpisError = 'No se pudo cargar el resumen de pagos';
         this.isLoadingKpis = false;
+      }
+    });
+  }
+
+  loadFivePercentReport() {
+    this.isLoadingFivePercent = true;
+    this.fivePercentError = null;
+
+    const params: any = {};
+    if (this.fivePercentStartDate) params.start_date = this.fivePercentStartDate;
+    if (this.fivePercentEndDate) params.end_date = this.fivePercentEndDate;
+
+    this.paymentService.fivePercentReport(params).subscribe({
+      next: (res: any) => {
+        this.fivePercentData = res?.data ?? null;
+        this.isLoadingFivePercent = false;
+      },
+      error: () => {
+        this.fivePercentError = 'No se pudo cargar el reporte del 5%';
+        this.isLoadingFivePercent = false;
+      }
+    });
+  }
+
+  toggleFivePercentDetail() {
+    this.showFivePercentDetail = !this.showFivePercentDetail;
+  }
+
+  exportFivePercentToExcel() {
+    this.isExportingFivePercent = true;
+
+    const params: any = {};
+    if (this.fivePercentStartDate) params.start_date = this.fivePercentStartDate;
+    if (this.fivePercentEndDate) params.end_date = this.fivePercentEndDate;
+
+    this.paymentService.exportFivePercentReport(params).subscribe({
+      next: (blob: Blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Reporte_5_Porciento_${new Date().toISOString().slice(0, 10)}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+        this.isExportingFivePercent = false;
+      },
+      error: () => {
+        this.isExportingFivePercent = false;
+        this.fivePercentError = 'No se pudo exportar el reporte';
       }
     });
   }
@@ -336,7 +403,100 @@ export class PaymentsComponent {
     this.detailRow = null;
     this.voucherFile = null;
     this.voucherError = null;
+    this.isEditingPayment = false;
+    this.editForm = {};
+    this.editError = null;
+    this.showDeleteConfirm = false;
+    this.deleteError = null;
     this.clearVoucherPreview();
+  }
+
+  startEditPayment() {
+    const src = this.detailRow?.source;
+    if (src === 'payment' && !this.detailRow?.payment_id) return;
+    if (src === 'schedule' && !this.detailRow?.schedule_id) return;
+    if (src !== 'payment' && src !== 'schedule') return;
+    this.isEditingPayment = true;
+    this.editError = null;
+    this.editForm = {
+      amount: this.detailRow.amount || 0,
+      payment_date: (this.detailRow.date || '').toString().slice(0, 10),
+      method: this.detailRow.method || '',
+      reference: this.detailRow.reference || '',
+    };
+  }
+
+  cancelEditPayment() {
+    this.isEditingPayment = false;
+    this.editForm = {};
+    this.editError = null;
+  }
+
+  saveEditPayment() {
+    this.isSavingEdit = true;
+    this.editError = null;
+
+    const src = this.detailRow?.source;
+    let req$;
+    if (src === 'payment' && this.detailRow?.payment_id) {
+      req$ = this.paymentService.update(this.detailRow.payment_id, this.editForm);
+    } else if (src === 'schedule' && this.detailRow?.schedule_id) {
+      req$ = this.paymentService.updateSchedule(this.detailRow.schedule_id, this.editForm);
+    } else {
+      this.isSavingEdit = false;
+      return;
+    }
+
+    req$.subscribe({
+      next: () => {
+        this.isSavingEdit = false;
+        this.isEditingPayment = false;
+        this.closeDetail();
+        this.refresh();
+      },
+      error: (err: any) => {
+        this.isSavingEdit = false;
+        this.editError = err?.error?.message || 'No se pudo actualizar';
+      }
+    });
+  }
+
+  confirmDeletePayment() {
+    this.showDeleteConfirm = true;
+    this.deleteError = null;
+  }
+
+  cancelDeletePayment() {
+    this.showDeleteConfirm = false;
+    this.deleteError = null;
+  }
+
+  executeDeletePayment() {
+    this.isDeletingPayment = true;
+    this.deleteError = null;
+
+    const src = this.detailRow?.source;
+    let req$;
+    if (src === 'payment' && this.detailRow?.payment_id) {
+      req$ = this.paymentService.delete(this.detailRow.payment_id);
+    } else if (src === 'schedule' && this.detailRow?.schedule_id) {
+      req$ = this.paymentService.revertSchedule(this.detailRow.schedule_id);
+    } else {
+      this.isDeletingPayment = false;
+      return;
+    }
+
+    req$.subscribe({
+      next: () => {
+        this.isDeletingPayment = false;
+        this.closeDetail();
+        this.refresh();
+      },
+      error: (err: any) => {
+        this.isDeletingPayment = false;
+        this.deleteError = err?.error?.message || 'No se pudo eliminar';
+      }
+    });
   }
 
   onVoucherSelected(ev: Event) {

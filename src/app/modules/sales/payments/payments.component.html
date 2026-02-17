@@ -58,7 +58,7 @@
                             <input
                                 type="text"
                                 class="w-full px-4 py-3 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-2xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200 font-medium"
-                                placeholder="Cliente, contrato, lote, referencia..."
+                                placeholder="Cliente, contrato, lote, Nº operación..."
                                 [(ngModel)]="searchTerm"
                                 (ngModelChange)="onFiltersChanged()"
                             />
@@ -153,6 +153,163 @@
                                 <p class="text-xs text-gray-500 truncate">{{ p.lot_name || 'N/A' }} · {{ p.method || 'N/A' }} · {{ formatDate(p.date) }}</p>
                             </div>
                             <div class="font-bold text-emerald-700 whitespace-nowrap">{{ formatCurrency(p.amount || 0) }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reporte 5% del Valor de Venta -->
+                <div class="mt-6">
+                    <div class="bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20 border border-teal-200/60 dark:border-teal-800/40 rounded-2xl overflow-hidden">
+                        <div class="p-4 flex items-center justify-between cursor-pointer" (click)="toggleFivePercentDetail()">
+                            <div class="flex items-center gap-3">
+                                <div class="bg-gradient-to-br from-teal-500 to-cyan-600 p-2.5 rounded-xl shadow-md">
+                                    <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-gray-900 dark:text-gray-100 text-sm">Clientes que alcanzaron el 5% del Valor de Venta</h3>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">5% calculado sobre Precio Total Real (Precio Financiado + Bono Techo Propio) &mdash; solo dinero cobrado</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <div *ngIf="isLoadingFivePercent" class="text-xs text-gray-500">Cargando...</div>
+                                <div *ngIf="fivePercentError" class="text-xs text-red-600 font-semibold">{{ fivePercentError }}</div>
+                                <div *ngIf="fivePercentData && !isLoadingFivePercent" class="flex items-center gap-4">
+                                    <div class="text-right">
+                                        <p class="text-2xl font-bold text-teal-700 dark:text-teal-300">{{ fivePercentData.clients_reached_5_percent }}</p>
+                                        <p class="text-[11px] text-gray-500">de {{ fivePercentData.total_active_contracts }} contratos</p>
+                                    </div>
+                                    <div class="bg-teal-100 dark:bg-teal-900/40 text-teal-700 dark:text-teal-300 px-3 py-1.5 rounded-full text-xs font-bold">
+                                        {{ fivePercentData.percentage_reached }}%
+                                    </div>
+                                </div>
+                                <svg class="w-5 h-5 text-gray-500 transition-transform duration-200" [class.rotate-180]="showFivePercentDetail" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </div>
+                        </div>
+
+                        <div *ngIf="showFivePercentDetail && fivePercentData && fivePercentData.clients?.length > 0" class="border-t border-teal-200/60 dark:border-teal-800/40">
+                            <div class="p-4 bg-white/60 dark:bg-gray-900/30">
+                                <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+                                    <p class="text-sm font-bold text-gray-900 dark:text-gray-100">
+                                        Total cobrado de clientes calificados:
+                                        <span class="text-teal-700 dark:text-teal-300">{{ formatCurrency(fivePercentData.total_collected_from_qualified) }}</span>
+                                    </p>
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <div class="flex items-center gap-1.5">
+                                            <label class="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">Desde:</label>
+                                            <input type="date" [(ngModel)]="fivePercentStartDate"
+                                                class="text-xs border border-gray-300 dark:border-gray-600 rounded-lg px-2 py-1.5 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 focus:ring-1 focus:ring-teal-500 focus:border-teal-500"
+                                            />
+                                        </div>
+                                        <div class="flex items-center gap-1.5">
+                                            <label class="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">Hasta:</label>
+                                            <input type="date" [(ngModel)]="fivePercentEndDate"
+                                                class="text-xs border border-gray-300 dark:border-gray-600 rounded-lg px-2 py-1.5 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 focus:ring-1 focus:ring-teal-500 focus:border-teal-500"
+                                            />
+                                        </div>
+                                        <button type="button"
+                                            class="inline-flex items-center gap-1 px-3 py-1.5 bg-teal-100 hover:bg-teal-200 dark:bg-teal-900/40 dark:hover:bg-teal-900/60 text-teal-700 dark:text-teal-300 rounded-lg text-xs font-semibold transition"
+                                            (click)="loadFivePercentReport(); $event.stopPropagation()">
+                                            Filtrar
+                                        </button>
+                                        <button *ngIf="fivePercentStartDate || fivePercentEndDate" type="button"
+                                            class="text-xs text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 font-medium"
+                                            (click)="fivePercentStartDate = ''; fivePercentEndDate = ''; loadFivePercentReport(); $event.stopPropagation()">
+                                            Limpiar
+                                        </button>
+                                        <button
+                                            type="button"
+                                            class="inline-flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white rounded-xl text-xs font-bold shadow-sm hover:shadow-md transition-all disabled:opacity-50"
+                                            (click)="exportFivePercentToExcel(); $event.stopPropagation()"
+                                            [disabled]="isExportingFivePercent"
+                                        >
+                                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                            </svg>
+                                            {{ isExportingFivePercent ? 'Exportando...' : 'Exportar Excel' }}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="overflow-x-auto rounded-xl border border-gray-200/60 dark:border-gray-700/60">
+                                    <table class="w-full text-sm">
+                                        <thead>
+                                            <tr class="bg-gray-50 dark:bg-gray-800">
+                                                <th class="px-4 py-2.5 text-left font-semibold text-gray-700 dark:text-gray-300">Cliente</th>
+                                                <th class="px-4 py-2.5 text-left font-semibold text-gray-700 dark:text-gray-300">Contrato</th>
+                                                <th class="px-4 py-2.5 text-left font-semibold text-gray-700 dark:text-gray-300">Lote</th>
+                                                <th class="px-4 py-2.5 text-right font-semibold text-gray-700 dark:text-gray-300">Precio Venta</th>
+                                                <th class="px-4 py-2.5 text-right font-semibold text-gray-700 dark:text-gray-300">Descuento</th>
+                                                <th class="px-4 py-2.5 text-right font-semibold text-gray-700 dark:text-gray-300">Bono</th>
+                                                <th class="px-4 py-2.5 text-right font-semibold text-gray-700 dark:text-gray-300">Precio Total Real</th>
+                                                <th class="px-4 py-2.5 text-right font-semibold text-gray-700 dark:text-gray-300">5% Requerido</th>
+                                                <th class="px-4 py-2.5 text-right font-semibold text-gray-700 dark:text-gray-300">Total Pagado</th>
+                                                <th class="px-4 py-2.5 text-center font-semibold text-gray-700 dark:text-gray-300">% sin Bono</th>
+                                                <th class="px-4 py-2.5 text-center font-semibold text-gray-700 dark:text-gray-300">% con Bono</th>
+                                                <th class="px-4 py-2.5 text-center font-semibold text-gray-700 dark:text-gray-300">Pagadas</th>
+                                                <th class="px-4 py-2.5 text-center font-semibold text-gray-700 dark:text-gray-300">Total Cuotas</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr *ngFor="let client of fivePercentData.clients" class="border-t border-gray-100 dark:border-gray-700/60 hover:bg-teal-50/40 dark:hover:bg-teal-900/10 transition">
+                                                <td class="px-4 py-2.5">
+                                                    <button type="button" class="text-blue-700 dark:text-blue-300 hover:underline font-medium text-left" (click)="openClient(client.client_id)">
+                                                        {{ client.client_name }}
+                                                    </button>
+                                                </td>
+                                                <td class="px-4 py-2.5">
+                                                    <button type="button" class="text-indigo-700 dark:text-indigo-300 hover:underline font-medium" (click)="openContract(client.contract_id)">
+                                                        {{ client.contract_number || client.contract_id }}
+                                                    </button>
+                                                </td>
+                                                <td class="px-4 py-2.5 text-gray-700 dark:text-gray-300">{{ client.lot_name || '—' }}</td>
+                                                <td class="px-4 py-2.5 text-right text-gray-700 dark:text-gray-300">{{ formatCurrency(client.precio_venta) }}</td>
+                                                <td class="px-4 py-2.5 text-right" [class]="client.descuento > 0 ? 'text-red-600 dark:text-red-400 font-medium' : 'text-gray-400 dark:text-gray-600'">
+                                                    {{ client.descuento > 0 ? formatCurrency(client.descuento) : '—' }}
+                                                </td>
+                                                <td class="px-4 py-2.5 text-right text-cyan-700 dark:text-cyan-300 font-medium">{{ formatCurrency(client.bono_techo_propio) }}</td>
+                                                <td class="px-4 py-2.5 text-right font-semibold text-gray-900 dark:text-gray-100">{{ formatCurrency(client.precio_total_real) }}</td>
+                                                <td class="px-4 py-2.5 text-right text-amber-700 dark:text-amber-300 font-semibold">{{ formatCurrency(client.five_percent_threshold) }}</td>
+                                                <td class="px-4 py-2.5 text-right text-emerald-700 dark:text-emerald-300 font-bold">{{ formatCurrency(client.total_paid) }}</td>
+                                                <td class="px-4 py-2.5 text-center">
+                                                    <span class="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-bold"
+                                                        [class]="client.paid_percentage >= 10 
+                                                            ? 'bg-emerald-100 text-emerald-700 ring-1 ring-emerald-200/70 dark:bg-emerald-900/40 dark:text-emerald-300 dark:ring-emerald-800/60' 
+                                                            : 'bg-teal-100 text-teal-700 ring-1 ring-teal-200/70 dark:bg-teal-900/40 dark:text-teal-300 dark:ring-teal-800/60'"
+                                                    >
+                                                        {{ client.paid_percentage }}%
+                                                    </span>
+                                                </td>
+                                                <td class="px-4 py-2.5 text-center">
+                                                    <span class="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-bold bg-cyan-100 text-cyan-700 ring-1 ring-cyan-200/70 dark:bg-cyan-900/40 dark:text-cyan-300 dark:ring-cyan-800/60">
+                                                        {{ client.paid_percentage_with_bono }}%
+                                                    </span>
+                                                </td>
+                                                <td class="px-4 py-2.5 text-center">
+                                                    <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-emerald-100 text-emerald-700 ring-1 ring-emerald-200/70 dark:bg-emerald-900/40 dark:text-emerald-300 dark:ring-emerald-800/60">
+                                                        {{ client.cuotas_pagadas }}
+                                                    </span>
+                                                </td>
+                                                <td class="px-4 py-2.5 text-center">
+                                                    <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold"
+                                                        [class]="client.total_cuotas <= 2
+                                                            ? 'bg-amber-100 text-amber-700 ring-1 ring-amber-200/70 dark:bg-amber-900/40 dark:text-amber-300 dark:ring-amber-800/60'
+                                                            : 'bg-gray-100 text-gray-600 ring-1 ring-gray-200/70 dark:bg-gray-800 dark:text-gray-400 dark:ring-gray-700/60'">
+                                                        {{ client.total_cuotas }}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div *ngIf="showFivePercentDetail && fivePercentData && fivePercentData.clients?.length === 0" class="border-t border-teal-200/60 dark:border-teal-800/40 p-4">
+                            <p class="text-sm text-gray-500 dark:text-gray-400 text-center">Ningún cliente ha alcanzado el 5% del valor de venta aún.</p>
                         </div>
                     </div>
                 </div>
@@ -290,6 +447,13 @@
                 >
                     Detalle
                 </button>
+                <button *ngIf="(row.source === 'payment' && row.payment_id) || (row.source === 'schedule' && row.schedule_id)"
+                    type="button"
+                    class="px-3 py-1 rounded-xl bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 hover:bg-amber-200 dark:hover:bg-amber-900/60 transition font-semibold text-xs"
+                    (click)="openDetail(row); startEditPayment()"
+                >
+                    Editar
+                </button>
             </div>
         </ng-template>
 
@@ -319,12 +483,106 @@
                                 <span [class]="getMethodPillClass(detailRow)">{{ getMethodLabel(detailRow) }}</span>
                             </div>
                         </div>
-                        <button type="button" class="px-5 py-3 rounded-2xl bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100 font-semibold" (click)="closeDetail()">
-                            Cerrar
-                        </button>
+                        <div class="flex items-center gap-2">
+                            <button *ngIf="((detailRow.source === 'payment' && detailRow.payment_id) || (detailRow.source === 'schedule' && detailRow.schedule_id)) && !isEditingPayment"
+                                type="button"
+                                class="px-4 py-2.5 rounded-2xl bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 hover:bg-amber-200 dark:hover:bg-amber-900/60 font-semibold text-sm transition"
+                                (click)="startEditPayment()"
+                            >
+                                Editar
+                            </button>
+                            <button *ngIf="((detailRow.source === 'payment' && detailRow.payment_id) || (detailRow.source === 'schedule' && detailRow.schedule_id)) && !isEditingPayment"
+                                type="button"
+                                class="px-4 py-2.5 rounded-2xl bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-900/60 font-semibold text-sm transition"
+                                (click)="confirmDeletePayment()"
+                            >
+                                Eliminar
+                            </button>
+                            <button type="button" class="px-5 py-3 rounded-2xl bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100 font-semibold" (click)="closeDetail()">
+                                Cerrar
+                            </button>
+                        </div>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+                        <!-- Delete Confirmation -->
+                        <div *ngIf="showDeleteConfirm" class="md:col-span-3 rounded-2xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 p-5">
+                            <p class="text-sm font-bold text-red-700 dark:text-red-300 mb-1">
+                                {{ detailRow.source === 'payment' ? '¿Eliminar este pago?' : '¿Revertir esta cuota a pendiente?' }}
+                            </p>
+                            <p class="text-xs text-red-600 dark:text-red-400 mb-4">
+                                {{ detailRow.source === 'payment'
+                                    ? 'Se revertirá el estado de la cuota del cronograma. Esta acción no se puede deshacer.'
+                                    : 'Se eliminarán los datos de pago y la cuota volverá a estado pendiente/vencido. Esta acción no se puede deshacer.' }}
+                            </p>
+                            <div *ngIf="deleteError" class="text-xs font-semibold text-red-600 mb-3">{{ deleteError }}</div>
+                            <div class="flex gap-3">
+                                <button type="button"
+                                    class="px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold text-sm disabled:opacity-50"
+                                    (click)="executeDeletePayment()"
+                                    [disabled]="isDeletingPayment"
+                                >
+                                    {{ isDeletingPayment ? 'Eliminando...' : 'Sí, eliminar' }}
+                                </button>
+                                <button type="button"
+                                    class="px-5 py-2.5 rounded-xl bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 font-semibold text-sm"
+                                    (click)="cancelDeletePayment()"
+                                    [disabled]="isDeletingPayment"
+                                >
+                                    Cancelar
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Edit Form -->
+                        <div *ngIf="isEditingPayment" class="md:col-span-3 rounded-2xl bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/50 p-5">
+                            <h4 class="text-sm font-bold text-amber-700 dark:text-amber-300 mb-4">Editar pago</h4>
+                            <div *ngIf="editError" class="text-xs font-semibold text-red-600 mb-3">{{ editError }}</div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Monto (S/)</label>
+                                    <input type="number" step="0.01" [(ngModel)]="editForm.amount"
+                                        class="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500" />
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Fecha</label>
+                                    <input type="date" [(ngModel)]="editForm.payment_date"
+                                        class="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500" />
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Método</label>
+                                    <select [(ngModel)]="editForm.method"
+                                        class="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500">
+                                        <option value="transferencia">Transferencia</option>
+                                        <option value="efectivo">Efectivo</option>
+                                        <option value="tarjeta">Tarjeta</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Nº Operación</label>
+                                    <input type="text" [(ngModel)]="editForm.reference" maxlength="60" placeholder="Ej: OP-123456"
+                                        class="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500" />
+                                </div>
+                            </div>
+                            <div class="flex gap-3 mt-4">
+                                <button type="button"
+                                    class="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-semibold text-sm disabled:opacity-50"
+                                    (click)="saveEditPayment()"
+                                    [disabled]="isSavingEdit"
+                                >
+                                    {{ isSavingEdit ? 'Guardando...' : 'Guardar cambios' }}
+                                </button>
+                                <button type="button"
+                                    class="px-5 py-2.5 rounded-xl bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 font-semibold text-sm"
+                                    (click)="cancelEditPayment()"
+                                    [disabled]="isSavingEdit"
+                                >
+                                    Cancelar
+                                </button>
+                            </div>
+                        </div>
+
                         <div class="rounded-2xl bg-white/70 dark:bg-slate-900/30 p-4 ring-1 ring-slate-200/70 dark:ring-slate-700/60">
                             <div class="text-xs text-gray-500">Fecha</div>
                             <div class="text-base font-bold text-gray-900 dark:text-gray-100">{{ formatDate(detailRow.date) }}</div>
@@ -334,7 +592,7 @@
                             <div class="text-base font-bold text-emerald-700 dark:text-emerald-300">{{ formatCurrency(detailRow.amount || 0) }}</div>
                         </div>
                         <div class="rounded-2xl bg-white/70 dark:bg-slate-900/30 p-4 ring-1 ring-slate-200/70 dark:ring-slate-700/60">
-                            <div class="text-xs text-gray-500">Referencia</div>
+                            <div class="text-xs text-gray-500">Nº Operación</div>
                             <div class="text-sm font-bold text-gray-900 dark:text-gray-100 truncate">{{ detailRow.reference || '—' }}</div>
                             <div class="text-[11px] text-gray-500 dark:text-gray-400 truncate">{{ detailRow.bank_name || '' }}</div>
                         </div>

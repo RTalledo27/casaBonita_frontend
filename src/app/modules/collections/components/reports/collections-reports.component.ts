@@ -184,7 +184,7 @@ export class CollectionsReportsComponent implements OnInit, OnDestroy, AfterView
       date_from: [''],
       date_to: [''],
       status: [''],
-      report_type: ['summary']
+      report_type: ['detailed']
     });
   }
 
@@ -195,13 +195,13 @@ export class CollectionsReportsComponent implements OnInit, OnDestroy, AfterView
     this.filterForm.get('report_type')?.valueChanges
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
-        // Just trigger change detection - table visibility will update automatically
-        // via the showTable() computed signal
         if (this.reportData()) {
-          // Reset to first page when switching between types
           this.currentPage.set(1);
         }
       });
+
+    // Auto-generar reporte al cargar la página
+    this.generateReport();
   }
 
   ngAfterViewInit() {
@@ -235,24 +235,29 @@ export class CollectionsReportsComponent implements OnInit, OnDestroy, AfterView
     this.selectedQuickFilter.set(filter);
     const now = new Date();
     let dateFrom: Date;
-    let dateTo = now;
+    let dateTo = new Date(now); // Copia independiente para evitar mutación
 
     switch (filter) {
       case 'today':
-        dateFrom = new Date(now.setHours(0, 0, 0, 0));
+        dateFrom = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        dateTo = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         break;
-      case 'week':
-        dateFrom = new Date(now.setDate(now.getDate() - 7));
+      case 'week': {
+        const weekAgo = new Date(now);
+        weekAgo.setDate(weekAgo.getDate() - 7);
+        dateFrom = weekAgo;
         break;
+      }
       case 'month':
         dateFrom = new Date(now.getFullYear(), now.getMonth(), 1);
         dateTo = new Date(now.getFullYear(), now.getMonth() + 1, 0);
         break;
-      case 'quarter':
+      case 'quarter': {
         const quarter = Math.floor(now.getMonth() / 3);
         dateFrom = new Date(now.getFullYear(), quarter * 3, 1);
         dateTo = new Date(now.getFullYear(), (quarter + 1) * 3, 0);
         break;
+      }
       case 'year':
         dateFrom = new Date(now.getFullYear(), 0, 1);
         dateTo = new Date(now.getFullYear(), 11, 31);
@@ -334,17 +339,43 @@ export class CollectionsReportsComponent implements OnInit, OnDestroy, AfterView
    */
   private processReportData(data: any): ReportSummary {
     const summary = data.summary || data;
-    const schedules = data.schedules || [];
+    const schedules: PaymentSchedule[] = data.schedules || [];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Recalcular KPIs considerando cuotas pendientes que ya están vencidas por fecha
+    let paidAmount = 0, pendingAmount = 0, overdueAmount = 0;
+    let paidCount = 0, pendingCount = 0, overdueCount = 0;
+
+    schedules.forEach(s => {
+      const amount = parseFloat(s.amount?.toString() || '0');
+      if (s.status === 'pagado') {
+        paidAmount += parseFloat(s.amount_paid?.toString() || '0');
+        paidCount++;
+      } else if (s.status === 'anulado') {
+        // No contar anulados
+      } else {
+        const dueDate = new Date(s.due_date);
+        dueDate.setHours(0, 0, 0, 0);
+        if (dueDate < today) {
+          overdueAmount += amount;
+          overdueCount++;
+        } else {
+          pendingAmount += amount;
+          pendingCount++;
+        }
+      }
+    });
 
     return {
       total_amount: summary.total_amount || 0,
-      paid_amount: summary.paid_amount || 0,
-      pending_amount: summary.pending_amount || 0,
-      overdue_amount: summary.overdue_amount || 0,
+      paid_amount: paidAmount,
+      pending_amount: pendingAmount,
+      overdue_amount: overdueAmount,
       total_schedules: summary.total_schedules || 0,
-      paid_schedules: summary.by_status?.pagado?.count || 0,
-      pending_schedules: summary.by_status?.pendiente?.count || 0,
-      overdue_schedules: summary.by_status?.vencido?.count || 0,
+      paid_schedules: paidCount,
+      pending_schedules: pendingCount,
+      overdue_schedules: overdueCount,
       schedules: schedules
     };
   }
@@ -440,6 +471,8 @@ export class CollectionsReportsComponent implements OnInit, OnDestroy, AfterView
    * Creates all charts
    */
   private createCharts() {
+    // Destruir charts existentes antes de recrear
+    this.destroyCharts();
     setTimeout(() => {
       this.createStatusChart();
       this.createAmountChart();
@@ -602,40 +635,50 @@ export class CollectionsReportsComponent implements OnInit, OnDestroy, AfterView
     const report = this.reportData();
     if (!report) return;
 
-    // Process real data - group schedules by month
-    const monthlyData = new Map<string, { paid: number; pending: number; overdue: number }>();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Agrupar por mes usando clave numérica para poder ordenar correctamente
+    const monthlyData = new Map<string, { key: number; paid: number; pending: number; overdue: number }>();
 
     report.schedules.forEach(schedule => {
-      const month = new Date(schedule.due_date).toLocaleString('es', { month: 'short', year: '2-digit' });
+      const dueDate = new Date(schedule.due_date);
+      // Clave numérica para ordenar: YYYYMM
+      const sortKey = dueDate.getFullYear() * 100 + dueDate.getMonth();
+      // Etiqueta legible
+      const label = dueDate.toLocaleString('es-PE', { month: 'short', year: '2-digit' });
 
-      if (!monthlyData.has(month)) {
-        monthlyData.set(month, { paid: 0, pending: 0, overdue: 0 });
+      if (!monthlyData.has(label)) {
+        monthlyData.set(label, { key: sortKey, paid: 0, pending: 0, overdue: 0 });
       }
 
-      const data = monthlyData.get(month)!;
+      const data = monthlyData.get(label)!;
       const amount = parseFloat(schedule.amount?.toString() || '0');
 
       if (schedule.status === 'pagado') {
         data.paid += amount;
-      } else if (schedule.status === 'pendiente') {
-        data.pending += amount;
-      } else if (schedule.status === 'vencido') {
-        data.overdue += amount;
+      } else if (schedule.status === 'anulado') {
+        // No contar anulados
+      } else {
+        // Pendiente o vencido: usar fecha real para clasificar
+        const dueDateClean = new Date(schedule.due_date);
+        dueDateClean.setHours(0, 0, 0, 0);
+        if (dueDateClean < today) {
+          data.overdue += amount;
+        } else {
+          data.pending += amount;
+        }
       }
     });
 
-    // Sort by date and get last 6 months
+    // Ordenar por clave numérica
     const sortedMonths = Array.from(monthlyData.entries())
-      .sort((a, b) => {
-        const dateA = new Date(a[0]);
-        const dateB = new Date(b[0]);
-        return dateA.getTime() - dateB.getTime();
-      })
-      .slice(-6);
+      .sort((a, b) => a[1].key - b[1].key);
 
     const labels = sortedMonths.map(([month]) => month);
     const paidData = sortedMonths.map(([, data]) => data.paid);
     const pendingData = sortedMonths.map(([, data]) => data.pending);
+    const overdueData = sortedMonths.map(([, data]) => data.overdue);
 
     this.trendsChart = new Chart(ctx, {
       type: 'line',
@@ -655,6 +698,14 @@ export class CollectionsReportsComponent implements OnInit, OnDestroy, AfterView
             data: pendingData.length > 0 ? pendingData : [0],
             borderColor: 'rgba(251, 191, 36, 1)',
             backgroundColor: 'rgba(251, 191, 36, 0.1)',
+            fill: true,
+            tension: 0.4
+          },
+          {
+            label: 'Vencido',
+            data: overdueData.length > 0 ? overdueData : [0],
+            borderColor: 'rgba(239, 68, 68, 1)',
+            backgroundColor: 'rgba(239, 68, 68, 0.1)',
             fill: true,
             tension: 0.4
           }

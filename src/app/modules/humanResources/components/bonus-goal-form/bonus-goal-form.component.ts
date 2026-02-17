@@ -2,11 +2,12 @@ import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
-import { LucideAngularModule, ArrowLeft, Save, Target, Calendar, Users, TrendingUp, AlertCircle } from 'lucide-angular';
+import { LucideAngularModule, ArrowLeft, Save, Target, Calendar, Users, TrendingUp, AlertCircle, Building2 } from 'lucide-angular';
 
 import { BonusGoal } from '../../models/bonus-goal';
 import { BonusType } from '../../models/bonus-type';
 import { Team } from '../../models/team';
+import { Office } from '../../models/office';
 import { BonusGoalService } from '../../services/bonus-goal.service';
 import { BonusTypeService } from '../../services/bonus-type.service';
 import { TeamService } from '../../services/team.service';
@@ -28,6 +29,7 @@ export class BonusGoalFormComponent implements OnInit {
   readonly TrendingUp = TrendingUp;
 
   AlertCircle = AlertCircle;
+  readonly Building2 = Building2;
 
   // Form
   bonusGoalForm: FormGroup;
@@ -90,7 +92,6 @@ export class BonusGoalFormComponent implements OnInit {
       this.teamService.getTeams().toPromise()
     ]).then(([bonusTypes, teamsResponse]) => {
       this.bonusTypes.set(bonusTypes || []);
-      console.log(this.bonusTypes())
       this.teams.set(teamsResponse?.data || []);
       this.loading.set(false);
     }).catch(error => {
@@ -156,9 +157,13 @@ export class BonusGoalFormComponent implements OnInit {
       formData.valid_from = formData.start_date;
       formData.valid_until = formData.end_date;
       
-      // Convert empty team_id to null
+      // Convert empty team_id to null, auto-derive office_id from team
       if (!formData.team_id) {
         formData.team_id = null;
+        formData.office_id = null;
+      } else {
+        const selectedTeam = this.teams().find(t => t.team_id == formData.team_id);
+        formData.office_id = selectedTeam?.office_id || null;
       }
 
       // Convert empty achievement_percentage_150 to null
@@ -265,5 +270,12 @@ export class BonusGoalFormComponent implements OnInit {
   // Get filtered teams (only active ones)
   getActiveTeams(): Team[] {
     return this.teams().filter(team => team.status === 'active');
+  }
+
+  getSelectedTeamOffice(): Office | null {
+    const teamId = this.bonusGoalForm.get('team_id')?.value;
+    if (!teamId) return null;
+    const team = this.teams().find(t => t.team_id == teamId);
+    return team?.office || null;
   }
 }

@@ -90,6 +90,13 @@ export const routes: Routes = [
               ),
           },
           {
+            path: 'mi-dashboard',
+            loadComponent: () =>
+              import('./modules/dashboard/pages/my-dashboard/my-dashboard.component').then(
+                (m) => m.MyDashboardComponent
+              ),
+          },
+          {
             path: 'security',
             children: [
               ...userRoutes,

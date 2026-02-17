@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnDestroy, OnInit } from '@angular/core';
 import { RouterLink, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { LucideAngularModule, Home, User, ShieldCheck, Package, Layers, DollarSign, HelpCircle, Settings, ChevronDown, Users, TrendingUp, CreditCard, MessageCircle, FileText, Map as MapIcon, Calendar, CalendarDays, MapPin, BarChart, BarChart3, Receipt, Headphones, Ticket, FileSearch, UserCheck, Calculator, Percent, Shield, Lock, ShoppingCart } from 'lucide-angular';
+import { LucideAngularModule, Home, User, ShieldCheck, Package, Layers, DollarSign, HelpCircle, Settings, ChevronDown, Users, TrendingUp, CreditCard, MessageCircle, FileText, Map as MapIcon, Calendar, CalendarDays, MapPin, BarChart, BarChart3, Receipt, Headphones, Ticket, FileSearch, UserCheck, Calculator, Percent, Shield, Lock, ShoppingCart, LayoutDashboard } from 'lucide-angular';
 import { SidebarService } from '../../services/sidebar.service';
 import { AuthService } from '../../services/auth.service';
 import { NavigationService } from '../../services/navigation.service';
@@ -92,11 +92,19 @@ export class SidebarComponent implements OnInit, OnDestroy {
   private staticNavItems = [
     {
       name: 'dashboard',
-      label: 'sidebar.dashboard.title',
+      label: 'sidebar.inicio.title',
       icon: Home,
       route: '/dashboard',
       active: false,
-      permission: null // Dashboard siempre visible
+      permission: null // Inicio siempre visible
+    },
+    {
+      name: 'my-dashboard',
+      label: 'sidebar.myDashboard.title',
+      icon: LayoutDashboard,
+      route: '/mi-dashboard',
+      active: false,
+      permission: null // Mi Dashboard siempre visible para usuarios con empleado
     },
     {
       name: 'crm',
@@ -257,12 +265,11 @@ export class SidebarComponent implements OnInit, OnDestroy {
       permission: 'hr.access',
       children: [
         { name: 'adminDashboard', label: 'sidebar.hr.adminDashboard.title', route: '/hr/admin-dashboard', active: false, permission: 'hr.access' },
-        { name: 'dashboard', label: 'sidebar.hr.dashboard.title', route: '/hr/employees/dashboard/:id', active: false, permission: 'hr.employees.dashboard' },
         { name: 'employees', label: 'sidebar.hr.employees.title', route: '/hr/employees', active: false, permission: 'hr.employees.view' },
         { name: 'teams', label: 'sidebar.hr.teams.title', route: '/hr/teams', active: false, permission: 'hr.teams.view' },
-        { name: 'offices', label: 'Oficinas', route: '/hr/offices', active: false, permission: 'hr.offices.view' },
-        { name: 'areas', label: 'Áreas', route: '/hr/areas', active: false, permission: 'hr.areas.view' },
-        { name: 'positions', label: 'Cargos', route: '/hr/positions', active: false, permission: 'hr.positions.view' },
+        { name: 'offices', label: 'sidebar.hr.offices.title', route: '/hr/offices', active: false, permission: 'hr.offices.view' },
+        { name: 'areas', label: 'sidebar.hr.areas.title', route: '/hr/areas', active: false, permission: 'hr.areas.view' },
+        { name: 'positions', label: 'sidebar.hr.positions.title', route: '/hr/positions', active: false, permission: 'hr.positions.view' },
         { name: 'bonuses', label: 'sidebar.hr.bonuses.title', route: '/hr/bonuses', active: false, permission: 'hr.bonuses.view' },
         { name: 'bonus-types', label: 'sidebar.hr.bonus-types.title', route: '/hr/bonus-types', active: false, permission: 'hr.bonus-types.view' },
         { name: 'bonus-goals', label: 'sidebar.hr.bonus-goals.title', route: '/hr/bonus-goals', active: false, permission: 'hr.bonus-goals.view' },

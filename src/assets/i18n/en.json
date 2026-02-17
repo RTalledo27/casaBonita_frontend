@@ -15,6 +15,12 @@
     "dashboard": {
       "title": "Dashboard"
     },
+    "inicio": {
+      "title": "Home"
+    },
+    "myDashboard": {
+      "title": "My Dashboard"
+    },
     "crm": {
       "title": "CRM",
       "clients": {

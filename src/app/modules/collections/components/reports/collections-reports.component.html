@@ -1,5 +1,5 @@
 <div
-    class="min-h-screen bg-gradient- to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+    class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
     <!-- Header -->
     <div
         class="sticky top-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200/70 dark:border-slate-700/60 shadow-lg">
@@ -349,15 +349,24 @@
                                     Cliente</th>
                                 <th
                                     class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                    Estado</th>
+                                    Lote</th>
+                                <th
+                                    class="px-6 py-4 text-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                    Cuota</th>
                                 <th
                                     class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                    Estado</th>
+                                <th
+                                    class="px-6 py-4 text-right text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                                     Monto</th>
+                                <th
+                                    class="px-6 py-4 text-right text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                    Pagado</th>
                                 <th
                                     class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                                     Vencimiento</th>
                                 <th
-                                    class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                    class="px-6 py-4 text-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                                     Días Vencido</th>
                             </tr>
                         </thead>
@@ -366,10 +375,16 @@
                                 class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
                                 <td
                                     class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-slate-900 dark:text-slate-100">
-                                    {{ schedule.contract_number }}
+                                    {{ schedule.contract_number || schedule.contract_id }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600 dark:text-slate-400">
-                                    {{ schedule.client_name }}
+                                    {{ schedule.client_name && schedule.client_name !== 'N/A' ? schedule.client_name : '—' }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600 dark:text-slate-400">
+                                    {{ schedule.lot_number && schedule.lot_number !== 'N/A' ? schedule.lot_number : '—' }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-slate-600 dark:text-slate-400">
+                                    {{ schedule.installment_number }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span [class]="getStatusClass(getRealStatus(schedule))"
@@ -378,15 +393,23 @@
                                     </span>
                                 </td>
                                 <td
-                                    class="px-6 py-4 whitespace-nowrap text-sm font-bold text-slate-900 dark:text-slate-100">
+                                    class="px-6 py-4 whitespace-nowrap text-sm text-right font-bold text-slate-900 dark:text-slate-100">
                                     {{ formatCurrency(schedule.amount) }}
+                                </td>
+                                <td
+                                    class="px-6 py-4 whitespace-nowrap text-sm text-right font-medium"
+                                    [class.text-green-600]="(schedule.amount_paid ?? 0) > 0"
+                                    [class.dark:text-green-400]="(schedule.amount_paid ?? 0) > 0"
+                                    [class.text-slate-400]="!schedule.amount_paid || schedule.amount_paid === 0"
+                                    [class.dark:text-slate-500]="!schedule.amount_paid || schedule.amount_paid === 0">
+                                    {{ schedule.amount_paid ? formatCurrency(schedule.amount_paid) : '—' }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600 dark:text-slate-400">
                                     {{ formatDate(schedule.due_date) }}
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm"
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-center"
                                     [class]="getDaysOverdueClass(getRealDaysOverdue(schedule))">
-                                    {{ getRealDaysOverdue(schedule) }} días
+                                    {{ getRealDaysOverdue(schedule) > 0 ? getRealDaysOverdue(schedule) + 'd' : '—' }}
                                 </td>
                             </tr>
                         </tbody>

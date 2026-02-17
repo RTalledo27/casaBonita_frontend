@@ -2,7 +2,7 @@ import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, Plus, Edit, Trash2, Search, Filter, ToggleLeft, ToggleRight, Users, Crown } from 'lucide-angular';
+import { LucideAngularModule, Plus, Edit, Trash2, Search, Filter, ToggleLeft, ToggleRight, Users, Crown, Building2, Target } from 'lucide-angular';
 import { TeamService } from '../../services/team.service';
 import { EmployeeService } from '../../services/employee.service';
 import { Team } from '../../models/team';
@@ -29,6 +29,8 @@ export class TeamListComponent implements OnInit {
   readonly ToggleRight = ToggleRight;
   readonly Users = Users;
   readonly Crown = Crown;
+  readonly Building2 = Building2;
+  readonly Target = Target;
 
   // Signals
   teams = signal<Team[]>([]);
@@ -48,25 +50,16 @@ export class TeamListComponent implements OnInit {
   }
 
   loadTeams() {
-    console.log('🔄 Iniciando carga de equipos...');
     this.loading.set(true);
     this.error.set(null);
 
     this.teamService.getTeams().subscribe({
       next: (response) => {
         const safeData = Array.isArray(response.data) ? response.data : [];
-        console.log('✅ Equipos cargados:', safeData.length);
         this.teams.set(safeData);
         this.applyFilters();
         this.loading.set(false);
-        this.dataLoaded.set(true); // Marcar datos como completamente cargados
-        
-        // Verificar conteo después de cargar equipos
-        console.log('🔍 Verificando conteos después de cargar equipos:');
-        safeData.forEach(team => {
-          const count = this.getTeamMemberCount(team.team_id);
-          console.log(`Team ${team.team_name} (ID: ${team.team_id}): ${count} miembros`);
-        });
+        this.dataLoaded.set(true);
       },
       error: (err) => {
         this.error.set('Error al cargar los equipos');
@@ -77,36 +70,14 @@ export class TeamListComponent implements OnInit {
   }
 
   loadEmployees() {
-    console.log('🔄 Iniciando carga de empleados...');
-    // Cargar todos los empleados sin paginación para el conteo correcto
     this.employeeService.getAllEmployees().subscribe({
       next: (response) => {
-        console.log('✅ Respuesta completa de empleados:', response);
         const safeData = Array.isArray(response.data) ? response.data : [];
-        console.log('📊 Empleados cargados:', safeData.length);
-        console.log('🏢 Empleados con team_id:', safeData.filter(emp => emp.team_id).length);
-        console.log('📋 Primeros 3 empleados:', safeData.slice(0, 3));
-        
-        // Verificar estructura de datos
-        if (safeData.length > 0) {
-          const firstEmployee = safeData[0];
-          console.log('🔍 Estructura del primer empleado:', {
-            employee_id: firstEmployee.employee_id,
-            team_id: firstEmployee.team_id,
-            user: firstEmployee.user,
-            hasUser: !!firstEmployee.user
-          });
-        }
-        
         this.employees.set(safeData);
-        console.log('💾 Empleados guardados en signal:', this.employees().length);
-        
-        // Cargar equipos después de que los empleados estén listos
-        console.log('🔄 Empleados cargados exitosamente, ahora cargando equipos...');
         this.loadTeams();
       },
       error: (err) => {
-        console.error('❌ Error loading employees:', err);
+        console.error('Error loading employees:', err);
       }
     });
   }
@@ -183,30 +154,12 @@ export class TeamListComponent implements OnInit {
   }
 
   getTeamMemberCount(teamId: number): number {
-    // Verificar que los datos estén completamente cargados
     if (!this.dataLoaded()) {
-      console.log(`⏳ Datos aún no cargados para team ${teamId}, retornando 0`);
       return 0;
     }
 
     const employees = this.employees();
-    console.log(`🔍 Calculando miembros para team ${teamId} (tipo: ${typeof teamId}):`);
-    console.log(`📊 Total empleados disponibles: ${employees.length}`);
-    
-    const teamMembers = employees.filter(emp => {
-      console.log(`🔍 Comparando empleado ${emp.user?.first_name} ${emp.user?.last_name}: team_id=${emp.team_id} (tipo: ${typeof emp.team_id}) vs teamId=${teamId} (tipo: ${typeof teamId})`);
-      
-      // Usar comparación flexible para manejar diferencias de tipos
-      const hasTeamId = emp.team_id == teamId;
-      
-      if (hasTeamId) {
-        console.log(`✅ Empleado ${emp.user?.first_name} ${emp.user?.last_name} pertenece al team ${teamId}`);
-      }
-      return hasTeamId;
-    });
-    
-    console.log(`👥 Team ${teamId} tiene ${teamMembers.length} miembros:`, teamMembers.map(emp => `${emp.user?.first_name} ${emp.user?.last_name}`));
-    return teamMembers.length;
+    return employees.filter(emp => emp.team_id == teamId).length;
   }
 
   getStatusClass(status: string): string {
@@ -215,5 +168,13 @@ export class TeamListComponent implements OnInit {
 
   getStatusLabel(status: string): string {
     return status === 'active' ? 'Activo' : 'Inactivo';
+  }
+
+  formatGoal(amount: number): string {
+    return new Intl.NumberFormat('es-PE', {
+      style: 'currency',
+      currency: 'PEN',
+      minimumFractionDigits: 0
+    }).format(amount || 0);
   }
 }

@@ -2,7 +2,7 @@ import { Component, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { LucideAngularModule, Plus, Search, Filter, Edit, Trash2, Target, Calendar, Users, TrendingUp, AlertCircle, ChevronDown } from 'lucide-angular';
+import { LucideAngularModule, Plus, Search, Filter, Edit, Trash2, Target, Calendar, Users, TrendingUp, AlertCircle, ChevronDown, Building2 } from 'lucide-angular';
 
 import { BonusGoal } from '../../models/bonus-goal';
 import { BonusGoalService, BonusGoalResponse } from '../../services/bonus-goal.service';
@@ -28,6 +28,7 @@ export class BonusGoalListComponent implements OnInit {
   readonly TrendingUp = TrendingUp;
   readonly AlertCircle = AlertCircle;
   readonly ChevronDown = ChevronDown;
+  readonly Building2 = Building2;
 
   // State
   bonusGoals = signal<BonusGoal[]>([]);

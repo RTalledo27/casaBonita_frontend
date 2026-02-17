@@ -10,11 +10,13 @@ import { CommonModule } from '@angular/common';
 import { ClientsService } from '../../../../CRM/services/clients.service';
 import { ManzanasService } from '../../../../inventory/services/manzanas.service';
 import { LotService } from '../../../../inventory/services/lot.service';
+import { EmployeeService } from '../../../../humanResources/services/employee.service';
 
 // Importar modelos
 import { Client } from '../../../../CRM/models/client';
 import { Manzana } from '../../../../inventory/models/manzana';
 import { Lot } from '../../../../inventory/models/lot';
+import { Employee } from '../../../../humanResources/models/employee';
 
 @Component({
   selector: 'app-reservation-form',
@@ -26,19 +28,30 @@ export class ReservationFormComponent implements OnInit {
   form: FormGroup;
   isEditMode = false;
   editingId?: number;
+  submitting = signal(false);
 
   // Signals para los datos de los dropdowns
   clients = signal<Client[]>([]);
   manzanas = signal<Manzana[]>([]);
   lots = signal<Lot[]>([]);
-  
+  advisors = signal<Employee[]>([]);
+
   // Signals para estados de carga
-  loadingClients = signal<boolean>(false);
-  loadingManzanas = signal<boolean>(false);
-  loadingLots = signal<boolean>(false);
+  loadingClients = signal(false);
+  loadingManzanas = signal(false);
+  loadingLots = signal(false);
+  loadingAdvisors = signal(false);
 
   @Output() submitForm = new EventEmitter<void>();
   @Output() modalClosed = new EventEmitter<void>();
+
+  depositMethods = [
+    { value: 'efectivo', label: 'Efectivo' },
+    { value: 'transferencia', label: 'Transferencia' },
+    { value: 'yape', label: 'Yape' },
+    { value: 'plin', label: 'Plin' },
+    { value: 'deposito', label: 'Depósito bancario' },
+  ];
 
   constructor(
     private fb: FormBuilder,
@@ -47,41 +60,66 @@ export class ReservationFormComponent implements OnInit {
     private modalService: ModalService,
     private clientsService: ClientsService,
     private manzanasService: ManzanasService,
-    private lotService: LotService
+    private lotService: LotService,
+    private employeeService: EmployeeService
   ) {
+    const today = new Date().toISOString().split('T')[0];
+    const expiration = new Date();
+    expiration.setDate(expiration.getDate() + 7);
+    const expirationStr = expiration.toISOString().split('T')[0];
+
     this.form = this.fb.group({
       client_id: ['', Validators.required],
-      manzana_id: ['', Validators.required],
+      manzana_id: [''],
       lot_id: ['', Validators.required],
-      date: ['', Validators.required],
-      status: ['pending'],
+      advisor_id: ['', Validators.required],
+      reservation_date: [today, Validators.required],
+      expiration_date: [expirationStr, Validators.required],
+      deposit_amount: [100, [Validators.required, Validators.min(0)]],
+      deposit_method: [''],
+      deposit_reference: [''],
+      status: ['pendiente_pago'],
     });
   }
 
   ngOnInit() {
-    // Cargar datos iniciales
     this.loadClients();
     this.loadManzanas();
-    
-    // Configurar listener para cambios en manzana
+    this.loadAdvisors();
+
+    // Filtrar lotes cuando cambie la manzana
     this.form.get('manzana_id')?.valueChanges.subscribe(manzanaId => {
       if (manzanaId) {
         this.loadLotsByManzana(manzanaId);
-        // Limpiar selección de lote cuando cambie la manzana
         this.form.get('lot_id')?.setValue('');
       } else {
         this.lots.set([]);
       }
     });
 
-    // Verificar si es modo edición
+    // Modo edición
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.isEditMode = true;
       this.editingId = +id;
-      this.reservationService
-        .get(this.editingId)
-        .subscribe((r) => this.form.patchValue(r));
+      this.reservationService.get(this.editingId).subscribe((r) => {
+        // Si hay un lote con manzana, cargar lotes de esa manzana primero
+        if (r.lot?.manzana?.manzana_id) {
+          this.form.get('manzana_id')?.setValue(r.lot.manzana.manzana_id, { emitEvent: false });
+          this.loadLotsByManzana(r.lot.manzana.manzana_id);
+        }
+        this.form.patchValue({
+          client_id: r.client_id,
+          lot_id: r.lot_id,
+          advisor_id: r.advisor_id,
+          reservation_date: r.reservation_date,
+          expiration_date: r.expiration_date,
+          deposit_amount: r.deposit_amount,
+          deposit_method: r.deposit_method || '',
+          deposit_reference: r.deposit_reference || '',
+          status: r.status,
+        });
+      });
     }
   }
 
@@ -92,10 +130,7 @@ export class ReservationFormComponent implements OnInit {
         this.clients.set(clients);
         this.loadingClients.set(false);
       },
-      error: (error) => {
-        console.error('Error loading clients:', error);
-        this.loadingClients.set(false);
-      }
+      error: () => this.loadingClients.set(false),
     });
   }
 
@@ -106,31 +141,32 @@ export class ReservationFormComponent implements OnInit {
         this.manzanas.set(manzanas);
         this.loadingManzanas.set(false);
       },
-      error: (error) => {
-        console.error('Error loading manzanas:', error);
-        this.loadingManzanas.set(false);
-      }
+      error: () => this.loadingManzanas.set(false),
     });
   }
 
   private loadLotsByManzana(manzanaId: number): void {
     this.loadingLots.set(true);
-    this.lotService.paginate({
-      manzana_id: manzanaId,
-      status: 'disponible'
-    }).subscribe({
+    this.lotService.paginate({ manzana_id: manzanaId, status: 'disponible' }).subscribe({
       next: (response) => {
         this.lots.set(response.data);
         this.loadingLots.set(false);
       },
-      error: (error) => {
-        console.error('Error loading lots:', error);
-        this.loadingLots.set(false);
-      }
+      error: () => this.loadingLots.set(false),
     });
   }
 
-  // Métodos helper para obtener nombres para mostrar
+  private loadAdvisors(): void {
+    this.loadingAdvisors.set(true);
+    this.employeeService.getAllEmployees({ employee_type: 'asesor_inmobiliario' }).subscribe({
+      next: (response) => {
+        this.advisors.set(response.data);
+        this.loadingAdvisors.set(false);
+      },
+      error: () => this.loadingAdvisors.set(false),
+    });
+  }
+
   getClientDisplayName(client: Client): string {
     return `${client.first_name} ${client.last_name}`;
   }
@@ -143,43 +179,46 @@ export class ReservationFormComponent implements OnInit {
     return `Lote ${lot.num_lot} - ${lot.area_m2}m²`;
   }
 
+  getAdvisorDisplayName(advisor: Employee): string {
+    return advisor.full_name || `${advisor.first_name ?? ''} ${advisor.last_name ?? ''}`.trim() || 'Sin nombre';
+  }
+
   submit() {
-    if (this.form.invalid) return;
-    
-    const formData = this.form.getRawValue();
-    const fd = new FormData();
-    
-    // Convertir los IDs a los nombres para compatibilidad con la API actual
-    const selectedClient = this.clients().find(c => c.client_id == formData.client_id);
-    const selectedLot = this.lots().find(l => l.lot_id == formData.lot_id);
-    
-    if (selectedClient) {
-      fd.append('client_name', this.getClientDisplayName(selectedClient));
-    }
-    if (selectedLot) {
-      fd.append('lot_name', this.getLotDisplayName(selectedLot));
-    }
-    
-    // Agregar otros campos
-    fd.append('date', formData.date);
-    fd.append('status', formData.status);
-    
-    if (this.isEditMode) fd.append('_method', 'PATCH');
-    
-    const req$ =
-      this.isEditMode && this.editingId
-        ? this.reservationService.update(this.editingId, fd)
-        : this.reservationService.create(fd);
-        
-    req$.subscribe(() => {
-      this.submitForm.emit();
+    if (this.form.invalid || this.submitting()) return;
+    this.submitting.set(true);
+
+    const v = this.form.getRawValue();
+
+    const payload: any = {
+      lot_id: +v.lot_id,
+      client_id: +v.client_id,
+      advisor_id: +v.advisor_id,
+      reservation_date: v.reservation_date,
+      expiration_date: v.expiration_date,
+      deposit_amount: +v.deposit_amount,
+      status: v.status,
+    };
+
+    if (v.deposit_method) payload.deposit_method = v.deposit_method;
+    if (v.deposit_reference) payload.deposit_reference = v.deposit_reference;
+
+    const req$ = this.isEditMode && this.editingId
+      ? this.reservationService.update(this.editingId, payload)
+      : this.reservationService.create(payload);
+
+    req$.subscribe({
+      next: () => {
+        this.submitting.set(false);
+        this.submitForm.emit();
+      },
+      error: (err) => {
+        this.submitting.set(false);
+        console.error('Error saving reservation:', err);
+      },
     });
   }
 
   cancel() {
-    console.log('🔴 Cancel button clicked - START');
-    console.log('🔴 About to emit modalClosed event');
     this.modalClosed.emit();
-    console.log('🔴 modalClosed event emitted - END');
   }
 }

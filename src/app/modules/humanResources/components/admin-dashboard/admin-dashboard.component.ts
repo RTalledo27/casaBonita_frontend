@@ -46,13 +46,13 @@ interface AdminDashboardData {
 }
 
 @Component({
-  selector: 'app-admin-dashhoard',
+  selector: 'app-admin-dashboard',
   standalone: true,
   imports: [CommonModule, FormsModule, LucideAngularModule],
-  templateUrl: './admin-dashhoard.component.html',
-  styleUrls: ['./admin-dashhoard.component.scss']
+  templateUrl: './admin-dashboard.component.html',
+  styleUrls: ['./admin-dashboard.component.scss']
 })
-export class AdminDashhooardComponent implements OnInit {
+export class AdminDashboardComponent implements OnInit {
   private employeeService = inject(EmployeeService);
 
   // Señales para el estado del componente

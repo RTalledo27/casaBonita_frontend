@@ -5,7 +5,7 @@ export interface PaymentSchedule {
   installment_number: number;
   due_date: string;
   amount: number;
-  status: 'pendiente' | 'pagado' | 'vencido';
+  status: 'pendiente' | 'pagado' | 'vencido' | 'anulado';
   type?: string;
   payment_date?: string;
   payment_method?: 'cash' | 'transfer' | 'check' | 'card';
@@ -19,6 +19,10 @@ export interface PaymentSchedule {
   lot_name?: string;
   amount_paid?: number;
   remaining_amount?: number;
+  bono_techo_propio?: number;
+  descuento?: number;
+  precio_total_real?: number;
+  precio_venta?: number;
 }
 
 export interface PaymentScheduleFilters {

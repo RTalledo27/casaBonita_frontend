@@ -242,6 +242,14 @@ export class ExportService {
       'Provincia',
       'Departamento',
       'Lote',
+      'Precio Venta',
+      'Descuento',
+      'Bono Techo Propio',
+      'Precio Total Real',
+      'Total Pagado',
+      '% Pagado (sin Bono)',
+      '% Pagado (con Bono)',
+      '5% Precio Total',
       'Cuota',
       'Nombre de Cuota',
       'Tipo',
@@ -286,6 +294,16 @@ export class ExportService {
       (list as any[]).forEach((c: any) => { contractDetails[c.contract_id] = c; });
     } catch {}
 
+    // Pre-calculate total paid per contract
+    const totalPaidByContract: Record<number, number> = {};
+    data.forEach((s: any) => {
+      const cid = s.contract_id;
+      if (cid) {
+        const paid = s.status === 'pagado' ? (Number(s.amount_paid) || Number(s.amount) || 0) : 0;
+        totalPaidByContract[cid] = (totalPaidByContract[cid] || 0) + paid;
+      }
+    });
+
     // Data rows
     data.forEach((schedule, index) => {
       const daysOverdue = this.calculateDaysOverdue(schedule);
@@ -305,9 +323,18 @@ export class ExportService {
       const province = client?.address?.state || '';
       const department = client?.address?.country || '';
 
+      const precioVenta = Number(schedule.precio_venta) || 0;
+      const descuento = Number(schedule.descuento) || 0;
+      const bonoTechoPropio = Number(schedule.bono_techo_propio) || 0;
+      const precioTotalReal = Number(schedule.precio_total_real) || 0;
+      const fivePercent = precioTotalReal > 0 ? Math.round(precioTotalReal * 0.05 * 100) / 100 : 0;
+      const totalPaid = totalPaidByContract[schedule.contract_id] || 0;
+      const pctSinBono = precioTotalReal > 0 ? Math.round((totalPaid / precioTotalReal) * 10000) / 100 : 0;
+      const pctConBono = precioTotalReal > 0 ? Math.round(((totalPaid + bonoTechoPropio) / precioTotalReal) * 10000) / 100 : 0;
+
       const row = detailSheet.addRow([
         schedule.contract_number || schedule.contract_id?.toString() || 'N/A',
-        schedule.client_name || (client ? `${client?.first_name || ''} ${client?.last_name || ''}`.trim() : 'N/A'),
+        (schedule.client_name && schedule.client_name !== 'N/A') ? schedule.client_name : (client ? `${client?.first_name || ''} ${client?.last_name || ''}`.trim() : 'N/A'),
         dni,
         phone1,
         phone2,
@@ -317,6 +344,14 @@ export class ExportService {
         province,
         department,
         lotLabel,
+        precioVenta,
+        descuento,
+        bonoTechoPropio,
+        precioTotalReal,
+        totalPaid,
+        pctSinBono,
+        pctConBono,
+        fivePercent,
         schedule.installment_number?.toString() || '',
         this.escapeCsvValue(schedule.notes || ''),
         schedule.type || '',
@@ -327,8 +362,16 @@ export class ExportService {
         daysOverdue
       ]);
 
-      // Set number format for amount column (now column index shifted)
-      row.getCell(16).numFmt = '"S/ "#,##0.00';
+      // Set number format for currency columns
+      row.getCell(12).numFmt = '"S/ "#,##0.00';  // Precio Venta
+      row.getCell(13).numFmt = '"S/ "#,##0.00';  // Descuento
+      row.getCell(14).numFmt = '"S/ "#,##0.00';  // Bono Techo Propio
+      row.getCell(15).numFmt = '"S/ "#,##0.00';  // Precio Total Real
+      row.getCell(16).numFmt = '"S/ "#,##0.00';  // Total Pagado
+      row.getCell(17).numFmt = '0.00"%"';         // % Pagado (sin Bono)
+      row.getCell(18).numFmt = '0.00"%"';         // % Pagado (con Bono)
+      row.getCell(19).numFmt = '"S/ "#,##0.00';  // 5% Precio Total
+      row.getCell(24).numFmt = '"S/ "#,##0.00';  // Monto cuota
 
       // Zebra striping
       if (index % 2 === 0) {
@@ -342,7 +385,7 @@ export class ExportService {
       }
 
       // Color code status
-      const statusCell = row.getCell(17);
+      const statusCell = row.getCell(25);
       const status = schedule.status;
       if (status === 'pagado') {
         statusCell.font = { bold: true, color: { argb: 'FF059669' } };
@@ -377,20 +420,121 @@ export class ExportService {
     detailSheet.getColumn(9).width = 18;   // Provincia
     detailSheet.getColumn(10).width = 18;  // Departamento
     detailSheet.getColumn(11).width = 12;  // Lote
-    detailSheet.getColumn(12).width = 8;   // Cuota
-    detailSheet.getColumn(13).width = 24;  // Nombre de Cuota
-    detailSheet.getColumn(14).width = 14;  // Tipo
-    detailSheet.getColumn(15).width = 18;  // Fecha Vencimiento
-    detailSheet.getColumn(16).width = 15;  // Monto
-    detailSheet.getColumn(17).width = 16;  // Estado (calculado)
-    detailSheet.getColumn(18).width = 18;  // Fecha Pago
-    detailSheet.getColumn(19).width = 12;  // Días Vencido
+    detailSheet.getColumn(12).width = 18;  // Precio Venta
+    detailSheet.getColumn(13).width = 16;  // Descuento
+    detailSheet.getColumn(14).width = 20;  // Bono Techo Propio
+    detailSheet.getColumn(15).width = 20;  // Precio Total Real
+    detailSheet.getColumn(16).width = 18;  // Total Pagado
+    detailSheet.getColumn(17).width = 20;  // % Pagado (sin Bono)
+    detailSheet.getColumn(18).width = 20;  // % Pagado (con Bono)
+    detailSheet.getColumn(19).width = 18;  // 5% Precio Total
+    detailSheet.getColumn(20).width = 8;   // Cuota
+    detailSheet.getColumn(21).width = 24;  // Nombre de Cuota
+    detailSheet.getColumn(22).width = 14;  // Tipo
+    detailSheet.getColumn(23).width = 18;  // Fecha Vencimiento
+    detailSheet.getColumn(24).width = 15;  // Monto
+    detailSheet.getColumn(25).width = 16;  // Estado (calculado)
+    detailSheet.getColumn(26).width = 18;  // Fecha Pago
+    detailSheet.getColumn(27).width = 12;  // Días Vencido
 
     // Freeze header row
     detailSheet.views = [
       { state: 'frozen', xSplit: 0, ySplit: 1 }
     ];
 
+    // ====== HOJA LEYENDA ======
+    const legendSheet = workbook.addWorksheet('Leyenda', {
+      properties: { tabColor: { argb: 'FFF59E0B' } }
+    });
+
+    // Title
+    legendSheet.mergeCells('A1:C1');
+    const legendTitle = legendSheet.getCell('A1');
+    legendTitle.value = 'LEYENDA DE COLUMNAS';
+    legendTitle.font = { size: 16, bold: true, color: { argb: 'FF1E3A8A' } };
+    legendTitle.alignment = { vertical: 'middle', horizontal: 'center' };
+    legendSheet.getRow(1).height = 30;
+
+    // Subtitle
+    legendSheet.mergeCells('A2:C2');
+    const legendSub = legendSheet.getCell('A2');
+    legendSub.value = `Generado: ${new Date().toLocaleDateString('es-PE', { year: 'numeric', month: 'long', day: 'numeric' })}`;
+    legendSub.font = { size: 10, italic: true, color: { argb: 'FF6B7280' } };
+    legendSub.alignment = { horizontal: 'center' };
+
+    // Legend headers
+    const legendHeaders = legendSheet.addRow(['Columna', 'Descripción', 'Tipo / Fórmula']);
+    legendHeaders.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 11 };
+    legendHeaders.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E40AF' } };
+    legendHeaders.alignment = { vertical: 'middle', horizontal: 'center' };
+    legendHeaders.height = 22;
+
+    const legendData: string[][] = [
+      ['Contrato', 'Número de contrato asignado al cliente', 'Texto'],
+      ['Cliente', 'Nombre completo del cliente', 'Texto'],
+      ['DNI', 'Documento Nacional de Identidad del cliente', 'Texto'],
+      ['Teléfono', 'Teléfono principal de contacto', 'Texto'],
+      ['Teléfono 2', 'Teléfono secundario de contacto', 'Texto'],
+      ['Email', 'Correo electrónico del cliente', 'Texto'],
+      ['Dirección', 'Dirección de domicilio del cliente', 'Texto'],
+      ['Distrito', 'Distrito del domicilio', 'Texto'],
+      ['Provincia', 'Provincia del domicilio', 'Texto'],
+      ['Departamento', 'Departamento del domicilio', 'Texto'],
+      ['Lote', 'Identificador del lote (Manzana - Lote)', 'Texto'],
+      ['Precio Venta', 'Precio de lista del lote (sin descuento, sin bono)', 'Moneda S/'],
+      ['Descuento', 'Descuento aplicado al contrato (proveniente del CRM)', 'Moneda S/'],
+      ['Bono Techo Propio', 'Subsidio estatal Techo Propio (S/ 52,250 si aplica)', 'Moneda S/'],
+      ['Precio Total Real', 'Precio final = Precio Venta − Descuento + Bono Techo Propio', 'Moneda S/ (fórmula)'],
+      ['Total Pagado', 'Suma de todas las cuotas pagadas del contrato', 'Moneda S/'],
+      ['% Pagado (sin Bono)', 'Porcentaje pagado sin considerar el bono = Total Pagado / Precio Total Real × 100', 'Porcentaje (fórmula)'],
+      ['% Pagado (con Bono)', 'Porcentaje pagado incluyendo bono = (Total Pagado + Bono) / Precio Total Real × 100', 'Porcentaje (fórmula)'],
+      ['5% Precio Total', 'Umbral del 5% sobre Precio Total Real para separación', 'Moneda S/ (fórmula)'],
+      ['Cuota', 'Número de cuota dentro del cronograma', 'Número'],
+      ['Nombre de Cuota', 'Descripción o etiqueta de la cuota', 'Texto'],
+      ['Tipo', 'Tipo de cuota: inicial, financiamiento, balon, bono_bpp', 'Texto'],
+      ['Fecha Vencimiento', 'Fecha en que vence la cuota', 'Fecha'],
+      ['Monto', 'Monto a pagar de la cuota', 'Moneda S/'],
+      ['Estado (calculado)', 'Estado real: Pagado, Pendiente o Vencido (recalculado)', 'Texto'],
+      ['Fecha Pago', 'Fecha en que se realizó el pago (si aplica)', 'Fecha'],
+      ['Días Vencido', 'Días transcurridos desde el vencimiento (solo cuotas vencidas)', 'Número'],
+    ];
+
+    legendData.forEach((row, i) => {
+      const r = legendSheet.addRow(row);
+      r.height = 18;
+      if (i % 2 === 0) {
+        r.eachCell(cell => {
+          cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF9FAFB' } };
+        });
+      }
+      r.eachCell(cell => {
+        cell.border = {
+          top: { style: 'thin', color: { argb: 'FFE5E7EB' } },
+          left: { style: 'thin', color: { argb: 'FFE5E7EB' } },
+          bottom: { style: 'thin', color: { argb: 'FFE5E7EB' } },
+          right: { style: 'thin', color: { argb: 'FFE5E7EB' } }
+        };
+      });
+    });
+
+    // Fórmulas note
+    const formulaRow = legendSheet.addRow([]);
+    const noteRow = legendSheet.addRow(['FÓRMULAS CLAVE:']);
+    noteRow.font = { bold: true, size: 11 };
+    const formulas = [
+      ['', 'Precio Total Real = Precio Venta − Descuento + Bono Techo Propio', ''],
+      ['', '% Pagado (sin Bono) = Total Pagado ÷ Precio Total Real × 100', ''],
+      ['', '% Pagado (con Bono) = (Total Pagado + Bono) ÷ Precio Total Real × 100', ''],
+      ['', '5% Precio Total = Precio Total Real × 0.05', ''],
+    ];
+    formulas.forEach(f => {
+      const r = legendSheet.addRow(f);
+      r.getCell(2).font = { italic: true, color: { argb: 'FF4B5563' } };
+    });
+
+    legendSheet.getColumn(1).width = 24;
+    legendSheet.getColumn(2).width = 60;
+    legendSheet.getColumn(3).width = 24;
 
     // Generate and download file using browser native download
     const buffer = await workbook.xlsx.writeBuffer();

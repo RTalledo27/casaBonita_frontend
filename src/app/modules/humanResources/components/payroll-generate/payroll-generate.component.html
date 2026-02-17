@@ -1,4 +1,4 @@
-<div class="p-6 max-w-7xl mx-auto bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+<div class="p-4 sm:p-6 bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
   <!-- Header -->
   <div class="flex items-center gap-4 mb-8 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 transition-colors">
     <button (click)="onCancel()" class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
@@ -16,8 +16,71 @@
     <p class="text-lg font-semibold text-gray-700 dark:text-gray-300">Cargando empleados...</p>
   </div>
 
+  <!-- Generation Complete State -->
+  <div *ngIf="generationComplete()" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-8 transition-colors">
+    <!-- Success Icon -->
+    <div class="flex flex-col items-center text-center mb-8">
+      <div class="w-20 h-20 rounded-full flex items-center justify-center mb-4"
+        [ngClass]="generationResult()?.failed === 0 ? 'bg-green-100 dark:bg-green-900/30' : 'bg-yellow-100 dark:bg-yellow-900/30'">
+        <lucide-angular 
+          [img]="generationResult()?.failed === 0 ? CheckCircle : AlertCircle" 
+          [ngClass]="generationResult()?.failed === 0 ? 'text-green-600 dark:text-green-400' : 'text-yellow-600 dark:text-yellow-400'" 
+          size="40">
+        </lucide-angular>
+      </div>
+      <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+        {{ generationResult()?.failed === 0 ? 'Nóminas Generadas Exitosamente' : 'Generación Completada con Observaciones' }}
+      </h2>
+      <p class="text-gray-600 dark:text-gray-400">
+        {{ getMonthName(payrollForm.get('period_month')?.value) }} {{ payrollForm.get('period_year')?.value }}
+      </p>
+    </div>
+
+    <!-- Results Summary -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8 max-w-2xl mx-auto">
+      <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-xl p-4 text-center">
+        <div class="text-3xl font-bold text-green-600 dark:text-green-400">{{ generationResult()?.successful || 0 }}</div>
+        <div class="text-sm text-green-700 dark:text-green-300 mt-1">Generadas</div>
+      </div>
+      <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-xl p-4 text-center">
+        <div class="text-3xl font-bold text-red-600 dark:text-red-400">{{ generationResult()?.failed || 0 }}</div>
+        <div class="text-sm text-red-700 dark:text-red-300 mt-1">Fallidas</div>
+      </div>
+      <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-xl p-4 text-center">
+        <div class="text-3xl font-bold text-blue-600 dark:text-blue-400">{{ (generationResult()?.successful || 0) + (generationResult()?.failed || 0) }}</div>
+        <div class="text-sm text-blue-700 dark:text-blue-300 mt-1">Total Procesadas</div>
+      </div>
+    </div>
+
+    <!-- Errors Detail -->
+    <div *ngIf="generationResult()?.errors?.length" class="mb-8 max-w-2xl mx-auto">
+      <h3 class="text-sm font-semibold text-red-700 dark:text-red-400 mb-3">Detalle de errores:</h3>
+      <div class="space-y-2">
+        <div *ngFor="let err of generationResult()?.errors" 
+          class="flex items-center gap-3 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg text-sm">
+          <lucide-angular [img]="AlertCircle" size="16" class="text-red-500 flex-shrink-0"></lucide-angular>
+          <span class="text-red-800 dark:text-red-300">
+            <strong>{{ err.employee_name || 'Empleado ' + err.employee_id }}</strong>: {{ err.error }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+      <button type="button" (click)="resetForNewGeneration()" 
+        class="px-6 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+        Generar Más Nóminas
+      </button>
+      <button type="button" (click)="goToPayrollList()" 
+        class="btn-generate px-6 py-2.5 text-sm font-medium text-white rounded-lg shadow-lg transition-all">
+        Ver Listado de Nóminas
+      </button>
+    </div>
+  </div>
+
   <!-- Form -->
-  <div *ngIf="!isLoading">
+  <div *ngIf="!isLoading && !generationComplete()">
     <form [formGroup]="payrollForm" (ngSubmit)="onSubmit()">
       
       <!-- Tax Parameters Warning / Info -->
@@ -39,27 +102,34 @@
         </div>
       </div>
 
-      <!-- Tax Parameters Info Card - Enhanced -->
-      <div *ngIf="taxParameters() && !loadingTaxParams()" class="mb-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <!-- Header -->
-        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-700 dark:to-indigo-700 px-6 py-4">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <div class="p-2 bg-white/20 rounded-lg">
-                <lucide-angular [img]="Calculator" size="24" class="text-white"></lucide-angular>
-              </div>
-              <div>
-                <h3 class="text-xl font-bold text-white">
-                  Parámetros Tributarios {{ payrollForm.get('period_year')?.value }}
-                </h3>
-                <p class="text-sm text-blue-100">Los descuentos se calcularán según el sueldo de cada empleado</p>
-              </div>
+      <!-- Tax Parameters Info Card - Collapsible -->
+      <div *ngIf="taxParameters() && !loadingTaxParams()" class="mb-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <!-- Header - Clickable to toggle -->
+        <button
+          type="button"
+          (click)="toggleTaxDetails()"
+          class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-700 dark:to-indigo-700 px-6 py-4 flex items-center justify-between cursor-pointer hover:from-blue-700 hover:to-indigo-700 transition-all"
+        >
+          <div class="flex items-center gap-3">
+            <div class="p-2 bg-white/20 rounded-lg">
+              <lucide-angular [img]="Calculator" size="20" class="text-white"></lucide-angular>
+            </div>
+            <div class="text-left">
+              <h3 class="text-lg font-bold text-white">
+                Parámetros Tributarios {{ payrollForm.get('period_year')?.value }}
+              </h3>
+              <p class="text-sm text-blue-100">
+                UIT: S/ {{ taxParameters()!.uit_amount | number:'1.0-0' }} · 
+                RMV: S/ {{ taxParameters()!.minimum_wage | number:'1.0-0' }} · 
+                ONP: {{ taxParameters()!.onp_rate }}%
+              </p>
             </div>
           </div>
-        </div>
+          <lucide-angular [img]="showTaxDetails() ? ChevronUp : ChevronDown" size="20" class="text-white"></lucide-angular>
+        </button>
         
-        <!-- Content -->
-        <div class="p-6">
+        <!-- Collapsible Content -->
+        <div *ngIf="showTaxDetails()" class="p-6">
           <!-- Valores Base -->
           <div class="mb-6">
             <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
@@ -97,28 +167,24 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <!-- ONP -->
               <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
-                <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center justify-between mb-2">
                   <h5 class="font-semibold text-gray-900 dark:text-white">ONP</h5>
                   <span class="px-2 py-1 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 text-sm font-bold rounded">
                     {{ taxParameters()!.onp_rate }}%
                   </span>
                 </div>
-                <p class="text-xs text-gray-600 dark:text-gray-400 mb-2">Descuento único:</p>
-                <div class="bg-white dark:bg-gray-800 p-2 rounded text-xs text-gray-700 dark:text-gray-300">
-                  <strong>Ejemplo:</strong> Sueldo S/ 3,000<br>
-                  Descuento: <span class="font-bold text-blue-600 dark:text-blue-400">S/ {{ (3000 * taxParameters()!.onp_rate / 100) | number:'1.2-2' }}</span>
-                </div>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Descuento único sobre el sueldo bruto</p>
               </div>
 
               <!-- AFP -->
               <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
-                <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center justify-between mb-2">
                   <h5 class="font-semibold text-gray-900 dark:text-white">AFP</h5>
                   <span class="px-2 py-1 bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 text-xs font-bold rounded">
                     3 descuentos
                   </span>
                 </div>
-                <div class="space-y-2 text-xs">
+                <div class="space-y-1 text-xs">
                   <div class="flex justify-between items-center">
                     <span class="text-gray-600 dark:text-gray-400">Aporte obligatorio:</span>
                     <span class="font-bold text-gray-900 dark:text-white">{{ taxParameters()!.afp_contribution_rate }}%</span>
@@ -131,10 +197,6 @@
                     <span class="text-gray-600 dark:text-gray-400">Comisión (varía):</span>
                     <span class="font-bold text-gray-900 dark:text-white">{{ taxParameters()!.afp_prima_commission }}% - {{ taxParameters()!.afp_profuturo_commission }}%</span>
                   </div>
-                  <div class="bg-white dark:bg-gray-800 p-2 rounded mt-2 text-xs text-gray-700 dark:text-gray-300 border-t border-gray-200 dark:border-gray-600 pt-2">
-                    <strong>Ejemplo Prima:</strong> Sueldo S/ 3,000<br>
-                    Total: <span class="font-bold text-purple-600 dark:text-purple-400">S/ {{ (3000 * (taxParameters()!.afp_contribution_rate + taxParameters()!.afp_insurance_rate + taxParameters()!.afp_prima_commission) / 100) | number:'1.2-2' }}</span>
-                  </div>
                 </div>
               </div>
             </div>
@@ -144,7 +206,7 @@
           <div>
             <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
               <lucide-angular [img]="TrendingUp" size="16" class="text-gray-500"></lucide-angular>
-              Impuesto a la Renta - 5ta Categoría (aplicación progresiva)
+              Impuesto a la Renta - 5ta Categoría
             </h4>
             <div class="bg-gradient-to-br from-slate-50 to-gray-100 dark:from-slate-800 dark:to-gray-800 p-4 rounded-lg border border-slate-200 dark:border-slate-600">
               <div class="text-xs text-slate-600 dark:text-slate-400 mb-3">
@@ -199,7 +261,7 @@
               
               <div class="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg">
                 <p class="text-xs text-blue-800 dark:text-blue-300">
-                  <strong>💡 Nota:</strong> El impuesto se calcula de forma <strong>progresiva</strong>. 
+                  <strong>Nota:</strong> El impuesto se calcula de forma <strong>progresiva</strong>. 
                   Solo se grava lo que excede cada tramo. Sueldos menores a 
                   <strong>S/ {{ ((7 * taxParameters()!.uit_amount) / 12) | number:'1.0-0' }}</strong> 
                   mensuales no pagan impuesto.
@@ -349,33 +411,44 @@
               </div>
               <div>
                 <span class="block text-sm font-medium opacity-90 mb-1">En Esta Página</span>
-                <span class="text-2xl font-bold">{{ getSelectedInCurrentPage() }}/{{ employees.length }}</span>
+                <span class="text-2xl font-bold">{{ getSelectedInCurrentPage() }}/{{ employees().length }}</span>
                 <span class="block text-xs opacity-75 mt-1">Seleccionados aquí</span>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Información de Paginación -->
-        <div class="mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-sm">
-          <span class="text-gray-600 dark:text-gray-400">
-            Mostrando {{ paginationInfo().start }} - {{ paginationInfo().end }} de {{ paginationInfo().total }} empleados
-          </span>
-          <div class="flex items-center gap-2">
-            <span class="text-gray-600 dark:text-gray-400">Página {{ currentPage() }} de {{ totalPages() }}</span>
+        <!-- Search + Pagination Info -->
+        <div class="mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+          <div class="relative w-full sm:w-72">
+            <lucide-angular [img]="Search" size="16" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></lucide-angular>
+            <input
+              type="text"
+              [value]="searchTerm()"
+              (input)="onSearchChange($event)"
+              placeholder="Buscar por nombre o código..."
+              class="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+            />
+          </div>
+          <div class="flex items-center gap-2 text-sm">
+            <span class="text-gray-600 dark:text-gray-400">
+              Mostrando {{ paginationInfo().start }} - {{ paginationInfo().end }} de {{ paginationInfo().total }}
+            </span>
             <span *ngIf="selectedCount() > 0" class="px-2 py-1 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 text-xs font-semibold rounded-full">
-              {{ selectedCount() }} total seleccionados
+              {{ selectedCount() }} seleccionados
             </span>
           </div>
         </div>
 
         <!-- Lista de Empleados -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 min-h-[400px] p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-600">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 min-h-[200px] p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-600">
           <div
-            *ngFor="let employee of employees"
+            *ngFor="let employee of filteredEmployees()"
             class="flex items-center gap-4 p-4 bg-white dark:bg-gray-700 rounded-lg border-2 cursor-pointer transition-all hover:shadow-md"
-            [class]="isEmployeeSelected(employee.employee_id) ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20' : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'"
-            (click)="onEmployeeToggle(employee.employee_id)"
+            [ngClass]="isEmployeeSelected(employee.employee_id) 
+              ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20' 
+              : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'"
+            (click)="toggleEmployeeSelection(employee.employee_id)"
           >
             <div>
               <input
@@ -396,113 +469,104 @@
               </div>
             </div>
           </div>
+
+          <!-- Empty state when search has no results -->
+          <div *ngIf="filteredEmployees().length === 0 && searchTerm()" class="col-span-full flex flex-col items-center justify-center py-12 text-gray-500 dark:text-gray-400">
+            <lucide-angular [img]="Search" size="40" class="mb-3 opacity-40"></lucide-angular>
+            <p class="text-sm">No se encontraron empleados con "<strong>{{ searchTerm() }}</strong>"</p>
+          </div>
         </div>
 
-        <!-- Controles de Paginación Mejorados -->
-        <div *ngIf="totalPages() > 1" class="mt-6 bg-white dark:bg-gray-800 px-4 py-3 border-t border-gray-200 dark:border-gray-700 sm:px-6 rounded-b-lg">
-          <div class="flex items-center justify-between">
-            <!-- Información de paginación en móvil -->
-            <div class="flex-1 flex justify-between sm:hidden">
+        <!-- Controles de Paginación -->
+        <div *ngIf="totalPages() > 1" class="mt-6 flex items-center justify-between">
+          <!-- Mobile -->
+          <div class="flex-1 flex justify-between sm:hidden">
+            <button
+              type="button"
+              [disabled]="currentPage() === 1"
+              (click)="onPageChange(currentPage() - 1)"
+              class="px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              Anterior
+            </button>
+            <span class="px-3 py-2 text-sm text-gray-600 dark:text-gray-400">{{ currentPage() }} / {{ totalPages() }}</span>
+            <button
+              type="button"
+              [disabled]="currentPage() === totalPages()"
+              (click)="onPageChange(currentPage() + 1)"
+              class="px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              Siguiente
+            </button>
+          </div>
+          
+          <!-- Desktop -->
+          <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+            <p class="text-sm text-gray-700 dark:text-gray-300">
+              Mostrando
+              <span class="font-medium">{{ paginationInfo().start }}</span>
+              a
+              <span class="font-medium">{{ paginationInfo().end }}</span>
+              de
+              <span class="font-medium">{{ paginationInfo().total }}</span>
+              empleados
+            </p>
+            
+            <nav class="inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+              <button
+                type="button"
+                [disabled]="currentPage() === 1"
+                (click)="onPageChange(1)"
+                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                title="Primera página"
+              >
+                <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414zm-6 0a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                </svg>
+              </button>
+              
               <button
                 type="button"
                 [disabled]="currentPage() === 1"
                 (click)="onPageChange(currentPage() - 1)"
-                class="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                class="relative inline-flex items-center px-2 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                Anterior
+                <lucide-angular [img]="ChevronLeft" size="20"></lucide-angular>
               </button>
+              
+              <button
+                type="button"
+                *ngFor="let page of getPageNumbers()"
+                [ngClass]="currentPage() === page 
+                  ? 'z-10 bg-primary-50 dark:bg-primary-900/50 border-primary-500 dark:border-primary-400 text-primary-600 dark:text-primary-300' 
+                  : 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600'"
+                (click)="onPageChange(page)"
+                class="relative inline-flex items-center px-4 py-2 border text-sm font-medium transition-colors"
+              >
+                {{ page }}
+              </button>
+              
               <button
                 type="button"
                 [disabled]="currentPage() === totalPages()"
                 (click)="onPageChange(currentPage() + 1)"
-                class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                class="relative inline-flex items-center px-2 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                Siguiente
+                <lucide-angular [img]="ChevronRight" size="20"></lucide-angular>
               </button>
-            </div>
-            
-            <!-- Información de paginación en desktop -->
-            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-              <div>
-                <p class="text-sm text-gray-700 dark:text-gray-300">
-                   Mostrando
-                   <span class="font-medium">{{ getPaginationInfo().start }}</span>
-                   a
-                   <span class="font-medium">{{ getPaginationInfo().end }}</span>
-                   de
-                   <span class="font-medium">{{ getPaginationInfo().total }}</span>
-                   empleados
-                 </p>
-              </div>
               
-              <!-- Controles de navegación -->
-              <div>
-                <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                  <!-- Botón Primera Página -->
-                  <button
-                    type="button"
-                    [disabled]="currentPage() === 1"
-                    (click)="onPageChange(1)"
-                    class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    title="Primera página"
-                  >
-                    <span class="sr-only">Primera página</span>
-                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414zm-6 0a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
-                    </svg>
-                  </button>
-                  
-                  <!-- Botón Anterior -->
-                  <button
-                    type="button"
-                    [disabled]="currentPage() === 1"
-                    (click)="onPageChange(currentPage() - 1)"
-                    class="relative inline-flex items-center px-2 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                  >
-                    <span class="sr-only">Anterior</span>
-                    <lucide-angular [img]="ChevronLeft" size="20"></lucide-angular>
-                  </button>
-                  
-                  <!-- Números de página -->
-                  <button
-                    type="button"
-                    *ngFor="let page of getPageNumbers()"
-                    [class]="currentPage() === page ? 
-                      'z-10 bg-primary-50 dark:bg-primary-900/50 border-primary-500 dark:border-primary-400 text-primary-600 dark:text-primary-300' : 
-                      'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600'"
-                    (click)="onPageChange(page)"
-                    class="relative inline-flex items-center px-4 py-2 border text-sm font-medium transition-colors"
-                  >
-                    {{ page }}
-                  </button>
-                  
-                  <!-- Botón Siguiente -->
-                  <button
-                    type="button"
-                    [disabled]="currentPage() === totalPages()"
-                    (click)="onPageChange(currentPage() + 1)"
-                    class="relative inline-flex items-center px-2 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                  >
-                    <span class="sr-only">Siguiente</span>
-                    <lucide-angular [img]="ChevronRight" size="20"></lucide-angular>
-                  </button>
-                  
-                  <!-- Botón Última Página -->
-                  <button
-                    type="button"
-                    [disabled]="currentPage() === totalPages()"
-                    (click)="onPageChange(totalPages())"
-                    class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    title="Última página"
-                  >
-                    <span class="sr-only">Última página</span>
-                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414zm6 0a1 1 0 011.414 0l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414-1.414L14.586 10l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
-                    </svg>
-                  </button>
-                </nav>
-              </div>
-            </div>
+              <button
+                type="button"
+                [disabled]="currentPage() === totalPages()"
+                (click)="onPageChange(totalPages())"
+                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                title="Última página"
+              >
+                <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414zm6 0a1 1 0 011.414 0l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414-1.414L14.586 10l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
+              </button>
+            </nav>
           </div>
         </div>
       </div>
@@ -524,25 +588,24 @@
       </div>
 
       <!-- Spacer for fixed buttons -->
-      <div class="h-20"></div>
+      <div class="h-28"></div>
     </form>
   </div>
 </div>
 
-<!-- Fixed Form Actions -->
-<div class="fixed bottom-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-lg z-50 transition-colors" style="left: 240px;">
+<!-- Fixed Form Actions -->\n<div *ngIf="!generationComplete()" class="fixed bottom-0 left-0 right-0 sm:left-[240px] bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-lg z-50 transition-colors">
   <div class="w-full px-4 sm:px-6 py-3">
-    <div class="flex items-center justify-between gap-3">
+    <div class="flex items-center justify-between gap-4">
       <!-- Summary Info -->
-      <div class="flex items-center gap-3 text-sm flex-shrink-0">
-        <div class="flex items-center gap-2">
+      <div class="flex items-center gap-3 text-sm min-w-0 overflow-hidden">
+        <div class="flex items-center gap-2 flex-shrink-0">
           <lucide-angular [img]="Users" size="16" class="text-blue-600 dark:text-blue-400"></lucide-angular>
           <span class="text-gray-700 dark:text-gray-300">
             <strong class="text-blue-600 dark:text-blue-400">{{ selectedCount() }}</strong> empleados
           </span>
         </div>
-        <div class="h-4 w-px bg-gray-300 dark:bg-gray-600 hidden sm:block"></div>
-        <div class="flex items-center gap-2">
+        <div class="h-4 w-px bg-gray-300 dark:bg-gray-600 hidden sm:block flex-shrink-0"></div>
+        <div class="items-center gap-2 hidden sm:flex flex-shrink-0">
           <lucide-angular [img]="DollarSign" size="16" class="text-green-600 dark:text-green-400"></lucide-angular>
           <span class="text-gray-700 dark:text-gray-300">
             <strong class="text-green-600 dark:text-green-400">{{ formatCurrency(estimatedTotal()) }}</strong>
@@ -551,8 +614,8 @@
       </div>
       
       <!-- Action Buttons -->
-      <div class="flex items-center gap-2 flex-shrink-0">
-        <button type="button" (click)="onCancel()" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-500 transition-colors">
+      <div class="flex items-center gap-3 flex-shrink-0">
+        <button type="button" (click)="onCancel()" class="px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
           Cancelar
         </button>
         
@@ -560,7 +623,7 @@
           type="button"
           (click)="onSubmit()"
           [disabled]="isGenerating || selectedCount() === 0"
-          class="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 disabled:bg-gray-400 dark:disabled:bg-gray-600 disabled:cursor-not-allowed rounded-lg focus:ring-2 focus:ring-primary-500 transition-colors shadow-lg flex-shrink-0"
+          class="btn-generate flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-medium text-white rounded-lg shadow-lg transition-all"
         >
           <lucide-angular *ngIf="!isGenerating" [img]="Send" size="16"></lucide-angular>
           <div *ngIf="isGenerating" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -632,7 +695,7 @@
                 <div class="flex items-center gap-2">
                   <lucide-angular 
                     [img]="payrollForm.get('include_commissions')?.value ? CheckCircle : AlertCircle" 
-                    [class]="payrollForm.get('include_commissions')?.value ? 'text-green-600' : 'text-gray-400'" 
+                    [ngClass]="payrollForm.get('include_commissions')?.value ? 'text-green-600' : 'text-gray-400'" 
                     size="16"
                   ></lucide-angular>
                   <span class="text-gray-700 dark:text-gray-300">
@@ -642,7 +705,7 @@
                 <div class="flex items-center gap-2">
                   <lucide-angular 
                     [img]="payrollForm.get('include_bonuses')?.value ? CheckCircle : AlertCircle" 
-                    [class]="payrollForm.get('include_bonuses')?.value ? 'text-green-600' : 'text-gray-400'" 
+                    [ngClass]="payrollForm.get('include_bonuses')?.value ? 'text-green-600' : 'text-gray-400'" 
                     size="16"
                   ></lucide-angular>
                   <span class="text-gray-700 dark:text-gray-300">
@@ -652,7 +715,7 @@
                 <div class="flex items-center gap-2">
                   <lucide-angular 
                     [img]="payrollForm.get('include_overtime')?.value ? CheckCircle : AlertCircle" 
-                    [class]="payrollForm.get('include_overtime')?.value ? 'text-green-600' : 'text-gray-400'" 
+                    [ngClass]="payrollForm.get('include_overtime')?.value ? 'text-green-600' : 'text-gray-400'" 
                     size="16"
                   ></lucide-angular>
                   <span class="text-gray-700 dark:text-gray-300">

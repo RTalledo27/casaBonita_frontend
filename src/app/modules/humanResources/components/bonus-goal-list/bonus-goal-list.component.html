@@ -163,7 +163,7 @@
                   </div>
                 </div>
 
-                <!-- Team Info -->
+                <!-- Team & Office Info -->
                  @if (goal.team) {
                    <div class="flex items-center gap-3 p-3 bg-blue-50/80 dark:bg-blue-900/20 rounded-xl">
                      <lucide-icon [img]="Users" size="16" class="text-blue-600 dark:text-blue-400"></lucide-icon>
@@ -171,6 +171,9 @@
                        <p class="text-xs font-medium text-blue-600 dark:text-blue-400 uppercase tracking-wide">Equipo</p>
                        <p class="text-sm font-semibold text-blue-800 dark:text-blue-200">
                          {{ goal.team.team_name }}
+                         @if (goal.team.office) {
+                           <span class="text-xs font-normal text-blue-600 dark:text-blue-400 ml-1">· {{ goal.team.office.name }}</span>
+                         }
                        </p>
                      </div>
                    </div>

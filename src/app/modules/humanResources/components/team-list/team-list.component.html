@@ -150,13 +150,33 @@
 
         <!-- Team Info -->
         <div class="p-6">
+          <!-- Office Info -->
+          <div *ngIf="team.office" class="flex items-center mb-3 p-2.5 rounded-xl bg-teal-50/80 dark:bg-teal-900/20 border border-teal-200/60 dark:border-teal-800/40">
+            <lucide-angular [img]="Building2" class="w-4 h-4 mr-2 text-teal-600 dark:text-teal-400"></lucide-angular>
+            <span class="text-sm font-medium text-teal-700 dark:text-teal-300">{{ team.office.name }}</span>
+          </div>
+          <div *ngIf="!team.office" class="flex items-center mb-3 p-2.5 rounded-xl bg-gray-50/80 dark:bg-gray-700/30">
+            <lucide-angular [img]="Building2" class="w-4 h-4 mr-2 text-gray-400"></lucide-angular>
+            <span class="text-sm text-gray-500 dark:text-gray-400 italic">Sin oficina asignada</span>
+          </div>
+
           <!-- Leader Info -->
-          <div class="flex items-center mb-4">
+          <div class="flex items-center mb-3">
             <div class="bg-gradient-to-br from-amber-400 to-yellow-500 rounded-xl p-1.5 mr-2 shadow-sm">
               <lucide-angular [img]="Crown" class="w-4 h-4 text-white"></lucide-angular>
             </div>
             <span class="text-sm text-gray-600 dark:text-gray-400">Líder:</span>
             <span class="text-sm font-semibold text-gray-900 dark:text-white ml-1">{{ getLeaderName(team.team_leader_id) }}</span>
+          </div>
+
+          <!-- Monthly Goal -->
+          <div class="flex items-center mb-4 p-2.5 rounded-xl" 
+            [ngClass]="team.monthly_goal ? 'bg-emerald-50/80 dark:bg-emerald-900/20 border border-emerald-200/60 dark:border-emerald-800/40' : 'bg-gray-50/80 dark:bg-gray-700/30 border border-gray-200/60 dark:border-gray-600/40'">
+            <lucide-angular [img]="Target" class="w-4 h-4 mr-2" [ngClass]="team.monthly_goal ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400'"></lucide-angular>
+            <span class="text-xs mr-1" [ngClass]="team.monthly_goal ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-500 dark:text-gray-400'">Meta:</span>
+            <span class="text-sm font-bold" [ngClass]="team.monthly_goal ? 'text-emerald-700 dark:text-emerald-300' : 'text-gray-500 dark:text-gray-400 italic font-normal'">
+              {{ team.monthly_goal ? team.monthly_goal + ' ventas' : 'Sin meta asignada' }}
+            </span>
           </div>
 
           <!-- Actions -->

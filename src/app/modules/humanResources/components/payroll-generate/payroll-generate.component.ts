@@ -2,7 +2,7 @@ import { Component, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { LucideAngularModule, Calendar, Users, DollarSign, FileText, ArrowLeft, Send, Save, Calculator, ChevronLeft, ChevronRight, AlertCircle, CheckCircle, Info, TrendingUp, Percent } from 'lucide-angular';
+import { LucideAngularModule, Calendar, Users, DollarSign, FileText, ArrowLeft, Send, Save, Calculator, ChevronLeft, ChevronRight, AlertCircle, CheckCircle, Info, TrendingUp, Percent, Search, ChevronDown, ChevronUp } from 'lucide-angular';
 import { ToastService } from '../../../../core/services/toast.service';
 import { PayrollService, PayrollGenerateRequest, PayrollBatchResponse } from '../../services/payroll.service';
 import { EmployeeService } from '../../services/employee.service';
@@ -34,10 +34,12 @@ export class PayrollGenerateComponent implements OnInit {
   readonly Info = Info;
   readonly TrendingUp = TrendingUp;
   readonly Percent = Percent;
+  readonly Search = Search;
+  readonly ChevronDown = ChevronDown;
+  readonly ChevronUp = ChevronUp;
 
   payrollForm: FormGroup;
-  employees: Employee[] = [];
-  selectedEmployees: number[] = [];
+  employees = signal<Employee[]>([]);
   selectedEmployeesInfo = signal<Map<number, { id: number; name: string; salary: number }>>(new Map());
   isLoading = false;
   isGenerating = false;
@@ -46,23 +48,29 @@ export class PayrollGenerateComponent implements OnInit {
   taxParameters = signal<TaxParameter | null>(null);
   loadingTaxParams = signal<boolean>(false);
   taxParamsError = signal<string | null>(null);
+  showTaxDetails = signal<boolean>(false);
   
   // Confirmation modal
   showConfirmModal = signal<boolean>(false);
+
+  // Generation result state
+  generationComplete = signal<boolean>(false);
+  generationResult = signal<{ successful: number; failed: number; errors: Array<{ employee_id: number; employee_name?: string; error: string }> } | null>(null);
+
+  // Search filter
+  searchTerm = signal<string>('');
 
   // Pagination variables
   currentPage = signal(1);
   totalPages = signal(1);
   totalEmployees = signal(0);
-  perPage = 12; // 12 empleados por página para mantener el grid de 3 columnas
+  perPage = 12;
 
   // Computed properties for pagination
   paginationInfo = computed(() => {
-    const current = this.currentPage();
-    const total = this.totalPages();
     const totalEmps = this.totalEmployees();
-    const start = (current - 1) * this.perPage + 1;
-    const end = Math.min(current * this.perPage, totalEmps);
+    const start = totalEmps > 0 ? (this.currentPage() - 1) * this.perPage + 1 : 0;
+    const end = Math.min(this.currentPage() * this.perPage, totalEmps);
     return { start, end, total: totalEmps };
   });
   
@@ -71,9 +79,18 @@ export class PayrollGenerateComponent implements OnInit {
   
   // Computed for estimated total
   estimatedTotal = computed(() => {
-    return Array.from(this.selectedEmployeesInfo().values()).reduce((total, employeeInfo) => {
-      return total + employeeInfo.salary;
-    }, 0);
+    return Array.from(this.selectedEmployeesInfo().values()).reduce((sum, emp) => sum + emp.salary, 0);
+  });
+
+  // Filtered employees based on search
+  filteredEmployees = computed(() => {
+    const term = this.searchTerm().toLowerCase().trim();
+    if (!term) return this.employees();
+    return this.employees().filter(emp => {
+      const fullName = `${emp.user?.first_name || ''} ${emp.user?.last_name || ''}`.toLowerCase();
+      const code = (emp.employee_code || '').toLowerCase();
+      return fullName.includes(term) || code.includes(term);
+    });
   });
 
   constructor(
@@ -100,10 +117,13 @@ export class PayrollGenerateComponent implements OnInit {
     this.setDefaultPayDate();
     this.loadTaxParameters();
     
-    // Listen to year changes to reload tax parameters
     this.payrollForm.get('period_year')?.valueChanges.subscribe(() => {
       this.loadTaxParameters();
     });
+  }
+
+  toggleTaxDetails(): void {
+    this.showTaxDetails.update(v => !v);
   }
 
   private loadTaxParameters(): void {
@@ -120,8 +140,7 @@ export class PayrollGenerateComponent implements OnInit {
         }
         this.loadingTaxParams.set(false);
       },
-      error: (err) => {
-        console.error('Error loading tax parameters:', err);
+      error: () => {
         this.taxParamsError.set(`Error al cargar parámetros tributarios para ${year}`);
         this.loadingTaxParams.set(false);
       }
@@ -146,57 +165,53 @@ export class PayrollGenerateComponent implements OnInit {
 
     this.employeeService.getEmployees(filters).subscribe({
       next: (response) => {
-        this.employees = response.data || [];
+        this.employees.set(response.data || []);
         if (response.meta) {
           this.totalPages.set(response.meta.last_page);
           this.totalEmployees.set(response.meta.total);
         }
         this.isLoading = false;
       },
-      error: (error) => {
-        console.error('Error loading employees:', error);
+      error: () => {
         this.toastService.error('Error al cargar empleados');
         this.isLoading = false;
       }
     });
   }
 
+  onSearchChange(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    this.searchTerm.set(value);
+  }
+
   toggleEmployeeSelection(employeeId: number): void {
-    const index = this.selectedEmployees.indexOf(employeeId);
     const currentMap = new Map(this.selectedEmployeesInfo());
     
-    if (index > -1) {
-      // Deseleccionar: remover de ambas estructuras
-      this.selectedEmployees.splice(index, 1);
+    if (currentMap.has(employeeId)) {
       currentMap.delete(employeeId);
     } else {
-      // Seleccionar: agregar a ambas estructuras
-      this.selectedEmployees.push(employeeId);
-      const employee = this.employees.find(emp => emp.employee_id === employeeId);
+      const employee = this.employees().find(emp => emp.employee_id === employeeId);
       if (employee) {
         currentMap.set(employeeId, {
           id: employee.employee_id,
           name: employee.user?.name || 'Sin nombre',
-          salary: employee.base_salary || 0
+          salary: parseFloat(String(employee.base_salary)) || 0
         });
       }
     }
     
-    // Update signal with new Map
     this.selectedEmployeesInfo.set(currentMap);
   }
 
   selectAllEmployees(): void {
-    // Seleccionar todos los empleados de la página actual
     const currentMap = new Map(this.selectedEmployeesInfo());
     
-    this.employees.forEach(employee => {
-      if (!this.selectedEmployees.includes(employee.employee_id)) {
-        this.selectedEmployees.push(employee.employee_id);
+    this.employees().forEach(employee => {
+      if (!currentMap.has(employee.employee_id)) {
         currentMap.set(employee.employee_id, {
           id: employee.employee_id,
           name: employee.user?.name || 'Sin nombre',
-          salary: employee.base_salary || 0
+          salary: parseFloat(String(employee.base_salary)) || 0
         });
       }
     });
@@ -205,66 +220,43 @@ export class PayrollGenerateComponent implements OnInit {
   }
 
   selectAllEmployeesGlobal(): void {
-    // Cargar todos los empleados para seleccionarlos
     this.employeeService.getAllEmployees({ employment_status: 'activo' }).subscribe({
       next: (response) => {
-        // Limpiar selecciones previas
-        this.selectedEmployees = [];
         const newMap = new Map<number, { id: number; name: string; salary: number }>();
         
-        // Agregar todos los empleados
         response.data?.forEach(employee => {
-          this.selectedEmployees.push(employee.employee_id);
           newMap.set(employee.employee_id, {
             id: employee.employee_id,
             name: employee.user?.name || 'Sin nombre',
-            salary: employee.base_salary || 0
+            salary: parseFloat(String(employee.base_salary)) || 0
           });
         });
         
         this.selectedEmployeesInfo.set(newMap);
-        this.toastService.success(`${this.selectedEmployees.length} empleados seleccionados`);
+        this.toastService.success(`${newMap.size} empleados seleccionados`);
       },
-      error: (error) => {
-        console.error('Error loading all employees:', error);
+      error: () => {
         this.toastService.error('Error al cargar todos los empleados');
       }
     });
   }
 
   clearSelection(): void {
-    this.selectedEmployees = [];
     this.selectedEmployeesInfo.set(new Map());
   }
 
   isEmployeeSelected(employeeId: number): boolean {
-    return this.selectedEmployees.includes(employeeId);
+    return this.selectedEmployeesInfo().has(employeeId);
   }
 
-  getSelectedEmployeesCount(): number {
-    return this.selectedEmployees.length;
-  }
-
-  // Métodos adicionales para el template
-  getTotalSelectedEmployees(): number {
-    return this.selectedCount();
-  }
-
-  getEstimatedTotal(): number {
-    return this.estimatedTotal();
-  }
-  
   getSelectedInCurrentPage(): number {
-    return this.employees.filter(emp => this.isEmployeeSelected(emp.employee_id)).length;
-  }
-
-  onEmployeeToggle(employeeId: number): void {
-    this.toggleEmployeeSelection(employeeId);
+    return this.employees().filter(emp => this.selectedEmployeesInfo().has(emp.employee_id)).length;
   }
 
   onPageChange(page: number): void {
     if (page >= 1 && page <= this.totalPages()) {
       this.currentPage.set(page);
+      this.searchTerm.set('');
       this.loadEmployees();
     }
   }
@@ -288,20 +280,7 @@ export class PayrollGenerateComponent implements OnInit {
     return Array.from({ length: end - start + 1 }, (_, i) => start + i);
   }
 
-  getPaginationInfo() {
-    const start = (this.currentPage() - 1) * this.perPage + 1;
-    const end = Math.min(this.currentPage() * this.perPage, this.totalEmployees());
-    const total = this.totalEmployees();
-    
-    return {
-      start,
-      end,
-      total
-    };
-  }
-
   onSubmit(): void {
-    // Validar campos críticos
     if (this.selectedCount() === 0) {
       this.toastService.error('Debes seleccionar al menos un empleado');
       return;
@@ -317,7 +296,6 @@ export class PayrollGenerateComponent implements OnInit {
       return;
     }
     
-    // Todo ok, mostrar modal de confirmación
     this.showConfirmModal.set(true);
   }
   
@@ -344,64 +322,48 @@ export class PayrollGenerateComponent implements OnInit {
       notes: formValue.notes
     };
 
-    // Si hay empleados seleccionados, generar solo para ellos
-    if (this.selectedEmployees.length > 0) {
+    if (this.selectedCount() > 0) {
       this.generateForSelectedEmployees(request);
     } else {
-      // Generar para todos los empleados
       this.generateForAllEmployees(request);
     }
   }
 
   private generateForSelectedEmployees(baseRequest: PayrollGenerateRequest): void {
-    // ✅ NUEVA IMPLEMENTACIÓN: UNA SOLA LLAMADA AL API CON TODOS LOS IDs
     const batchRequest: PayrollGenerateRequest = {
       ...baseRequest,
-      employee_ids: Array.from(this.selectedEmployeesInfo().keys()) // Usar los IDs del Map
+      employee_ids: Array.from(this.selectedEmployeesInfo().keys())
     };
 
     this.payrollService.generatePayrollBatch(batchRequest).subscribe({
       next: (response) => {
         this.isGenerating = false;
-        this.showConfirmModal.set(false);
 
         const { successful, failed, errors } = response.data;
 
+        this.generationResult.set({ successful, failed, errors: errors || [] });
+        this.generationComplete.set(true);
+
         if (successful > 0) {
           this.toastService.success(
-            `✅ ${successful} nómina(s) generada(s) exitosamente` +
-            (failed > 0 ? ` | ⚠️ ${failed} fallaron` : '')
+            `${successful} nómina(s) generada(s) exitosamente` +
+            (failed > 0 ? ` | ${failed} fallaron` : '')
           );
-
-          // Mostrar errores específicos si los hay
-          if (errors && errors.length > 0) {
-            errors.forEach(err => {
-              this.toastService.error(
-                `⚠️ ${err.employee_name || 'Empleado ' + err.employee_id}: ${err.error}`
-              );
-            });
-          }
-
-          // Navegar a la lista de nóminas
-          this.router.navigate(['/hr/payroll']);
         } else {
-          this.toastService.error('❌ No se pudo generar ninguna nómina');
-          
-          // Mostrar errores
-          if (errors && errors.length > 0) {
-            errors.forEach(err => {
-              this.toastService.error(
-                `${err.employee_name || 'Empleado ' + err.employee_id}: ${err.error}`
-              );
-            });
-          }
+          this.toastService.error('No se pudo generar ninguna nómina');
+        }
+
+        if (errors && errors.length > 0) {
+          errors.forEach(err => {
+            this.toastService.error(
+              `${err.employee_name || 'Empleado ' + err.employee_id}: ${err.error}`
+            );
+          });
         }
       },
       error: (error) => {
-        console.error('Error generating payroll batch:', error);
         this.toastService.error('Error al generar nóminas: ' + (error.error?.message || error.message));
         this.isGenerating = false;
-        this.showConfirmModal.set(false);
       }
     });
   }
@@ -410,29 +372,28 @@ export class PayrollGenerateComponent implements OnInit {
     this.payrollService.generatePayroll(request).subscribe({
       next: (result) => {
         const payrolls = Array.isArray(result) ? result : [result];
-        this.handleGenerationSuccess(payrolls);
+        this.generationResult.set({ successful: payrolls.length, failed: 0, errors: [] });
+        this.generationComplete.set(true);
+        this.toastService.success(`${payrolls.length} nómina(s) generada(s) exitosamente`);
+        this.isGenerating = false;
       },
       error: (error) => {
-        console.error('Error generating payroll:', error);
         this.toastService.error('Error al generar nóminas: ' + (error.error?.message || error.message));
         this.isGenerating = false;
       }
     });
   }
 
-  private handleGenerationSuccess(payrolls: Payroll[]): void {
-    this.toastService.success(`${payrolls.length} nómina(s) generada(s) exitosamente`);
-    this.router.navigate(['/hr/payroll']);
-    this.isGenerating = false;
+  resetForNewGeneration(): void {
+    this.generationComplete.set(false);
+    this.generationResult.set(null);
+    this.selectedEmployeesInfo.set(new Map());
+    this.currentPage.set(1);
+    this.loadEmployees();
   }
 
-  private handleGenerationComplete(results: Payroll[]): void {
-    if (results.length > 0) {
-      this.handleGenerationSuccess(results);
-    } else {
-      this.toastService.error('No se pudieron generar las nóminas');
-      this.isGenerating = false;
-    }
+  goToPayrollList(): void {
+    this.router.navigate(['/hr/payroll']);
   }
 
   onCancel(): void {
@@ -448,29 +409,14 @@ export class PayrollGenerateComponent implements OnInit {
   }
 
   formatCurrency(amount: number | string): string {
-    // Convertir a número de forma segura
-    let numericAmount: number;
-    
-    if (typeof amount === 'string') {
-      // Si es string, intentar extraer solo el primer número válido
-      const cleanAmount = amount.toString().replace(/[^\d.-]/g, '');
-      const firstNumber = cleanAmount.split('.')[0] + '.' + (cleanAmount.split('.')[1] || '0');
-      numericAmount = parseFloat(firstNumber) || 0;
-    } else {
-      numericAmount = amount || 0;
+    const num = typeof amount === 'string' ? parseFloat(amount) : amount;
+    if (!num || isNaN(num) || !isFinite(num)) {
+      return 'S/ 0';
     }
-    
-    // Validar que sea un número válido
-    if (isNaN(numericAmount) || !isFinite(numericAmount)) {
-      numericAmount = 0;
-    }
-    
     return new Intl.NumberFormat('es-PE', {
       style: 'currency',
       currency: 'PEN',
       minimumFractionDigits: 0
-    }).format(numericAmount);
+    }).format(num);
   }
-
-
 }

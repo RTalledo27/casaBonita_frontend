@@ -1,5 +1,5 @@
 import { Component, signal } from '@angular/core';
-; import { ActivatedRoute,  } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ArrowLeft, Award, Calendar, Check, DollarSign, FileText, LucideAngularModule, Target, TrendingUp } from 'lucide-angular';
 import { EmployeeService } from '../../services/employee.service';
 import { ToastService } from '../../../../core/services/toast.service';
@@ -44,7 +44,7 @@ export interface AdvisorDashboard {
 
 @Component({
   selector: 'app-advisor-dashboard',
-  imports: [TranslateModule, CommonModule, LucideAngularModule, FormsModule],
+  imports: [TranslateModule, CommonModule, LucideAngularModule, FormsModule, RouterLink],
   templateUrl: './advisor-dashboard.component.html',
   styleUrl: './advisor-dashboard.component.scss',
 })

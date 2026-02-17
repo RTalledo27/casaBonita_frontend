@@ -15,6 +15,12 @@
     "dashboard": {
       "title": "Dashboard"
     },
+    "inicio": {
+      "title": "Inicio"
+    },
+    "myDashboard": {
+      "title": "Mi Dashboard"
+    },
     "crm": {
       "title": "CRM",
       "clients": {
@@ -163,6 +169,15 @@
       },
       "teams": {
         "title": "Equipos"
+      },
+      "offices": {
+        "title": "Oficinas"
+      },
+      "areas": {
+        "title": "Áreas"
+      },
+      "positions": {
+        "title": "Cargos"
       },
       "bonuses": {
         "title": "Bonos"

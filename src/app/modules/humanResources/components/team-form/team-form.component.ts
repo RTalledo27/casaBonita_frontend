@@ -2,11 +2,13 @@ import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { LucideAngularModule, Save, ArrowLeft, Crown, Users, Hash, FileText, Target } from 'lucide-angular';
+import { LucideAngularModule, Save, ArrowLeft, Crown, Users, Hash, FileText, Target, Building2 } from 'lucide-angular';
 import { TeamService } from '../../services/team.service';
 import { EmployeeService } from '../../services/employee.service';
+import { OfficeService } from '../../services/office.service';
 import { Team } from '../../models/team';
 import { Employee } from '../../models/employee';
+import { Office } from '../../models/office';
 
 @Component({
   selector: 'app-team-form',
@@ -18,6 +20,7 @@ import { Employee } from '../../models/employee';
 export class TeamFormComponent implements OnInit {
   private teamService = inject(TeamService);
   private employeeService = inject(EmployeeService);
+  private officeService = inject(OfficeService);
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
@@ -30,10 +33,12 @@ export class TeamFormComponent implements OnInit {
   readonly Hash = Hash;
   readonly FileText = FileText;
   readonly Target = Target;
+  readonly Building2 = Building2;
 
   // Signals
   team = signal<Team | null>(null);
   employees = signal<Employee[]>([]);
+  offices = signal<Office[]>([]);
   loading = signal(false);
   saving = signal(false);
   error = signal<string | null>(null);
@@ -48,6 +53,7 @@ export class TeamFormComponent implements OnInit {
       team_code: ['', [Validators.maxLength(50)]],
       description: ['', [Validators.maxLength(1000)]],
       monthly_goal: [null, [Validators.min(0)]],
+      office_id: [null],
       team_leader_id: [null],
       status: ['active', Validators.required]
     });
@@ -55,6 +61,7 @@ export class TeamFormComponent implements OnInit {
 
   ngOnInit() {
     this.loadEmployees();
+    this.loadOffices();
     
     const teamId = this.route.snapshot.paramMap.get('id');
     if (teamId) {
@@ -66,15 +73,25 @@ export class TeamFormComponent implements OnInit {
   loadEmployees() {
     this.employeeService.getAllEmployees({ employment_status: 'activo' }).subscribe({
       next: (response) => {
-        // Solo empleados activos para ser líderes
         const safeData = Array.isArray(response.data) ? response.data : [];
         const activeEmployees = safeData.filter(emp => emp.employment_status === 'activo');
         this.employees.set(activeEmployees);
-        console.log('Empleados cargados:', activeEmployees);
       },
       error: (err) => {
         console.error('Error loading employees:', err);
         this.error.set('Error al cargar la lista de empleados');
+      }
+    });
+  }
+
+  loadOffices() {
+    this.officeService.getOffices().subscribe({
+      next: (response) => {
+        const safeData = Array.isArray(response.data) ? response.data : [];
+        this.offices.set(safeData.filter(o => o.is_active));
+      },
+      error: (err) => {
+        console.error('Error loading offices:', err);
       }
     });
   }
@@ -103,6 +120,7 @@ export class TeamFormComponent implements OnInit {
       team_code: team.team_code,
       description: team.description,
       monthly_goal: team.monthly_goal,
+      office_id: team.office_id,
       team_leader_id: team.team_leader_id,
       status: team.status
     });
@@ -121,6 +139,9 @@ export class TeamFormComponent implements OnInit {
       }
       if (formData.monthly_goal === '') {
         formData.monthly_goal = null;
+      }
+      if (formData.office_id === '' || formData.office_id === null) {
+        formData.office_id = null;
       }
 
       const operation = this.isEditMode() 

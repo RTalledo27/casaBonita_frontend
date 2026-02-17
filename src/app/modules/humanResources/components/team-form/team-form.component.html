@@ -110,49 +110,82 @@
               Meta Mensual de Ventas
             </label>
             <div class="relative">
-              <span class="absolute left-3 top-2.5 text-gray-500">$</span>
               <input
                 type="number"
                 id="monthly_goal"
                 formControlName="monthly_goal"
-                placeholder="0.00"
+                placeholder="0"
                 min="0"
-                step="0.01"
-                class="w-full pl-8 pr-3 py-2.5 rounded-xl border border-gray-300/70 dark:border-gray-600/60 bg-white/70 dark:bg-gray-700/50 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-emerald-500/60 focus:border-emerald-500/60 transition"
+                step="1"
+                class="w-full px-4 pr-20 py-2.5 rounded-xl border border-gray-300/70 dark:border-gray-600/60 bg-white/70 dark:bg-gray-700/50 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-emerald-500/60 focus:border-emerald-500/60 transition"
                 [class.border-red-500]="isFieldInvalid('monthly_goal')"
               />
+              <span class="absolute right-3 top-2.5 text-sm text-gray-500 dark:text-gray-400">ventas</span>
             </div>
             <div *ngIf="isFieldInvalid('monthly_goal')" class="mt-1.5 text-sm text-red-600 dark:text-red-400">
               {{ getFieldError('monthly_goal') }}
             </div>
-            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Meta de venta mensual del equipo en moneda local (opcional)</p>
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Cantidad de ventas esperadas por mes para este equipo (opcional)</p>
           </div>
 
-         <!-- Líder del Equipo -->
-<select
-  id="team_leader_id"
-  formControlName="team_leader_id"
-  class="app-select w-full px-4 py-2.5 rounded-xl border bg-white/70 dark:bg-gray-700/50
-         border-gray-300/70 dark:border-gray-600/60 text-gray-900 dark:text-gray-100
-         focus:ring-2 focus:ring-purple-500/60 focus:border-purple-500/60 transition"
->
-  <option value="">Sin líder asignado</option>
-  <option *ngFor="let employee of employees()" [value]="employee.employee_id">
-    {{ getEmployeeName(employee) }}
-  </option>
-</select>
+          <!-- Oficina -->
+          <div>
+            <label for="office_id" class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">
+              <lucide-angular [img]="Building2" class="w-4 h-4 inline mr-2 text-teal-600"></lucide-angular>
+              Oficina / Sucursal
+            </label>
+            <select
+              id="office_id"
+              formControlName="office_id"
+              class="app-select w-full px-4 py-2.5 rounded-xl border bg-white/70 dark:bg-gray-700/50
+                     border-gray-300/70 dark:border-gray-600/60 text-gray-900 dark:text-gray-100
+                     focus:ring-2 focus:ring-teal-500/60 focus:border-teal-500/60 transition"
+            >
+              <option value="">Sin oficina asignada</option>
+              <option *ngFor="let office of offices()" [value]="office.office_id">
+                {{ office.name }} {{ office.city ? '(' + office.city + ')' : '' }}
+              </option>
+            </select>
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Oficina a la que pertenece este equipo (opcional)</p>
+          </div>
 
-<!-- Estado -->
-<select
-  id="status"
-  formControlName="status"
-  class="app-select w-full px-4 py-2.5 rounded-xl border bg-white/70 dark:bg-gray-700/50
-         border-gray-300/70 dark:border-gray-600/60 text-gray-900 dark:text-gray-100
-         focus:ring-2 focus:ring-blue-500/60 focus:border-blue-500/60 transition"
->
-  <option value="active">Activo</option>
-  <option value="inactive">Inactivo</option>
-</select>
+          <!-- Líder del Equipo -->
+          <div>
+            <label for="team_leader_id" class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">
+              <lucide-angular [img]="Crown" class="w-4 h-4 inline mr-2 text-amber-600"></lucide-angular>
+              Líder del Equipo
+            </label>
+            <select
+              id="team_leader_id"
+              formControlName="team_leader_id"
+              class="app-select w-full px-4 py-2.5 rounded-xl border bg-white/70 dark:bg-gray-700/50
+                     border-gray-300/70 dark:border-gray-600/60 text-gray-900 dark:text-gray-100
+                     focus:ring-2 focus:ring-purple-500/60 focus:border-purple-500/60 transition"
+            >
+              <option value="">Sin líder asignado</option>
+              <option *ngFor="let employee of employees()" [value]="employee.employee_id">
+                {{ getEmployeeName(employee) }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Estado -->
+          <div>
+            <label for="status" class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">
+              <lucide-angular [img]="Users" class="w-4 h-4 inline mr-2 text-blue-600"></lucide-angular>
+              Estado
+            </label>
+            <select
+              id="status"
+              formControlName="status"
+              class="app-select w-full px-4 py-2.5 rounded-xl border bg-white/70 dark:bg-gray-700/50
+                     border-gray-300/70 dark:border-gray-600/60 text-gray-900 dark:text-gray-100
+                     focus:ring-2 focus:ring-blue-500/60 focus:border-blue-500/60 transition"
+            >
+              <option value="active">Activo</option>
+              <option value="inactive">Inactivo</option>
+            </select>
+          </div>
 
 
           <!-- Descripción (a lo ancho) -->

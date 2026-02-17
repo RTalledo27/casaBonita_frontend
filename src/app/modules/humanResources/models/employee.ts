@@ -6,6 +6,14 @@ import { EmployeeStatistics } from "./employee-statistics"
 import { Payroll } from "./payroll";
 import { Team } from "./team"
 
+export interface Position {
+  position_id: number;
+  name: string;
+  category: string;
+  is_commission_eligible: boolean;
+  status: string;
+}
+
 export interface Employee {
   employee_id: number;
   user_id: number;
@@ -51,7 +59,8 @@ export interface Employee {
   
   // Campos organizacionales
   department?: string;
-  position?: string;
+  position?: string | Position;
+  position_id?: number;
   
   notes?: string;
   status:string;
