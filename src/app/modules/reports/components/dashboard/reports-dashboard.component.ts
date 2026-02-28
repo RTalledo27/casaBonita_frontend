@@ -3,15 +3,15 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Chart, ChartConfiguration, ChartType, registerables } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
-import { 
-  SalesReportService, 
-  PaymentScheduleService, 
-  ProjectedReportService 
+import {
+  SalesReportService,
+  PaymentScheduleService,
+  ProjectedReportService
 } from '../../services';
-import { 
-  SalesReportSummary, 
-  PaymentScheduleSummary, 
-  FinancialProjection 
+import {
+  SalesReportSummary,
+  PaymentScheduleSummary,
+  FinancialProjection
 } from '../../models';
 import { ProjectionService, RevenueProjection } from '../../../../core/services/projection.service';
 import { forkJoin } from 'rxjs';
@@ -23,23 +23,23 @@ Chart.register(...registerables);
   standalone: true,
   imports: [CommonModule, RouterModule, BaseChartDirective],
   template: `
-    <div class="min-h-screen bg-gray-50 p-6">
+    <div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
       <!-- Header -->
       <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">Dashboard de Reportes</h1>
-        <p class="text-gray-600">Análisis completo de ventas, pagos y proyecciones financieras</p>
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Dashboard de Reportes</h1>
+        <p class="text-gray-600 dark:text-gray-400">Análisis completo de ventas, pagos y proyecciones financieras</p>
       </div>
 
       <!-- Quick Stats -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm font-medium text-gray-600">Total de Ventas</p>
-              <p class="text-2xl font-bold text-gray-900">{{ salesSummary?.totalSales | number }}</p>
+              <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total de Ventas</p>
+              <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ salesSummary?.totalSales | number }}</p>
             </div>
-            <div class="p-3 bg-blue-100 rounded-full">
-              <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="p-3 bg-blue-100 dark:bg-blue-900/40 rounded-full">
+              <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
               </svg>
             </div>
@@ -48,18 +48,18 @@ Chart.register(...registerables);
             <span [class]="'text-sm font-medium flex items-center gap-1 ' + (growthRate >= 0 ? 'text-green-600' : 'text-red-600')">
               {{ growthRate >= 0 ? '+' : '' }}{{ growthRate | number:'1.1-1' }}%
             </span>
-            <span class="text-sm text-gray-500 ml-2">{{ trend }}</span>
+            <span class="text-sm text-gray-500 dark:text-gray-400 ml-2">{{ trend }}</span>
           </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm font-medium text-gray-600">Ingresos Totales</p>
-              <p class="text-2xl font-bold text-gray-900">S/. {{ salesSummary?.totalRevenue | number:'1.0-0' }}</p>
+              <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Ingresos Totales</p>
+              <p class="text-2xl font-bold text-gray-900 dark:text-white">S/. {{ salesSummary?.totalRevenue | number:'1.0-0' }}</p>
             </div>
-            <div class="p-3 bg-green-100 rounded-full">
-              <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="p-3 bg-green-100 dark:bg-green-900/40 rounded-full">
+              <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
               </svg>
             </div>
@@ -68,43 +68,43 @@ Chart.register(...registerables);
             <span [class]="'text-sm font-medium ' + (growthRate >= 0 ? 'text-green-600' : 'text-red-600')">
               {{ growthRate >= 0 ? '+' : '' }}{{ growthRate | number:'1.1-1' }}%
             </span>
-            <span class="text-sm text-gray-500 ml-1">crecimiento promedio</span>
+            <span class="text-sm text-gray-500 dark:text-gray-400 ml-1">crecimiento promedio</span>
           </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm font-medium text-gray-600">Pagos Pendientes</p>
-              <p class="text-2xl font-bold text-gray-900">S/. {{ paymentSummary?.totalPending | number:'1.0-0' }}</p>
+              <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Pagos Pendientes</p>
+              <p class="text-2xl font-bold text-gray-900 dark:text-white">S/. {{ paymentSummary?.totalPending | number:'1.0-0' }}</p>
             </div>
-            <div class="p-3 bg-yellow-100 rounded-full">
-              <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="p-3 bg-yellow-100 dark:bg-yellow-900/40 rounded-full">
+              <svg class="w-6 h-6 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
               </svg>
             </div>
           </div>
           <div class="mt-2">
             <span class="text-sm text-red-600 font-medium">S/. {{ paymentSummary?.totalOverdue | number:'1.0-0' }}</span>
-            <span class="text-sm text-gray-500 ml-1">vencidos</span>
+            <span class="text-sm text-gray-500 dark:text-gray-400 ml-1">vencidos</span>
           </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm font-medium text-gray-600">Eficiencia Cobranza</p>
-              <p class="text-2xl font-bold text-gray-900">{{ paymentSummary?.collectionEfficiency | number:'1.1-1' }}%</p>
+              <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Eficiencia Cobranza</p>
+              <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ paymentSummary?.collectionEfficiency | number:'1.1-1' }}%</p>
             </div>
-            <div class="p-3 bg-purple-100 rounded-full">
-              <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="p-3 bg-purple-100 dark:bg-purple-900/40 rounded-full">
+              <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
               </svg>
             </div>
           </div>
           <div class="mt-2">
             <span class="text-sm text-green-600 font-medium">+3.1%</span>
-            <span class="text-sm text-gray-500 ml-1">vs mes anterior</span>
+            <span class="text-sm text-gray-500 dark:text-gray-400 ml-1">vs mes anterior</span>
           </div>
         </div>
       </div>
@@ -112,8 +112,8 @@ Chart.register(...registerables);
       <!-- Charts Section -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <!-- Sales Chart -->
-        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200 h-full">
-          <h3 class="text-lg font-semibold text-gray-900 mb-4">Ventas por Mes</h3>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700 h-full">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Ventas por Mes</h3>
           <div class="h-64">
             <canvas 
               baseChart
@@ -125,9 +125,9 @@ Chart.register(...registerables);
         </div>
 
         <!-- Revenue Projection Chart -->
-        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200 h-full">
-          <h3 class="text-lg font-semibold text-gray-900 mb-2">Proyección Mensual de Ingresos</h3>
-          <p class="text-xs text-gray-500 mb-4" *ngIf="revenueProjection">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700 h-full">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Proyección Mensual de Ingresos</h3>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mb-4" *ngIf="revenueProjection">
             📊 Basado en {{ revenueProjection.historical_data.length }} meses históricos | 
             🎯 Confianza: {{ (revenueProjection.regression_quality.r_squared * 100) | number:'1.0-0' }}% | 
             📈 Tendencia: {{ revenueProjection.summary.trend }}
@@ -141,14 +141,14 @@ Chart.register(...registerables);
             </canvas>
           </div>
           <div class="mt-4 space-y-2" *ngIf="revenueProjection">
-            <div class="p-3 bg-blue-50 rounded-lg">
-              <p class="text-xs text-gray-700">
+            <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+              <p class="text-xs text-gray-700 dark:text-gray-300">
                 <span class="font-semibold">Contexto:</span> 
                 {{ getSeasonalContext() }}
               </p>
             </div>
-            <div class="p-3 bg-purple-50 rounded-lg">
-              <p class="text-xs text-gray-700">
+            <div class="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+              <p class="text-xs text-gray-700 dark:text-gray-300">
                 <span class="font-semibold">Cómo se calcula:</span> 
                 La proyección usa regresión lineal analizando la tendencia de los últimos {{ revenueProjection.historical_data.length }} meses. 
                 Si las ventas suben consistentemente, la proyección será al alza. Si bajan, será a la baja. 
@@ -163,11 +163,11 @@ Chart.register(...registerables);
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <a 
           routerLink="/reports/sales"
-          class="bg-white rounded-lg shadow-sm p-6 border border-gray-200 hover:shadow-md transition-shadow cursor-pointer group">
+          class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow cursor-pointer group">
           <div class="flex items-center justify-between">
             <div>
-              <h3 class="text-lg font-semibold text-gray-900 group-hover:text-blue-600">Reportes de Ventas</h3>
-              <p class="text-sm text-gray-600 mt-1">Análisis detallado de ventas por asesor, oficina y período</p>
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-blue-600">Reportes de Ventas</h3>
+              <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Análisis detallado de ventas por asesor, oficina y período</p>
             </div>
             <svg class="w-6 h-6 text-gray-400 group-hover:text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -177,11 +177,11 @@ Chart.register(...registerables);
 
         <a 
           routerLink="/reports/payment-schedule"
-          class="bg-white rounded-lg shadow-sm p-6 border border-gray-200 hover:shadow-md transition-shadow cursor-pointer group">
+          class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow cursor-pointer group">
           <div class="flex items-center justify-between">
             <div>
-              <h3 class="text-lg font-semibold text-gray-900 group-hover:text-green-600">Cronogramas de Pagos</h3>
-              <p class="text-sm text-gray-600 mt-1">Gestión de cuotas, vencimientos y estados de pago</p>
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-green-600">Cronogramas de Pagos</h3>
+              <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Gestión de cuotas, vencimientos y estados de pago</p>
             </div>
             <svg class="w-6 h-6 text-gray-400 group-hover:text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -191,11 +191,11 @@ Chart.register(...registerables);
 
         <a 
           routerLink="/reports/projected"
-          class="bg-white rounded-lg shadow-sm p-6 border border-gray-200 hover:shadow-md transition-shadow cursor-pointer group">
+          class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow cursor-pointer group">
           <div class="flex items-center justify-between">
             <div>
-              <h3 class="text-lg font-semibold text-gray-900 group-hover:text-purple-600">Reportes Proyectados</h3>
-              <p class="text-sm text-gray-600 mt-1">Análisis financiero y proyecciones de crecimiento</p>
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-purple-600">Reportes Proyectados</h3>
+              <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Análisis financiero y proyecciones de crecimiento</p>
             </div>
             <svg class="w-6 h-6 text-gray-400 group-hover:text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -205,43 +205,17 @@ Chart.register(...registerables);
 
         <a 
           routerLink="/reports/export-manager"
-          class="bg-white rounded-lg shadow-sm p-6 border border-gray-200 hover:shadow-md transition-shadow cursor-pointer group">
+          class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow cursor-pointer group">
           <div class="flex items-center justify-between">
             <div>
-              <h3 class="text-lg font-semibold text-gray-900 group-hover:text-orange-600">Exportar Reportes</h3>
-              <p class="text-sm text-gray-600 mt-1">Generar y descargar reportes en Excel, PDF o CSV</p>
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-orange-600">Exportar Reportes</h3>
+              <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Generar y descargar reportes en Excel, PDF o CSV</p>
             </div>
             <svg class="w-6 h-6 text-gray-400 group-hover:text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
             </svg>
           </div>
         </a>
-      </div>
-
-      <!-- Recent Activity -->
-      <div class="bg-white rounded-lg shadow-sm border border-gray-200">
-        <div class="p-6 border-b border-gray-200">
-          <h3 class="text-lg font-semibold text-gray-900">Actividad Reciente</h3>
-        </div>
-        <div class="p-6">
-          <div class="space-y-4">
-            <div class="flex items-center space-x-3">
-              <div class="w-2 h-2 bg-green-500 rounded-full"></div>
-              <span class="text-sm text-gray-600">Reporte de ventas generado - Enero 2025</span>
-              <span class="text-xs text-gray-400">hace 2 horas</span>
-            </div>
-            <div class="flex items-center space-x-3">
-              <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
-              <span class="text-sm text-gray-600">Cronograma de pagos actualizado</span>
-              <span class="text-xs text-gray-400">hace 4 horas</span>
-            </div>
-            <div class="flex items-center space-x-3">
-              <div class="w-2 h-2 bg-purple-500 rounded-full"></div>
-              <span class="text-sm text-gray-600">Proyección financiera Q1 2025 completada</span>
-              <span class="text-xs text-gray-400">hace 1 día</span>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   `
@@ -334,13 +308,13 @@ export class ReportsDashboardComponent implements OnInit {
           size: 13
         },
         callbacks: {
-          label: function(context: any) {
+          label: function (context: any) {
             const label = context.dataset.label || '';
             const value = context.parsed.y;
             const formattedValue = 'S/.' + (value / 1000).toFixed(0) + 'K';
             return label + ': ' + formattedValue;
           },
-          afterLabel: function(context: any) {
+          afterLabel: function (context: any) {
             if (context.dataset.label === 'Proyectado' && context.parsed.y > 0) {
               return '(Calculado con regresión lineal)';
             }
@@ -362,7 +336,7 @@ export class ReportsDashboardComponent implements OnInit {
       y: {
         beginAtZero: true,
         ticks: {
-          callback: function(value) {
+          callback: function (value) {
             return 'S/.     ' + (Number(value) / 1000) + 'K';
           },
           font: {
@@ -381,7 +355,7 @@ export class ReportsDashboardComponent implements OnInit {
     private paymentScheduleService: PaymentScheduleService,
     private projectedReportService: ProjectedReportService,
     private projectionService: ProjectionService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadDashboardData();
@@ -393,19 +367,15 @@ export class ReportsDashboardComponent implements OnInit {
       startDate: '2024-01-01',
       endDate: '2025-12-31'
     };
-    
+
     // Load sales dashboard data from backend
     this.salesReportService.getDashboard(filters).subscribe({
       next: (response) => {
-        console.log('✅ Dashboard data received:', response);
-        console.log('📊 Summary:', response.data?.summary);
-        console.log('📈 Trends:', response.data?.trends);
-        console.log('🏆 Top performers:', response.data?.top_performers);
-        
+
         // Map backend response to frontend model
         if (response.success && response.data) {
           const data = response.data;
-          
+
           this.salesSummary = {
             totalSales: parseFloat(data.summary?.total_sales || 0),
             totalRevenue: parseFloat(data.summary?.total_revenue || 0),
@@ -423,8 +393,7 @@ export class ReportsDashboardComponent implements OnInit {
             salesByOffice: [],
             topAdvisors: []
           };
-          
-          console.log('💰 Mapped summary:', this.salesSummary);
+
 
           // Update charts with real data
           this.updateChartsWithRealData(data);
@@ -439,29 +408,30 @@ export class ReportsDashboardComponent implements OnInit {
 
     // Load payment summary
     this.paymentScheduleService.getPaymentScheduleSummary().subscribe({
-      next: (summary) => {
-        console.log('💳 Payment summary received:', summary);
-        this.paymentSummary = summary;
-        
-        // If no payment data, set defaults
-        if (!summary || summary.totalPending === 0) {
-          console.warn('⚠️ No payment schedule data available');
-          this.paymentSummary = {
-            totalPending: 0,
-            totalOverdue: 0,
-            collectionEfficiency: 0,
-            totalPaid: 0,
-            totalScheduled: 0,
-            paymentsByStatus: {
-              pending: 0,
-              paid: 0,
-              overdue: 0,
-              partial: 0
-            },
-            upcomingPayments: [],
-            overduePayments: []
-          };
-        }
+      next: (response: any) => {
+        // Backend returns { success, data: { summary, status_breakdown, upcoming_payments, overdue_summary } }
+        const data = response?.data || response;
+        const summary = data?.summary || {};
+        const statusBreakdown = data?.status_breakdown || {};
+        const overdueSummary = data?.overdue_summary || {};
+
+        this.paymentSummary = {
+          totalPending: summary.pending_amount || 0,
+          totalOverdue: overdueSummary.total_amount || summary.overdue_amount || 0,
+          collectionEfficiency: summary.paid_amount && summary.total_amount
+            ? Math.round((summary.paid_amount / summary.total_amount) * 100)
+            : 0,
+          totalPaid: summary.paid_amount || 0,
+          totalScheduled: summary.total_schedules || summary.total_amount || 0,
+          paymentsByStatus: {
+            pending: statusBreakdown.pending || statusBreakdown.pendiente || 0,
+            paid: statusBreakdown.paid || statusBreakdown.pagado || 0,
+            overdue: statusBreakdown.overdue || statusBreakdown.vencido || 0,
+            partial: statusBreakdown.partial || 0
+          },
+          upcomingPayments: data?.upcoming_payments || [],
+          overduePayments: []
+        };
       },
       error: (error) => {
         console.error('❌ Error loading payment summary:', error);
@@ -496,12 +466,10 @@ export class ReportsDashboardComponent implements OnInit {
   }
 
   private updateChartsWithRealData(data: any): void {
-    console.log('📊 Updating charts with real data:', data);
-    
+
     // Update sales trend chart with real data
     if (data.trends && data.trends.length > 0) {
-      console.log('📈 Trends found:', data.trends.length, 'periods');
-      
+
       // Format labels and extract sales data
       const labels = data.trends.map((trend: any) => {
         const period = trend.period || trend.date || '';
@@ -513,16 +481,13 @@ export class ReportsDashboardComponent implements OnInit {
         }
         return period;
       });
-      
+
       const salesData = data.trends.map((trend: any) => {
         const salesCount = parseFloat(trend.sales_count || trend.total_sales || trend.sales || 0);
-        console.log(`   • ${trend.period}: ${salesCount} ventas`);
         return salesCount;
       });
-      
-      console.log('📊 Chart labels:', labels);
-      console.log('📊 Chart data:', salesData);
-      
+
+
       this.salesChartData = {
         labels: labels,
         datasets: [
@@ -537,69 +502,57 @@ export class ReportsDashboardComponent implements OnInit {
         ]
       };
     } else {
-      console.warn('⚠️ No trends data available');
     }
 
     // Load real revenue projection from backend using linear regression (MONTHLY)
-    console.log('🔮 Loading monthly revenue projection from backend...');
     this.projectionService.getRevenueProjection(6, 12).subscribe({
       next: (projectionResponse) => {
         if (projectionResponse.success && projectionResponse.data) {
           const projection = projectionResponse.data;
           this.revenueProjection = projection;
-          
+
           // Update growth rate and trend in dashboard cards
           this.growthRate = projection.growth_analysis.average_growth_rate;
           this.trend = projection.summary.trend;
-          
-          console.log('✅ Revenue projection received:', projection);
-          console.log('📊 Historical months:', projection.historical_data.length);
-          console.log('🔮 Projected months:', projection.projections.length);
-          console.log('📈 Average growth rate:', projection.growth_analysis.average_growth_rate + '%');
-          
+
+
           const currentPeriod = projection.current_month || projection.current_quarter;
           if (currentPeriod) {
-            console.log('🎯 Current month:', (currentPeriod as any).month_label || (currentPeriod as any).quarter_label);
-            console.log('💰 Current month actual:', currentPeriod.actual_revenue);
-            console.log('📊 Current month projected end:', (currentPeriod as any).projected_month_end || (currentPeriod as any).projected_quarter_end);
           }
-          
+
           // Build chart data from real monthly data
           const labels: string[] = [];
           const actualData: number[] = [];
           const projectedData: number[] = [];
-          
+
           // Helper function to format month label
           const formatMonthLabel = (m: any) => {
             return m.month_label || m.quarter_label || 'N/A';
           };
-          
+
           // Add historical months
           projection.historical_data.forEach(m => {
             labels.push(formatMonthLabel(m));
             actualData.push(m.total_revenue);
             projectedData.push(0); // No projection for past
           });
-          
+
           // Add current month (partial) if available
           if (currentPeriod) {
-            labels.push(formatMonthLabel(currentPeriod) );
+            labels.push(formatMonthLabel(currentPeriod));
             actualData.push(currentPeriod.actual_revenue);
             const projectedEnd = (currentPeriod as any).projected_month_end || (currentPeriod as any).projected_quarter_end || 0;
             projectedData.push(projectedEnd);
           }
-          
+
           // Add future projections
           projection.projections.forEach(p => {
             labels.push(formatMonthLabel(p));
             actualData.push(0); // No actual data yet
             projectedData.push(p.projected_revenue);
           });
-          
-          console.log('📊 Revenue chart labels:', labels);
-          console.log('💰 Actual data:', actualData);
-          console.log('🔮 Projected data:', projectedData);
-          
+
+
           this.revenueChartData = {
             labels: labels,
             datasets: [
@@ -622,13 +575,9 @@ export class ReportsDashboardComponent implements OnInit {
               }
             ]
           };
-          
+
           // Log insights
-          console.log('🌦️ Seasonal factors:', projection.seasonal_factors);
-          console.log('� Regression R²:', projection.regression_quality.r_squared);
-          console.log('💡 Interpretation:', projection.regression_quality.interpretation);
-          console.log('📈 Trend:', projection.summary.trend);
-          
+
         } else {
           console.error('❌ Failed to get projection data');
           this.loadFallbackRevenueChart(data);
@@ -642,11 +591,10 @@ export class ReportsDashboardComponent implements OnInit {
   }
 
   private loadFallbackRevenueChart(data: any): void {
-    console.log('⚠️ Using fallback revenue chart');
     if (data.summary) {
       const currentRevenue = parseFloat(data.summary.total_revenue || 0);
       const projectedRevenue = currentRevenue * 1.15;
-      
+
       this.revenueChartData = {
         labels: ['Q1', 'Q2', 'Q3', 'Q4'],
         datasets: [
@@ -688,19 +636,19 @@ export class ReportsDashboardComponent implements OnInit {
 
   getSeasonalContext(): string {
     if (!this.revenueProjection) return '';
-    
+
     const seasonal = this.revenueProjection.seasonal_factors;
     const current = this.revenueProjection.current_month || this.revenueProjection.current_quarter;
     const summary = this.revenueProjection.summary;
-    
+
     if (!current) return 'Calculando patrones estacionales...';
-    
+
     // Find high and low seasons
     let highSeason = '';
     let lowSeason = '';
     let maxFactor = 0;
     let minFactor = 999;
-    
+
     for (const [period, factor] of Object.entries(seasonal)) {
       if (factor > maxFactor) {
         maxFactor = factor;
@@ -711,18 +659,18 @@ export class ReportsDashboardComponent implements OnInit {
         lowSeason = period;
       }
     }
-    
+
     const currentLabel = (current as any).month_label || (current as any).quarter_label || 'Período actual';
     const projectedEnd = (current as any).projected_month_end || (current as any).projected_quarter_end || 0;
     const periodType = (current as any).month_label ? 'mes' : 'trimestre';
-    
+
     if (highSeason && lowSeason) {
       return `${highSeason} es temporada ALTA (${(maxFactor * 100).toFixed(0)}% del promedio). ` +
-             `${lowSeason} es temporada BAJA (${(minFactor * 100).toFixed(0)}% del promedio). ` +
-             `Actualmente en ${currentLabel}: $${(current.actual_revenue / 1000).toFixed(0)}K en ${current.progress_percentage.toFixed(0)}% del ${periodType}, ` +
-             `proyección al final: $${(projectedEnd / 1000).toFixed(0)}K.`;
+        `${lowSeason} es temporada BAJA (${(minFactor * 100).toFixed(0)}% del promedio). ` +
+        `Actualmente en ${currentLabel}: $${(current.actual_revenue / 1000).toFixed(0)}K en ${current.progress_percentage.toFixed(0)}% del ${periodType}, ` +
+        `proyección al final: $${(projectedEnd / 1000).toFixed(0)}K.`;
     }
-    
+
     return `Actualmente en ${currentLabel}: $${(current.actual_revenue / 1000).toFixed(0)}K registrados (${current.progress_percentage.toFixed(0)}% del ${periodType} completado).`;
   }
 }

@@ -1,22 +1,28 @@
 export interface PaymentSchedule {
-  id: number;
-  saleId: number;
-  installmentNumber: number;
+  id?: number;
+  scheduleId?: number;
+  contractId?: number;
+  saleId?: number;
+  installmentNumber?: number;
   dueDate: string;
   amount: number;
-  status: 'paid' | 'pending' | 'overdue';
+  status: 'paid' | 'pending' | 'overdue' | 'pagado' | 'pendiente' | 'vencido' | string;
   paidDate?: string;
   paidAmount?: number;
-  reference?: string; // Agregada propiedad reference
-  overdueDays?: number; // Agregada propiedad overdueDays
-  paymentType?: string; // Agregada propiedad paymentType
-  clientName?: string; // Agregada propiedad clientName
-  notes?: string; // Agregada propiedad notes
-  daysUntilDue: number; // Agregada propiedad daysUntilDue
-  clientEmail: string; // Agregada propiedad clientEmail
-  totalInstallments: number; // Agregada propiedad totalInstallments
-  createdAt: string;
-  updatedAt: string;
+  reference?: string;
+  overdueDays?: number;
+  daysOverdue?: number;
+  paymentType?: string;
+  clientName?: string;
+  clientEmail?: string;
+  clientPhone?: string;
+  lotNumber?: string;
+  saleAmount?: number;
+  notes?: string;
+  daysUntilDue?: number;
+  totalInstallments?: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface PaymentScheduleFilter {

@@ -1,14 +1,22 @@
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-indigo-900/30 relative overflow-hidden">
+<div
+  class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-indigo-900/30 relative overflow-hidden">
   <!-- Background Pattern -->
-  <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.1),transparent_50%)] dark:bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.05),transparent_50%)]"></div>
-  <div class="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.08),transparent_50%)] dark:bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.04),transparent_50%)]"></div>
+  <div
+    class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.1),transparent_50%)] dark:bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.05),transparent_50%)]">
+  </div>
+  <div
+    class="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.08),transparent_50%)] dark:bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.04),transparent_50%)]">
+  </div>
 
   <div class="relative p-6">
     <!-- Modern Header -->
     <div class="mb-8">
-      <div class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/50 p-8 relative overflow-hidden">
+      <div
+        class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/50 p-8 relative overflow-hidden">
         <!-- Header Gradient Background -->
-        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/5 to-indigo-500/10 dark:from-blue-600/20 dark:via-purple-600/10 dark:to-indigo-600/20"></div>
+        <div
+          class="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/5 to-indigo-500/10 dark:from-blue-600/20 dark:via-purple-600/10 dark:to-indigo-600/20">
+        </div>
         <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500"></div>
 
         <div class="relative flex justify-between items-center">
@@ -18,11 +26,12 @@
               <!-- Documento/contratos -->
               <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
             </div>
             <div>
-              <h1 class="text-3xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-indigo-800 dark:from-white dark:via-blue-200 dark:to-indigo-200 bg-clip-text text-transparent">
+              <h1
+                class="text-3xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-indigo-800 dark:from-white dark:via-blue-200 dark:to-indigo-200 bg-clip-text text-transparent">
                 Contratos
               </h1>
               <p class="text-gray-600 dark:text-gray-400 mt-1 font-medium">
@@ -33,42 +42,74 @@
 
           <!-- Action Buttons (opcional) -->
           <div class="flex gap-4">
+            <!-- Exportar Excel -->
+            <button (click)="exportExcel()" [disabled]="exporting"
+              class="group relative flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 font-semibold overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
+              <div
+                class="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              </div>
+              <!-- Spinner cuando está exportando -->
+              <svg *ngIf="exporting" class="w-5 h-5 relative z-10 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+              </svg>
+              <!-- Icono de Excel cuando no está exportando -->
+              <svg *ngIf="!exporting" class="w-5 h-5 relative z-10" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <span class="relative z-10">{{ exporting ? 'Exportando...' : 'Exportar Excel' }}</span>
+              <div
+                class="absolute inset-0 rounded-2xl bg-gradient-to-r from-teal-400/50 to-cyan-500/50 blur-xl opacity-0 group-hover:opacity-70 transition-opacity duration-300 -z-10">
+              </div>
+            </button>
+
             <!-- Stock Completo Logicware -->
-            <button
-              (click)="openFullStockModal()"
+            <button (click)="openFullStockModal()"
               class="group relative flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 font-semibold overflow-hidden">
-              <div class="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div
+                class="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              </div>
               <svg class="w-5 h-5 relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/>
+                  d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
               </svg>
               <span class="relative z-10">Stock Completo</span>
-              <div class="absolute inset-0 rounded-2xl bg-gradient-to-r from-purple-400/50 to-indigo-500/50 blur-xl opacity-0 group-hover:opacity-70 transition-opacity duration-300 -z-10"></div>
+              <div
+                class="absolute inset-0 rounded-2xl bg-gradient-to-r from-purple-400/50 to-indigo-500/50 blur-xl opacity-0 group-hover:opacity-70 transition-opacity duration-300 -z-10">
+              </div>
             </button>
 
             <!-- Importar -->
-            <button
-              (click)="onImport()"
+            <button (click)="onImport()"
               class="group relative flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 font-semibold overflow-hidden">
-              <div class="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div
+                class="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              </div>
               <svg class="w-5 h-5 relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
+                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
               </svg>
               <span class="relative z-10">Importar</span>
-              <div class="absolute inset-0 rounded-2xl bg-gradient-to-r from-emerald-400/50 to-green-500/50 blur-xl opacity-0 group-hover:opacity-70 transition-opacity duration-300 -z-10"></div>
+              <div
+                class="absolute inset-0 rounded-2xl bg-gradient-to-r from-emerald-400/50 to-green-500/50 blur-xl opacity-0 group-hover:opacity-70 transition-opacity duration-300 -z-10">
+              </div>
             </button>
 
             <!-- Crear -->
-            <button
-              (click)="onCreate()"
+            <button (click)="onCreate()"
               class="group relative flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 font-semibold overflow-hidden">
-              <div class="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div
+                class="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              </div>
               <svg class="w-5 h-5 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v12m6-6H6"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v12m6-6H6" />
               </svg>
               <span class="relative z-10">Crear</span>
-              <div class="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-400/50 to-indigo-500/50 blur-xl opacity-0 group-hover:opacity-70 transition-opacity duration-300 -z-10"></div>
+              <div
+                class="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-400/50 to-indigo-500/50 blur-xl opacity-0 group-hover:opacity-70 transition-opacity duration-300 -z-10">
+              </div>
             </button>
           </div>
         </div>
@@ -76,33 +117,31 @@
     </div>
 
     <!-- Modern Table Container -->
-    <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/30 dark:border-gray-700/50 overflow-hidden relative">
+    <div
+      class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/30 dark:border-gray-700/50 overflow-hidden relative">
       <!-- Table Header Gradient -->
       <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500"></div>
 
       <!-- Search Bar Section -->
-      <div class="relative p-6 border-b border-gray-200/50 dark:border-gray-700/50 bg-gradient-to-r from-white/70 via-slate-50/50 to-white/70 dark:from-gray-800/70 dark:via-gray-700/50 dark:to-gray-800/70">
+      <div
+        class="relative p-6 border-b border-gray-200/50 dark:border-gray-700/50 bg-gradient-to-r from-white/70 via-slate-50/50 to-white/70 dark:from-gray-800/70 dark:via-gray-700/50 dark:to-gray-800/70">
         <div class="max-w-2xl mx-auto">
           <div class="relative group">
             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <svg class="w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+              <svg class="w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" fill="none"
+                stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
-            <input
-              type="text"
-              [(ngModel)]="searchTerm"
-              (input)="onSearch()"
+            <input type="text" [(ngModel)]="searchTerm" (input)="onSearch()"
               placeholder="Buscar por número de contrato, cliente, lote o asesor..."
-              class="w-full pl-12 pr-4 py-4 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-2xl shadow-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200 font-medium"
-            />
+              class="w-full pl-12 pr-4 py-4 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-2xl shadow-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200 font-medium" />
             <!-- Clear button -->
-            <button
-              *ngIf="searchTerm"
-              (click)="searchTerm = ''; onSearch()"
+            <button *ngIf="searchTerm" (click)="searchTerm = ''; onSearch()"
               class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           </div>
@@ -123,7 +162,9 @@
       <!-- Table Content -->
       <div class="relative">
         <!-- Table Header Background -->
-        <div class="absolute inset-0 bg-gradient-to-br from-slate-50/50 via-blue-50/30 to-indigo-50/50 dark:from-gray-800/50 dark:via-blue-900/20 dark:to-indigo-900/30"></div>
+        <div
+          class="absolute inset-0 bg-gradient-to-br from-slate-50/50 via-blue-50/30 to-indigo-50/50 dark:from-gray-800/50 dark:via-blue-900/20 dark:to-indigo-900/30">
+        </div>
 
         <div class="relative overflow-x-auto">
           <!-- plantilla fecha -->
@@ -133,18 +174,10 @@
             </span>
           </ng-template>
 
-          <app-shared-table
-            [data]="contracts"
-            [columns]="columns"
-            [loading]="loading"
-            [templates]="{ advisor: advisorTpl, signDate: signDateTpl }"
-            [idField]="idField"
-            [permissionPrefix]="'sales'"
-            [componentName]="'contracts'"
-            (onEdit)="openEditModal($event)"
-            (delete)="deleteContract($event)"
-            (onViewDetails)="openViewModal($event)"
-          >
+          <app-shared-table [data]="contracts" [columns]="columns" [loading]="loading"
+            [templates]="{ advisor: advisorTpl, signDate: signDateTpl }" [idField]="idField"
+            [permissionPrefix]="'sales'" [componentName]="'contracts'" (onEdit)="openEditModal($event)"
+            (delete)="deleteContract($event)" (onViewDetails)="openViewModal($event)">
           </app-shared-table>
 
           <!-- Template para mostrar el asesor -->
@@ -175,12 +208,13 @@
         </div>
 
         <!-- Modern Pagination -->
-        <div class="relative border-t border-gray-200/50 dark:border-gray-700/50 bg-gradient-to-r from-white/70 via-slate-50/50 to-white/70 dark:from-gray-800/70 dark:via-gray-700/50 dark:to-gray-800/70 backdrop-blur-sm">
+        <div
+          class="relative border-t border-gray-200/50 dark:border-gray-700/50 bg-gradient-to-r from-white/70 via-slate-50/50 to-white/70 dark:from-gray-800/70 dark:via-gray-700/50 dark:to-gray-800/70 backdrop-blur-sm">
           <div class="p-6">
             <div class="flex items-center justify-between">
               <!-- Info text -->
               <div class="text-sm text-gray-600 dark:text-gray-400">
-                Mostrando 
+                Mostrando
                 <span class="font-semibold text-gray-900 dark:text-gray-100">
                   {{ (pagination.current_page - 1) * pagination.per_page + 1 }}
                 </span>
@@ -196,31 +230,26 @@
               <!-- Pagination controls -->
               <div class="flex items-center gap-2">
                 <!-- First page -->
-                <button
-                  (click)="onPageChange(1)"
-                  [disabled]="pagination.current_page === 1"
+                <button (click)="onPageChange(1)" [disabled]="pagination.current_page === 1"
                   class="px-3 py-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
                   </svg>
                 </button>
 
                 <!-- Previous page -->
-                <button
-                  (click)="onPageChange(pagination.current_page - 1)"
-                  [disabled]="pagination.current_page === 1"
+                <button (click)="onPageChange(pagination.current_page - 1)" [disabled]="pagination.current_page === 1"
                   class="px-3 py-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                   </svg>
                 </button>
 
                 <!-- Page numbers -->
                 <div class="flex items-center gap-1">
                   <ng-container *ngFor="let page of getPageNumbers()">
-                    <button
-                      *ngIf="isPageNumber(page)"
-                      (click)="onPageChange($any(page))"
+                    <button *ngIf="isPageNumber(page)" (click)="onPageChange($any(page))"
                       [class]="page === pagination.current_page 
                         ? 'px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold shadow-lg'
                         : 'px-4 py-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors'">
@@ -231,22 +260,21 @@
                 </div>
 
                 <!-- Next page -->
-                <button
-                  (click)="onPageChange(pagination.current_page + 1)"
+                <button (click)="onPageChange(pagination.current_page + 1)"
                   [disabled]="pagination.current_page === pagination.last_page"
                   class="px-3 py-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                   </svg>
                 </button>
 
                 <!-- Last page -->
-                <button
-                  (click)="onPageChange(pagination.last_page)"
+                <button (click)="onPageChange(pagination.last_page)"
                   [disabled]="pagination.current_page === pagination.last_page"
                   class="px-3 py-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M13 5l7 7-7 7M5 5l7 7-7 7" />
                   </svg>
                 </button>
               </div>
@@ -259,31 +287,21 @@
 </div>
 
 <!-- Modal de Importación -->
-<app-contract-import
-  *ngIf="isImportModalOpen"
-  (modalClosed)="onImportModalClose()"
+<app-contract-import *ngIf="isImportModalOpen" (modalClosed)="onImportModalClose()"
   (importCompleted)="onImportCompleted()">
 </app-contract-import>
 
 <!-- Modal de Creación -->
-<app-contract-creation-modal
-  [isOpen]="isCreationModalOpen"
-  (closeModal)="onCreationModalClose()"
+<app-contract-creation-modal [isOpen]="isCreationModalOpen" (closeModal)="onCreationModalClose()"
   (contractCreated)="onContractCreated()">
 </app-contract-creation-modal>
 
 <!-- Modal de Detalles del Contrato -->
-<app-contract-details-modal
-  [isOpen]="isDetailsModalOpen"
-  [contractId]="selectedContractId"
+<app-contract-details-modal [isOpen]="isDetailsModalOpen" [contractId]="selectedContractId"
   (closeModal)="onDetailsModalClose()">
 </app-contract-details-modal>
 
 <!-- Modal de Stock Completo Logicware -->
-<app-logicware-full-stock-modal
-  [isOpen]="isFullStockModalOpen"
-  [stockData]="fullStockData"
-  [loading]="fullStockLoading"
-  (closeModal)="onFullStockModalClose()"
-  (refresh)="onRefreshFullStock()">
+<app-logicware-full-stock-modal [isOpen]="isFullStockModalOpen" [stockData]="fullStockData" [loading]="fullStockLoading"
+  (closeModal)="onFullStockModalClose()" (refresh)="onRefreshFullStock()">
 </app-logicware-full-stock-modal>

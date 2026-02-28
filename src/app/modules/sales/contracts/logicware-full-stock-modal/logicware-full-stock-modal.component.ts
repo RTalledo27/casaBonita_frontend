@@ -15,7 +15,7 @@ export class LogicwareFullStockModalComponent implements OnInit, OnChanges {
   @Input() isOpen = false;
   @Input() stockData: FullStockResponse | null = null;
   @Input() loading = false;
-  
+
   @Output() closeModal = new EventEmitter<void>();
   @Output() refresh = new EventEmitter<void>();
 
@@ -34,7 +34,7 @@ export class LogicwareFullStockModalComponent implements OnInit, OnChanges {
 
   // Filter and search
   searchTerm = '';
-  filterStatus: 'all' | 'disponible' | 'reservado' | 'vendido' = 'all';
+  filterStatus: 'all' | 'disponible' | 'reservado' | 'vendido' | 'bloqueado' = 'all';
   filterAdvisor: 'all' | 'with' | 'without' = 'all';
   filterReservation: 'all' | 'with' | 'without' = 'all';
 
@@ -42,9 +42,9 @@ export class LogicwareFullStockModalComponent implements OnInit, OnChanges {
   currentPage = 1;
   pageSize = 10;
 
-  constructor() {}
+  constructor() { }
 
-  ngOnInit(): void {}
+  ngOnInit(): void { }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['stockData']) {
@@ -130,6 +130,8 @@ export class LogicwareFullStockModalComponent implements OnInit, OnChanges {
         return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
       case 'vendido':
         return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
+      case 'bloqueado':
+        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
       default:
         return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
     }
@@ -140,6 +142,7 @@ export class LogicwareFullStockModalComponent implements OnInit, OnChanges {
       case 'disponible': return 'Disponible';
       case 'reservado': return 'Reservado';
       case 'vendido': return 'Vendido';
+      case 'bloqueado': return 'Bloqueado';
       default: return status;
     }
   }
@@ -151,10 +154,10 @@ export class LogicwareFullStockModalComponent implements OnInit, OnChanges {
 
   formatDate(date: string | undefined): string {
     if (!date) return '-';
-    return new Date(date).toLocaleDateString('es-PE', { 
-      year: 'numeric', 
-      month: '2-digit', 
-      day: '2-digit' 
+    return new Date(date).toLocaleDateString('es-PE', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
     });
   }
 
@@ -211,7 +214,7 @@ export class LogicwareFullStockModalComponent implements OnInit, OnChanges {
   }
 
   hasRateLimitError(): boolean {
-    return this.stockData?.success === false && 
-           this.stockData?.api_info?.daily_requests_used >= this.stockData?.api_info?.daily_requests_limit;
+    return this.stockData?.success === false &&
+      this.stockData?.api_info?.daily_requests_used >= this.stockData?.api_info?.daily_requests_limit;
   }
 }

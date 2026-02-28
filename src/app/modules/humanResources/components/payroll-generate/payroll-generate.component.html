@@ -763,7 +763,7 @@
           type="button"
           (click)="confirmGeneration()"
           [disabled]="isGenerating"
-          class="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 disabled:bg-gray-400 dark:disabled:bg-gray-600 disabled:cursor-not-allowed rounded-lg focus:ring-2 focus:ring-primary-500 transition-colors"
+          class="btn-generate w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white rounded-lg focus:ring-2 focus:ring-primary-500 transition-colors"
         >
           <lucide-angular [img]="Send" size="16" *ngIf="!isGenerating"></lucide-angular>
           <div *ngIf="isGenerating" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>

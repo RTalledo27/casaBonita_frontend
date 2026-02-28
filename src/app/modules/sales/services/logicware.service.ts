@@ -17,7 +17,7 @@ export interface LogicwareUnit {
   lot?: string;
   area?: number;
   price?: number;
-  
+
   // Advisor info
   advisor?: {
     id: number;
@@ -25,7 +25,7 @@ export interface LogicwareUnit {
     email?: string;
     phone?: string;
   };
-  
+
   // Client info
   client?: {
     id: number;
@@ -34,7 +34,7 @@ export interface LogicwareUnit {
     email?: string;
     phone?: string;
   };
-  
+
   // Reservation info
   reservation?: {
     id: number;
@@ -43,7 +43,7 @@ export interface LogicwareUnit {
     status?: string;
     duration_days?: number;
   };
-  
+
   // Sale info
   sale?: {
     id: number;
@@ -52,7 +52,7 @@ export interface LogicwareUnit {
     payment_method?: string;
     contract_number?: string;
   };
-  
+
   // Financial info
   financial?: {
     initial_payment?: number;
@@ -61,7 +61,7 @@ export interface LogicwareUnit {
     total_amount?: number;
     down_payment_percentage?: number;
   };
-  
+
   // Additional metadata
   created_at?: string;
   updated_at?: string;
@@ -74,6 +74,7 @@ export interface FullStockStatistics {
     disponible?: number;
     reservado?: number;
     vendido?: number;
+    bloqueado?: number;
     [key: string]: number | undefined;
   };
   with_advisor: number;
@@ -121,7 +122,7 @@ export interface TokenInfoResponse {
   providedIn: 'root'
 })
 export class LogicwareService {
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   /**
    * Obtener stock completo de Logicware
@@ -132,7 +133,7 @@ export class LogicwareService {
    */
   getFullStock(forceRefresh: boolean = false): Observable<FullStockResponse> {
     const params = new HttpParams().set('force_refresh', forceRefresh.toString());
-    
+
     return this.http.get<any>(
       API_ROUTES.LOGICWARE.FULL_STOCK,
       { params }
@@ -165,13 +166,13 @@ export class LogicwareService {
             }
           };
         }
-        
+
         // 🔧 WORKAROUND: Backend aún devuelve estructura antigua
         // Normalizar respuesta para que coincida con FullStockResponse
-        
+
         // Si data.data existe, el backend no ha sido reiniciado
         const actualData = response.data?.data || response.data || [];
-        
+
         // Normalizar nombres de propiedades
         const normalized: FullStockResponse = {
           success: response.success ?? true,
@@ -195,10 +196,10 @@ export class LogicwareService {
             has_available_requests: true
           }
         };
-        
+
         console.log('🔧 [Service] Normalized response:', normalized);
         console.log('🔧 [Service] Data array length:', normalized.data.length);
-        
+
         return normalized;
       })
     );

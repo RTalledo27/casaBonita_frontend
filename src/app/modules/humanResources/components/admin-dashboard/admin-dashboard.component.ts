@@ -1,7 +1,7 @@
 import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, ChevronDown, RefreshCw, Download, AlertCircle, DollarSign, TrendingUp, Award, Users, BarChart, PieChart, Trophy, Filter, TrendingDown, AlertTriangle } from 'lucide-angular';
+import { LucideAngularModule, ChevronDown, RefreshCw, Download, AlertCircle, DollarSign, TrendingUp, Award, Users, BarChart, PieChart, Trophy, Filter, TrendingDown, AlertTriangle, ShoppingCart, Activity, Bell, FileText, Clock, AlertOctagon } from 'lucide-angular';
 import { EmployeeService } from '../../services/employee.service';
 
 // Interfaces para tipado
@@ -33,6 +33,45 @@ interface TopPerformer {
   total_earnings: number;
 }
 
+interface SalesSummary {
+  total_contracts: number;
+  total_amount: number;
+  average_ticket: number;
+  by_sale_type: {
+    cash: { count: number; amount: number };
+    financed: { count: number; amount: number };
+  };
+  top_advisors_by_contracts: {
+    advisor_id: number;
+    advisor_name: string;
+    contracts_count: number;
+    total_amount: number;
+    cash_count: number;
+    financed_count: number;
+  }[];
+}
+
+interface MonthlyTrendItem {
+  month: number;
+  year: number;
+  label: string;
+  short_label: string;
+  contracts: number;
+  contracts_amount: number;
+  commissions: number;
+  bonuses: number;
+}
+
+interface DashboardAlert {
+  type: 'warning' | 'info' | 'danger';
+  category: string;
+  title: string;
+  message: string;
+  employee_id?: number;
+  count?: number;
+  amount?: number;
+}
+
 interface AdminDashboardData {
   period: {
     month: number;
@@ -43,6 +82,15 @@ interface AdminDashboardData {
   bonuses_summary: BonusesSummary;
   top_performers: TopPerformer[];
   employees: any[];
+  payroll_totals: {
+    total_gross: number;
+    total_net: number;
+    total_deductions: number;
+    total_records: number;
+  };
+  sales_summary: SalesSummary;
+  monthly_trend: MonthlyTrendItem[];
+  alerts: DashboardAlert[];
 }
 
 @Component({
@@ -83,6 +131,12 @@ export class AdminDashboardComponent implements OnInit {
   Filter = Filter;
   TrendingDown = TrendingDown;
   AlertTriangle = AlertTriangle;
+  ShoppingCart = ShoppingCart;
+  Activity = Activity;
+  Bell = Bell;
+  FileText = FileText;
+  Clock = Clock;
+  AlertOctagon = AlertOctagon;
 
   // Computed values
   totalRevenue = computed(() => {
@@ -96,6 +150,22 @@ export class AdminDashboardComponent implements OnInit {
     return employees.filter(emp => emp.employment_status === 'active').length;
   });
 
+  payrollTotals = computed(() => {
+    const data = this.dashboardData();
+    return data?.payroll_totals || { total_gross: 0, total_net: 0, total_deductions: 0, total_records: 0 };
+  });
+
+  // Max values for trend chart scaling
+  maxTrendContracts = computed(() => {
+    const trend = this.dashboardData()?.monthly_trend || [];
+    return Math.max(...trend.map(t => t.contracts), 1);
+  });
+
+  maxTrendCommissions = computed(() => {
+    const trend = this.dashboardData()?.monthly_trend || [];
+    return Math.max(...trend.map(t => t.commissions), 1);
+  });
+
   // Computed para empleados filtrados
   filteredEmployees = computed(() => {
     const employees = this.dashboardData()?.employees || [];
@@ -106,7 +176,7 @@ export class AdminDashboardComponent implements OnInit {
     if (typeFilter !== 'all') {
       filteredByType = employees.filter(emp => emp.employee_type === typeFilter);
     }
-    
+
     // Luego aplicar filtro de rendimiento
     switch (filter) {
       case 'top':
@@ -150,7 +220,7 @@ export class AdminDashboardComponent implements OnInit {
   async loadDashboardData() {
     this.loading.set(true);
     this.error.set(null);
-    
+
     this.dashboardData.set(null);
 
     try {
@@ -158,7 +228,7 @@ export class AdminDashboardComponent implements OnInit {
         this.selectedMonth(),
         this.selectedYear()
       ).toPromise();
-      
+
       if (!data) {
         this.error.set('No se recibieron datos del servidor');
         return;
@@ -166,7 +236,7 @@ export class AdminDashboardComponent implements OnInit {
 
       const transformedData = this.transformDashboardData(data);
       this.dashboardData.set(transformedData);
-      
+
     } catch (error) {
       console.error('Error loading dashboard data:', error);
       console.error('Error details:', {
@@ -174,8 +244,8 @@ export class AdminDashboardComponent implements OnInit {
         stack: error instanceof Error ? error.stack : undefined,
         error: error
       });
-      
-      this.error.set('Error al cargar los datos del dashboard: ' + 
+
+      this.error.set('Error al cargar los datos del dashboard: ' +
         (error instanceof Error ? error.message : 'Error desconocido'));
     } finally {
       this.loading.set(false);
@@ -187,11 +257,11 @@ export class AdminDashboardComponent implements OnInit {
     if (!apiData) {
       return this.getEmptyDashboardData();
     }
-    
-    const hasValidData = apiData.commissions_summary || apiData.bonuses_summary || 
-                        apiData.top_performers || apiData.employees ||
-                        Object.keys(apiData).length > 0;
-    
+
+    const hasValidData = apiData.commissions_summary || apiData.bonuses_summary ||
+      apiData.top_performers || apiData.employees ||
+      Object.keys(apiData).length > 0;
+
     if (!hasValidData) {
       return this.getEmptyDashboardData();
     }
@@ -214,9 +284,9 @@ export class AdminDashboardComponent implements OnInit {
         topPerformersData = apiData.employees.slice(0, 5);
       }
     }
-    
+
     const topPerformers = this.transformTopPerformers(topPerformersData || []);
-    
+
     // Procesar todos los empleados
     const employees = apiData.employees || [];
 
@@ -235,14 +305,14 @@ export class AdminDashboardComponent implements OnInit {
       Object.keys(byType).forEach(typeName => {
         const typeData = byType[typeName];
         const count = parseInt(typeData.count || 0);
-        
+
         // Clasificar por nombre del tipo
-        if (typeName.toLowerCase().includes('productividad') || 
-            typeName.toLowerCase().includes('rendimiento') ||
-            typeName.toLowerCase().includes('performance')) {
+        if (typeName.toLowerCase().includes('productividad') ||
+          typeName.toLowerCase().includes('rendimiento') ||
+          typeName.toLowerCase().includes('performance')) {
           bonusesSummary.performance_bonuses += count;
-        } else if (typeName.toLowerCase().includes('ventas') || 
-                   typeName.toLowerCase().includes('sales')) {
+        } else if (typeName.toLowerCase().includes('ventas') ||
+          typeName.toLowerCase().includes('sales')) {
           bonusesSummary.sales_bonuses += count;
         } else {
           bonusesSummary.other_bonuses += count;
@@ -252,12 +322,12 @@ export class AdminDashboardComponent implements OnInit {
 
     // Procesar datos de comisiones con la estructura correcta
     const commissionsStatus = commissionsData.by_status || {};
-    
+
     // Calcular montos por estado (no solo contar)
     const paidAmount = parseFloat(commissionsStatus.pagado?.total_amount || commissionsStatus.paid?.total_amount || 0);
     const pendingAmount = parseFloat(commissionsStatus.pendiente?.total_amount || commissionsStatus.pending?.total_amount || 0);
     const processingAmount = parseFloat(commissionsStatus.procesando?.total_amount || commissionsStatus.processing?.total_amount || 0);
-    
+
     const transformedData: AdminDashboardData = {
       period: apiData?.period || {
         month: this.selectedMonth(),
@@ -287,7 +357,7 @@ export class AdminDashboardComponent implements OnInit {
         } else if (emp.total_commissions) {
           calculatedCommissions = parseFloat(emp.total_commissions);
         }
-        
+
         // Calcular bonos desde las relaciones
         let calculatedBonuses = 0;
         if (emp.bonuses && Array.isArray(emp.bonuses)) {
@@ -298,14 +368,14 @@ export class AdminDashboardComponent implements OnInit {
         } else if (emp.total_bonuses) {
           calculatedBonuses = parseFloat(emp.total_bonuses);
         }
-        
-        const totalEarnings = calculatedCommissions + calculatedBonuses;
-        
 
-        
+        const totalEarnings = calculatedCommissions + calculatedBonuses;
+
+
+
         return {
           id: emp.employee_id || emp.id,
-          name: emp.user?.first_name && emp.user?.last_name 
+          name: emp.user?.first_name && emp.user?.last_name
             ? `${emp.user.first_name} ${emp.user.last_name}`
             : emp.full_name || emp.name || 'N/A',
           code: emp.employee_code || emp.code || 'N/A',
@@ -318,7 +388,11 @@ export class AdminDashboardComponent implements OnInit {
           employee_type: emp.employee_type || 'N/A',
           employment_status: emp.employment_status || 'activo'
         };
-      }) : []
+      }) : [],
+      payroll_totals: apiData.payroll_totals || { total_gross: 0, total_net: 0, total_deductions: 0, total_records: 0 },
+      sales_summary: apiData.sales_summary || { total_contracts: 0, total_amount: 0, average_ticket: 0, by_sale_type: { cash: { count: 0, amount: 0 }, financed: { count: 0, amount: 0 } }, top_advisors_by_contracts: [] },
+      monthly_trend: apiData.monthly_trend || [],
+      alerts: apiData.alerts || []
     };
 
     return transformedData;
@@ -346,14 +420,18 @@ export class AdminDashboardComponent implements OnInit {
         other_bonuses: 0
       },
       top_performers: [],
-      employees: []
+      employees: [],
+      payroll_totals: { total_gross: 0, total_net: 0, total_deductions: 0, total_records: 0 },
+      sales_summary: { total_contracts: 0, total_amount: 0, average_ticket: 0, by_sale_type: { cash: { count: 0, amount: 0 }, financed: { count: 0, amount: 0 } }, top_advisors_by_contracts: [] },
+      monthly_trend: [],
+      alerts: []
     };
   }
 
   // Método para transformar top performers
   private transformTopPerformers(performers: any): TopPerformer[] {
     let performersArray: any[] = [];
-    
+
     // Manejar diferentes estructuras de datos
     if (Array.isArray(performers)) {
       performersArray = performers;
@@ -372,22 +450,22 @@ export class AdminDashboardComponent implements OnInit {
       // El performer ya es el empleado completo según la estructura del backend
       const employee = performer;
       const user = employee.user || {};
-      
+
       const employeeId = employee.employee_id || employee.id || index;
-      const employeeName = user.first_name && user.last_name 
-                          ? `${user.first_name} ${user.last_name}`
-                          : employee.employee_name || 
-                            employee.full_name ||
-                            employee.name ||
-                            `${employee.first_name || ''} ${employee.last_name || ''}`.trim() ||
-                            'Empleado sin nombre';
-      
+      const employeeName = user.first_name && user.last_name
+        ? `${user.first_name} ${user.last_name}`
+        : employee.employee_name ||
+        employee.full_name ||
+        employee.name ||
+        `${employee.first_name || ''} ${employee.last_name || ''}`.trim() ||
+        'Empleado sin nombre';
+
       const employeeCode = employee.employee_code || employee.code || `EMP${employeeId}`;
-      
+
       // Calcular comisiones y bonos reales desde las relaciones del backend
       let totalCommissions = 0;
       let totalBonuses = 0;
-      
+
       // El backend envía las comisiones y bonos como arrays de objetos en las relaciones
       if (employee.commissions && Array.isArray(employee.commissions)) {
         totalCommissions = employee.commissions.reduce((sum: number, commission: any) => {
@@ -395,14 +473,14 @@ export class AdminDashboardComponent implements OnInit {
           return sum + amount;
         }, 0);
       }
-      
+
       if (employee.bonuses && Array.isArray(employee.bonuses)) {
         totalBonuses = employee.bonuses.reduce((sum: number, bonus: any) => {
           const amount = parseFloat(bonus.bonus_amount || 0);
           return sum + amount;
         }, 0);
       }
-      
+
       return {
         employee_id: employeeId,
         employee_name: employeeName,
@@ -422,16 +500,16 @@ export class AdminDashboardComponent implements OnInit {
   // Métodos de utilidad para formateo
   calculateEmployeeEarnings(employee: any): number {
     if (!employee) return 0;
-    
+
     // Si ya tiene totalEarnings calculado, usarlo
     if (employee.totalEarnings !== undefined) {
       return parseFloat(employee.totalEarnings) || 0;
     }
-    
+
     // Calcular desde comisiones y bonos
     const commissions = parseFloat(employee.commissions || employee.total_commissions || 0);
     const bonuses = parseFloat(employee.bonuses || employee.total_bonuses || 0);
-    
+
     return commissions + bonuses;
   }
 
@@ -440,7 +518,7 @@ export class AdminDashboardComponent implements OnInit {
     this.loadDashboardData();
   }
 
-  
+
 
   // Método para cambio de tipo de empleado
   onEmployeeTypeChange(event: Event): void {
@@ -452,7 +530,7 @@ export class AdminDashboardComponent implements OnInit {
   formatCurrency(amount: number | string): string {
     // Convertir a número de forma segura
     let numericAmount: number;
-    
+
     if (typeof amount === 'string') {
       // Si es string, intentar extraer solo el primer número válido
       const cleanAmount = amount.toString().replace(/[^\d.-]/g, '');
@@ -461,12 +539,12 @@ export class AdminDashboardComponent implements OnInit {
     } else {
       numericAmount = amount || 0;
     }
-    
+
     // Validar que sea un número válido
     if (isNaN(numericAmount) || !isFinite(numericAmount)) {
       numericAmount = 0;
     }
-    
+
     return new Intl.NumberFormat('es-PE', {
       style: 'currency',
       currency: 'PEN',
@@ -476,9 +554,9 @@ export class AdminDashboardComponent implements OnInit {
 
   getEmployeeTypeClass(employee: any): string {
     if (!employee) return 'bg-gray-100 text-gray-800';
-    
+
     const type = (employee.employee_type || employee.type || '').toLowerCase();
-    
+
     switch (type) {
       case 'asesor':
       case 'advisor':
@@ -501,7 +579,7 @@ export class AdminDashboardComponent implements OnInit {
 
   getEmployeeTypeLabel(type: string): string {
     const labels = {
-        'advisor': 'Asesor',
+      'advisor': 'Asesor',
       'manager': 'Gerente',
       'admin': 'Administrador'
     };
@@ -520,7 +598,7 @@ export class AdminDashboardComponent implements OnInit {
   // Métodos para comparación de períodos
   async comparePeriods(): Promise<void> {
     if (this.loading()) return;
-    
+
     this.loading.set(true);
     try {
       const currentData = this.dashboardData();
@@ -531,7 +609,7 @@ export class AdminDashboardComponent implements OnInit {
       // Calcular período anterior
       let prevMonth = this.selectedMonth() - 1;
       let prevYear = this.selectedYear();
-      
+
       if (prevMonth < 1) {
         prevMonth = 12;
         prevYear--;
@@ -539,7 +617,7 @@ export class AdminDashboardComponent implements OnInit {
 
       // Obtener datos del período anterior
       const previousData = await this.employeeService.getAdminDashboard(prevMonth, prevYear).toPromise();
-      
+
       if (previousData) {
         const comparison = {
           revenue: {
@@ -562,10 +640,10 @@ export class AdminDashboardComponent implements OnInit {
 
         // Calcular cambios
         comparison.revenue.change = comparison.revenue.current - comparison.revenue.previous;
-        comparison.revenue.percentage = comparison.revenue.previous > 0 
-          ? (comparison.revenue.change / comparison.revenue.previous) * 100 
+        comparison.revenue.percentage = comparison.revenue.previous > 0
+          ? (comparison.revenue.change / comparison.revenue.previous) * 100
           : 0;
-        
+
         comparison.commissions.change = comparison.commissions.current - comparison.commissions.previous;
         comparison.bonuses.change = comparison.bonuses.current - comparison.bonuses.previous;
 
@@ -631,9 +709,9 @@ export class AdminDashboardComponent implements OnInit {
 
   getEmployeeStatusLabel(employee: any): string {
     if (!employee) return 'Desconocido';
-    
+
     const status = (employee.employment_status || employee.status || '').toLowerCase();
-    
+
     switch (status) {
       case 'activo':
       case 'active':

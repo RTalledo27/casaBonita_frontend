@@ -1,512 +1,516 @@
 <div class="p-8 space-y-6 animate-fade-in">
-    <!-- Encabezado mejorado -->
-    <div class="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-6 text-white shadow-lg gradient-animate hover-lift">
-        <div class="flex justify-between items-center">
-            <div class="flex items-center space-x-3 animate-slide-in-right">
-                <div class="bg-white/20 p-3 rounded-lg animate-bounce-in">
-                    <i class="fas fa-map-marked-alt text-2xl text-glow"></i>
-                </div>
-                <div>
-                    <h2 class="text-3xl font-bold text-glow">{{ 'inventory.lots.title' | translate }}</h2>
-                    <p class="text-blue-100 mt-1">Gestiona y administra todos los lotes disponibles</p>
-                </div>
-            </div>
-            <div class="flex gap-3 stagger-animation">
-                <!-- Botón toggle de tema -->
-                <button (click)="themeService.toggle()" 
-                        class="bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/30 text-white px-3 py-2 rounded-lg flex items-center gap-2 smooth-transition hover:scale-105 shadow-lg micro-bounce focus-ring"
-                        [title]="themeService.isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'">
-                    <i class="fas" [ngClass]="themeService.isDark ? 'fa-sun' : 'fa-moon'" [class]="'text-sm ' + (themeService.isDark ? 'text-yellow-300' : 'text-blue-200')"></i>
-                </button>
-                <button *ngIf="canImport()" (click)="openExternalImport()" 
-                        class="bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 smooth-transition hover:scale-105 shadow-lg micro-bounce focus-ring">
-                    <i class="fas fa-cloud-download-alt text-sm"></i>
-                    <span class="font-medium">Importar API Externa</span>
-                </button>
-                <button *ngIf="canImport()" (click)="openImportModal()" 
-                        class="bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/30 text-white px-4 py-2 rounded-lg flex items-center gap-2 smooth-transition hover:scale-105 shadow-lg micro-bounce focus-ring">
-                    <i class="fas fa-upload text-sm"></i>
-                    <span class="font-medium">Importar Excel</span>
-                </button>
-                <button *ngIf="canCreate()" (click)="onCreate()" 
-                        class="bg-white text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg flex items-center gap-2 smooth-transition hover:scale-105 shadow-lg font-medium micro-bounce focus-ring animate-pulse-glow">
-                    <i class="fas fa-plus text-sm"></i>
-                    <span>{{ 'common.new' | translate }}</span>
-                </button>
-            </div>
+  <!-- Encabezado mejorado -->
+  <div
+    class="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-6 text-white shadow-lg gradient-animate hover-lift">
+    <div class="flex justify-between items-center">
+      <div class="flex items-center space-x-3 animate-slide-in-right">
+        <div class="bg-white/20 p-3 rounded-lg animate-bounce-in">
+          <i class="fas fa-map-marked-alt text-2xl text-glow"></i>
         </div>
+        <div>
+          <h2 class="text-3xl font-bold text-glow">{{ 'inventory.lots.title' | translate }}</h2>
+          <p class="text-blue-100 mt-1">Gestiona y administra todos los lotes disponibles</p>
+        </div>
+      </div>
+      <div class="flex gap-3 stagger-animation">
+        <!-- Botón toggle de tema -->
+        <button (click)="themeService.toggle()"
+          class="bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/30 text-white px-3 py-2 rounded-lg flex items-center gap-2 smooth-transition hover:scale-105 shadow-lg micro-bounce focus-ring"
+          [title]="themeService.isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'">
+          <i class="fas" [ngClass]="themeService.isDark ? 'fa-sun' : 'fa-moon'"
+            [class]="'text-sm ' + (themeService.isDark ? 'text-yellow-300' : 'text-blue-200')"></i>
+        </button>
+        <button *ngIf="canImport()" (click)="openExternalImport()"
+          class="bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 smooth-transition hover:scale-105 shadow-lg micro-bounce focus-ring">
+          <i class="fas fa-cloud-download-alt text-sm"></i>
+          <span class="font-medium">Importar API Externa</span>
+        </button>
+        <button *ngIf="canImport()" (click)="openImportModal()"
+          class="bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/30 text-white px-4 py-2 rounded-lg flex items-center gap-2 smooth-transition hover:scale-105 shadow-lg micro-bounce focus-ring">
+          <i class="fas fa-upload text-sm"></i>
+          <span class="font-medium">Importar Excel</span>
+        </button>
+        <button *ngIf="canCreate()" (click)="onCreate()"
+          class="bg-white text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg flex items-center gap-2 smooth-transition hover:scale-105 shadow-lg font-medium micro-bounce focus-ring animate-pulse-glow">
+          <i class="fas fa-plus text-sm"></i>
+          <span>{{ 'common.new' | translate }}</span>
+        </button>
+      </div>
     </div>
+  </div>
 
-    <!-- Filtros mejorados -->
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 p-6 hover-lift dynamic-shadow">
-      <div class="flex items-center justify-between mb-4">
-        <div class="flex items-center space-x-2 animate-slide-in-right">
-          <div class="bg-blue-100 dark:bg-blue-900 p-2 rounded-lg animate-bounce-in">
-            <i class="fas fa-filter text-blue-600 dark:text-blue-400"></i>
-          </div>
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Filtros de Búsqueda</h3>
+  <!-- Filtros mejorados -->
+  <div
+    class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 p-6 hover-lift dynamic-shadow">
+    <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center space-x-2 animate-slide-in-right">
+        <div class="bg-blue-100 dark:bg-blue-900 p-2 rounded-lg animate-bounce-in">
+          <i class="fas fa-filter text-blue-600 dark:text-blue-400"></i>
         </div>
-        <div class="text-sm text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-700 px-3 py-1 rounded-full">
-          {{ lots.length }} de {{ pagination.total }} lotes
-        </div>
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Filtros de Búsqueda</h3>
       </div>
-      
-      <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
-        <!-- Campo de búsqueda -->
-        <div class="md:col-span-3">
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            <i class="fas fa-search text-blue-500 dark:text-blue-400 mr-1"></i>
-            Buscar Lote
-          </label>
-          <div class="relative">
-            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <i class="fas fa-hashtag text-gray-400 dark:text-gray-500"></i>
-            </div>
-            <input
-              type="text"
-              class="block w-full pl-10 pr-3 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 placeholder-gray-400 dark:placeholder-gray-500 text-gray-900 dark:text-white focus:outline-none focus:bg-white dark:focus:bg-gray-600 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all duration-200"
-              placeholder="Número de lote..."
-              [(ngModel)]="filterText"
-              (input)="onSearch()"
-            />
-          </div>
-        </div>
-        
-        <!-- Filtro de estado -->
-        <div class="md:col-span-2">
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            <i class="fas fa-tag text-green-500 dark:text-green-400 mr-1"></i>
-            Estado
-          </label>
-          <select
-            class="block w-full px-3 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:bg-white dark:focus:bg-gray-600 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all duration-200"
-            [(ngModel)]="statusFilter"
-            (change)="onFilterChange()"
-          >
-            <option *ngFor="let status of statusOptions" [value]="status.value">
-              {{ status.label }}
-            </option>
-          </select>
-        </div>
-        
-        <!-- Filtro de manzana -->
-        <div class="md:col-span-2">
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            <i class="fas fa-map text-purple-500 dark:text-purple-400 mr-1"></i>
-            Manzana
-          </label>
-          <select
-            class="block w-full px-3 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:bg-white dark:focus:bg-gray-600 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all duration-200"
-            [(ngModel)]="manzanaFilter"
-            (change)="onFilterChange()"
-          >
-            <option value="">Todas las manzanas</option>
-            <option *ngFor="let manzana of manzanas" [value]="manzana.manzana_id">
-              Manzana {{ manzana.name }}
-            </option>
-          </select>
-        </div>
-        
-        <!-- Filtro de tipo de calle -->
-        <div class="md:col-span-2">
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            <i class="fas fa-road text-orange-500 dark:text-orange-400 mr-1"></i>
-            Tipo de Calle
-          </label>
-          <select
-            class="block w-full px-3 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 focus:outline-none focus:bg-white dark:focus:bg-gray-600 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all duration-200 text-gray-900 dark:text-gray-100"
-            [(ngModel)]="streetTypeFilter"
-            (change)="onStreetTypeFilterChange()"
-          >
-            <option value="" class="bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100">Todos los tipos</option>
-            <option *ngFor="let streetType of streetTypes" [value]="streetType.street_type_id" class="bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100">
-              {{ streetType.name }}
-            </option>
-          </select>
-        </div>
-        
-        <!-- Botones de acción -->
-        <div class="md:col-span-3">
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            <i class="fas fa-cogs text-gray-500 dark:text-gray-400 mr-1"></i>
-            Acciones
-          </label>
-          <div class="flex flex-wrap gap-2">
-            <button 
-              type="button" 
-              class="px-4 py-3 text-sm font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 focus:outline-none focus:ring-2 focus:ring-red-200 dark:focus:ring-red-800 smooth-transition hover:scale-105 micro-bounce focus-ring flex items-center gap-2"
-              (click)="clearFilters()"
-              title="Limpiar todos los filtros">
-              <i class="fas fa-times"></i>
-              <span>Limpiar</span>
-            </button>
-            
-            <button 
-              type="button" 
-              class="px-4 py-3 text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 focus:outline-none focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 smooth-transition hover:scale-105 micro-bounce focus-ring flex items-center gap-2"
-              (click)="toggleAdvancedFilters()"
-              title="Mostrar/Ocultar filtros avanzados">
-              <i class="fas smooth-transition" [class.fa-chevron-down]="!showAdvancedFilters" [class.fa-chevron-up]="showAdvancedFilters" [class.rotate-180]="showAdvancedFilters"></i>
-              <span>Avanzados</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Filtros Avanzados mejorados -->
-    <div *ngIf="showAdvancedFilters" class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 rounded-xl border border-blue-200 dark:border-gray-700 shadow-sm overflow-hidden transition-all duration-300">
-      <div class="bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-700 dark:to-indigo-700 px-6 py-4">
-        <h6 class="text-lg font-semibold text-white mb-0 flex items-center">
-          <div class="bg-white/20 dark:bg-white/10 p-2 rounded-lg mr-3">
-            <i class="fas fa-sliders-h text-white"></i>
-          </div>
-          Filtros Avanzados
-        </h6>
-      </div>
-      <div class="p-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <!-- Rango de Precios -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg p-5 shadow-sm border border-gray-100 dark:border-gray-700">
-            <label class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-4 flex items-center">
-              <div class="bg-green-100 dark:bg-green-900 p-2 rounded-lg mr-2">
-                <i class="fas fa-dollar-sign text-green-600 dark:text-green-400"></i>
-              </div>
-              Rango de Precios
-            </label>
-            <div class="grid grid-cols-2 gap-3">
-              <div>
-                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Precio Mínimo</label>
-                <div class="relative">
-                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <span class="text-gray-400 dark:text-gray-500 text-sm">S/.</span>
-                  </div>
-                  <input 
-                    type="number" 
-                    class="block w-full pl-8 pr-3 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:bg-white dark:focus:bg-gray-600 focus:border-green-500 dark:focus:border-green-400 focus:ring-2 focus:ring-green-200 dark:focus:ring-green-800 transition-all duration-200" 
-                    [(ngModel)]="minPrice"
-                    (ngModelChange)="onAdvancedFilterChange()"
-                    placeholder="0"
-                    min="0">
-                </div>
-              </div>
-              <div>
-                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Precio Máximo</label>
-                <div class="relative">
-                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <span class="text-gray-400 dark:text-gray-500 text-sm">S/.</span>
-                  </div>
-                  <input 
-                    type="number" 
-                    class="block w-full pl-8 pr-3 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:bg-white dark:focus:bg-gray-600 focus:border-green-500 dark:focus:border-green-400 focus:ring-2 focus:ring-green-200 dark:focus:ring-green-800 transition-all duration-200" 
-                    [(ngModel)]="maxPrice"
-                    (ngModelChange)="onAdvancedFilterChange()"
-                    placeholder="Sin límite"
-                    min="0">
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Rango de Área -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg p-5 shadow-sm border border-gray-100 dark:border-gray-700">
-            <label class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-4 flex items-center">
-              <div class="bg-blue-100 dark:bg-blue-900 p-2 rounded-lg mr-2">
-                <i class="fas fa-ruler-combined text-blue-600 dark:text-blue-400"></i>
-              </div>
-              Rango de Área
-            </label>
-            <div class="grid grid-cols-2 gap-3">
-              <div>
-                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Área Mínima</label>
-                <div class="relative">
-                  <input 
-                    type="number" 
-                    class="block w-full px-3 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:bg-white dark:focus:bg-gray-600 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all duration-200" 
-                    [(ngModel)]="minArea"
-                    (ngModelChange)="onAdvancedFilterChange()"
-                    placeholder="0"
-                    min="0">
-                  <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                    <span class="text-gray-400 dark:text-gray-500 text-sm">m²</span>
-                  </div>
-                </div>
-              </div>
-              <div>
-                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Área Máxima</label>
-                <div class="relative">
-                  <input 
-                    type="number" 
-                    class="block w-full px-3 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:bg-white dark:focus:bg-gray-600 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all duration-200" 
-                    [(ngModel)]="maxArea"
-                    (ngModelChange)="onAdvancedFilterChange()"
-                    placeholder="Sin límite"
-                    min="0">
-                  <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                    <span class="text-gray-400 dark:text-gray-500 text-sm">m²</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div class="text-sm text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-700 px-3 py-1 rounded-full">
+        {{ lots.length }} de {{ pagination.total }} lotes
       </div>
     </div>
 
-
-    <!-- Indicador de carga mejorado -->
-    <div *ngIf="loading" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-12">
-      <div class="flex flex-col items-center justify-center">
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+      <!-- Campo de búsqueda -->
+      <div class="md:col-span-3">
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <i class="fas fa-search text-blue-500 dark:text-blue-400 mr-1"></i>
+          Buscar Lote
+        </label>
         <div class="relative">
-          <div class="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 dark:border-blue-800"></div>
-          <div class="animate-spin rounded-full h-12 w-12 border-4 border-blue-600 dark:border-blue-400 border-t-transparent absolute top-0 left-0"></div>
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <i class="fas fa-hashtag text-gray-400 dark:text-gray-500"></i>
+          </div>
+          <input type="text"
+            class="block w-full pl-10 pr-3 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 placeholder-gray-400 dark:placeholder-gray-500 text-gray-900 dark:text-white focus:outline-none focus:bg-white dark:focus:bg-gray-600 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all duration-200"
+            placeholder="Número de lote..." [(ngModel)]="filterText" (input)="onSearch()" />
         </div>
-        <div class="mt-4 text-center">
-          <p class="text-lg font-medium text-gray-700 dark:text-gray-300">Cargando lotes...</p>
-          <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Por favor espera un momento</p>
+      </div>
+
+      <!-- Filtro de estado -->
+      <div class="md:col-span-2">
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <i class="fas fa-tag text-green-500 dark:text-green-400 mr-1"></i>
+          Estado
+        </label>
+        <select
+          class="block w-full px-3 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:bg-white dark:focus:bg-gray-600 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all duration-200"
+          [(ngModel)]="statusFilter" (change)="onFilterChange()">
+          <option *ngFor="let status of statusOptions" [value]="status.value">
+            {{ status.label }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Filtro de manzana -->
+      <div class="md:col-span-2">
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <i class="fas fa-map text-purple-500 dark:text-purple-400 mr-1"></i>
+          Manzana
+        </label>
+        <select
+          class="block w-full px-3 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:bg-white dark:focus:bg-gray-600 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all duration-200"
+          [(ngModel)]="manzanaFilter" (change)="onFilterChange()">
+          <option value="">Todas las manzanas</option>
+          <option *ngFor="let manzana of manzanas" [value]="manzana.manzana_id">
+            Manzana {{ manzana.name }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Filtro de tipo de calle -->
+      <div class="md:col-span-2">
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <i class="fas fa-road text-orange-500 dark:text-orange-400 mr-1"></i>
+          Tipo de Calle
+        </label>
+        <select
+          class="block w-full px-3 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 focus:outline-none focus:bg-white dark:focus:bg-gray-600 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all duration-200 text-gray-900 dark:text-gray-100"
+          [(ngModel)]="streetTypeFilter" (change)="onStreetTypeFilterChange()">
+          <option value="" class="bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100">Todos los tipos</option>
+          <option *ngFor="let streetType of streetTypes" [value]="streetType.street_type_id"
+            class="bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+            {{ streetType.name }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Botones de acción -->
+      <div class="md:col-span-3">
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <i class="fas fa-cogs text-gray-500 dark:text-gray-400 mr-1"></i>
+          Acciones
+        </label>
+        <div class="flex flex-wrap gap-2">
+          <button type="button"
+            class="px-4 py-3 text-sm font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 focus:outline-none focus:ring-2 focus:ring-red-200 dark:focus:ring-red-800 smooth-transition hover:scale-105 micro-bounce focus-ring flex items-center gap-2"
+            (click)="clearFilters()" title="Limpiar todos los filtros">
+            <i class="fas fa-times"></i>
+            <span>Limpiar</span>
+          </button>
+
+          <button type="button"
+            class="px-4 py-3 text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 focus:outline-none focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 smooth-transition hover:scale-105 micro-bounce focus-ring flex items-center gap-2"
+            (click)="toggleAdvancedFilters()" title="Mostrar/Ocultar filtros avanzados">
+            <i class="fas smooth-transition" [class.fa-chevron-down]="!showAdvancedFilters"
+              [class.fa-chevron-up]="showAdvancedFilters" [class.rotate-180]="showAdvancedFilters"></i>
+            <span>Avanzados</span>
+          </button>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- Tabla de lotes modernizada -->
-    <div *ngIf="!loading" class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
-      <div class="overflow-x-auto" *ngIf="lots.length > 0">
-        <table class="min-w-full">
-          <thead class="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800">
-            <tr>
-              <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-b border-gray-200 dark:border-gray-600">
-                <div class="flex items-center space-x-1">
-                  <i class="fas fa-hashtag text-blue-500 dark:text-blue-400"></i>
-                  <span>Número de Lote</span>
+  <!-- Filtros Avanzados mejorados -->
+  <div *ngIf="showAdvancedFilters"
+    class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 rounded-xl border border-blue-200 dark:border-gray-700 shadow-sm overflow-hidden transition-all duration-300">
+    <div class="bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-700 dark:to-indigo-700 px-6 py-4">
+      <h6 class="text-lg font-semibold text-white mb-0 flex items-center">
+        <div class="bg-white/20 dark:bg-white/10 p-2 rounded-lg mr-3">
+          <i class="fas fa-sliders-h text-white"></i>
+        </div>
+        Filtros Avanzados
+      </h6>
+    </div>
+    <div class="p-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- Rango de Precios -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-5 shadow-sm border border-gray-100 dark:border-gray-700">
+          <label class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-4 flex items-center">
+            <div class="bg-green-100 dark:bg-green-900 p-2 rounded-lg mr-2">
+              <i class="fas fa-dollar-sign text-green-600 dark:text-green-400"></i>
+            </div>
+            Rango de Precios
+          </label>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Precio Mínimo</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <span class="text-gray-400 dark:text-gray-500 text-sm">S/.</span>
                 </div>
-              </th>
-              <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-b border-gray-200 dark:border-gray-600">
-                <div class="flex items-center space-x-1">
-                  <i class="fas fa-map text-purple-500 dark:text-purple-400"></i>
-                  <span>Manzana</span>
+                <input type="number"
+                  class="block w-full pl-8 pr-3 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:bg-white dark:focus:bg-gray-600 focus:border-green-500 dark:focus:border-green-400 focus:ring-2 focus:ring-green-200 dark:focus:ring-green-800 transition-all duration-200"
+                  [(ngModel)]="minPrice" (ngModelChange)="onAdvancedFilterChange()" placeholder="0" min="0">
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Precio Máximo</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <span class="text-gray-400 dark:text-gray-500 text-sm">S/.</span>
                 </div>
-              </th>
-              <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-b border-gray-200 dark:border-gray-600">
-                <div class="flex items-center space-x-1">
-                  <i class="fas fa-road text-orange-500 dark:text-orange-400"></i>
-                  <span>Tipo de Calle</span>
+                <input type="number"
+                  class="block w-full pl-8 pr-3 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:bg-white dark:focus:bg-gray-600 focus:border-green-500 dark:focus:border-green-400 focus:ring-2 focus:ring-green-200 dark:focus:ring-green-800 transition-all duration-200"
+                  [(ngModel)]="maxPrice" (ngModelChange)="onAdvancedFilterChange()" placeholder="Sin límite" min="0">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rango de Área -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-5 shadow-sm border border-gray-100 dark:border-gray-700">
+          <label class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-4 flex items-center">
+            <div class="bg-blue-100 dark:bg-blue-900 p-2 rounded-lg mr-2">
+              <i class="fas fa-ruler-combined text-blue-600 dark:text-blue-400"></i>
+            </div>
+            Rango de Área
+          </label>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Área Mínima</label>
+              <div class="relative">
+                <input type="number"
+                  class="block w-full px-3 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:bg-white dark:focus:bg-gray-600 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all duration-200"
+                  [(ngModel)]="minArea" (ngModelChange)="onAdvancedFilterChange()" placeholder="0" min="0">
+                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                  <span class="text-gray-400 dark:text-gray-500 text-sm">m²</span>
                 </div>
-              </th>
-              <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-b border-gray-200 dark:border-gray-600">
-                <div class="flex items-center space-x-1">
-                  <i class="fas fa-ruler-combined text-indigo-500 dark:text-indigo-400"></i>
-                  <span>Área (m²)</span>
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Área Máxima</label>
+              <div class="relative">
+                <input type="number"
+                  class="block w-full px-3 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:bg-white dark:focus:bg-gray-600 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all duration-200"
+                  [(ngModel)]="maxArea" (ngModelChange)="onAdvancedFilterChange()" placeholder="Sin límite" min="0">
+                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                  <span class="text-gray-400 dark:text-gray-500 text-sm">m²</span>
                 </div>
-              </th>
-              <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-b border-gray-200 dark:border-gray-600">
-                <div class="flex items-center space-x-1">
-                  <i class="fas fa-dollar-sign text-green-500 dark:text-green-400"></i>
-                  <span>Precio Total</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Indicador de carga mejorado -->
+  <div *ngIf="loading"
+    class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-12">
+    <div class="flex flex-col items-center justify-center">
+      <div class="relative">
+        <div class="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 dark:border-blue-800"></div>
+        <div
+          class="animate-spin rounded-full h-12 w-12 border-4 border-blue-600 dark:border-blue-400 border-t-transparent absolute top-0 left-0">
+        </div>
+      </div>
+      <div class="mt-4 text-center">
+        <p class="text-lg font-medium text-gray-700 dark:text-gray-300">Cargando lotes...</p>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Por favor espera un momento</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabla de lotes modernizada -->
+  <div *ngIf="!loading"
+    class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
+    <div class="overflow-x-auto" *ngIf="lots.length > 0">
+      <table class="min-w-full">
+        <thead class="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800">
+          <tr>
+            <th
+              class="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-b border-gray-200 dark:border-gray-600">
+              <div class="flex items-center space-x-1">
+                <i class="fas fa-hashtag text-blue-500 dark:text-blue-400"></i>
+                <span>Número de Lote</span>
+              </div>
+            </th>
+            <th
+              class="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-b border-gray-200 dark:border-gray-600">
+              <div class="flex items-center space-x-1">
+                <i class="fas fa-map text-purple-500 dark:text-purple-400"></i>
+                <span>Manzana</span>
+              </div>
+            </th>
+            <th
+              class="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-b border-gray-200 dark:border-gray-600">
+              <div class="flex items-center space-x-1">
+                <i class="fas fa-road text-orange-500 dark:text-orange-400"></i>
+                <span>Tipo de Calle</span>
+              </div>
+            </th>
+            <th
+              class="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-b border-gray-200 dark:border-gray-600">
+              <div class="flex items-center space-x-1">
+                <i class="fas fa-ruler-combined text-indigo-500 dark:text-indigo-400"></i>
+                <span>Área (m²)</span>
+              </div>
+            </th>
+            <th
+              class="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-b border-gray-200 dark:border-gray-600">
+              <div class="flex items-center space-x-1">
+                <i class="fas fa-dollar-sign text-green-500 dark:text-green-400"></i>
+                <span>Precio Total</span>
+              </div>
+            </th>
+            <th
+              class="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-b border-gray-200 dark:border-gray-600">
+              <div class="flex items-center space-x-1">
+                <i class="fas fa-tag text-pink-500 dark:text-pink-400"></i>
+                <span>Estado</span>
+              </div>
+            </th>
+            <th
+              class="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-b border-gray-200 dark:border-gray-600">
+              <div class="flex items-center space-x-1">
+                <i class="fas fa-cogs text-gray-500 dark:text-gray-400"></i>
+                <span>Acciones</span>
+              </div>
+            </th>
+          </tr>
+        </thead>
+        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-100 dark:divide-gray-700">
+          <tr *ngFor="let lot of lots"
+            class="hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 dark:hover:from-gray-700 dark:hover:to-gray-600 transition-all duration-200 group">
+            <td class="px-6 py-5 whitespace-nowrap">
+              <div class="flex items-center">
+                <div
+                  class="bg-blue-100 dark:bg-blue-900 p-2 rounded-lg mr-3 group-hover:bg-blue-200 dark:group-hover:bg-blue-800 transition-colors duration-200">
+                  <i class="fas fa-home text-blue-600 dark:text-blue-400 text-sm"></i>
                 </div>
-              </th>
-              <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-b border-gray-200 dark:border-gray-600">
-                <div class="flex items-center space-x-1">
-                  <i class="fas fa-tag text-pink-500 dark:text-pink-400"></i>
-                  <span>Estado</span>
+                <span
+                  class="text-lg font-bold text-blue-700 dark:text-blue-400 group-hover:text-blue-800 dark:group-hover:text-blue-300">#{{
+                  lot.num_lot }}</span>
+              </div>
+            </td>
+            <td class="px-6 py-5 whitespace-nowrap">
+              <span
+                class="inline-flex items-center px-3 py-1.5 text-sm font-semibold rounded-full bg-gradient-to-r from-purple-100 to-purple-200 dark:from-purple-900 dark:to-purple-800 text-purple-800 dark:text-purple-200 shadow-sm">
+                <i class="fas fa-map-marker-alt mr-1 text-xs"></i>
+                {{ getManzanaName(lot.manzana_id) }}
+              </span>
+            </td>
+            <td class="px-6 py-5 whitespace-nowrap">
+              <span
+                class="inline-flex items-center px-3 py-1.5 text-sm font-semibold rounded-full bg-gradient-to-r from-orange-100 to-orange-200 dark:from-orange-900 dark:to-orange-800 text-orange-800 dark:text-orange-200 shadow-sm">
+                <i class="fas fa-road mr-1 text-xs"></i>
+                {{ getStreetTypeName(lot.street_type_id) }}
+              </span>
+            </td>
+            <td class="px-6 py-5 whitespace-nowrap">
+              <div class="flex items-center">
+                <i class="fas fa-ruler-combined text-indigo-500 dark:text-indigo-400 mr-2"></i>
+                <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ lot.area_m2 | number:'1.0-0' }}
+                  m²</span>
+              </div>
+            </td>
+            <td class="px-6 py-5 whitespace-nowrap">
+              <div class="flex items-center">
+                <div class="bg-green-100 dark:bg-green-900 p-1.5 rounded-lg mr-2">
+                  <i class="fas fa-coins text-green-600 dark:text-green-400 text-xs"></i>
                 </div>
-              </th>
-              <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-b border-gray-200 dark:border-gray-600">
-                <div class="flex items-center space-x-1">
-                  <i class="fas fa-cogs text-gray-500 dark:text-gray-400"></i>
-                  <span>Acciones</span>
-                </div>
-              </th>
-            </tr>
-          </thead>
-          <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-100 dark:divide-gray-700">
-            <tr *ngFor="let lot of lots" class="hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 dark:hover:from-gray-700 dark:hover:to-gray-600 transition-all duration-200 group">
-              <td class="px-6 py-5 whitespace-nowrap">
-                <div class="flex items-center">
-                  <div class="bg-blue-100 dark:bg-blue-900 p-2 rounded-lg mr-3 group-hover:bg-blue-200 dark:group-hover:bg-blue-800 transition-colors duration-200">
-                    <i class="fas fa-home text-blue-600 dark:text-blue-400 text-sm"></i>
-                  </div>
-                  <span class="text-lg font-bold text-blue-700 dark:text-blue-400 group-hover:text-blue-800 dark:group-hover:text-blue-300">#{{ lot.num_lot }}</span>
-                </div>
-              </td>
-              <td class="px-6 py-5 whitespace-nowrap">
-                <span class="inline-flex items-center px-3 py-1.5 text-sm font-semibold rounded-full bg-gradient-to-r from-purple-100 to-purple-200 dark:from-purple-900 dark:to-purple-800 text-purple-800 dark:text-purple-200 shadow-sm">
-                  <i class="fas fa-map-marker-alt mr-1 text-xs"></i>
-                  {{ getManzanaName(lot.manzana_id) }}
+                <span class="text-lg font-bold text-green-700 dark:text-green-400">
+                  S/. {{ lot.total_price | number:'1.0-0' }}
                 </span>
-              </td>
-              <td class="px-6 py-5 whitespace-nowrap">
-                <span class="inline-flex items-center px-3 py-1.5 text-sm font-semibold rounded-full bg-gradient-to-r from-orange-100 to-orange-200 dark:from-orange-900 dark:to-orange-800 text-orange-800 dark:text-orange-200 shadow-sm">
-                  <i class="fas fa-road mr-1 text-xs"></i>
-                  {{ getStreetTypeName(lot.street_type_id) }}
-                </span>
-              </td>
-              <td class="px-6 py-5 whitespace-nowrap">
-                <div class="flex items-center">
-                  <i class="fas fa-ruler-combined text-indigo-500 dark:text-indigo-400 mr-2"></i>
-                  <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ lot.area_m2 | number:'1.0-0' }} m²</span>
-                </div>
-              </td>
-              <td class="px-6 py-5 whitespace-nowrap">
-                <div class="flex items-center">
-                  <div class="bg-green-100 dark:bg-green-900 p-1.5 rounded-lg mr-2">
-                    <i class="fas fa-coins text-green-600 dark:text-green-400 text-xs"></i>
-                  </div>
-                  <span class="text-lg font-bold text-green-700 dark:text-green-400">
-                    S/. {{ lot.total_price | number:'1.0-0' }}
-                  </span>
-                </div>
-              </td>
-              <td class="px-6 py-5 whitespace-nowrap">
-                <span class="inline-flex items-center px-3 py-2 text-sm font-bold rounded-full shadow-sm" 
-                      [ngClass]="{
+              </div>
+            </td>
+            <td class="px-6 py-5 whitespace-nowrap">
+              <span class="inline-flex items-center px-3 py-2 text-sm font-bold rounded-full shadow-sm" [ngClass]="{
                         'bg-gradient-to-r from-green-100 to-green-200 dark:from-green-900 dark:to-green-800 text-green-800 dark:text-green-200': lot.status === 'disponible',
                         'bg-gradient-to-r from-yellow-100 to-yellow-200 dark:from-yellow-900 dark:to-yellow-800 text-yellow-800 dark:text-yellow-200': lot.status === 'reservado',
-                        'bg-gradient-to-r from-red-100 to-red-200 dark:from-red-900 dark:to-red-800 text-red-800 dark:text-red-200': lot.status === 'vendido'
+                        'bg-gradient-to-r from-red-100 to-red-200 dark:from-red-900 dark:to-red-800 text-red-800 dark:text-red-200': lot.status === 'vendido',
+                        'bg-gradient-to-r from-gray-200 to-slate-300 dark:from-gray-700 dark:to-slate-600 text-gray-800 dark:text-gray-200': lot.status === 'bloqueado'
                       }">
-                  <i class="fas fa-circle mr-1.5 text-xs" 
-                     [ngClass]="{
+                <i class="fas fa-circle mr-1.5 text-xs" [ngClass]="{
                        'text-green-600 dark:text-green-400': lot.status === 'disponible',
                        'text-yellow-600 dark:text-yellow-400': lot.status === 'reservado',
-                       'text-red-600 dark:text-red-400': lot.status === 'vendido'
+                       'text-red-600 dark:text-red-400': lot.status === 'vendido',
+                       'text-gray-600 dark:text-gray-400': lot.status === 'bloqueado'
                      }"></i>
-                  {{ lot.status | titlecase }}
-                </span>
-              </td>
-              <td class="px-6 py-5 whitespace-nowrap">
-                <div class="flex space-x-2">
-                  <button class="bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-800 hover:text-blue-700 dark:hover:text-blue-300 p-2.5 rounded-lg transition-all duration-200 hover:scale-105 shadow-sm" 
-                          (click)="onView(lot.lot_id)" title="Ver detalles">
-                    <i class="fas fa-eye text-sm"></i>
-                  </button>
-                  <button class="bg-yellow-100 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-400 hover:bg-yellow-200 dark:hover:bg-yellow-800 hover:text-yellow-700 dark:hover:text-yellow-300 p-2.5 rounded-lg transition-all duration-200 hover:scale-105 shadow-sm" 
-                          (click)="onEdit(lot.lot_id)" title="Editar">
-                    <i class="fas fa-edit text-sm"></i>
-                  </button>
-                  <button class="bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-800 hover:text-red-700 dark:hover:text-red-300 p-2.5 rounded-lg transition-all duration-200 hover:scale-105 shadow-sm" 
-                          (click)="onDelete(lot.lot_id)" title="Eliminar">
-                    <i class="fas fa-trash text-sm"></i>
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+                {{ lot.status | titlecase }}
+              </span>
+            </td>
+            <td class="px-6 py-5 whitespace-nowrap">
+              <div class="flex space-x-2">
+                <button
+                  class="bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-800 hover:text-blue-700 dark:hover:text-blue-300 p-2.5 rounded-lg transition-all duration-200 hover:scale-105 shadow-sm"
+                  (click)="onView(lot.lot_id)" title="Ver detalles">
+                  <i class="fas fa-eye text-sm"></i>
+                </button>
+                <button
+                  class="bg-yellow-100 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-400 hover:bg-yellow-200 dark:hover:bg-yellow-800 hover:text-yellow-700 dark:hover:text-yellow-300 p-2.5 rounded-lg transition-all duration-200 hover:scale-105 shadow-sm"
+                  (click)="onEdit(lot.lot_id)" title="Editar">
+                  <i class="fas fa-edit text-sm"></i>
+                </button>
+                <button
+                  class="bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-800 hover:text-red-700 dark:hover:text-red-300 p-2.5 rounded-lg transition-all duration-200 hover:scale-105 shadow-sm"
+                  (click)="onDelete(lot.lot_id)" title="Eliminar">
+                  <i class="fas fa-trash text-sm"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
-      <!-- Mensaje cuando no hay resultados mejorado -->
-      <div *ngIf="lots.length === 0" class="text-center py-16">
-        <div class="bg-gray-100 dark:bg-gray-700 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6">
-          <i class="fas fa-search text-4xl text-gray-400 dark:text-gray-500"></i>
+    <!-- Mensaje cuando no hay resultados mejorado -->
+    <div *ngIf="lots.length === 0" class="text-center py-16">
+      <div class="bg-gray-100 dark:bg-gray-700 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6">
+        <i class="fas fa-search text-4xl text-gray-400 dark:text-gray-500"></i>
+      </div>
+      <h5 class="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-3">No se encontraron lotes</h5>
+      <p class="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">No hay lotes que coincidan con los criterios de
+        búsqueda actuales. Intenta ajustar los filtros.</p>
+      <button
+        class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-lg shadow-lg hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 hover:scale-105"
+        (click)="clearFilters()">
+        <i class="fas fa-refresh mr-2"></i>
+        Limpiar filtros
+      </button>
+    </div>
+  </div>
+
+  <!-- Paginación modernizada -->
+  <div *ngIf="pagination.total > pagination.per_page"
+    class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 mt-6 p-6">
+    <!-- Vista móvil -->
+    <div class="flex flex-col space-y-4 sm:hidden">
+      <div class="text-center">
+        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900 dark:to-indigo-900 rounded-lg p-4">
+          <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+            <span class="text-blue-600 dark:text-blue-400">{{ (pagination.current_page - 1) * pagination.per_page + 1
+              }}</span>
+            -
+            <span class="text-blue-600 dark:text-blue-400">{{ Math.min(pagination.current_page * pagination.per_page,
+              pagination.total) }}</span>
+            de
+            <span class="text-indigo-600 dark:text-indigo-400 font-bold">{{ pagination.total }}</span>
+            lotes
+          </p>
+          <div class="mt-2 flex items-center justify-center space-x-2">
+            <div class="bg-blue-200 dark:bg-blue-600 h-2 rounded-full"
+              [style.width.%]="(pagination.current_page / pagination.last_page) * 100"></div>
+            <span class="text-xs text-gray-500 dark:text-gray-400">Página {{ pagination.current_page }} de {{
+              pagination.last_page }}</span>
+          </div>
         </div>
-        <h5 class="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-3">No se encontraron lotes</h5>
-        <p class="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">No hay lotes que coincidan con los criterios de búsqueda actuales. Intenta ajustar los filtros.</p>
-        <button class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-lg shadow-lg hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 hover:scale-105" 
-                (click)="clearFilters()">
-          <i class="fas fa-refresh mr-2"></i> 
-          Limpiar filtros
+      </div>
+      <div class="flex justify-center space-x-3">
+        <button [disabled]="pagination.current_page === 1" (click)="goToPage(pagination.current_page - 1)"
+          class="flex items-center px-4 py-2.5 bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 text-gray-700 dark:text-gray-300 font-semibold rounded-lg shadow-sm hover:from-gray-200 hover:to-gray-300 dark:hover:from-gray-600 dark:hover:to-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200">
+          <i class="fas fa-chevron-left mr-2"></i>
+          Anterior
+        </button>
+        <button [disabled]="pagination.current_page === pagination.last_page"
+          (click)="goToPage(pagination.current_page + 1)"
+          class="flex items-center px-4 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-500 dark:from-blue-600 dark:to-indigo-600 text-white font-semibold rounded-lg shadow-sm hover:from-blue-600 hover:to-indigo-600 dark:hover:from-blue-500 dark:hover:to-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200">
+          Siguiente
+          <i class="fas fa-chevron-right ml-2"></i>
         </button>
       </div>
     </div>
 
-        <!-- Paginación modernizada -->
-        <div *ngIf="pagination.total > pagination.per_page" class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 mt-6 p-6">
-          <!-- Vista móvil -->
-          <div class="flex flex-col space-y-4 sm:hidden">
-            <div class="text-center">
-              <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900 dark:to-indigo-900 rounded-lg p-4">
-                <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                  <span class="text-blue-600 dark:text-blue-400">{{ (pagination.current_page - 1) * pagination.per_page + 1 }}</span>
-                  -
-                  <span class="text-blue-600 dark:text-blue-400">{{ Math.min(pagination.current_page * pagination.per_page, pagination.total) }}</span>
-                  de
-                  <span class="text-indigo-600 dark:text-indigo-400 font-bold">{{ pagination.total }}</span>
-                  lotes
-                </p>
-                <div class="mt-2 flex items-center justify-center space-x-2">
-                  <div class="bg-blue-200 dark:bg-blue-600 h-2 rounded-full" [style.width.%]="(pagination.current_page / pagination.last_page) * 100"></div>
-                  <span class="text-xs text-gray-500 dark:text-gray-400">Página {{ pagination.current_page }} de {{ pagination.last_page }}</span>
-                </div>
-              </div>
-            </div>
-            <div class="flex justify-center space-x-3">
-              <button [disabled]="pagination.current_page === 1" 
-                      (click)="goToPage(pagination.current_page - 1)"
-                      class="flex items-center px-4 py-2.5 bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 text-gray-700 dark:text-gray-300 font-semibold rounded-lg shadow-sm hover:from-gray-200 hover:to-gray-300 dark:hover:from-gray-600 dark:hover:to-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200">
-                <i class="fas fa-chevron-left mr-2"></i>
-                Anterior
-              </button>
-              <button [disabled]="pagination.current_page === pagination.last_page" 
-                      (click)="goToPage(pagination.current_page + 1)"
-                      class="flex items-center px-4 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-500 dark:from-blue-600 dark:to-indigo-600 text-white font-semibold rounded-lg shadow-sm hover:from-blue-600 hover:to-indigo-600 dark:hover:from-blue-500 dark:hover:to-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200">
-                Siguiente
-                <i class="fas fa-chevron-right ml-2"></i>
-              </button>
-            </div>
-          </div>
-
-          <!-- Vista desktop -->
-          <div class="hidden sm:flex sm:items-center sm:justify-between">
-            <div class="flex items-center space-x-4">
-              <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900 dark:to-indigo-900 rounded-lg px-4 py-3">
-                <div class="flex items-center space-x-2">
-                  <i class="fas fa-list text-blue-500 dark:text-blue-400"></i>
-                  <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Mostrando
-                    <span class="text-blue-600 dark:text-blue-400 font-bold">{{ (pagination.current_page - 1) * pagination.per_page + 1 }}</span>
-                    a
-                    <span class="text-blue-600 dark:text-blue-400 font-bold">{{ Math.min(pagination.current_page * pagination.per_page, pagination.total) }}</span>
-                    de
-                    <span class="text-indigo-600 dark:text-indigo-400 font-bold">{{ pagination.total }}</span>
-                    lotes
-                  </p>
-                </div>
-              </div>
-              <div class="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900 dark:to-emerald-900 rounded-lg px-4 py-3">
-                <div class="flex items-center space-x-2">
-                  <i class="fas fa-chart-bar text-green-500 dark:text-green-400"></i>
-                  <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Página
-                    <span class="text-green-600 dark:text-green-400 font-bold">{{ pagination.current_page }}</span>
-                    de
-                    <span class="text-emerald-600 dark:text-emerald-400 font-bold">{{ pagination.last_page }}</span>
-                  </p>
-                </div>
-              </div>
-            </div>
-            
-            <div class="flex items-center space-x-2">
-              <!-- Botón anterior -->
-              <button [disabled]="pagination.current_page === 1" 
-                      (click)="goToPage(pagination.current_page - 1)"
-                      class="flex items-center px-4 py-2.5 bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 text-gray-700 dark:text-gray-300 font-semibold rounded-lg shadow-sm hover:from-gray-200 hover:to-gray-300 dark:hover:from-gray-600 dark:hover:to-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105">
-                <i class="fas fa-chevron-left mr-2"></i>
-                Anterior
-              </button>
-              
-              <!-- Números de página -->
-              <div class="flex items-center space-x-1">
-                <button *ngFor="let page of getPageNumbers()" 
-                        (click)="goToPage(page)"
-                        [class]="page === pagination.current_page ? 
-                          'bg-gradient-to-r from-blue-500 to-indigo-500 dark:from-blue-600 dark:to-indigo-600 text-white shadow-lg scale-110' : 
-                          'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 dark:hover:from-blue-900 dark:hover:to-indigo-900 hover:text-blue-600 dark:hover:text-blue-400 shadow-sm'"
-                        class="relative inline-flex items-center justify-center w-10 h-10 text-sm font-bold rounded-lg border border-gray-200 dark:border-gray-600 transition-all duration-200 hover:scale-105">
-                  {{ page }}
-                </button>
-              </div>
-              
-              <!-- Botón siguiente -->
-              <button [disabled]="pagination.current_page === pagination.last_page" 
-                      (click)="goToPage(pagination.current_page + 1)"
-                      class="flex items-center px-4 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-500 dark:from-blue-600 dark:to-indigo-600 text-white font-semibold rounded-lg shadow-sm hover:from-blue-600 hover:to-indigo-600 dark:hover:from-blue-500 dark:hover:to-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105">
-                Siguiente
-                <i class="fas fa-chevron-right ml-2"></i>
-              </button>
-            </div>
+    <!-- Vista desktop -->
+    <div class="hidden sm:flex sm:items-center sm:justify-between">
+      <div class="flex items-center space-x-4">
+        <div
+          class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900 dark:to-indigo-900 rounded-lg px-4 py-3">
+          <div class="flex items-center space-x-2">
+            <i class="fas fa-list text-blue-500 dark:text-blue-400"></i>
+            <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+              Mostrando
+              <span class="text-blue-600 dark:text-blue-400 font-bold">{{ (pagination.current_page - 1) *
+                pagination.per_page + 1 }}</span>
+              a
+              <span class="text-blue-600 dark:text-blue-400 font-bold">{{ Math.min(pagination.current_page *
+                pagination.per_page, pagination.total) }}</span>
+              de
+              <span class="text-indigo-600 dark:text-indigo-400 font-bold">{{ pagination.total }}</span>
+              lotes
+            </p>
           </div>
         </div>
+        <div
+          class="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900 dark:to-emerald-900 rounded-lg px-4 py-3">
+          <div class="flex items-center space-x-2">
+            <i class="fas fa-chart-bar text-green-500 dark:text-green-400"></i>
+            <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+              Página
+              <span class="text-green-600 dark:text-green-400 font-bold">{{ pagination.current_page }}</span>
+              de
+              <span class="text-emerald-600 dark:text-emerald-400 font-bold">{{ pagination.last_page }}</span>
+            </p>
+          </div>
+        </div>
+      </div>
 
-    <app-shared-delete [visible]="showDeleteModal" [itemName]="selectedItemName" (confirm)="deleteConfirmed()"
-        (cancel)="showDeleteModal = false"></app-shared-delete>
+      <div class="flex items-center space-x-2">
+        <!-- Botón anterior -->
+        <button [disabled]="pagination.current_page === 1" (click)="goToPage(pagination.current_page - 1)"
+          class="flex items-center px-4 py-2.5 bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 text-gray-700 dark:text-gray-300 font-semibold rounded-lg shadow-sm hover:from-gray-200 hover:to-gray-300 dark:hover:from-gray-600 dark:hover:to-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105">
+          <i class="fas fa-chevron-left mr-2"></i>
+          Anterior
+        </button>
+
+        <!-- Números de página -->
+        <div class="flex items-center space-x-1">
+          <button *ngFor="let page of getPageNumbers()" (click)="goToPage(page)"
+            [class]="page === pagination.current_page ? 
+                          'bg-gradient-to-r from-blue-500 to-indigo-500 dark:from-blue-600 dark:to-indigo-600 text-white shadow-lg scale-110' : 
+                          'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 dark:hover:from-blue-900 dark:hover:to-indigo-900 hover:text-blue-600 dark:hover:text-blue-400 shadow-sm'"
+            class="relative inline-flex items-center justify-center w-10 h-10 text-sm font-bold rounded-lg border border-gray-200 dark:border-gray-600 transition-all duration-200 hover:scale-105">
+            {{ page }}
+          </button>
+        </div>
+
+        <!-- Botón siguiente -->
+        <button [disabled]="pagination.current_page === pagination.last_page"
+          (click)="goToPage(pagination.current_page + 1)"
+          class="flex items-center px-4 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-500 dark:from-blue-600 dark:to-indigo-600 text-white font-semibold rounded-lg shadow-sm hover:from-blue-600 hover:to-indigo-600 dark:hover:from-blue-500 dark:hover:to-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105">
+          Siguiente
+          <i class="fas fa-chevron-right ml-2"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <app-shared-delete [visible]="showDeleteModal" [itemName]="selectedItemName" (confirm)="deleteConfirmed()"
+    (cancel)="showDeleteModal = false"></app-shared-delete>
 </div>
-  

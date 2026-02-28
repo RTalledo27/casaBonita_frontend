@@ -11,12 +11,12 @@ import { PaymentSchedule, PaymentScheduleFilter, PaymentScheduleSummary, Payment
 export class PaymentScheduleService {
   private apiUrl = `${environment.URL_BACKEND}/v1/reports/payment-schedules`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   // Método para obtener resumen de cronogramas de pago
   getOverview(filters: PaymentScheduleFilter = {}): Observable<any> {
     let params = new HttpParams();
-    
+
     Object.keys(filters).forEach(key => {
       const value = (filters as any)[key];
       if (value !== undefined && value !== null && value !== '') {
@@ -35,7 +35,7 @@ export class PaymentScheduleService {
   // Método para obtener cronogramas por estado
   getByStatus(filters: PaymentScheduleFilter = {}): Observable<any> {
     let params = new HttpParams();
-    
+
     Object.keys(filters).forEach(key => {
       const value = (filters as any)[key];
       if (value !== undefined && value !== null && value !== '') {
@@ -54,7 +54,7 @@ export class PaymentScheduleService {
   // Método para obtener pagos vencidos
   getOverdue(filters: PaymentScheduleFilter = {}): Observable<any> {
     let params = new HttpParams();
-    
+
     Object.keys(filters).forEach(key => {
       const value = (filters as any)[key];
       if (value !== undefined && value !== null && value !== '') {
@@ -73,7 +73,7 @@ export class PaymentScheduleService {
   // Método para obtener tendencias de pagos
   getPaymentTrends(filters: PaymentScheduleFilter = {}): Observable<any> {
     let params = new HttpParams();
-    
+
     Object.keys(filters).forEach(key => {
       const value = (filters as any)[key];
       if (value !== undefined && value !== null && value !== '') {
@@ -81,7 +81,7 @@ export class PaymentScheduleService {
       }
     });
 
-    return this.http.get<any>(`${this.apiUrl}/payment-trends`, { params }).pipe(
+    return this.http.get<any>(`${this.apiUrl}/trends`, { params }).pipe(
       catchError(error => {
         console.error('Error fetching payment trends:', error);
         return of(this.getMockPaymentTrends());
@@ -92,7 +92,7 @@ export class PaymentScheduleService {
   // Método para obtener eficiencia de cobranza
   getCollectionEfficiency(filters: PaymentScheduleFilter = {}): Observable<any> {
     let params = new HttpParams();
-    
+
     Object.keys(filters).forEach(key => {
       const value = (filters as any)[key];
       if (value !== undefined && value !== null && value !== '') {
@@ -111,7 +111,7 @@ export class PaymentScheduleService {
   // Método para obtener próximos pagos
   getUpcoming(filters: PaymentScheduleFilter = {}): Observable<any> {
     let params = new HttpParams();
-    
+
     Object.keys(filters).forEach(key => {
       const value = (filters as any)[key];
       if (value !== undefined && value !== null && value !== '') {
@@ -177,7 +177,7 @@ export class PaymentScheduleService {
 
   getPaymentsByClient(clientId: number, filters: PaymentScheduleFilter = {}): Observable<PaymentSchedule[]> {
     let params = new HttpParams();
-    
+
     Object.keys(filters).forEach(key => {
       const value = (filters as any)[key];
       if (value !== undefined && value !== null && value !== '') {
@@ -195,7 +195,7 @@ export class PaymentScheduleService {
 
   exportPaymentSchedule(filters: PaymentScheduleFilter, format: 'excel' | 'pdf' | 'csv'): Observable<Blob> {
     let params = new HttpParams();
-    
+
     Object.keys(filters).forEach(key => {
       const value = (filters as any)[key];
       if (value !== undefined && value !== null && value !== '') {

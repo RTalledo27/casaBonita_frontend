@@ -42,14 +42,14 @@ export class LotsComponent implements OnInit, OnDestroy {
   statusFilter = '';
   manzanaFilter: number | null = null;
   streetTypeFilter: number | null = null;
-  
+
   // Filtros avanzados
   minPrice = '';
   maxPrice = '';
   minArea = '';
   maxArea = '';
   showAdvancedFilters = false;
-  
+
   // Opciones para los filtros
   manzanas: Manzana[] = [];
   streetTypes: StreetType[] = [];
@@ -57,9 +57,10 @@ export class LotsComponent implements OnInit, OnDestroy {
     { value: '', label: 'Todos los estados' },
     { value: 'disponible', label: 'Disponible' },
     { value: 'reservado', label: 'Reservado' },
-    { value: 'vendido', label: 'Vendido' }
+    { value: 'vendido', label: 'Vendido' },
+    { value: 'bloqueado', label: 'Bloqueado' }
   ];
-  
+
   private filterOptionsLoaded = false;
   private lastFilters: LotFilters = {};
   private cache = new Map<string, { data: any, timestamp: number }>();
@@ -69,7 +70,7 @@ export class LotsComponent implements OnInit, OnDestroy {
   showDeleteModal = false;
   selectedItemId: number | null = null;
   selectedItemName = '';
-  
+
 
 
   // Pagination
@@ -115,7 +116,7 @@ export class LotsComponent implements OnInit, OnDestroy {
     private manzanasService: ManzanasService,
     private streetTypeService: StreetTypeService,
     public themeService: ThemeService
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.loadFilterOptions();
@@ -195,7 +196,7 @@ export class LotsComponent implements OnInit, OnDestroy {
     // Generar clave de caché
     const cacheKey = JSON.stringify(filters);
     const cachedData = this.cache.get(cacheKey);
-    
+
     // Verificar si hay datos en caché válidos
     if (cachedData && (Date.now() - cachedData.timestamp) < this.CACHE_DURATION) {
       this.lotsSubject.next(cachedData.data.data);
@@ -216,7 +217,7 @@ export class LotsComponent implements OnInit, OnDestroy {
     if (this.loading) {
       return;
     }
-    
+
     this.loading = true;
     this.lastFilters = { ...filters };
 
@@ -224,47 +225,47 @@ export class LotsComponent implements OnInit, OnDestroy {
 
 
     this.lotService.paginate(filters).subscribe({
-    next: (response) => {
-      // Guardar en caché
-      this.cache.set(cacheKey, {
-        data: response,
-        timestamp: Date.now()
-      });
-      
-      const data     = response.data ?? [];
-      const meta     = response.meta ?? {};
-      const current  = meta.current_page ?? 1;
-      const lastPage = meta.last_page ?? 1;
-      const perPage  = 15; // Valor fijo basado en la respuesta de la API
-      const total    = lastPage * perPage; // Calculamos el total aproximado
+      next: (response) => {
+        // Guardar en caché
+        this.cache.set(cacheKey, {
+          data: response,
+          timestamp: Date.now()
+        });
 
-      this.lots = data;
-      this.lotsSubject.next(data);
+        const data = response.data ?? [];
+        const meta = response.meta ?? {};
+        const current = meta.current_page ?? 1;
+        const lastPage = meta.last_page ?? 1;
+        const perPage = 15; // Valor fijo basado en la respuesta de la API
+        const total = lastPage * perPage; // Calculamos el total aproximado
 
-      this.pagination = {
-        current_page: current,
-        per_page:     perPage,
-        total:        total,
-        last_page:    lastPage
-      };
+        this.lots = data;
+        this.lotsSubject.next(data);
 
-      this.loading = false;
-    },
-    error: (error) => {
-      console.error('Error loading lots:', error);
-      const mockLots = this.generateMockLots();
-      this.lots = mockLots;
-      this.lotsSubject.next(mockLots);
-      this.pagination = {
-        current_page: 1,
-        per_page: 15,
-        total: 496,
-        last_page: Math.ceil(496 / 15)
-      };
-      this.toast.show('Error al cargar los lotes', 'error');
-      this.loading = false;
-    }
-  });
+        this.pagination = {
+          current_page: current,
+          per_page: perPage,
+          total: total,
+          last_page: lastPage
+        };
+
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Error loading lots:', error);
+        const mockLots = this.generateMockLots();
+        this.lots = mockLots;
+        this.lotsSubject.next(mockLots);
+        this.pagination = {
+          current_page: 1,
+          per_page: 15,
+          total: 496,
+          last_page: Math.ceil(496 / 15)
+        };
+        this.toast.show('Error al cargar los lotes', 'error');
+        this.loading = false;
+      }
+    });
   }
 
   private generateMockLots(): Lot[] {
@@ -272,7 +273,7 @@ export class LotsComponent implements OnInit, OnDestroy {
     const currentPage = this.pagination.current_page;
     const itemsPerPage = this.pagination.per_page;
     const startIndex = (currentPage - 1) * itemsPerPage;
-    
+
     for (let i = 0; i < itemsPerPage; i++) {
       const lotNumber = startIndex + i + 1;
       if (lotNumber <= 496) {
@@ -427,20 +428,20 @@ export class LotsComponent implements OnInit, OnDestroy {
     const pages: number[] = [];
     const totalPages = this.pagination.last_page;
     const currentPage = this.pagination.current_page;
-    
+
     // Mostrar máximo 5 páginas
     let startPage = Math.max(1, currentPage - 2);
     let endPage = Math.min(totalPages, startPage + 4);
-    
+
     // Ajustar si estamos cerca del final
     if (endPage - startPage < 4) {
       startPage = Math.max(1, endPage - 4);
     }
-    
+
     for (let i = startPage; i <= endPage; i++) {
       pages.push(i);
     }
-    
+
     return pages;
   }
 

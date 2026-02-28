@@ -49,6 +49,12 @@ export class SalesReportsComponent implements OnInit {
   // Dashboard data
   dashboardData = signal<any>(null);
 
+  // Dynamic year list
+  availableYears = Array.from(
+    { length: new Date().getFullYear() - 2024 + 2 },
+    (_, i) => 2024 + i
+  );
+
   // Form for filters
   filtersForm: FormGroup;
 
@@ -326,7 +332,7 @@ export class SalesReportsComponent implements OnInit {
     const data = this.filtersForm.value;
     try {
       localStorage.setItem('reports_filters', JSON.stringify(data));
-    } catch {}
+    } catch { }
   }
 
   private restoreFilters(): void {
@@ -336,7 +342,7 @@ export class SalesReportsComponent implements OnInit {
         const data = JSON.parse(raw);
         this.filtersForm.patchValue(data);
       }
-    } catch {}
+    } catch { }
   }
 
   // Icons
@@ -354,20 +360,3 @@ export class SalesReportsComponent implements OnInit {
   barChartIcon = BarChart;
   infoIcon = Info;
 }
- 
-/**
- *  // Icons
-  fileTextIcon = FileText;
-  usersIcon = Users;
-  downloadIcon = Download;
-  chevronDownIcon = ChevronDown;
-  calendarIcon = Calendar;
-  userIcon = User;
-  buildingIcon = Building;
-  filterIcon = Filter;
-  xIcon = X;
-  trendingUpIcon = TrendingUp;
-  dollarSignIcon = DollarSign;
-  barChartIcon = BarChart;
-  infoIcon = Info;
- */

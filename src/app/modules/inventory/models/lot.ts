@@ -34,7 +34,7 @@ export interface Lot {
   BFH?: number;
   initial_quota?: number;
   currency: string;
-  status: 'disponible' | 'reservado' | 'vendido';
+  status: 'disponible' | 'reservado' | 'vendido' | 'bloqueado';
   external_id?: string;
   external_code?: string;
   manzana?: Manzana;

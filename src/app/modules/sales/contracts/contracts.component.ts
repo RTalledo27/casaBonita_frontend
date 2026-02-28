@@ -49,7 +49,7 @@ export class ContractsComponent implements OnInit {
     total: 0,
     per_page: 10
   };
-  
+
   createEnabled = true;
   importEnabled = true;
 
@@ -78,6 +78,9 @@ export class ContractsComponent implements OnInit {
   fullStockData: FullStockResponse | null = null;
   fullStockLoading = false;
 
+  // Excel Export
+  exporting = false;
+
   constructor(
     private contractsService: ContractsService,
     private logicwareService: LogicwareService,
@@ -103,20 +106,20 @@ export class ContractsComponent implements OnInit {
     console.log('Current user:', user);
     console.log('User permissions:', user?.permissions);
     console.log('Has sales.contracts.view permission:', this.authService.hasPermission('sales.contracts.view'));
-    
+
     // Verificar si el usuario está autenticado
     if (!user) {
       console.log('No user found, redirecting to login');
       return;
     }
-    
+
     // Verificar permisos específicos
     if (!this.authService.hasPermission('sales.contracts.view')) {
       console.log('User does not have sales.contracts.view permission');
       console.log('Available permissions:', user.permissions);
       return;
     }
-    
+
     this.loadContracts();
   }
 
@@ -141,7 +144,7 @@ export class ContractsComponent implements OnInit {
     const signDate = new Date(date);
     const diffTime = Math.abs(now.getTime() - signDate.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays === 0) return 'Hoy';
     if (diffDays === 1) return 'Ayer';
     if (diffDays < 7) return `Hace ${diffDays} días`;
@@ -152,14 +155,14 @@ export class ContractsComponent implements OnInit {
   loadContracts(): void {
     this.loading = true;
     console.log('🔄 Cargando TODOS los contratos desde el servidor...');
-    
+
     // Cargar TODOS los contratos sin paginación
     this.contractsService.list({
       per_page: 9999 // Cargar todos los contratos
     })
       .subscribe((response: any) => {
         console.log('✅ Contratos recibidos del servidor:', response);
-        
+
         // Manejar tanto el formato con meta como el formato directo
         if (response.data) {
           this.allContracts = response.data;
@@ -168,12 +171,12 @@ export class ContractsComponent implements OnInit {
         } else {
           this.allContracts = [];
         }
-        
+
         console.log(`📦 Total de contratos cargados: ${this.allContracts.length}`);
-        
+
         // Aplicar filtros y paginación local
         this.applyLocalFiltersAndPagination();
-        
+
         this.loading = false;
         this.cdr.detectChanges();
       }, error => {
@@ -187,13 +190,13 @@ export class ContractsComponent implements OnInit {
    */
   applyLocalFiltersAndPagination(): void {
     console.log('🔍 Aplicando filtros locales y paginación...');
-    
+
     // 1. Filtrar por término de búsqueda
     let filtered = this.allContracts;
-    
+
     if (this.searchTerm && this.searchTerm.trim() !== '') {
       const term = this.searchTerm.toLowerCase().trim();
-      filtered = this.allContracts.filter(contract => 
+      filtered = this.allContracts.filter(contract =>
         contract.contract_number?.toLowerCase().includes(term) ||
         contract.client_name?.toLowerCase().includes(term) ||
         contract.lot_name?.toLowerCase().includes(term) ||
@@ -201,11 +204,11 @@ export class ContractsComponent implements OnInit {
       );
       console.log(`🔎 Filtrados ${filtered.length} contratos de ${this.allContracts.length}`);
     }
-    
+
     // 2. Calcular paginación
     this.totalItems = filtered.length;
     const totalPages = Math.ceil(this.totalItems / this.pageSize);
-    
+
     // Ajustar página actual si está fuera de rango
     if (this.currentPage > totalPages && totalPages > 0) {
       this.currentPage = totalPages;
@@ -213,13 +216,13 @@ export class ContractsComponent implements OnInit {
     if (this.currentPage < 1) {
       this.currentPage = 1;
     }
-    
+
     // 3. Obtener contratos de la página actual
     const startIndex = (this.currentPage - 1) * this.pageSize;
     const endIndex = startIndex + this.pageSize;
     this.paginatedContracts = filtered.slice(startIndex, endIndex);
     this.contracts = this.paginatedContracts; // Para compatibilidad con la tabla
-    
+
     // 4. Actualizar objeto de paginación
     this.pagination = {
       current_page: this.currentPage,
@@ -229,11 +232,11 @@ export class ContractsComponent implements OnInit {
       from: startIndex + 1,
       to: Math.min(endIndex, this.totalItems)
     };
-    
+
     console.log(`📄 Página ${this.currentPage}/${totalPages} - Mostrando ${this.paginatedContracts.length} contratos`);
     console.log('📊 Paginación:', this.pagination);
   }
-  
+
   onPageChange(page: number): void {
     console.log(`📄 Cambiando a página ${page} (sin llamar al servidor)`);
     this.currentPage = page;
@@ -261,30 +264,30 @@ export class ContractsComponent implements OnInit {
     console.log('openViewModal called with contractId:', contractId);
     console.log('Before - isDetailsModalOpen:', this.isDetailsModalOpen);
     console.log('Before - selectedContractId:', this.selectedContractId);
-    
+
     this.selectedContractId = contractId;
     this.isDetailsModalOpen = true;
-    
+
     console.log('After - isDetailsModalOpen:', this.isDetailsModalOpen);
     console.log('After - selectedContractId:', this.selectedContractId);
-    
+
     // Force change detection multiple times
     this.cdr.detectChanges();
     this.cdr.markForCheck();
     console.log('Change detection triggered');
-    
+
     // Check DOM after a delay
     setTimeout(() => {
       console.log('=== DOM CHECK ===');
       const modalElement = document.querySelector('app-contract-details-modal');
       console.log('Modal element found in DOM:', !!modalElement);
       console.log('Modal element:', modalElement);
-      
+
       if (modalElement) {
         console.log('Modal innerHTML length:', modalElement.innerHTML.length);
         const modalBackdrop = modalElement.querySelector('div[class*="fixed"]');
         console.log('Modal backdrop found:', !!modalBackdrop);
-        
+
         if (modalBackdrop) {
           const computedStyle = window.getComputedStyle(modalBackdrop);
           console.log('Modal styles:', {
@@ -337,15 +340,43 @@ export class ContractsComponent implements OnInit {
   }
 
   /**
+   * Exportar contratos a Excel y disparar la descarga
+   */
+  exportExcel(): void {
+    if (this.exporting) return;
+    this.exporting = true;
+
+    this.contractsService.exportExcel().subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `reporte_contratos_${new Date().toISOString().slice(0, 10)}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        this.exporting = false;
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('Error exportando contratos:', error);
+        this.exporting = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  /**
    * Abrir modal de stock completo de Logicware
    * Obtiene todos los datos de unidades, asesores, clientes, reservas
    */
   async openFullStockModal(): Promise<void> {
     console.log('🔍 Opening Logicware Full Stock Modal');
-    
+
     this.isFullStockModalOpen = true;
     this.fullStockLoading = true;
-    
+
     try {
       this.logicwareService.getFullStock(false).subscribe({
         next: (response) => {
@@ -385,9 +416,9 @@ export class ContractsComponent implements OnInit {
    */
   onRefreshFullStock(): void {
     console.log('🔄 Refreshing Logicware Full Stock (force refresh)');
-    
+
     this.fullStockLoading = true;
-    
+
     this.logicwareService.getFullStock(true).subscribe({
       next: (response) => {
         console.log('✅ Full stock data refreshed:', response);
@@ -412,7 +443,7 @@ export class ContractsComponent implements OnInit {
     const pages: (number | string)[] = [];
     const current = this.pagination.current_page;
     const total = this.pagination.last_page;
-    
+
     if (total <= 7) {
       // Si hay 7 o menos páginas, mostrar todas
       for (let i = 1; i <= total; i++) {
@@ -421,29 +452,29 @@ export class ContractsComponent implements OnInit {
     } else {
       // Siempre mostrar primera página
       pages.push(1);
-      
+
       // Agregar puntos suspensivos si es necesario
       if (current > 3) {
         pages.push('...');
       }
-      
+
       // Mostrar páginas alrededor de la actual
       const start = Math.max(2, current - 1);
       const end = Math.min(total - 1, current + 1);
-      
+
       for (let i = start; i <= end; i++) {
         pages.push(i);
       }
-      
+
       // Agregar puntos suspensivos al final si es necesario
       if (current < total - 2) {
         pages.push('...');
       }
-      
+
       // Siempre mostrar última página
       pages.push(total);
     }
-    
+
     return pages;
   }
 

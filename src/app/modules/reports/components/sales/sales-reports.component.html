@@ -16,7 +16,8 @@
                     <span class="font-medium">Ingresos Mensuales</span>
                     <lucide-angular [img]="infoIcon" [size]="16" (click)="ttMonthly.toggle($event)"></lucide-angular>
                 </button>
-                <app-tooltip-popover #ttMonthly text="Descarga Excel consolidado por asesor con columnas por mes y totales."></app-tooltip-popover>
+                <app-tooltip-popover #ttMonthly
+                    text="Descarga Excel consolidado por asesor con columnas por mes y totales."></app-tooltip-popover>
 
                 <button (click)="exportDetailedSales()" [disabled]="isExporting()"
                     class="bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-2.5 rounded-lg hover:from-green-700 hover:to-green-800 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2">
@@ -24,7 +25,8 @@
                     <span class="font-medium">Ventas Detalladas</span>
                     <lucide-angular [img]="infoIcon" [size]="16" (click)="ttDetailed.toggle($event)"></lucide-angular>
                 </button>
-                <app-tooltip-popover #ttDetailed text="Formato profesional: bloques de MES, REEMBOLSO y CUOTA INICIAL, MZ/LOTE desde external_code, separación unificada y montos en S/."></app-tooltip-popover>
+                <app-tooltip-popover #ttDetailed
+                    text="Formato profesional: bloques de MES, REEMBOLSO y CUOTA INICIAL, MZ/LOTE desde external_code, separación unificada y montos en S/."></app-tooltip-popover>
 
                 <button (click)="exportClientDetails()" [disabled]="isExporting()"
                     class="bg-gradient-to-r from-purple-600 to-purple-700 text-white px-4 py-2.5 rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2">
@@ -32,7 +34,8 @@
                     <span class="font-medium">Detalles Clientes</span>
                     <lucide-angular [img]="infoIcon" [size]="16" (click)="ttClients.toggle($event)"></lucide-angular>
                 </button>
-                <app-tooltip-popover #ttClients text="Información integral de clientes: ocupación, ingresos, fuente y contrato."></app-tooltip-popover>
+                <app-tooltip-popover #ttClients
+                    text="Información integral de clientes: ocupación, ingresos, fuente y contrato."></app-tooltip-popover>
 
                 <!-- Dropdown for other exports -->
                 <div class="relative" #exportDropdown>
@@ -79,7 +82,8 @@
                         <span>Fecha Inicio</span>
                         <lucide-angular [img]="infoIcon" [size]="14" (click)="ttStart.toggle($event)"></lucide-angular>
                     </label>
-                    <app-tooltip-popover #ttStart text="Filtra desde esta fecha; puedes combinar con Año/Mes para periodo exacto."></app-tooltip-popover>
+                    <app-tooltip-popover #ttStart
+                        text="Filtra desde esta fecha; puedes combinar con Año/Mes para periodo exacto."></app-tooltip-popover>
                     <input type="date" formControlName="startDate"
                         class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" />
                 </div>
@@ -91,29 +95,34 @@
                         <span>Fecha Fin</span>
                         <lucide-angular [img]="infoIcon" [size]="14" (click)="ttEnd.toggle($event)"></lucide-angular>
                     </label>
-                    <app-tooltip-popover #ttEnd text="Filtra hasta esta fecha; asegúrate que sea mayor o igual a la fecha inicio."></app-tooltip-popover>
+                    <app-tooltip-popover #ttEnd
+                        text="Filtra hasta esta fecha; asegúrate que sea mayor o igual a la fecha inicio."></app-tooltip-popover>
                     <input type="date" formControlName="endDate"
                         class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" />
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-1">Año
-                      <lucide-angular [img]="infoIcon" [size]="14" (click)="ttYear.toggle($event)"></lucide-angular>
+                    <label
+                        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-1">Año
+                        <lucide-angular [img]="infoIcon" [size]="14" (click)="ttYear.toggle($event)"></lucide-angular>
                     </label>
-                    <app-tooltip-popover #ttYear text="Selecciona el año del período de exportación."></app-tooltip-popover>
+                    <app-tooltip-popover #ttYear
+                        text="Selecciona el año del período de exportación."></app-tooltip-popover>
                     <select formControlName="year"
                         class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
-                        @for (y of [2024,2025,2026]; track y) {
+                        @for (y of availableYears; track y) {
                         <option [value]="y">{{ y }}</option>
                         }
                     </select>
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-1">Mes
-                      <lucide-angular [img]="infoIcon" [size]="14" (click)="ttMonth.toggle($event)"></lucide-angular>
+                    <label
+                        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-1">Mes
+                        <lucide-angular [img]="infoIcon" [size]="14" (click)="ttMonth.toggle($event)"></lucide-angular>
                     </label>
-                    <app-tooltip-popover #ttMonth text="Selecciona el mes; el Excel mostrará el bloque con el nombre en español."></app-tooltip-popover>
+                    <app-tooltip-popover #ttMonth
+                        text="Selecciona el mes; el Excel mostrará el bloque con el nombre en español."></app-tooltip-popover>
                     <select formControlName="month"
                         class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
                         @for (m of [1,2,3,4,5,6,7,8,9,10,11,12]; track m) {
@@ -187,7 +196,7 @@
                 <h3 class="text-sm font-medium opacity-90">Ingresos Totales</h3>
                 <lucide-angular [img]="dollarSignIcon" [size]="20" class="opacity-75"></lucide-angular>
             </div>
-            <p class="text-3xl font-bold">${{ totalRevenue() | number:'1.0-0' }}</p>
+            <p class="text-3xl font-bold">S/. {{ totalRevenue() | number:'1.0-0' }}</p>
             <p class="text-xs opacity-75 mt-1">Valor total de ventas</p>
         </div>
 
@@ -197,7 +206,7 @@
                 <h3 class="text-sm font-medium opacity-90">Venta Promedio</h3>
                 <lucide-angular [img]="barChartIcon" [size]="20" class="opacity-75"></lucide-angular>
             </div>
-            <p class="text-3xl font-bold">${{ averageSale() | number:'1.0-0' }}</p>
+            <p class="text-3xl font-bold">S/. {{ averageSale() | number:'1.0-0' }}</p>
             <p class="text-xs opacity-75 mt-1">Por contrato</p>
         </div>
 

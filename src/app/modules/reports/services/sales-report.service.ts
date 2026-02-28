@@ -346,7 +346,7 @@ export class SalesReportService {
     return this.http.get<any>(API_ROUTES.REPORTS.SALES.BY_PERIOD, { params }).pipe(
       map(response => {
         if (response.success && response.data) {
-          return [this.getMockSalesReportsByOffice(office)[0]];
+          return response.data;
         }
         return this.getMockSalesReportsByOffice(office);
       }),
@@ -366,7 +366,7 @@ export class SalesReportService {
     return this.http.get<any>(API_ROUTES.REPORTS.SALES.BY_PERIOD, { params }).pipe(
       map(response => {
         if (response.success && response.data) {
-          return this.getMockSalesReportsByDateRange(startDate, endDate);
+          return response.data;
         }
         return this.getMockSalesReportsByDateRange(startDate, endDate);
       }),

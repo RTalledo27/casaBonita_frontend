@@ -221,7 +221,7 @@ export class ProjectedReportsComponent implements OnInit {
     this.filtersForm.patchValue({
       projectionType: '',
       period: 'monthly',
-      year: '2025',
+      year: String(new Date().getFullYear()),
       scenario: 'realistic'
     });
     this.currentPage.set(1);
@@ -368,30 +368,24 @@ export class ProjectedReportsComponent implements OnInit {
   }
 
   viewProjectionDetail(id: number): void {
-    console.log('View projection detail:', id);
   }
 
   editProjection(id: number): void {
-    console.log('Edit projection:', id);
   }
 
   exportSingleProjection(id: number): void {
-    console.log('Export single projection:', id);
   }
 
   generateCustomProjection(): void {
-    console.log('Generate custom projection');
   }
 
   exportReport(format: ExportFormat): void {
     this.isExporting.set(true);
 
     const filters = this.filtersForm.value;
-    console.log(`Exporting ${format} report with filters:`, filters);
 
     setTimeout(() => {
       this.isExporting.set(false);
-      console.log(`${format.toUpperCase()} export completed`);
     }, 1500);
   }
 }

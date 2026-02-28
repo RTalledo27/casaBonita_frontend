@@ -18,6 +18,7 @@ import {
 export class ExportService {
   private apiUrl = `${environment.URL_BACKEND}/v1/reports`;
 
+  //inicializamos el constructor
   constructor(private http: HttpClient) { }
 
   // Método principal para exportar reportes
@@ -65,7 +66,7 @@ export class ExportService {
     format: ExportFormat,
     filters?: any
   ): Observable<Blob> {
-    return this.exportReport('payment-schedules', format, filters);
+    return this.exportReport('payment_schedules', format, filters);
   }
 
   // Projected Reports Export
@@ -86,31 +87,7 @@ export class ExportService {
     return this.exportReport('dashboard', format, filters);
   }
 
-  // Método para descargar archivo
-  downloadFile(blob: Blob, filename: string, format: ExportFormat): void {
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
 
-    let extension = '';
-    switch (format) {
-      case 'excel':
-        extension = '.xlsx';
-        break;
-      case 'csv':
-        extension = '.csv';
-        break;
-      case 'pdf':
-        extension = '.pdf';
-        break;
-    }
-
-    link.download = `${filename}-${this.getDateString()}${extension}`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(url);
-  }
 
   // Método para obtener el estado de exportación
   getExportStatus(exportId: string): Observable<any> {

@@ -10,16 +10,16 @@ import { Contract } from '../models/contract';
 export class ContractsService {
   private base = API_ROUTES.SALES.CONTRACTS;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
-  list(params?: { page?: number; per_page?: number; search?: string; status?: string }): Observable<{data: Contract[], meta: any}> {
+  list(params?: { page?: number; per_page?: number; search?: string; status?: string }): Observable<{ data: Contract[], meta: any }> {
     let httpParams = new HttpParams();
     if (params?.page) httpParams = httpParams.set('page', params.page.toString());
     if (params?.per_page) httpParams = httpParams.set('per_page', params.per_page.toString());
     if (params?.search) httpParams = httpParams.set('search', params.search);
     if (params?.status) httpParams = httpParams.set('status', params.status);
-    
-    return this.http.get<{data: Contract[], meta: any}>(this.base, { params: httpParams });
+
+    return this.http.get<{ data: Contract[], meta: any }>(this.base, { params: httpParams });
   }
 
   get(id: number): Observable<Contract> {
@@ -48,5 +48,9 @@ export class ContractsService {
 
   generateSchedule(contractId: number, payload: any): Observable<any> {
     return this.http.post<any>(`${this.base}/${contractId}/generate-schedule`, payload);
+  }
+
+  exportExcel(): Observable<Blob> {
+    return this.http.get(`${this.base}/export-excel`, { responseType: 'blob' });
   }
 }
