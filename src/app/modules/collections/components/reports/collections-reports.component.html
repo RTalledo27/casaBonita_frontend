@@ -1,4 +1,4 @@
-<div
+﻿<div
     class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
     <!-- Header -->
     <div
@@ -191,7 +191,7 @@
                             class="w-5 h-5 text-blue-600 dark:text-blue-400"></lucide-angular>
                     </div>
                     <p class="text-sm font-semibold text-blue-700 dark:text-blue-300 mb-1">Monto Total</p>
-                    <p class="text-3xl font-extrabold text-blue-900 dark:text-blue-100 mb-2">{{
+                    <p class="text-xl sm:text-2xl lg:text-3xl font-extrabold text-blue-900 dark:text-blue-100 mb-2">{{
                         formatCurrency(reportData()?.total_amount || 0) }}</p>
                     <p class="text-xs text-blue-600 dark:text-blue-400">{{ reportData()?.total_schedules || 0 }}
                         cronogramas</p>
@@ -212,7 +212,7 @@
                         </div>
                     </div>
                     <p class="text-sm font-semibold text-green-700 dark:text-green-300 mb-1">Cobrado</p>
-                    <p class="text-3xl font-extrabold text-green-900 dark:text-green-100 mb-2">{{
+                    <p class="text-xl sm:text-2xl lg:text-3xl font-extrabold text-green-900 dark:text-green-100 mb-2">{{
                         formatCurrency(reportData()?.paid_amount || 0) }}</p>
                     <p class="text-xs text-green-600 dark:text-green-400">{{ reportData()?.paid_schedules || 0 }}
                         pagados</p>
@@ -230,7 +230,7 @@
                             class="w-5 h-5 text-yellow-600 dark:text-yellow-400"></lucide-angular>
                     </div>
                     <p class="text-sm font-semibold text-yellow-700 dark:text-yellow-300 mb-1">Pendiente</p>
-                    <p class="text-3xl font-extrabold text-yellow-900 dark:text-yellow-100 mb-2">{{
+                    <p class="text-xl sm:text-2xl lg:text-3xl font-extrabold text-yellow-900 dark:text-yellow-100 mb-2">{{
                         formatCurrency(reportData()?.pending_amount || 0) }}</p>
                     <p class="text-xs text-yellow-600 dark:text-yellow-400">{{ reportData()?.pending_schedules || 0 }}
                         pendientes
@@ -251,7 +251,7 @@
                         </div>
                     </div>
                     <p class="text-sm font-semibold text-red-700 dark:text-red-300 mb-1">Vencido</p>
-                    <p class="text-3xl font-extrabold text-red-900 dark:text-red-100 mb-2">{{
+                    <p class="text-xl sm:text-2xl lg:text-3xl font-extrabold text-red-900 dark:text-red-100 mb-2">{{
                         formatCurrency(reportData()?.overdue_amount || 0) }}</p>
                     <p class="text-xs text-red-600 dark:text-red-400">{{ reportData()?.overdue_schedules || 0 }}
                         vencidos</p>
@@ -259,7 +259,7 @@
             </div>
 
             <!-- Charts Section -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8">
                 <!-- Status Distribution -->
                 <div
                     class="chart-card bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm rounded-2xl border border-slate-200/60 dark:border-slate-700/60 shadow-xl p-6 hover:shadow-2xl transition-all  duration-300">

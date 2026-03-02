@@ -1,10 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { AuthService, UserResource } from '../../services/auth.service';
 import { Router } from '@angular/router';
 import { NotificationService } from '../../services/notification.service';
 import { ToastService } from '../../services/toast.service';
 import { UserSessionService } from '../../services/user-session.service';
 import { PermissionSyncService } from '../../services/permission-sync.service';
+import { SidebarService } from '../../services/sidebar.service';
 import { CommonModule } from '@angular/common';
 import { LangSwitcherComponent } from '../../../shared/components/lang-switcher/lang-switcher.component';
 import { TranslateModule } from '@ngx-translate/core';
@@ -31,6 +32,7 @@ export class NavbarComponent {
   refreshingPermissions = false;
   readonly UserIcon = User;
   readonly ClockIcon = Clock;
+  sidebarService = inject(SidebarService);
 
   constructor(
     private auth: AuthService,

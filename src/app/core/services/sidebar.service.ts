@@ -11,6 +11,12 @@ export class SidebarService {
   public userPermissionsSignal = signal<string[]>([]); // Público para que el component pueda acceder
   public userRoleSignal = signal<string>(''); // Signal reactivo para el rol del usuario
   
+  // ── Mobile responsive state ──
+  /** True cuando el sidebar móvil está abierto (overlay) */
+  isMobileOpen = signal(false);
+  /** True cuando el sidebar desktop está colapsado (solo iconos) */
+  isCollapsed = signal(false);
+
   constructor(private authService: AuthService) {
     // Inicializar permisos y rol del usuario SOLO al crear el servicio
     const currentUser = this.authService.getCurrentUser();
@@ -54,6 +60,23 @@ export class SidebarService {
     } else {
       console.warn('⚠️ SidebarService: No current user found');
     }
+  }
+
+  // ── Mobile sidebar helpers ──
+  toggleMobile(): void {
+    this.isMobileOpen.update(v => !v);
+  }
+
+  openMobile(): void {
+    this.isMobileOpen.set(true);
+  }
+
+  closeMobile(): void {
+    this.isMobileOpen.set(false);
+  }
+
+  toggleCollapse(): void {
+    this.isCollapsed.update(v => !v);
   }
 
   // Configuración por defecto del sidebar con todos los módulos

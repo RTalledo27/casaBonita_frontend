@@ -1,8 +1,8 @@
-<div class="min-h-screen p-6">
+﻿<div class="min-h-screen p-6">
     <!-- Encabezado con Selector de Periodo -->
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
         <div>
-            <h1 class="text-3xl font-bold text-gray-800 dark:text-white">Dashboard de Incidencias</h1>
+            <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800 dark:text-white">Dashboard de Incidencias</h1>
             <p class="text-gray-500 dark:text-gray-400 mt-1">Monitorea el estado de las incidencias del sistema</p>
         </div>
         <div class="flex items-center gap-3">
@@ -51,7 +51,7 @@
                     </div>
                 </div>
                 <div class="flex items-baseline gap-2">
-                    <span class="text-3xl font-bold text-gray-800 dark:text-white">{{ data.total_tickets || 0 }}</span>
+                    <span class="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800 dark:text-white">{{ data.total_tickets || 0 }}</span>
                 </div>
                 <div class="mt-2 flex items-center gap-1 text-sm"
                     [ngClass]="getTrendDirection(data.total_tickets_trend) === 'up' ? 'text-green-500' : getTrendDirection(data.total_tickets_trend) === 'down' ? 'text-red-500' : 'text-gray-400'">
@@ -73,7 +73,7 @@
                     </div>
                 </div>
                 <div class="flex items-baseline gap-2">
-                    <span class="text-3xl font-bold text-gray-800 dark:text-white">{{ data.open_tickets || 0 }}</span>
+                    <span class="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800 dark:text-white">{{ data.open_tickets || 0 }}</span>
                 </div>
                 <div class="mt-2 flex items-center gap-1 text-sm"
                     [ngClass]="getTrendDirection(data.open_tickets_trend) === 'up' ? 'text-red-500' : getTrendDirection(data.open_tickets_trend) === 'down' ? 'text-green-500' : 'text-gray-400'">
@@ -95,7 +95,7 @@
                     </div>
                 </div>
                 <div class="flex items-baseline gap-2">
-                    <span class="text-3xl font-bold text-gray-800 dark:text-white">{{ data.sla_rate || '0%' }}</span>
+                    <span class="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800 dark:text-white">{{ data.sla_rate || '0%' }}</span>
                 </div>
                 <div class="mt-2 flex items-center gap-1 text-sm"
                     [ngClass]="getTrendDirection(data.sla_trend) === 'up' ? 'text-green-500' : getTrendDirection(data.sla_trend) === 'down' ? 'text-red-500' : 'text-gray-400'">
@@ -117,7 +117,7 @@
                     </div>
                 </div>
                 <div class="flex items-baseline gap-2">
-                    <span class="text-3xl font-bold text-gray-800 dark:text-white">{{ data.avg_time || '0h' }}</span>
+                    <span class="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800 dark:text-white">{{ data.avg_time || '0h' }}</span>
                 </div>
                 <div class="mt-2 flex items-center gap-1 text-sm"
                     [ngClass]="getTrendDirection(data.avg_time_trend) === 'down' ? 'text-green-500' : getTrendDirection(data.avg_time_trend) === 'up' ? 'text-red-500' : 'text-gray-400'">

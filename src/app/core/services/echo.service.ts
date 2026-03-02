@@ -23,6 +23,18 @@ export interface RealtimeNotification {
     created_at: string;
 }
 
+export interface LotStatusUpdate {
+    lot_id: number;
+    status: string;
+    previous_status: string | null;
+    locked_by: number | null;
+    locked_by_name: string | null;
+    lock_reason: string | null;
+    manzana_name: string | null;
+    num_lot: string | null;
+    timestamp: string;
+}
+
 @Injectable({
     providedIn: 'root'
 })
@@ -32,10 +44,12 @@ export class EchoService implements OnDestroy {
     private isConnectedSubject = new BehaviorSubject<boolean>(false);
     private notificationSubject = new Subject<RealtimeNotification>();
     private ticketUpdateSubject = new Subject<any>();
+    private lotStatusSubject = new Subject<LotStatusUpdate>();
 
     isConnected$ = this.isConnectedSubject.asObservable();
     notification$ = this.notificationSubject.asObservable();
     ticketUpdate$ = this.ticketUpdateSubject.asObservable();
+    lotStatus$ = this.lotStatusSubject.asObservable();
 
     constructor() {
         // Subscribe to auth changes to connect/disconnect
@@ -102,6 +116,9 @@ export class EchoService implements OnDestroy {
 
             // Subscribe to service desk updates
             this.subscribeToServiceDesk();
+
+            // Subscribe to lot status updates
+            this.subscribeToLotUpdates();
 
         } catch (error) {
             console.error('❌ Echo: Connection failed', error);
@@ -182,6 +199,21 @@ export class EchoService implements OnDestroy {
     }
 
     /**
+     * Subscribe to lot status updates (locks, unlocks, sales)
+     */
+    private subscribeToLotUpdates(): void {
+        if (!this.echo) return;
+
+        console.log('📡 Echo: Subscribing to lots channel');
+
+        this.echo.channel('lots')
+            .listen('.lot.status.changed', (data: LotStatusUpdate) => {
+                console.log('🏠 Lot status changed:', data);
+                this.lotStatusSubject.next(data);
+            });
+    }
+
+    /**
      * Get observable for notifications
      */
     getNotifications(): Observable<RealtimeNotification> {
@@ -193,6 +225,13 @@ export class EchoService implements OnDestroy {
      */
     getTicketUpdates(): Observable<any> {
         return this.ticketUpdate$;
+    }
+
+    /**
+     * Get observable for lot status updates
+     */
+    getLotStatusUpdates(): Observable<LotStatusUpdate> {
+        return this.lotStatus$;
     }
 
     /**

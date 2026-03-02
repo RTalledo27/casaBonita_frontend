@@ -227,17 +227,19 @@ export class PositionListComponent implements OnInit {
 
     getCategoryClass(category: string): string {
         const colors: Record<string, string> = {
-            ventas: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
-            admin: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
-            tech: 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300',
-            gerencia: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
-            operaciones: 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300',
+            ventas: 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-400 border border-indigo-200/60 dark:border-indigo-800/40',
+            admin: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/40',
+            tech: 'bg-sky-50 text-sky-700 dark:bg-sky-900/20 dark:text-sky-400 border border-sky-200/60 dark:border-sky-800/40',
+            gerencia: 'bg-violet-50 text-violet-700 dark:bg-violet-900/20 dark:text-violet-400 border border-violet-200/60 dark:border-violet-800/40',
+            operaciones: 'bg-teal-50 text-teal-700 dark:bg-teal-900/20 dark:text-teal-400 border border-teal-200/60 dark:border-teal-800/40',
         };
-        return colors[category] || 'bg-gray-100 text-gray-700';
+        return colors[category] || 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300 border border-gray-200/60 dark:border-gray-600/40';
     }
 
     getStatusClass(isActive: boolean): string {
-        return isActive ? 'text-green-600' : 'text-red-600';
+        return isActive
+            ? 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400 border border-green-200/60 dark:border-green-800/40'
+            : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400 border border-gray-200/60 dark:border-gray-600/40';
     }
 
     getStatusLabel(isActive: boolean): string {

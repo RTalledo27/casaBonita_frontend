@@ -1,4 +1,4 @@
-<ng-container *ngIf="vm$ | async as vm">
+﻿<ng-container *ngIf="vm$ | async as vm">
   <div
     class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-indigo-900/30 relative overflow-hidden"
   >
@@ -44,7 +44,7 @@
                 </div>
                 <div>
                   <h1
-                    class="text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent"
+                    class="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent"
                   >
                     {{ vm.role.name }}
                   </h1>
@@ -85,7 +85,7 @@
       </div>
 
       <!-- Grid -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8">
         <!-- Card: Info del Rol -->
         <div class="lg:col-span-1">
           <div

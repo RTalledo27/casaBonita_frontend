@@ -34,12 +34,17 @@ export interface Lot {
   BFH?: number;
   initial_quota?: number;
   currency: string;
-  status: 'disponible' | 'reservado' | 'vendido' | 'bloqueado';
+  status: 'disponible' | 'reservado' | 'vendido' | 'bloqueado' | 'en_proceso';
   external_id?: string;
   external_code?: string;
   manzana?: Manzana;
   street_type?: StreetType;
   media?: LotMedia[];
   financial_template?: LotFinancialTemplate;
+  // Lock fields
+  locked_by?: number | null;
+  lock_reason?: string | null;
+  locked_at?: string | null;
+  locked_by_user?: { id: number; name: string } | null;
 }
 

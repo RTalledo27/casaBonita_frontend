@@ -1,48 +1,60 @@
 
-<nav class="flex items-center justify-between h-full px-4 text-gray-800 dark:text-white">
-    <!-- Bienvenida con estilo mejorado -->
-    <div class="flex items-center">
-        <div class="flex items-center space-x-3">
-            <div class="h-8 w-1 bg-gradient-to-b from-amber-400 to-yellow-500 rounded-full"></div>
-            <div>
-                <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">{{'navbar.welcome'|translate}}</p>
-                <p class="text-sm font-bold text-gray-800 dark:text-white">{{ user?.name || 'Usuario' }}</p>
+<nav class="flex items-center justify-between h-full px-2 sm:px-4 text-gray-800 dark:text-white">
+
+    <!-- Left: Hamburger (mobile) + Welcome -->
+    <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+        <!-- Hamburger button — only on mobile -->
+        <button (click)="sidebarService.toggleMobile()"
+            class="lg:hidden p-2 -ml-1 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-white/20 transition-colors duration-200"
+            aria-label="Abrir menú">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+        </button>
+
+        <!-- Welcome text -->
+        <div class="flex items-center space-x-3 min-w-0">
+            <div class="h-8 w-1 bg-gradient-to-b from-amber-400 to-yellow-500 rounded-full hidden sm:block"></div>
+            <div class="min-w-0">
+                <p class="text-xs text-gray-500 dark:text-gray-400 font-medium hidden sm:block">{{'navbar.welcome'|translate}}</p>
+                <p class="text-sm font-bold text-gray-800 dark:text-white truncate">{{ user?.name || 'Usuario' }}</p>
             </div>
         </div>
     </div>
 
-    <div class="relative flex items-center gap-3">
+    <!-- Right: Actions -->
+    <div class="relative flex items-center gap-1 sm:gap-3">
         <!-- Panel de Notificaciones -->
         <app-notifications-panel></app-notifications-panel>
 
         <!-- Separador -->
-        <div class="h-8 w-px bg-gray-200 dark:bg-gray-700"></div>
+        <div class="h-8 w-px bg-gray-200 dark:bg-gray-700 hidden sm:block"></div>
 
-        <!-- Refresh Permissions con tooltip visual -->
+        <!-- Refresh Permissions — hidden on very small screens -->
         <button (click)="refreshPermissions()" aria-label="Actualizar permisos" 
             [disabled]="refreshingPermissions"
             title="Actualizar permisos"
-            class="relative p-2 rounded-xl text-gray-600 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed group">
+            class="hidden sm:block relative p-2 rounded-xl text-gray-600 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed group">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transform group-hover:scale-110 transition-transform" [class.animate-spin]="refreshingPermissions" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" />
             </svg>
         </button>
 
         <!-- Separador -->
-        <div class="h-8 w-px bg-gray-200 dark:bg-gray-700"></div>
+        <div class="h-8 w-px bg-gray-200 dark:bg-gray-700 hidden md:block"></div>
 
-        <!-- Cambio de idioma y tema con mejor espaciado -->
-        <div class="flex items-center gap-2">
+        <!-- Cambio de idioma y tema — hidden on xs -->
+        <div class="hidden md:flex items-center gap-2">
             <app-lang-switcher></app-lang-switcher>
             <app-theme-switcher></app-theme-switcher>
         </div>
 
         <!-- Separador -->
-        <div class="h-8 w-px bg-gray-200 dark:bg-gray-700"></div>
+        <div class="h-8 w-px bg-gray-200 dark:bg-gray-700 hidden lg:block"></div>
 
-        <!-- Widget de Tiempo Activo -->
+        <!-- Widget de Tiempo Activo — only on lg+ -->
         @if (sessionService.isTracking() && sessionService.activeSession() && sessionService.sessionDuration()) {
-        <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border border-emerald-200 dark:border-emerald-800 animate-scale-in"
+        <div class="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border border-emerald-200 dark:border-emerald-800 animate-scale-in"
              title="Tiempo activo en el sistema"
              style="animation-duration: 0.8s; animation-timing-function: ease-out;">
             <lucide-icon [img]="ClockIcon" class="h-4 w-4 text-emerald-600 dark:text-emerald-400"></lucide-icon>
@@ -58,20 +70,20 @@
         }
 
         <!-- Separador -->
-        <div class="h-8 w-px bg-gray-200 dark:bg-gray-700"></div>
+        <div class="h-8 w-px bg-gray-200 dark:bg-gray-700 hidden sm:block"></div>
         
-        <!-- Perfil / Logout con diseño mejorado -->
+        <!-- Perfil / Logout -->
         <div class="relative">
             <button (click)="toggleMenu()" aria-label="Perfil"
-                class="flex items-center space-x-3 px-3 py-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none transition-all duration-200 group">
+                class="flex items-center space-x-2 sm:space-x-3 px-2 sm:px-3 py-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none transition-all duration-200 group">
                 <div class="relative">
-                    <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 via-yellow-500 to-amber-600 flex items-center justify-center text-white font-bold text-sm shadow-lg transform group-hover:scale-105 transition-transform">
+                    <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-amber-400 via-yellow-500 to-amber-600 flex items-center justify-center text-white font-bold text-sm shadow-lg transform group-hover:scale-105 transition-transform">
                         {{ user?.name?.charAt(0) || 'U' }}
                     </div>
                     <div class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-white dark:border-gray-800 rounded-full"></div>
                 </div>
                 <svg xmlns="http://www.w3.org/2000/svg"
-                    class="h-4 w-4 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors" viewBox="0 0 20 20"
+                    class="h-4 w-4 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors hidden sm:block" viewBox="0 0 20 20"
                     fill="currentColor">
                     <path fill-rule="evenodd"
                         d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
@@ -92,6 +104,17 @@
                             <p class="text-sm font-bold text-gray-900 dark:text-white truncate">{{ user?.name || 'Usuario' }}</p>
                             <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ user?.email || 'usuario@ejemplo.com' }}</p>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Mobile-only: extra options hidden from navbar on small screens -->
+                <div class="md:hidden py-2 border-b border-gray-100 dark:border-gray-700">
+                    <div class="px-5 py-2 flex items-center justify-between">
+                        <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Configuración</span>
+                    </div>
+                    <div class="px-5 py-2 flex items-center gap-3">
+                        <app-lang-switcher></app-lang-switcher>
+                        <app-theme-switcher></app-theme-switcher>
                     </div>
                 </div>
                 

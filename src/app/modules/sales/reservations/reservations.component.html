@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+﻿<div class="min-h-screen bg-gray-50 dark:bg-gray-900">
   <div class="p-6 space-y-6">
 
     <!-- Header -->
@@ -300,7 +300,7 @@
               Precio y Financiamiento
             </h4>
             <!-- Precio total + Moneda -->
-            <div class="grid grid-cols-3 gap-3 mb-3">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
               <div class="col-span-2">
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Precio total <span class="text-red-500">*</span></label>
                 <div class="relative">
@@ -354,7 +354,7 @@
             </div>
 
             <!-- Tasa + Plazo + Cuota -->
-            <div class="grid grid-cols-3 gap-3">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tasa anual % <span class="text-red-500">*</span></label>
                 <input type="number" formControlName="interest_rate" step="0.01" min="0" max="100" (input)="calculateMonthlyPayment()"
@@ -459,7 +459,7 @@
           <!-- ── Resumen Financiero ── -->
           <div class="bg-gray-50 dark:bg-gray-700/30 rounded-lg border border-gray-200 dark:border-gray-600 p-4">
             <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Resumen Financiero</h4>
-            <div class="grid gap-3 text-center" [ngClass]="{ 'grid-cols-5': +convertForm.get('discount')?.value > 0, 'grid-cols-4': !+convertForm.get('discount')?.value }">
+            <div class="grid gap-3 text-center" [ngClass]="{ 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-5': +convertForm.get('discount')?.value > 0, 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4': !+convertForm.get('discount')?.value }">
               <div>
                 <p class="text-xs text-gray-500 dark:text-gray-400">Precio Total</p>
                 <p class="text-sm font-bold text-gray-900 dark:text-gray-100">S/.{{ convertForm.get('total_price')?.value | number:'1.0-0' }}</p>

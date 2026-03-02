@@ -1,37 +1,21 @@
-<!-- Fondo y patrón -->
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-indigo-900/30 relative overflow-hidden">
-  <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.10),transparent_55%)] dark:bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.06),transparent_55%)]"></div>
-  <div class="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(99,102,241,0.08),transparent_55%)] dark:bg-[radial-gradient(circle_at_70%_80%,rgba(99,102,241,0.05),transparent_55%)]"></div>
-
-  <div class="relative p-6 max-w-3xl mx-auto">
-    <!-- Header glass -->
+﻿<div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+  <div class="p-6">
+    <!-- Header -->
     <div class="mb-6">
-      <div class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/50 p-6 relative overflow-hidden">
-        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/5 to-indigo-500/10 dark:from-blue-600/20 dark:via-purple-600/10 dark:to-indigo-600/20"></div>
-        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500"></div>
-
-        <div class="relative flex items-start justify-between">
+      <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6">
+        <div class="flex items-start justify-between">
           <div class="flex items-center">
-            <button
-              (click)="goBack()"
-              class="group inline-flex items-center px-4 py-2 rounded-xl border border-blue-200/40 dark:border-blue-800/40 text-blue-700 dark:text-blue-300 bg-blue-50/60 dark:bg-blue-900/30 hover:bg-blue-100/80 dark:hover:bg-blue-800/50 transition-all mr-4"
-              title="Volver"
-            >
-              <lucide-angular [img]="ArrowLeft" class="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform"></lucide-angular>
+            <button (click)="goBack()" class="inline-flex items-center px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors mr-4" title="Volver">
+              <lucide-angular [img]="ArrowLeft" class="w-4 h-4 mr-1.5"></lucide-angular>
               <span class="font-medium">Volver</span>
             </button>
-
-            <div class="flex items-center space-x-3">
-              <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-3 rounded-2xl shadow-lg">
+            <div class="flex items-center gap-3">
+              <div class="bg-indigo-600 dark:bg-indigo-500 p-2.5 rounded-lg">
                 <lucide-angular [img]="Users" class="w-5 h-5 text-white"></lucide-angular>
               </div>
               <div>
-                <h1 class="text-2xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-indigo-800 dark:from-white dark:via-blue-200 dark:to-indigo-200 bg-clip-text text-transparent">
-                  {{ isEditMode() ? 'Editar Equipo' : 'Nuevo Equipo' }}
-                </h1>
-                <p class="text-gray-600 dark:text-gray-400 mt-1">
-                  {{ isEditMode() ? 'Modifica la información del equipo' : 'Crea un nuevo equipo de trabajo' }}
-                </p>
+                <h1 class="text-xl font-semibold text-gray-900 dark:text-white">{{ isEditMode() ? 'Editar Equipo' : 'Nuevo Equipo' }}</h1>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{{ isEditMode() ? 'Modifica la información del equipo' : 'Crea un nuevo equipo de trabajo' }}</p>
               </div>
             </div>
           </div>
@@ -41,207 +25,106 @@
 
     <!-- Loading -->
     <div *ngIf="loading()" class="flex justify-center items-center py-16">
-      <div class="animate-spin rounded-full h-10 w-10 border-2 border-blue-200 border-t-blue-600"></div>
-      <span class="ml-3 text-gray-600 dark:text-gray-300">Cargando...</span>
+      <div class="animate-spin rounded-full h-5 w-5 border-2 border-gray-300 border-t-gray-900 dark:border-gray-600 dark:border-t-white"></div>
+      <span class="ml-3 text-sm text-gray-500 dark:text-gray-400">Cargando...</span>
     </div>
 
     <!-- Error -->
-    <div *ngIf="error()" class="bg-red-50/80 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl p-4 mb-6 backdrop-blur-sm">
-      <div class="flex items-center">
-        <div class="text-red-600 dark:text-red-400">
-          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
-          </svg>
-        </div>
-        <p class="ml-3 text-red-800 dark:text-red-200 font-medium">{{ error() }}</p>
+    <div *ngIf="error()" class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-6">
+      <div class="flex items-center gap-2">
+        <svg class="w-4 h-4 text-red-600 dark:text-red-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>
+        <p class="text-sm text-red-700 dark:text-red-300 font-medium">{{ error() }}</p>
       </div>
     </div>
 
-    <!-- Form card -->
-    <div *ngIf="!loading()" class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/30 dark:border-gray-700/50 overflow-hidden">
-      <div class="absolute w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500"></div>
-
-      <form [formGroup]="teamForm" (ngSubmit)="onSubmit()" class="p-6 md:p-8 space-y-6">
-        <!-- Grid principal -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <!-- Nombre -->
+    <!-- Form -->
+    <div *ngIf="!loading()" class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+      <form [formGroup]="teamForm" (ngSubmit)="onSubmit()" class="p-6 space-y-5">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Name -->
           <div class="md:col-span-2">
-            <label for="team_name" class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">
-              <lucide-angular [img]="Users" class="w-4 h-4 inline mr-2 text-blue-600 dark:text-blue-400"></lucide-angular>
-              Nombre del Equipo *
-            </label>
-            <input
-              type="text"
-              id="team_name"
-              formControlName="team_name"
-              placeholder="Ingrese el nombre del equipo"
-              class="w-full px-4 py-2.5 rounded-xl border border-gray-300/70 dark:border-gray-600/60 bg-white/70 dark:bg-gray-700/50 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-blue-500/60 focus:border-blue-500/60 transition"
-              [class.border-red-500]="isFieldInvalid('team_name')"
-            />
-            <div *ngIf="isFieldInvalid('team_name')" class="mt-1.5 text-sm text-red-600 dark:text-red-400">
-              {{ getFieldError('team_name') }}
-            </div>
+            <label for="team_name" class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1.5">Nombre del Equipo *</label>
+            <input type="text" id="team_name" formControlName="team_name" placeholder="Ingrese el nombre del equipo" class="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:focus:ring-indigo-400/20 focus:border-gray-400 transition" [class.border-red-400]="isFieldInvalid('team_name')" />
+            <div *ngIf="isFieldInvalid('team_name')" class="mt-1 text-xs text-red-600 dark:text-red-400">{{ getFieldError('team_name') }}</div>
           </div>
 
-          <!-- Código -->
+          <!-- Code -->
           <div>
-            <label for="team_code" class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">
-              <lucide-angular [img]="Hash" class="w-4 h-4 inline mr-2 text-indigo-600"></lucide-angular>
-              Código del Equipo
-            </label>
-            <input
-              type="text"
-              id="team_code"
-              formControlName="team_code"
-              placeholder="Ej: VN, VS, ADM"
-              class="w-full px-4 py-2.5 rounded-xl border border-gray-300/70 dark:border-gray-600/60 bg-white/70 dark:bg-gray-700/50 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-indigo-500/60 focus:border-indigo-500/60 transition"
-              [class.border-red-500]="isFieldInvalid('team_code')"
-            />
-            <div *ngIf="isFieldInvalid('team_code')" class="mt-1.5 text-sm text-red-600 dark:text-red-400">
-              {{ getFieldError('team_code') }}
-            </div>
-            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Código único para identificar el equipo (opcional)</p>
+            <label for="team_code" class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1.5">Código del Equipo</label>
+            <input type="text" id="team_code" formControlName="team_code" placeholder="Ej: VN, VS, ADM" class="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:focus:ring-indigo-400/20 focus:border-gray-400 transition" [class.border-red-400]="isFieldInvalid('team_code')" />
+            <div *ngIf="isFieldInvalid('team_code')" class="mt-1 text-xs text-red-600 dark:text-red-400">{{ getFieldError('team_code') }}</div>
+            <p class="mt-1 text-[11px] text-gray-400">Código único para identificar el equipo (opcional)</p>
           </div>
 
-          <!-- Meta mensual -->
+          <!-- Monthly Goal -->
           <div>
-            <label for="monthly_goal" class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">
-              <lucide-angular [img]="Target" class="w-4 h-4 inline mr-2 text-emerald-600"></lucide-angular>
-              Meta Mensual de Ventas
-            </label>
+            <label for="monthly_goal" class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1.5">Meta Mensual de Ventas</label>
             <div class="relative">
-              <input
-                type="number"
-                id="monthly_goal"
-                formControlName="monthly_goal"
-                placeholder="0"
-                min="0"
-                step="1"
-                class="w-full px-4 pr-20 py-2.5 rounded-xl border border-gray-300/70 dark:border-gray-600/60 bg-white/70 dark:bg-gray-700/50 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-emerald-500/60 focus:border-emerald-500/60 transition"
-                [class.border-red-500]="isFieldInvalid('monthly_goal')"
-              />
-              <span class="absolute right-3 top-2.5 text-sm text-gray-500 dark:text-gray-400">ventas</span>
+              <input type="number" id="monthly_goal" formControlName="monthly_goal" placeholder="0" min="0" step="1" class="w-full px-3 pr-16 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:focus:ring-indigo-400/20 focus:border-gray-400 transition" [class.border-red-400]="isFieldInvalid('monthly_goal')" />
+              <span class="absolute right-3 top-2 text-xs text-gray-400">ventas</span>
             </div>
-            <div *ngIf="isFieldInvalid('monthly_goal')" class="mt-1.5 text-sm text-red-600 dark:text-red-400">
-              {{ getFieldError('monthly_goal') }}
-            </div>
-            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Cantidad de ventas esperadas por mes para este equipo (opcional)</p>
+            <div *ngIf="isFieldInvalid('monthly_goal')" class="mt-1 text-xs text-red-600 dark:text-red-400">{{ getFieldError('monthly_goal') }}</div>
+            <p class="mt-1 text-[11px] text-gray-400">Cantidad de ventas esperadas por mes (opcional)</p>
           </div>
 
-          <!-- Oficina -->
+          <!-- Office -->
           <div>
-            <label for="office_id" class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">
-              <lucide-angular [img]="Building2" class="w-4 h-4 inline mr-2 text-teal-600"></lucide-angular>
-              Oficina / Sucursal
-            </label>
-            <select
-              id="office_id"
-              formControlName="office_id"
-              class="app-select w-full px-4 py-2.5 rounded-xl border bg-white/70 dark:bg-gray-700/50
-                     border-gray-300/70 dark:border-gray-600/60 text-gray-900 dark:text-gray-100
-                     focus:ring-2 focus:ring-teal-500/60 focus:border-teal-500/60 transition"
-            >
+            <label for="office_id" class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1.5">Oficina / Sucursal</label>
+            <select id="office_id" formControlName="office_id" class="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:focus:ring-indigo-400/20 focus:border-gray-400 transition appearance-none">
               <option value="">Sin oficina asignada</option>
-              <option *ngFor="let office of offices()" [value]="office.office_id">
-                {{ office.name }} {{ office.city ? '(' + office.city + ')' : '' }}
-              </option>
+              <option *ngFor="let office of offices()" [value]="office.office_id">{{ office.name }} {{ office.city ? '(' + office.city + ')' : '' }}</option>
             </select>
-            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Oficina a la que pertenece este equipo (opcional)</p>
+            <p class="mt-1 text-[11px] text-gray-400">Oficina a la que pertenece este equipo (opcional)</p>
           </div>
 
-          <!-- Líder del Equipo -->
+          <!-- Leader -->
           <div>
-            <label for="team_leader_id" class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">
-              <lucide-angular [img]="Crown" class="w-4 h-4 inline mr-2 text-amber-600"></lucide-angular>
-              Líder del Equipo
-            </label>
-            <select
-              id="team_leader_id"
-              formControlName="team_leader_id"
-              class="app-select w-full px-4 py-2.5 rounded-xl border bg-white/70 dark:bg-gray-700/50
-                     border-gray-300/70 dark:border-gray-600/60 text-gray-900 dark:text-gray-100
-                     focus:ring-2 focus:ring-purple-500/60 focus:border-purple-500/60 transition"
-            >
+            <label for="team_leader_id" class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1.5">Líder del Equipo</label>
+            <select id="team_leader_id" formControlName="team_leader_id" class="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:focus:ring-indigo-400/20 focus:border-gray-400 transition appearance-none">
               <option value="">Sin líder asignado</option>
-              <option *ngFor="let employee of employees()" [value]="employee.employee_id">
-                {{ getEmployeeName(employee) }}
-              </option>
+              <option *ngFor="let employee of employees()" [value]="employee.employee_id">{{ getEmployeeName(employee) }}</option>
             </select>
           </div>
 
-          <!-- Estado -->
+          <!-- Status -->
           <div>
-            <label for="status" class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">
-              <lucide-angular [img]="Users" class="w-4 h-4 inline mr-2 text-blue-600"></lucide-angular>
-              Estado
-            </label>
-            <select
-              id="status"
-              formControlName="status"
-              class="app-select w-full px-4 py-2.5 rounded-xl border bg-white/70 dark:bg-gray-700/50
-                     border-gray-300/70 dark:border-gray-600/60 text-gray-900 dark:text-gray-100
-                     focus:ring-2 focus:ring-blue-500/60 focus:border-blue-500/60 transition"
-            >
+            <label for="status" class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1.5">Estado</label>
+            <select id="status" formControlName="status" class="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:focus:ring-indigo-400/20 focus:border-gray-400 transition appearance-none">
               <option value="active">Activo</option>
               <option value="inactive">Inactivo</option>
             </select>
           </div>
 
-
-          <!-- Descripción (a lo ancho) -->
+          <!-- Description -->
           <div class="md:col-span-2">
-            <label for="description" class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">
-              <lucide-angular [img]="FileText" class="w-4 h-4 inline mr-2 text-gray-600 dark:text-gray-300"></lucide-angular>
-              Descripción
-            </label>
-            <textarea
-              id="description"
-              formControlName="description"
-              rows="3"
-              placeholder="Describe el propósito y objetivos del equipo"
-              class="w-full px-4 py-3 rounded-xl border border-gray-300/70 dark:border-gray-600/60 bg-white/70 dark:bg-gray-700/50 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-indigo-500/60 focus:border-indigo-500/60 transition resize-none"
-              [class.border-red-500]="isFieldInvalid('description')"
-            ></textarea>
-            <div *ngIf="isFieldInvalid('description')" class="mt-1.5 text-sm text-red-600 dark:text-red-400">
-              {{ getFieldError('description') }}
-            </div>
-            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Información adicional sobre el equipo (opcional)</p>
+            <label for="description" class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1.5">Descripción</label>
+            <textarea id="description" formControlName="description" rows="3" placeholder="Describe el propósito y objetivos del equipo" class="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:focus:ring-indigo-400/20 focus:border-gray-400 transition resize-none" [class.border-red-400]="isFieldInvalid('description')"></textarea>
+            <div *ngIf="isFieldInvalid('description')" class="mt-1 text-xs text-red-600 dark:text-red-400">{{ getFieldError('description') }}</div>
+            <p class="mt-1 text-[11px] text-gray-400">Información adicional sobre el equipo (opcional)</p>
           </div>
         </div>
 
-        <!-- Acciones -->
-        <div class="pt-6 border-t border-gray-200/70 dark:border-gray-700/50 flex justify-end gap-3">
-          <button
-            type="button"
-            (click)="goBack()"
-            class="px-4 py-2 rounded-xl border border-gray-300/70 dark:border-gray-600/60 text-gray-700 dark:text-gray-200 bg-white/70 dark:bg-gray-700/50 hover:bg-gray-50 dark:hover:bg-gray-600 transition"
-            [disabled]="saving()"
-          >
-            Cancelar
-          </button>
-
-          <button
-            type="submit"
-            class="inline-flex items-center px-5 py-2.5 rounded-xl text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition disabled:opacity-60 disabled:cursor-not-allowed"
-            [disabled]="saving() || teamForm.invalid"
-          >
-            <div *ngIf="saving()" class="animate-spin rounded-full h-4 w-4 border-2 border-white/40 border-t-white mr-2"></div>
-            <lucide-angular *ngIf="!saving()" [img]="Save" class="w-4 h-4 mr-2"></lucide-angular>
+        <!-- Actions -->
+        <div class="pt-5 border-t border-gray-100 dark:border-gray-700 flex justify-end gap-3">
+          <button type="button" (click)="goBack()" class="px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors" [disabled]="saving()">Cancelar</button>
+          <button type="submit" class="inline-flex items-center px-4 py-2 rounded-lg text-sm text-white bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-400 shadow-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed" [disabled]="saving() || teamForm.invalid">
+            <div *ngIf="saving()" class="animate-spin rounded-full h-3.5 w-3.5 border-2 border-white/30 border-t-white mr-2"></div>
+            <lucide-angular *ngIf="!saving()" [img]="Save" class="w-4 h-4 mr-1.5"></lucide-angular>
             {{ saving() ? 'Guardando...' : (isEditMode() ? 'Actualizar Equipo' : 'Crear Equipo') }}
           </button>
         </div>
       </form>
     </div>
 
-    <!-- Resumen de validación -->
-    <div *ngIf="teamForm.invalid && teamForm.touched" class="mt-4 bg-yellow-50/90 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-2xl p-4 backdrop-blur-sm">
-      <h4 class="text-sm font-semibold text-yellow-800 dark:text-yellow-200 mb-2">Por favor, corrige los siguientes errores:</h4>
-      <ul class="text-sm text-yellow-700 dark:text-yellow-300 space-y-1">
-        <li *ngIf="isFieldInvalid('team_name')">• {{ getFieldError('team_name') }}</li>
-        <li *ngIf="isFieldInvalid('team_code')">• {{ getFieldError('team_code') }}</li>
-        <li *ngIf="isFieldInvalid('description')">• {{ getFieldError('description') }}</li>
-        <li *ngIf="isFieldInvalid('monthly_goal')">• {{ getFieldError('monthly_goal') }}</li>
-        <li *ngIf="isFieldInvalid('status')">• {{ getFieldError('status') }}</li>
+    <!-- Validation Summary -->
+    <div *ngIf="teamForm.invalid && teamForm.touched" class="mt-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
+      <h4 class="text-xs font-semibold text-amber-800 dark:text-amber-200 mb-2">Por favor, corrige los siguientes errores:</h4>
+      <ul class="text-xs text-amber-700 dark:text-amber-300 space-y-1">
+        <li *ngIf="isFieldInvalid('team_name')">{{ getFieldError('team_name') }}</li>
+        <li *ngIf="isFieldInvalid('team_code')">{{ getFieldError('team_code') }}</li>
+        <li *ngIf="isFieldInvalid('description')">{{ getFieldError('description') }}</li>
+        <li *ngIf="isFieldInvalid('monthly_goal')">{{ getFieldError('monthly_goal') }}</li>
+        <li *ngIf="isFieldInvalid('status')">{{ getFieldError('status') }}</li>
       </ul>
     </div>
   </div>

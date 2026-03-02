@@ -11,6 +11,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth.service';
+import { EchoService, LotStatusUpdate } from '../../../core/services/echo.service';
 import { LotService, LotFilters } from '../services/lot.service';
 import { ManzanasService } from '../services/manzanas.service';
 import { StreetTypeService } from '../services/street-type.service';
@@ -58,7 +59,8 @@ export class LotsComponent implements OnInit, OnDestroy {
     { value: 'disponible', label: 'Disponible' },
     { value: 'reservado', label: 'Reservado' },
     { value: 'vendido', label: 'Vendido' },
-    { value: 'bloqueado', label: 'Bloqueado' }
+    { value: 'bloqueado', label: 'Bloqueado' },
+    { value: 'en_proceso', label: 'En Proceso' }
   ];
 
   private filterOptionsLoaded = false;
@@ -71,7 +73,13 @@ export class LotsComponent implements OnInit, OnDestroy {
   selectedItemId: number | null = null;
   selectedItemName = '';
 
+  // Current user for lock ownership
+  currentUserId: number = 0;
 
+  // Lock modal
+  showLockModal = false;
+  lockTargetLot: Lot | null = null;
+  lockReason = '';
 
   // Pagination
   pagination = {
@@ -113,15 +121,20 @@ export class LotsComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private toast: ToastService,
     private authService: AuthService,
+    private echoService: EchoService,
     private manzanasService: ManzanasService,
     private streetTypeService: StreetTypeService,
     public themeService: ThemeService
   ) { }
 
   ngOnInit() {
+    const user = this.authService.getCurrentUser();
+    this.currentUserId = user?.id || 0;
+
     this.loadFilterOptions();
     this.loadLots();
     this.setupSearchDebounce();
+    this.subscribeToLotUpdates();
   }
 
   ngOnDestroy() {
@@ -399,6 +412,126 @@ export class LotsComponent implements OnInit, OnDestroy {
   onAdvancedFilterChange() {
     this.pagination.current_page = 1;
     this.loadLots();
+  }
+
+  // ======== Real-time lot status updates ========
+  private subscribeToLotUpdates(): void {
+    this.echoService.getLotStatusUpdates()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((update: LotStatusUpdate) => {
+        this.handleLotStatusUpdate(update);
+      });
+  }
+
+  private handleLotStatusUpdate(update: LotStatusUpdate): void {
+    // Update the lot in the current list in real-time
+    const index = this.lots.findIndex(l => l.lot_id === update.lot_id);
+    if (index !== -1) {
+      this.lots[index] = {
+        ...this.lots[index],
+        status: update.status as any,
+        locked_by: update.locked_by,
+        lock_reason: update.lock_reason,
+        locked_by_user: update.locked_by_name ? { id: update.locked_by!, name: update.locked_by_name } : null
+      };
+      // Update the subject too
+      this.lotsSubject.next([...this.lots]);
+    }
+
+    // Show appropriate toast notification
+    if (update.status === 'en_proceso' && update.locked_by !== this.currentUserId) {
+      this.toast.show(
+        `Lote #${update.num_lot} (Mz. ${update.manzana_name}) ha sido bloqueado por ${update.locked_by_name}: ${update.lock_reason}`,
+        'info'
+      );
+    } else if (update.previous_status === 'en_proceso' && update.status === 'disponible') {
+      this.toast.show(
+        `Lote #${update.num_lot} (Mz. ${update.manzana_name}) ha sido liberado y está disponible nuevamente`,
+        'info'
+      );
+    }
+
+    // Invalidate cache since data changed
+    this.cache.clear();
+  }
+
+  // ======== Lock / Unlock methods ========
+  openLockModal(lot: Lot): void {
+    this.lockTargetLot = lot;
+    this.lockReason = 'Proceso de venta en curso';
+    this.showLockModal = true;
+  }
+
+  closeLockModal(): void {
+    this.showLockModal = false;
+    this.lockTargetLot = null;
+    this.lockReason = '';
+  }
+
+  confirmLock(): void {
+    if (!this.lockTargetLot || !this.lockReason.trim()) return;
+
+    this.lotService.lockLot(this.lockTargetLot.lot_id, this.lockReason).subscribe({
+      next: (res) => {
+        this.toast.show(
+          `Lote #${this.lockTargetLot!.num_lot} bloqueado exitosamente`,
+          'success'
+        );
+        this.closeLockModal();
+        // The real-time update will handle UI refresh, but also manually update
+        this.cache.clear();
+        this.loadLots();
+      },
+      error: (err) => {
+        if (err.status === 409) {
+          this.toast.show(
+            err.error?.message || 'Este lote ya está siendo procesado por otro asesor',
+            'error'
+          );
+        } else {
+          this.toast.show('Error al bloquear el lote', 'error');
+        }
+        this.closeLockModal();
+      }
+    });
+  }
+
+  unlockLot(lot: Lot): void {
+    this.lotService.unlockLot(lot.lot_id).subscribe({
+      next: () => {
+        this.toast.show(
+          `Lote #${lot.num_lot} liberado exitosamente`,
+          'success'
+        );
+        this.cache.clear();
+        this.loadLots();
+      },
+      error: (err) => {
+        this.toast.show(
+          err.error?.message || 'Error al liberar el lote',
+          'error'
+        );
+      }
+    });
+  }
+
+  isLockedByMe(lot: Lot): boolean {
+    return lot.status === 'en_proceso' && lot.locked_by === this.currentUserId;
+  }
+
+  isLockedByOther(lot: Lot): boolean {
+    return lot.status === 'en_proceso' && lot.locked_by !== this.currentUserId;
+  }
+
+  canLock(lot: Lot): boolean {
+    return lot.status === 'disponible' && this.authService.hasPermission('sales.contracts.store');
+  }
+
+  canUnlock(lot: Lot): boolean {
+    return lot.status === 'en_proceso' && (
+      lot.locked_by === this.currentUserId ||
+      this.authService.hasPermission('inventory.lots.update')
+    );
   }
 
   getManzanaName(manzanaId: number): string {

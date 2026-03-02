@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-100">
+﻿<div class="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-100">
   <!-- Header -->
   <div class="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 shadow-2xl">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -142,7 +142,7 @@
             </div>
             <div>
               <p class="text-blue-100 text-sm font-semibold uppercase tracking-wide mb-1">Total Comisiones</p>
-              <p class="text-3xl font-bold text-white mb-2">{{integrationData.stats.total_commissions | number}}</p>
+              <p class="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-2">{{integrationData.stats.total_commissions | number}}</p>
               <p class="text-blue-200 text-lg font-medium">{{formatCurrency(integrationData.stats.total_commission_amount)}}</p>
             </div>
           </div>
@@ -163,7 +163,7 @@
             </div>
             <div>
               <p class="text-orange-100 text-sm font-semibold uppercase tracking-wide mb-1">Pendientes</p>
-              <p class="text-3xl font-bold text-white mb-2">{{integrationData.stats.pending_verification_commissions | number}}</p>
+              <p class="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-2">{{integrationData.stats.pending_verification_commissions | number}}</p>
               <p class="text-orange-200 text-lg font-medium">{{formatCurrency(integrationData.stats.pending_amount)}}</p>
             </div>
           </div>
@@ -184,7 +184,7 @@
             </div>
             <div>
               <p class="text-green-100 text-sm font-semibold uppercase tracking-wide mb-1">Verificadas</p>
-              <p class="text-3xl font-bold text-white mb-2">{{integrationData.stats.verified_commissions | number}}</p>
+              <p class="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-2">{{integrationData.stats.verified_commissions | number}}</p>
               <p class="text-green-200 text-lg font-medium">{{formatCurrency(integrationData.stats.verified_amount)}}</p>
             </div>
           </div>
@@ -205,7 +205,7 @@
             </div>
             <div>
               <p class="text-red-100 text-sm font-semibold uppercase tracking-wide mb-1">Fallidas</p>
-              <p class="text-3xl font-bold text-white mb-2">{{integrationData.stats.failed_verification_commissions | number}}</p>
+              <p class="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-2">{{integrationData.stats.failed_verification_commissions | number}}</p>
               <p class="text-red-200 text-lg font-medium">{{formatPercentage(integrationData.stats.verification_rate)}} tasa éxito</p>
             </div>
           </div>
@@ -217,7 +217,7 @@
 
   <!-- Gráficos -->
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8" *ngIf="integrationData">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8 mb-8" *ngIf="integrationData">
       <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-8">
         <div class="flex items-center gap-3 mb-6">
           <div class="p-2 bg-gradient-to-r from-purple-500 to-pink-600 rounded-lg">

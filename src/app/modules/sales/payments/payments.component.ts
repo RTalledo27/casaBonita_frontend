@@ -60,8 +60,6 @@ export class PaymentsComponent {
   fivePercentError: string | null = null;
   showFivePercentDetail = false;
   isExportingFivePercent = false;
-  fivePercentStartDate = '';
-  fivePercentEndDate = '';
   detailRow: any | null = null;
   isEditingPayment = false;
   editForm: any = {};
@@ -242,8 +240,8 @@ export class PaymentsComponent {
     this.fivePercentError = null;
 
     const params: any = {};
-    if (this.fivePercentStartDate) params.start_date = this.fivePercentStartDate;
-    if (this.fivePercentEndDate) params.end_date = this.fivePercentEndDate;
+    if (this.startDate) params.start_date = this.startDate;
+    if (this.endDate) params.end_date = this.endDate;
 
     this.paymentService.fivePercentReport(params).subscribe({
       next: (res: any) => {
@@ -265,8 +263,8 @@ export class PaymentsComponent {
     this.isExportingFivePercent = true;
 
     const params: any = {};
-    if (this.fivePercentStartDate) params.start_date = this.fivePercentStartDate;
-    if (this.fivePercentEndDate) params.end_date = this.fivePercentEndDate;
+    if (this.startDate) params.start_date = this.startDate;
+    if (this.endDate) params.end_date = this.endDate;
 
     this.paymentService.exportFivePercentReport(params).subscribe({
       next: (blob: Blob) => {

@@ -1,9 +1,9 @@
-<div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
+﻿<div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
     <!-- Header -->
     <div class="mb-8">
         <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
             <div>
-                <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Reportes Proyectados</h1>
+                <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-2">Reportes Proyectados</h1>
                 <p class="text-gray-600 dark:text-gray-400">Análisis financiero y proyecciones de crecimiento</p>
             </div>
             <div class="flex gap-2">
@@ -42,7 +42,7 @@
                 <h3 class="text-sm font-medium opacity-90">Ingresos Proyectados</h3>
                 <lucide-angular [img]="icons.DollarSign" [size]="20" class="opacity-75"></lucide-angular>
             </div>
-            <p class="text-3xl font-bold">S/. {{ projectedRevenue() | number:'1.0-0' }}</p>
+            <p class="text-xl sm:text-2xl lg:text-3xl font-bold">S/. {{ projectedRevenue() | number:'1.0-0' }}</p>
             <p class="text-xs opacity-75 mt-1">Escenario {{ selectedScenario() }}</p>
         </div>
 
@@ -52,7 +52,7 @@
                 <h3 class="text-sm font-medium opacity-90">Ventas Proyectadas</h3>
                 <lucide-angular [img]="icons.TrendingUp" [size]="20" class="opacity-75"></lucide-angular>
             </div>
-            <p class="text-3xl font-bold">{{ projectedSales() | number }}</p>
+            <p class="text-xl sm:text-2xl lg:text-3xl font-bold">{{ projectedSales() | number }}</p>
             <p class="text-xs opacity-75 mt-1">Contratos estimados</p>
         </div>
 
@@ -62,7 +62,7 @@
                 <h3 class="text-sm font-medium opacity-90">Flujo de Caja</h3>
                 <lucide-angular [img]="icons.BarChart" [size]="20" class="opacity-75"></lucide-angular>
             </div>
-            <p class="text-3xl font-bold">S/. {{ projectedCashFlow() | number:'1.0-0' }}</p>
+            <p class="text-xl sm:text-2xl lg:text-3xl font-bold">S/. {{ projectedCashFlow() | number:'1.0-0' }}</p>
             <p class="text-xs opacity-75 mt-1">Estimación a 12 meses</p>
         </div>
 
@@ -72,7 +72,7 @@
                 <h3 class="text-sm font-medium opacity-90">ROI Proyectado</h3>
                 <lucide-angular [img]="icons.Target" [size]="20" class="opacity-75"></lucide-angular>
             </div>
-            <p class="text-3xl font-bold">{{ projectedROI() | number:'1.1-1' }}%</p>
+            <p class="text-xl sm:text-2xl lg:text-3xl font-bold">{{ projectedROI() | number:'1.1-1' }}%</p>
             <p class="text-xs opacity-75 mt-1">Retorno sobre inversión</p>
         </div>
     </div>

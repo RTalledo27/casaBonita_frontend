@@ -1,5 +1,5 @@
-<ng-container *ngIf="user$ | async as u">
-<div class="p-8 space-y-6 animate-fade-in">
+﻿<ng-container *ngIf="user$ | async as u">
+<div class="p-4 sm:p-6 lg:p-8 space-y-6 animate-fade-in">
     <!-- Encabezado mejorado con gradiente -->
     <div class="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-6 text-white shadow-lg gradient-animate hover-lift">
         <div class="flex justify-between items-center">
@@ -8,7 +8,7 @@
                     <i class="fas fa-user-circle text-2xl text-glow"></i>
                 </div>
                 <div>
-                    <h2 class="text-3xl font-bold text-glow">Detalle de Usuario</h2>
+                    <h2 class="text-xl sm:text-2xl lg:text-3xl font-bold text-glow">Detalle de Usuario</h2>
                     <p class="text-blue-100 mt-1">Información completa del usuario {{ u.first_name }} {{ u.last_name }}</p>
                 </div>
             </div>
@@ -55,7 +55,7 @@
     </div>
 
     <!-- User Profile Section -->
-    <div class="flex flex-col lg:flex-row gap-8 animate-fade-in">
+    <div class="flex flex-col lg:flex-row gap-4 sm:gap-8 animate-fade-in">
         <!-- Photo Section -->
         <div class="flex-shrink-0">
             <div class="relative group">
@@ -91,7 +91,7 @@
         <div class="flex-1">
             <!-- Basic Info -->
             <div class="mb-8">
-                <h1 class="text-3xl font-bold mb-2">
+                <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold mb-2">
                     <ng-container *ngIf="!isEditing">{{ u.first_name }} {{ u.last_name }}</ng-container>
                     <ng-container *ngIf="isEditing">
                         <div class="flex gap-2">

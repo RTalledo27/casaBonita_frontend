@@ -1,4 +1,4 @@
-<div class="tax-parameters-container">
+﻿<div class="tax-parameters-container">
   <!-- Header -->
   <div class="page-header">
     <div class="header-content">
@@ -359,7 +359,7 @@
         <div class="subsection-title">Tramos de Impuesto</div>
 
         <div class="tax-brackets-table">
-          <table>
+          <div class="overflow-x-auto"><table>
             <thead>
               <tr>
                 <th>Tramo</th>
@@ -481,7 +481,7 @@
                 <td class="text-muted">Más de S/ {{ (form.get('rent_tax_tramo4_uit')?.value * form.get('uit_amount')?.value).toFixed(2) }}</td>
               </tr>
             </tbody>
-          </table>
+          </table></div>
         </div>
       </div>
 

@@ -1,4 +1,4 @@
-<div class="payment-verification-manager">
+﻿<div class="payment-verification-manager">
   <!-- Header con estadísticas -->
   <div class="header-section mb-6">
     <div class="flex justify-between items-center mb-4">
@@ -228,7 +228,7 @@
     
     <mat-card-content>
       <div class="table-container">
-        <table mat-table [dataSource]="dataSource" matSort class="w-full">
+        <div class="overflow-x-auto"><table mat-table [dataSource]="dataSource" matSort class="w-full">
           <!-- ID Comisión -->
           <ng-container matColumnDef="commission_id">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
@@ -325,7 +325,7 @@
           
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
           <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-        </table>
+        </table></div>
         
         <!-- Loading spinner -->
         <div *ngIf="loading" class="flex justify-center items-center py-8">

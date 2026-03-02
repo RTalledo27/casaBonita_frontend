@@ -1,12 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnDestroy, OnInit } from '@angular/core';
-import { RouterLink, RouterModule } from '@angular/router';
+import { RouterLink, RouterModule, Router, NavigationEnd } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { LucideAngularModule, Home, User, ShieldCheck, Package, Layers, DollarSign, HelpCircle, Settings, ChevronDown, Users, TrendingUp, CreditCard, MessageCircle, FileText, Map as MapIcon, Calendar, CalendarDays, MapPin, BarChart, BarChart3, Receipt, Headphones, Ticket, FileSearch, UserCheck, Calculator, Percent, Shield, Lock, ShoppingCart, LayoutDashboard } from 'lucide-angular';
 import { SidebarService } from '../../services/sidebar.service';
 import { AuthService } from '../../services/auth.service';
 import { NavigationService } from '../../services/navigation.service';
-import { Subscription } from 'rxjs';
+import { Subscription, filter } from 'rxjs';
 
 @Component({
   selector: 'app-sidebar',
@@ -25,19 +25,31 @@ export class SidebarComponent implements OnInit, OnDestroy {
   private sidebarService = inject(SidebarService);
   private authService = inject(AuthService);
   private navigationService = inject(NavigationService);
+  private router = inject(Router);
   private expandSubscription?: Subscription;
+  private routerSubscription?: Subscription;
 
   ngOnInit() {
     // Suscribirse al servicio de navegación para expandir módulos
     this.expandSubscription = this.navigationService.expandModule$.subscribe((moduleName: string) => {
       this.expandModuleByName(moduleName);
     });
+
+    // Auto-close sidebar on mobile after navigation
+    this.routerSubscription = this.router.events
+      .pipe(filter(e => e instanceof NavigationEnd))
+      .subscribe(() => {
+        this.sidebarService.closeMobile();
+      });
   }
 
   ngOnDestroy() {
     // Limpiar la suscripción
     if (this.expandSubscription) {
       this.expandSubscription.unsubscribe();
+    }
+    if (this.routerSubscription) {
+      this.routerSubscription.unsubscribe();
     }
   }
 
@@ -413,6 +425,10 @@ export class SidebarComponent implements OnInit, OnDestroy {
   isAuthenticated = this.authService.isAuthenticated;
 
   chevronDown = [{ label: 'Chevron Down', icon: ChevronDown }];
+
+  closeMobileSidebar(): void {
+    this.sidebarService.closeMobile();
+  }
 
   toggle(item: any) {
     item.expanded = !item.expanded;

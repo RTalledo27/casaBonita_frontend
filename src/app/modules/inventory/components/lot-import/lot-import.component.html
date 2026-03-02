@@ -1,4 +1,4 @@
-<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 modal-backdrop">
+﻿<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 modal-backdrop">
  
   <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto hover-lift dynamic-shadow animate-slide-in-up">
 
@@ -130,7 +130,7 @@
             <p class="text-gray-600 dark:text-gray-300">{{ validationProgress?.currentStep }}</p>
           </div>
           <div class="text-right">
-            <span class="text-3xl font-bold text-amber-700 dark:text-amber-300">{{ validationProgress.percentage }}%</span>
+            <span class="text-xl sm:text-2xl lg:text-3xl font-bold text-amber-700 dark:text-amber-300">{{ validationProgress.percentage }}%</span>
           </div>
         </div>
         
@@ -255,7 +255,7 @@
 
       <!-- Import Progress -->
       <div *ngIf="isUploading" class="mb-8">
-        <div class="p-8 bg-gradient-to-br from-blue-50/80 via-indigo-50/60 to-purple-50/80 dark:from-blue-900/30 dark:via-indigo-900/20 dark:to-purple-900/30 rounded-3xl border border-blue-200/50 dark:border-blue-600/30 shadow-2xl backdrop-blur-sm animate-slide-in-up">
+        <div class="p-4 sm:p-6 lg:p-8 bg-gradient-to-br from-blue-50/80 via-indigo-50/60 to-purple-50/80 dark:from-blue-900/30 dark:via-indigo-900/20 dark:to-purple-900/30 rounded-3xl border border-blue-200/50 dark:border-blue-600/30 shadow-2xl backdrop-blur-sm animate-slide-in-up">
           <div class="text-center mb-6">
             <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full mb-4 animate-bounce-in">
               <div class="animate-spin rounded-full h-8 w-8 border-2 border-white border-t-transparent"></div>
@@ -287,7 +287,7 @@
       <!-- Import Result -->
       <div *ngIf="importResult && !isUploading" class="mb-8">
         <div 
-          class="p-8 rounded-3xl shadow-2xl backdrop-blur-sm animate-slide-in-up"
+          class="p-4 sm:p-6 lg:p-8 rounded-3xl shadow-2xl backdrop-blur-sm animate-slide-in-up"
           [ngClass]="{
             'bg-gradient-to-br from-emerald-50/80 via-green-50/60 to-teal-50/80 dark:from-emerald-900/30 dark:via-green-900/20 dark:to-teal-900/30 border border-emerald-200/50 dark:border-emerald-600/30': importResult.success,
             'bg-gradient-to-br from-red-50/80 via-rose-50/60 to-pink-50/80 dark:from-red-900/30 dark:via-rose-900/20 dark:to-pink-900/30 border border-red-200/50 dark:border-red-600/30': !importResult.success
@@ -322,15 +322,15 @@
           
           <div *ngIf="importResult.data" class="grid grid-cols-2 md:grid-cols-3 gap-6 mb-6">
             <div class="text-center p-6 bg-white/80 dark:bg-gray-800/80 rounded-2xl shadow-lg backdrop-blur-sm hover-lift">
-              <div class="text-3xl font-bold text-emerald-600 dark:text-emerald-400 mb-2">{{ importResult?.data?.total_rows }}</div>
+              <div class="text-xl sm:text-2xl lg:text-3xl font-bold text-emerald-600 dark:text-emerald-400 mb-2">{{ importResult?.data?.total_rows }}</div>
               <div class="text-sm font-medium text-gray-600 dark:text-gray-300">Total de Filas</div>
             </div>
             <div class="text-center p-6 bg-white/80 dark:bg-gray-800/80 rounded-2xl shadow-lg backdrop-blur-sm hover-lift">
-              <div class="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-2">{{ importResult?.data?.successful_rows }}</div>
+              <div class="text-xl sm:text-2xl lg:text-3xl font-bold text-blue-600 dark:text-blue-400 mb-2">{{ importResult?.data?.successful_rows }}</div>
               <div class="text-sm font-medium text-gray-600 dark:text-gray-300">Exitosas</div>
             </div>
             <div class="text-center p-6 bg-white/80 dark:bg-gray-800/80 rounded-2xl shadow-lg backdrop-blur-sm hover-lift">
-              <div class="text-3xl font-bold text-red-600 dark:text-red-400 mb-2">{{ importResult?.data?.error_rows }}</div>
+              <div class="text-xl sm:text-2xl lg:text-3xl font-bold text-red-600 dark:text-red-400 mb-2">{{ importResult?.data?.error_rows }}</div>
               <div class="text-sm font-medium text-gray-600 dark:text-gray-300">Con Errores</div>
             </div>
           </div>

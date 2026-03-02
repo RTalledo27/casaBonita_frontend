@@ -83,4 +83,18 @@ export class LotService {
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.base}/${id}`);
   }
+
+  /**
+   * Lock a lot for a sale process
+   */
+  lockLot(lotId: number, reason: string): Observable<any> {
+    return this.http.post(`${this.base}/${lotId}/lock`, { reason });
+  }
+
+  /**
+   * Unlock a lot (release from sale process)
+   */
+  unlockLot(lotId: number): Observable<any> {
+    return this.http.post(`${this.base}/${lotId}/unlock`, {});
+  }
 }

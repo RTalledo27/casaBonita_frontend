@@ -1,9 +1,9 @@
-<div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
+﻿<div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
     <!-- Header with Export Buttons -->
     <div class="mb-8">
         <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
             <div>
-                <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Reportes de Ventas</h1>
+                <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-2">Reportes de Ventas</h1>
                 <p class="text-gray-600 dark:text-gray-400">Análisis detallado de ventas por asesor, oficina y período
                 </p>
             </div>
@@ -186,7 +186,7 @@
                 <h3 class="text-sm font-medium opacity-90">Total Ventas</h3>
                 <lucide-angular [img]="trendingUpIcon" [size]="20" class="opacity-75"></lucide-angular>
             </div>
-            <p class="text-3xl font-bold">{{ totalSales() }}</p>
+            <p class="text-xl sm:text-2xl lg:text-3xl font-bold">{{ totalSales() }}</p>
             <p class="text-xs opacity-75 mt-1">Contratos cerrados</p>
         </div>
 
@@ -196,7 +196,7 @@
                 <h3 class="text-sm font-medium opacity-90">Ingresos Totales</h3>
                 <lucide-angular [img]="dollarSignIcon" [size]="20" class="opacity-75"></lucide-angular>
             </div>
-            <p class="text-3xl font-bold">S/. {{ totalRevenue() | number:'1.0-0' }}</p>
+            <p class="text-xl sm:text-2xl lg:text-3xl font-bold">S/. {{ totalRevenue() | number:'1.0-0' }}</p>
             <p class="text-xs opacity-75 mt-1">Valor total de ventas</p>
         </div>
 
@@ -206,7 +206,7 @@
                 <h3 class="text-sm font-medium opacity-90">Venta Promedio</h3>
                 <lucide-angular [img]="barChartIcon" [size]="20" class="opacity-75"></lucide-angular>
             </div>
-            <p class="text-3xl font-bold">S/. {{ averageSale() | number:'1.0-0' }}</p>
+            <p class="text-xl sm:text-2xl lg:text-3xl font-bold">S/. {{ averageSale() | number:'1.0-0' }}</p>
             <p class="text-xs opacity-75 mt-1">Por contrato</p>
         </div>
 
@@ -216,7 +216,7 @@
                 <h3 class="text-sm font-medium opacity-90">Crecimiento</h3>
                 <lucide-angular [img]="trendingUpIcon" [size]="20" class="opacity-75"></lucide-angular>
             </div>
-            <p class="text-3xl font-bold">{{ salesGrowth() | number:'1.1-1' }}%</p>
+            <p class="text-xl sm:text-2xl lg:text-3xl font-bold">{{ salesGrowth() | number:'1.1-1' }}%</p>
             <p class="text-xs opacity-75 mt-1">vs período anterior</p>
         </div>
     </div>

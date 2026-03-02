@@ -207,7 +207,9 @@ export class OfficeListComponent implements OnInit {
     }
 
     getStatusClass(isActive: boolean): string {
-        return isActive ? 'text-green-600' : 'text-red-600';
+        return isActive
+            ? 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400 border border-green-200/60 dark:border-green-800/40'
+            : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400 border border-gray-200/60 dark:border-gray-600/40';
     }
 
     getStatusLabel(isActive: boolean): string {
