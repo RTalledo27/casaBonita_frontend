@@ -150,6 +150,42 @@ export class ContractImportComponent {
     return total;
   }
 
+  /** Total aproximado de cuotas detectadas sumando todos los clientes */
+  get totalCuotas(): number {
+    let total = 0;
+    for (const item of this.salesPreview) {
+      total += this.getCuotas(item);
+    }
+    return total;
+  }
+
+  /** Obtener Mz-Lote del primer documento/unidad de un cliente */
+  getMzLote(item: any): { mz: string; lote: string } {
+    const docs = item?.documents;
+    if (docs && Array.isArray(docs) && docs.length > 0) {
+      const unit = docs[0]?.units?.[0];
+      const unitNumber = unit?.unitNumber || unit?.unit_number || '';
+      if (unitNumber) {
+        const parts = unitNumber.split(/[-–]/);  // "E2-02" → ["E2", "02"]
+        if (parts.length >= 2) {
+          return { mz: parts[0].trim(), lote: parts[1].trim() };
+        }
+        return { mz: unitNumber, lote: '-' };
+      }
+    }
+    return { mz: '-', lote: '-' };
+  }
+
+  /** Obtener cantidad de cuotas (aprox) del primer documento */
+  getCuotas(item: any): number {
+    const docs = item?.documents;
+    if (docs && Array.isArray(docs) && docs.length > 0) {
+      const financing = docs[0]?.financing;
+      return +(financing?.financingInstallments || financing?.installments || financing?.term || 0);
+    }
+    return 0;
+  }
+
   /** Fecha formateada del caché */
   get cachedAtFormatted(): string {
     if (!this.salesCachedAt) return '';
