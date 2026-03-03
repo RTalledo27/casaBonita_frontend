@@ -437,8 +437,7 @@
             <div class="max-h-56 overflow-y-auto divide-y divide-gray-100 dark:divide-gray-700/50">
               <div *ngFor="let s of salesPreview; let i = index"
                 class="grid grid-cols-12 gap-2 px-4 py-3 text-sm hover:bg-indigo-50/50 dark:hover:bg-indigo-900/10 transition-colors"
-                [class.bg-gray-50/30]="i % 2 === 0"
-                [class.dark:bg-gray-800/30]="i % 2 === 0">
+                [ngClass]="{ 'bg-gray-50/30 dark:bg-gray-800/30': i % 2 === 0 }">
                 <div class="col-span-3">
                   <span class="font-mono text-xs px-2 py-1 bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 rounded-md">
                     {{ s.documentNumber || s.document_number || '-' }}
