@@ -18,7 +18,7 @@ export class ReservationsService {
     search?: string;
     status?: string;
     advisor_id?: number;
-  }): Observable<{ data: Reservation[]; meta: any }> {
+  }): Observable<{ data: Reservation[]; meta: any; counts?: any }> {
     let httpParams = new HttpParams();
     if (params?.page) httpParams = httpParams.set('page', params.page.toString());
     if (params?.per_page) httpParams = httpParams.set('per_page', params.per_page.toString());
@@ -26,7 +26,7 @@ export class ReservationsService {
     if (params?.status) httpParams = httpParams.set('status', params.status);
     if (params?.advisor_id) httpParams = httpParams.set('advisor_id', params.advisor_id.toString());
 
-    return this.http.get<{ data: Reservation[]; meta: any }>(this.base, { params: httpParams });
+    return this.http.get<{ data: Reservation[]; meta: any; counts?: any }>(this.base, { params: httpParams });
   }
 
   get(id: number): Observable<Reservation> {
