@@ -1,7 +1,7 @@
 import { Component, signal, inject, effect, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastService } from '../../../core/services/toast.service';
-import { ColumnDef } from '../../../shared/components/shared-table/shared-table.component';
+// ColumnDef removed — using custom inline table
 import { Edit, Eye, LucideAngularModule, Plus, Trash2, Upload, Moon, Sun } from 'lucide-angular';
 import { BehaviorSubject, take, Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 import { Lot } from '../models/lot';
@@ -91,24 +91,7 @@ export class LotsComponent implements OnInit, OnDestroy {
   loading = false;
   isLoading = signal(false);
 
-  columns: ColumnDef[] = [
-    /*
-      "street_type": {
-                "street_type_id": 1,
-                "name": "Av."
-            },
-  */
-    { value: (r) => r.manzana?.name, header: 'inventory.lots.manzana' },
-    { value: (r) => r.street_type?.name, header: 'inventory.lots.streetType' },
-    { field: 'num_lot', header: 'inventory.lots.numLot' },
-    { field: 'area_m2', header: 'inventory.lots.areaM2', align: 'right' },
-    {
-      field: 'total_price',
-      header: 'inventory.lots.totalPrice',
-      align: 'right',
-    },
-    { field: 'status', header: 'inventory.lots.status.label' },
-  ];
+  // columns removed — using custom inline table
   plus = Plus;
   eye = Eye;
   edit = Edit;
@@ -188,6 +171,60 @@ export class LotsComponent implements OnInit, OnDestroy {
 
   canEdit() {
     return this.authService.hasPermission('inventory.lots.update');
+  }
+
+  // ═══════════════ Computed KPI getters ═══════════════
+  get disponiblesCount(): number {
+    return this.lots.filter(l => l.status === 'disponible').length;
+  }
+
+  get reservadosCount(): number {
+    return this.lots.filter(l => l.status === 'reservado').length;
+  }
+
+  get vendidosCount(): number {
+    return this.lots.filter(l => l.status === 'vendido').length;
+  }
+
+  get enProcesoCount(): number {
+    return this.lots.filter(l => l.status === 'en_proceso').length;
+  }
+
+  // ═══════════════ Status helpers ═══════════════
+  getLotStatusClasses(status: string): string {
+    switch ((status || '').toLowerCase()) {
+      case 'disponible': return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300';
+      case 'reservado': return 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300';
+      case 'vendido': return 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300';
+      case 'bloqueado': return 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300';
+      case 'en_proceso': return 'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300';
+      default: return 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400';
+    }
+  }
+
+  getLotStatusDotClass(status: string): string {
+    switch ((status || '').toLowerCase()) {
+      case 'disponible': return 'bg-emerald-500';
+      case 'reservado': return 'bg-amber-500';
+      case 'vendido': return 'bg-red-500';
+      case 'bloqueado': return 'bg-gray-500';
+      case 'en_proceso': return 'bg-orange-500';
+      default: return 'bg-gray-400';
+    }
+  }
+
+  setStatusFilter(status: string): void {
+    this.statusFilter = status;
+    this.pagination.current_page = 1;
+    this.loadLots();
+  }
+
+  hasActiveFilters(): boolean {
+    return !!(this.filterText || this.statusFilter || this.manzanaFilter || this.streetTypeFilter || this.minPrice || this.maxPrice || this.minArea || this.maxArea);
+  }
+
+  trackLot(index: number, lot: Lot): number {
+    return lot.lot_id;
   }
 
 
