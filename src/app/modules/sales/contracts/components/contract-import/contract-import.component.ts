@@ -176,12 +176,13 @@ export class ContractImportComponent {
     return { mz: '-', lote: '-' };
   }
 
-  /** Obtener cantidad de cuotas (aprox) del primer documento */
+  /** Obtener cantidad total de cuotas (inicial + financiamiento) del primer documento */
   getCuotas(item: any): number {
     const docs = item?.documents;
     if (docs && Array.isArray(docs) && docs.length > 0) {
       const financing = docs[0]?.financing;
-      return +(financing?.financingInstallments || financing?.installments || financing?.term || 0);
+      // totalInstallments incluye cuota inicial + financiamiento
+      return +(financing?.totalInstallments || financing?.financingInstallments || financing?.installments || financing?.term || 0);
     }
     return 0;
   }
