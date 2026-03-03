@@ -5,6 +5,7 @@ import { Router, RouterModule } from '@angular/router';
 import { SalesCutService } from '../../services/sales-cut.service';
 import { SalesCut, SalesCutFilters, MonthlyStats } from '../../models/sales-cut.model';
 import { CalculateCutModalComponent } from './calculate-cut-modal.component';
+import { ToastService } from '../../../../core/services/toast.service';
 
 @Component({
   selector: 'app-cuts-dashboard',
@@ -286,12 +287,36 @@ import { CalculateCutModalComponent } from './calculate-cut-modal.component';
       (closed)="onModalClosed()"
       (cutSaved)="onCutSaved()">
     </app-calculate-cut-modal>
+
+    <!-- Confirm Dialog -->
+    @if (confirmDialog()) {
+      <div class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4" (click)="cancelConfirm()">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 max-w-sm w-full p-6 text-center" (click)="$event.stopPropagation()">
+          <div class="mx-auto w-12 h-12 rounded-full flex items-center justify-center mb-4"
+            [ngClass]="confirmDialog()!.type === 'danger' ? 'bg-red-100 dark:bg-red-900/30' : 'bg-blue-100 dark:bg-blue-900/30'">
+            <svg class="w-6 h-6" [ngClass]="confirmDialog()!.type === 'danger' ? 'text-red-600 dark:text-red-400' : 'text-blue-600 dark:text-blue-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+            </svg>
+          </div>
+          <h3 class="text-base font-bold text-gray-900 dark:text-white mb-1">{{ confirmDialog()!.title }}</h3>
+          <p class="text-sm text-gray-500 dark:text-gray-400 mb-5">{{ confirmDialog()!.message }}</p>
+          <div class="flex items-center gap-2 justify-center">
+            <button (click)="cancelConfirm()" class="px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">Cancelar</button>
+            <button (click)="executeConfirm()" class="px-5 py-2.5 text-sm font-semibold text-white rounded-xl shadow-md transition-all"
+              [ngClass]="confirmDialog()!.type === 'danger' ? 'bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 shadow-red-500/20' : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-blue-500/20'">
+              {{ confirmDialog()!.confirmText }}
+            </button>
+          </div>
+        </div>
+      </div>
+    }
   `,
   styles: []
 })
 export class CutsDashboardComponent implements OnInit {
   private router = inject(Router);
   cutService = inject(SalesCutService);
+  private toast = inject(ToastService);
 
   @ViewChild('calculateModal') calculateModal!: CalculateCutModalComponent;
 
@@ -300,6 +325,7 @@ export class CutsDashboardComponent implements OnInit {
   pagination = signal<any>(null);
   isLoading = signal(false);
   error = signal<string | null>(null);
+  confirmDialog = signal<{title: string; message: string; confirmText: string; type: 'danger' | 'info'; action: () => void} | null>(null);
 
   filters: SalesCutFilters = {
     per_page: 15,
@@ -378,40 +404,64 @@ export class CutsDashboardComponent implements OnInit {
   }
 
   createNewCut() {
-    if (confirm('¿Deseas crear un nuevo corte para hoy?')) {
-      this.isLoading.set(true);
-      this.cutService.createDailyCut().subscribe({
-        next: (response) => {
-          if (response.success) {
-            alert('✅ Corte creado exitosamente');
-            this.loadCuts();
-            this.loadMonthlyStats();
+    this.confirmDialog.set({
+      title: 'Crear Corte Diario',
+      message: '¿Deseas crear un nuevo corte para hoy?',
+      confirmText: 'Crear Corte',
+      type: 'info',
+      action: () => {
+        this.isLoading.set(true);
+        this.cutService.createDailyCut().subscribe({
+          next: (response) => {
+            if (response.success) {
+              this.toast.success('Corte creado exitosamente');
+              this.loadCuts();
+              this.loadMonthlyStats();
+            }
+            this.isLoading.set(false);
+          },
+          error: (err) => {
+            this.toast.error('Error al crear el corte');
+            this.isLoading.set(false);
+            console.error('Error creating cut:', err);
           }
-          this.isLoading.set(false);
-        },
-        error: (err) => {
-          alert('❌ Error al crear el corte');
-          this.isLoading.set(false);
-          console.error('Error creating cut:', err);
-        }
-      });
-    }
+        });
+      }
+    });
   }
 
   closeCut(cutId: number) {
-    if (confirm('¿Estás seguro de cerrar este corte? Esta acción no se puede deshacer.')) {
-      this.cutService.closeCut(cutId).subscribe({
-        next: (response) => {
-          if (response.success) {
-            alert('✅ Corte cerrado exitosamente');
-            this.loadCuts();
+    this.confirmDialog.set({
+      title: 'Cerrar Corte',
+      message: '¿Estás seguro de cerrar este corte? Esta acción no se puede deshacer.',
+      confirmText: 'Cerrar Corte',
+      type: 'danger',
+      action: () => {
+        this.cutService.closeCut(cutId).subscribe({
+          next: (response) => {
+            if (response.success) {
+              this.toast.success('Corte cerrado exitosamente');
+              this.loadCuts();
+            }
+          },
+          error: (err) => {
+            this.toast.error('Error al cerrar el corte');
+            console.error('Error closing cut:', err);
           }
-        },
-        error: (err) => {
-          alert('❌ Error al cerrar el corte');
-          console.error('Error closing cut:', err);
-        }
-      });
+        });
+      }
+    });
+  }
+
+  cancelConfirm() {
+    this.confirmDialog.set(null);
+  }
+
+  executeConfirm() {
+    const dialog = this.confirmDialog();
+    if (dialog) {
+      dialog.action();
+      this.confirmDialog.set(null);
     }
   }
 

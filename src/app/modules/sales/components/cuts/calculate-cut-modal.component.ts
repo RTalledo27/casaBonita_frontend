@@ -2,6 +2,7 @@ import { Component, signal, inject, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SalesCutService } from '../../services/sales-cut.service';
+import { ToastService } from '../../../../core/services/toast.service';
 
 type PeriodType = 'today' | 'week' | 'month' | 'custom';
 
@@ -236,6 +237,7 @@ interface CalculatedCut {
 })
 export class CalculateCutModalComponent {
   cutService = inject(SalesCutService);
+  private toast = inject(ToastService);
   
   @Output() closed = new EventEmitter<void>();
   @Output() cutSaved = new EventEmitter<void>();
@@ -339,19 +341,22 @@ export class CalculateCutModalComponent {
     this.cutService.storeCut(this.startDate, this.endDate, this.notes || undefined).subscribe({
       next: (response) => {
         if (response.success) {
-          alert('✅ Corte guardado exitosamente');
+          this.toast.success('Corte generado y guardado exitosamente', 4000);
           this.cutSaved.emit();
           this.close();
         } else {
           this.errorMessage.set(response.message || 'Error al guardar corte');
+          this.toast.error(response.message || 'Error al guardar corte');
         }
         this.isSaving.set(false);
       },
       error: (err) => {
         if (err.status === 409) {
           this.errorMessage.set('Ya existe un corte para esta fecha. Usa la opción de recalcular en su lugar.');
+          this.toast.error('Ya existe un corte para esta fecha');
         } else {
           this.errorMessage.set('Error al guardar corte. Intenta nuevamente.');
+          this.toast.error('Error al guardar corte. Intenta nuevamente.');
         }
         this.isSaving.set(false);
         console.error('Error saving cut:', err);
