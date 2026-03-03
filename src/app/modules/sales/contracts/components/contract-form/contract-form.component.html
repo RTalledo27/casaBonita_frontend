@@ -1,205 +1,269 @@
-<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-  <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-    <!-- Header -->
-    <div class="flex items-center justify-between p-6 border-b">
-      <h2 class="text-xl font-semibold text-gray-900">
-        {{ isEditMode ? 'Editar Contrato' : 'Nuevo Contrato' }}
-      </h2>
-      <button 
-        (click)="cancel()" 
-        class="text-gray-400 hover:text-gray-600 transition-colors"
-        type="button">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-        </svg>
-      </button>
+<div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+  <div
+    class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+
+    <!-- ═══════════════ HEADER ═══════════════ -->
+    <div class="px-6 py-5 border-b border-gray-200/50 dark:border-gray-700/50">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="p-2.5 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg shadow-blue-500/20">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+              {{ isEditMode ? 'Editar Contrato' : 'Nuevo Contrato' }}
+            </h2>
+            <p class="text-xs text-gray-500 dark:text-gray-400">
+              {{ isEditMode ? 'Modifica los datos del contrato existente' : 'Completa los datos para registrar un nuevo contrato' }}
+            </p>
+          </div>
+        </div>
+        <button (click)="cancel()" type="button"
+          class="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
     </div>
 
-    <!-- Form -->
-    <form [formGroup]="form" (ngSubmit)="submit()" class="p-6">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
-        <!-- Información Básica -->
-        <div class="space-y-4">
-          <h3 class="text-lg font-medium text-gray-900 border-b pb-2">Información Básica</h3>
-          
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">ID Reservación</label>
-            <input 
-              type="number" 
-              formControlName="reservation_id"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="ID de la reservación">
-          </div>
+    <!-- ═══════════════ FORM ═══════════════ -->
+    <form [formGroup]="form" (ngSubmit)="submit()" class="flex-1 overflow-y-auto">
+      <div class="p-6 space-y-6">
 
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Fecha de Firma</label>
-            <input 
-              type="date" 
-              formControlName="sign_date"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
-            <select 
-              formControlName="status"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <option value="active">Activo</option>
-              <option value="cancelled">Cancelado</option>
-            </select>
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Moneda</label>
-            <select 
-              formControlName="currency"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <option value="S/">Soles (S/)</option>
-              <option value="$">Dólares ($)</option>
-            </select>
+        <!-- ── Sección 1: Información Básica ── -->
+        <div
+          class="bg-gray-50/80 dark:bg-gray-700/20 rounded-xl border border-gray-200/50 dark:border-gray-600/50 p-5">
+          <h3
+            class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+            <div class="p-1.5 bg-blue-100 dark:bg-blue-900/40 rounded-lg">
+              <svg class="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            Información Básica
+          </h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">ID Reservación <span
+                  class="text-red-500">*</span></label>
+              <input type="number" formControlName="reservation_id" placeholder="ID de la reservación"
+                class="w-full px-3.5 py-2.5 text-sm bg-white dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition-all">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Fecha de Firma <span
+                  class="text-red-500">*</span></label>
+              <input type="date" formControlName="sign_date"
+                class="w-full px-3.5 py-2.5 text-sm bg-white dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition-all">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Estado</label>
+              <select formControlName="status"
+                class="w-full px-3.5 py-2.5 text-sm bg-white dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition-all">
+                <option value="active">Activo</option>
+                <option value="cancelled">Cancelado</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Moneda</label>
+              <select formControlName="currency"
+                class="w-full px-3.5 py-2.5 text-sm bg-white dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition-all">
+                <option value="S/">Soles (S/)</option>
+                <option value="$">Dólares ($)</option>
+              </select>
+            </div>
           </div>
         </div>
 
-        <!-- Información Financiera Principal -->
-        <div class="space-y-4">
-          <h3 class="text-lg font-medium text-gray-900 border-b pb-2">Información Financiera</h3>
-          
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Precio Total</label>
-            <input 
-              type="number" 
-              step="0.01"
-              formControlName="total_price"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="0.00">
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Cuota Inicial</label>
-            <input 
-              type="number" 
-              step="0.01"
-              formControlName="down_payment"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="0.00">
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Monto Financiado</label>
-            <input 
-              type="number" 
-              step="0.01"
-              formControlName="financing_amount"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="0.00">
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Financiamiento (Funding)</label>
-            <input 
-              type="number" 
-              step="0.01"
-              formControlName="funding"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="0.00">
-          </div>
-        </div>
-
-        <!-- Campos Financieros Migrados -->
-        <div class="space-y-4">
-          <h3 class="text-lg font-medium text-gray-900 border-b pb-2">Bonos y Cuotas</h3>
-          
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">BPP (Bono por Pronto Pago)</label>
-            <input 
-              type="number" 
-              step="0.01"
-              formControlName="bpp"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="0.00">
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">BFH (Bono Fondo de Habitación)</label>
-            <input 
-              type="number" 
-              step="0.01"
-              formControlName="bfh"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="0.00">
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Cuota Inicial Específica</label>
-            <input 
-              type="number" 
-              step="0.01"
-              formControlName="initial_quota"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="0.00">
+        <!-- ── Sección 2: Información Financiera Principal ── -->
+        <div
+          class="bg-gray-50/80 dark:bg-gray-700/20 rounded-xl border border-gray-200/50 dark:border-gray-600/50 p-5">
+          <h3
+            class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+            <div class="p-1.5 bg-emerald-100 dark:bg-emerald-900/40 rounded-lg">
+              <svg class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            Precio y Financiamiento
+          </h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Precio Total <span
+                  class="text-red-500">*</span></label>
+              <div class="relative">
+                <span
+                  class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 text-sm">S/</span>
+                <input type="number" step="0.01" formControlName="total_price" placeholder="0.00"
+                  class="w-full pl-9 pr-3.5 py-2.5 text-sm bg-white dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition-all">
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Cuota Inicial</label>
+              <div class="relative">
+                <span
+                  class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 text-sm">S/</span>
+                <input type="number" step="0.01" formControlName="down_payment" placeholder="0.00"
+                  class="w-full pl-9 pr-3.5 py-2.5 text-sm bg-white dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition-all">
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Monto Financiado</label>
+              <div class="relative">
+                <span
+                  class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 text-sm">S/</span>
+                <input type="number" step="0.01" formControlName="financing_amount" placeholder="0.00"
+                  class="w-full pl-9 pr-3.5 py-2.5 text-sm bg-white dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition-all">
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Financiamiento
+                (Funding)</label>
+              <div class="relative">
+                <span
+                  class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 text-sm">S/</span>
+                <input type="number" step="0.01" formControlName="funding" placeholder="0.00"
+                  class="w-full pl-9 pr-3.5 py-2.5 text-sm bg-white dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition-all">
+              </div>
+            </div>
           </div>
         </div>
 
-        <!-- Detalles de Financiamiento -->
-        <div class="space-y-4">
-          <h3 class="text-lg font-medium text-gray-900 border-b pb-2">Detalles de Financiamiento</h3>
-          
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Tasa de Interés (%)</label>
-            <input 
-              type="number" 
-              step="0.01"
-              formControlName="interest_rate"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="0.00">
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Plazo (meses)</label>
-            <input 
-              type="number" 
-              formControlName="term_months"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="0">
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Cuota Mensual</label>
-            <input 
-              type="number" 
-              step="0.01"
-              formControlName="monthly_payment"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="0.00">
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Pago Balloon</label>
-            <input 
-              type="number" 
-              step="0.01"
-              formControlName="balloon_payment"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="0.00">
+        <!-- ── Sección 3: Bonos y Cuotas Especiales ── -->
+        <div
+          class="bg-gray-50/80 dark:bg-gray-700/20 rounded-xl border border-gray-200/50 dark:border-gray-600/50 p-5">
+          <h3
+            class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+            <div class="p-1.5 bg-violet-100 dark:bg-violet-900/40 rounded-lg">
+              <svg class="w-3.5 h-3.5 text-violet-600 dark:text-violet-400" fill="none" stroke="currentColor"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+            </div>
+            Bonos y Cuotas Especiales
+            <span class="text-[10px] font-normal normal-case text-gray-400 dark:text-gray-500">(opcional)</span>
+          </h3>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">BPP</label>
+              <div class="relative">
+                <span
+                  class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 text-sm">S/</span>
+                <input type="number" step="0.01" formControlName="bpp" placeholder="0.00"
+                  class="w-full pl-9 pr-3.5 py-2.5 text-sm bg-white dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition-all">
+              </div>
+              <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-1">Bono Pronto Pago</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">BFH</label>
+              <div class="relative">
+                <span
+                  class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 text-sm">S/</span>
+                <input type="number" step="0.01" formControlName="bfh" placeholder="0.00"
+                  class="w-full pl-9 pr-3.5 py-2.5 text-sm bg-white dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition-all">
+              </div>
+              <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-1">Bono Familiar Habitacional</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Cuota Inicial
+                Específica</label>
+              <div class="relative">
+                <span
+                  class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 text-sm">S/</span>
+                <input type="number" step="0.01" formControlName="initial_quota" placeholder="0.00"
+                  class="w-full pl-9 pr-3.5 py-2.5 text-sm bg-white dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition-all">
+              </div>
+            </div>
           </div>
         </div>
+
+        <!-- ── Sección 4: Detalles de Financiamiento ── -->
+        <div
+          class="bg-gray-50/80 dark:bg-gray-700/20 rounded-xl border border-gray-200/50 dark:border-gray-600/50 p-5">
+          <h3
+            class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+            <div class="p-1.5 bg-amber-100 dark:bg-amber-900/40 rounded-lg">
+              <svg class="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+              </svg>
+            </div>
+            Detalles de Financiamiento
+          </h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Tasa de Interés</label>
+              <div class="relative">
+                <input type="number" step="0.01" formControlName="interest_rate" placeholder="0.00"
+                  class="w-full px-3.5 pr-8 py-2.5 text-sm bg-white dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition-all">
+                <span
+                  class="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 text-sm">%</span>
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Plazo</label>
+              <div class="relative">
+                <input type="number" formControlName="term_months" placeholder="0"
+                  class="w-full px-3.5 pr-16 py-2.5 text-sm bg-white dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition-all">
+                <span
+                  class="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 text-xs">meses</span>
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Cuota Mensual</label>
+              <div class="relative">
+                <span
+                  class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 text-sm">S/</span>
+                <input type="number" step="0.01" formControlName="monthly_payment" placeholder="0.00"
+                  class="w-full pl-9 pr-3.5 py-2.5 text-sm bg-white dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition-all">
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Pago Balloon</label>
+              <div class="relative">
+                <span
+                  class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 text-sm">S/</span>
+                <input type="number" step="0.01" formControlName="balloon_payment" placeholder="0.00"
+                  class="w-full pl-9 pr-3.5 py-2.5 text-sm bg-white dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition-all">
+              </div>
+              <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-1">Pago final grande</p>
+            </div>
+          </div>
+        </div>
+
       </div>
 
-      <!-- Actions -->
-      <div class="flex justify-end space-x-3 mt-8 pt-6 border-t">
-        <button 
-          type="button" 
-          (click)="cancel()"
-          class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-          Cancelar
-        </button>
-        <button 
-          type="submit" 
-          [disabled]="form.invalid"
-          class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
-          {{ isEditMode ? 'Actualizar' : 'Crear' }} Contrato
-        </button>
+      <!-- ═══════════════ FOOTER ═══════════════ -->
+      <div class="border-t border-gray-200/50 dark:border-gray-700/50 px-6 py-4 bg-gray-50/50 dark:bg-gray-800/50">
+        <div class="flex items-center justify-between">
+          <p *ngIf="form.invalid" class="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+            Completa los campos requeridos
+          </p>
+          <span *ngIf="!form.invalid"></span>
+          <div class="flex items-center gap-2">
+            <button type="button" (click)="cancel()"
+              class="px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
+              Cancelar
+            </button>
+            <button type="submit" [disabled]="form.invalid"
+              class="px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-xl shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none">
+              {{ isEditMode ? 'Actualizar' : 'Crear' }} Contrato
+            </button>
+          </div>
+        </div>
       </div>
     </form>
   </div>
