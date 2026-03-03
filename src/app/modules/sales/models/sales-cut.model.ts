@@ -62,6 +62,10 @@ export interface SalesCutItem {
     lot?: {
       lot_id: number;
       num_lot: number;
+      manzana?: {
+        manzana_id: number;
+        name: string;
+      };
     };
   };
   employee?: {
