@@ -90,7 +90,7 @@ import Swal from 'sweetalert2';
                     <input
                       type="text"
                       formControlName="client_document_number"
-                      class="block w-full rounded-l-xl border-gray-200 dark:border-gray-700 dark:bg-gray-800/50 dark:text-white focus:ring-blue-500 focus:border-blue-500 text-sm py-2.5 transition-colors"
+                      class="block w-full rounded-l-xl border border-gray-200/80 dark:border-gray-600/50 bg-white dark:bg-gray-700/40 dark:text-white text-sm py-2.5 px-3.5 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 placeholder-gray-400 dark:placeholder-gray-500 transition-all"
                       [class.border-red-400]="isFieldInvalid('client_document_number')"
                       [class.focus:ring-red-500]="isFieldInvalid('client_document_number')"
                       [placeholder]="type === 'factura' ? '20XXXXXXXXX' : 'Ingrese DNI o RUC'"
@@ -113,7 +113,7 @@ import Swal from 'sweetalert2';
                     Razón Social / Nombre <span class="text-red-500">*</span>
                   </label>
                   <input type="text" formControlName="client_name"
-                    class="block w-full rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-800/50 dark:text-white focus:ring-blue-500 focus:border-blue-500 text-sm py-2.5 transition-colors"
+                    class="block w-full rounded-xl border border-gray-200/80 dark:border-gray-600/50 bg-white dark:bg-gray-700/40 dark:text-white text-sm py-2.5 px-3.5 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 placeholder-gray-400 dark:placeholder-gray-500 transition-all"
                     [class.border-red-400]="isFieldInvalid('client_name')"
                     placeholder="Nombre completo o razón social">
                   <p *ngIf="isFieldInvalid('client_name')" class="mt-1 text-xs text-red-500 flex items-center gap-1">
@@ -129,7 +129,7 @@ import Swal from 'sweetalert2';
                     <span *ngIf="type === 'factura'" class="text-red-500">*</span>
                   </label>
                   <input type="text" formControlName="client_address"
-                    class="block w-full rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-800/50 dark:text-white focus:ring-blue-500 focus:border-blue-500 text-sm py-2.5 transition-colors"
+                    class="block w-full rounded-xl border border-gray-200/80 dark:border-gray-600/50 bg-white dark:bg-gray-700/40 dark:text-white text-sm py-2.5 px-3.5 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 placeholder-gray-400 dark:placeholder-gray-500 transition-all"
                     [class.border-red-400]="isFieldInvalid('client_address')"
                     placeholder="Av. / Jr. / Calle...">
                 </div>
@@ -170,27 +170,27 @@ import Swal from 'sweetalert2';
                       class="border-b border-gray-100 dark:border-gray-700/40 hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-colors group">
                     <td class="py-3 px-4">
                       <input type="text" formControlName="description"
-                        class="w-full bg-transparent border-0 border-b border-transparent hover:border-gray-300 dark:hover:border-gray-600 focus:border-blue-500 focus:ring-0 text-sm text-gray-800 dark:text-gray-200 py-1 px-0 transition-colors placeholder-gray-400"
+                        class="w-full rounded-lg border border-gray-200/60 dark:border-gray-600/40 bg-white/60 dark:bg-gray-700/30 text-sm text-gray-800 dark:text-gray-200 py-2 px-3 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 placeholder-gray-400 dark:placeholder-gray-500 transition-all"
                         [class.border-red-400]="item.get('description')?.invalid && item.get('description')?.touched"
                         placeholder="Descripción del producto o servicio">
                     </td>
                     <td class="py-3 px-3">
                       <input type="number" formControlName="quantity" (input)="calculateTotal(i)"
-                        class="w-full bg-transparent border-0 border-b border-transparent hover:border-gray-300 dark:hover:border-gray-600 focus:border-blue-500 focus:ring-0 text-sm text-center text-gray-800 dark:text-gray-200 py-1 px-0 transition-colors"
+                        class="w-full rounded-lg border border-gray-200/60 dark:border-gray-600/40 bg-white/60 dark:bg-gray-700/30 text-sm text-center text-gray-800 dark:text-gray-200 py-2 px-2 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all"
                         min="0.001" step="1">
                     </td>
                     <td class="py-3 px-3">
                       <select formControlName="unit_code"
-                        class="w-full bg-transparent border-0 border-b border-transparent hover:border-gray-300 dark:hover:border-gray-600 focus:border-blue-500 focus:ring-0 text-sm text-center text-gray-800 dark:text-gray-200 py-1 px-0 transition-colors cursor-pointer">
+                        class="w-full rounded-lg border border-gray-200/60 dark:border-gray-600/40 bg-white/60 dark:bg-gray-700/30 text-sm text-center text-gray-800 dark:text-gray-200 py-2 px-2 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all cursor-pointer appearance-none">
                         <option value="NIU">Unidad</option>
                         <option value="ZZ">Servicio</option>
                       </select>
                     </td>
                     <td class="py-3 px-3">
-                      <div class="flex items-center justify-end gap-1">
-                        <span class="text-xs text-gray-400">S/</span>
+                      <div class="flex items-center justify-end gap-1.5">
+                        <span class="text-xs text-gray-400 dark:text-gray-500 font-medium">S/</span>
                         <input type="number" formControlName="unit_price_with_igv" (input)="calculateTotal(i)"
-                          class="w-24 bg-transparent border-0 border-b border-transparent hover:border-gray-300 dark:hover:border-gray-600 focus:border-blue-500 focus:ring-0 text-sm text-right text-gray-800 dark:text-gray-200 font-medium py-1 px-0 transition-colors"
+                          class="w-24 rounded-lg border border-gray-200/60 dark:border-gray-600/40 bg-white/60 dark:bg-gray-700/30 text-sm text-right text-gray-800 dark:text-gray-200 font-medium py-2 px-2 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all"
                           min="0" step="0.01">
                       </div>
                     </td>
