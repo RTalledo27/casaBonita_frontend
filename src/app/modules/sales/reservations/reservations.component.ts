@@ -46,6 +46,11 @@ export class ReservationsComponent {
   plus = Plus;
   isModalOpen = false;
 
+  // KPI counters
+  pendientesCount = 0;
+  completadasCount = 0;
+  convertidasCount = 0;
+
   // Modales de acción
   showConfirmPaymentModal = signal(false);
   showConvertModal = signal(false);
@@ -124,13 +129,18 @@ export class ReservationsComponent {
       })
       .subscribe({
         next: (res) => {
-          this.reservationsSubject.next(res.data ?? []);
+          const data = res.data ?? [];
+          this.reservationsSubject.next(data);
           this.pagination = {
             currentPage: res.meta?.current_page || page,
             totalPages: res.meta?.last_page || 1,
             total: res.meta?.total || 0,
             perPage: res.meta?.per_page || this.pagination.perPage,
           };
+          // Update KPI counters from current page data
+          this.pendientesCount = data.filter((r: Reservation) => r.status === 'pendiente_pago').length;
+          this.completadasCount = data.filter((r: Reservation) => r.status === 'completada').length;
+          this.convertidasCount = data.filter((r: Reservation) => r.status === 'convertida').length;
           this.loading = false;
         },
         error: () => {
@@ -186,6 +196,15 @@ export class ReservationsComponent {
   onStatusChange(): void {
     this.pagination.currentPage = 1;
     this.loadReservations(1);
+  }
+
+  filterByStatus(status: string): void {
+    this.statusFilter = status;
+    this.onStatusChange();
+  }
+
+  trackReservation(index: number, r: Reservation): number {
+    return r.reservation_id;
   }
 
   onPageChange(page: number): void {
