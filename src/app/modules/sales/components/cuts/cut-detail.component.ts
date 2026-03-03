@@ -259,6 +259,7 @@ import { SalesCut, SalesCutItem } from '../../models/sales-cut.model';
                       <tr class="border-b border-gray-200/80 dark:border-gray-700/80">
                         <th class="px-5 py-3.5 text-left text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cliente</th>
                         <th class="px-5 py-3.5 text-left text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Contrato</th>
+                        <th class="px-5 py-3.5 text-left text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Mz</th>
                         <th class="px-5 py-3.5 text-left text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Lote</th>
                         <th class="px-5 py-3.5 text-left text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Asesor</th>
                         <th class="px-5 py-3.5 text-right text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Monto</th>
@@ -277,6 +278,15 @@ import { SalesCut, SalesCutItem } from '../../models/sales-cut.model';
                             <span class="text-sm font-mono font-semibold text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2.5 py-1 rounded-md">
                               {{ item.contract?.contract_number || 'N/A' }}
                             </span>
+                          </td>
+                          <td class="px-5 py-3.5">
+                            @if (item.contract?.lot?.manzana?.name) {
+                              <span class="inline-flex items-center text-sm font-semibold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 px-2.5 py-1 rounded-md">
+                                {{ item.contract?.lot?.manzana?.name }}
+                              </span>
+                            } @else {
+                              <span class="text-sm text-gray-400">—</span>
+                            }
                           </td>
                           <td class="px-5 py-3.5">
                             @if (item.contract?.lot?.num_lot) {
@@ -316,7 +326,7 @@ import { SalesCut, SalesCutItem } from '../../models/sales-cut.model';
                     </tbody>
                     <tfoot>
                       <tr class="border-t-2 border-gray-200 dark:border-gray-600 bg-gray-50/50 dark:bg-gray-800/50">
-                        <td colspan="4" class="px-5 py-3.5 text-sm font-semibold text-gray-700 dark:text-gray-300">Total ({{ salesItems().length }} ventas)</td>
+                        <td colspan="5" class="px-5 py-3.5 text-sm font-semibold text-gray-700 dark:text-gray-300">Total ({{ salesItems().length }} ventas)</td>
                         <td class="px-5 py-3.5 text-right text-sm font-bold text-gray-900 dark:text-white tabular-nums">{{ cutService.formatCurrency(cut()!.total_revenue) }}</td>
                         <td class="px-5 py-3.5 text-right text-sm font-bold text-violet-600 dark:text-violet-400 tabular-nums">{{ cutService.formatCurrency(cut()!.total_commissions) }}</td>
                       </tr>
