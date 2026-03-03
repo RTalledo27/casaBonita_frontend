@@ -7,7 +7,7 @@ import { LucideAngularModule, Plus, Upload, Database } from 'lucide-angular';
 import { ContractsService } from '../services/contracts.service';
 import { LogicwareService, FullStockResponse } from '../services/logicware.service';
 import { Contract } from '../models/contract';
-import { SharedTableComponent, ColumnDef } from '../../../shared/components/shared-table/shared-table.component';
+// SharedTableComponent removed — using custom inline table
 import { ModalService } from '../../../core/services/modal.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ThemeService } from '../../../core/services/theme.service';
@@ -21,7 +21,6 @@ import { LogicwareFullStockModalComponent } from './logicware-full-stock-modal/l
   standalone: true,
   imports: [
     CommonModule,
-    SharedTableComponent,
     TranslateModule,
     LucideAngularModule,
     FormsModule,
@@ -53,15 +52,6 @@ export class ContractsComponent implements OnInit {
   createEnabled = true;
   importEnabled = true;
 
-  columns: ColumnDef[] = [
-    { field: 'contract_number', header: 'Número de Contrato' },
-    { field: 'client_name', header: 'Cliente' },
-    { field: 'lot_name', header: 'Lote' },
-    { field: 'advisor', header: 'Asesor', tpl: 'advisor' },
-    { field: 'sign_date', header: 'Fecha de Firma', tpl: 'signDate' },
-    { field: 'total_price', header: 'Precio Total', align: 'right' },
-    { field: 'status', header: 'Estado' }
-  ];
   idField = 'contract_id';
   plus = Plus;
   upload = Upload;
@@ -80,6 +70,9 @@ export class ContractsComponent implements OnInit {
 
   // Excel Export
   exporting = false;
+
+  // Status filter
+  statusFilter = '';
 
   constructor(
     private contractsService: ContractsService,
@@ -121,6 +114,69 @@ export class ContractsComponent implements OnInit {
     }
 
     this.loadContracts();
+  }
+
+  // ═══════════════ Computed KPI getters ═══════════════
+  get vigentesCount(): number {
+    return this.allContracts.filter(c => (c.status || '').toLowerCase() === 'vigente').length;
+  }
+
+  get montoTotalFormatted(): string {
+    const total = this.allContracts.reduce((sum, c) => {
+      const price = parseFloat(String(c.total_price || 0));
+      return sum + (isNaN(price) ? 0 : price);
+    }, 0);
+    if (total >= 1_000_000) return (total / 1_000_000).toFixed(1) + 'M';
+    if (total >= 1_000) return (total / 1_000).toFixed(0) + 'K';
+    return total.toFixed(0);
+  }
+
+  get nuevosEsteMes(): number {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = now.getMonth();
+    return this.allContracts.filter(c => {
+      if (!c.sign_date) return false;
+      const d = new Date(c.sign_date);
+      return d.getFullYear() === y && d.getMonth() === m;
+    }).length;
+  }
+
+  // ═══════════════ Helpers ═══════════════
+  formatPrice(price: any): string {
+    const val = parseFloat(String(price || 0));
+    if (isNaN(val)) return '—';
+    return 'S/ ' + val.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  getStatusClasses(status: string): string {
+    switch ((status || '').toLowerCase()) {
+      case 'vigente': return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300';
+      case 'cancelado': return 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300';
+      case 'pendiente': return 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300';
+      case 'vencido': return 'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300';
+      default: return 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400';
+    }
+  }
+
+  getStatusDotClass(status: string): string {
+    switch ((status || '').toLowerCase()) {
+      case 'vigente': return 'bg-emerald-500';
+      case 'cancelado': return 'bg-red-500';
+      case 'pendiente': return 'bg-amber-500';
+      case 'vencido': return 'bg-orange-500';
+      default: return 'bg-gray-400';
+    }
+  }
+
+  filterByStatus(status: string): void {
+    this.statusFilter = status;
+    this.currentPage = 1;
+    this.applyLocalFiltersAndPagination();
+  }
+
+  trackContract(index: number, contract: Contract): number {
+    return contract.contract_id;
   }
 
   getAdvisorName(contract: any): string {
@@ -196,13 +252,18 @@ export class ContractsComponent implements OnInit {
 
     if (this.searchTerm && this.searchTerm.trim() !== '') {
       const term = this.searchTerm.toLowerCase().trim();
-      filtered = this.allContracts.filter(contract =>
+      filtered = filtered.filter(contract =>
         contract.contract_number?.toLowerCase().includes(term) ||
         contract.client_name?.toLowerCase().includes(term) ||
         contract.lot_name?.toLowerCase().includes(term) ||
         contract.advisor_name?.toLowerCase().includes(term)
       );
       console.log(`🔎 Filtrados ${filtered.length} contratos de ${this.allContracts.length}`);
+    }
+
+    // 1b. Filtrar por estado
+    if (this.statusFilter) {
+      filtered = filtered.filter(c => (c.status || '').toLowerCase() === this.statusFilter.toLowerCase());
     }
 
     // 2. Calcular paginación
