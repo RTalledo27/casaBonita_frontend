@@ -106,7 +106,7 @@
                 <div class="space-y-1 text-xs text-gray-500 dark:text-gray-400">
                   <p><span class="font-medium text-gray-700 dark:text-gray-300">Área:</span> {{ lot.area_m2 }} m²</p>
                   <p><span class="font-medium text-gray-700 dark:text-gray-300">Precio:</span> {{ lot.total_price | currency:'S/.':'symbol':'1.2-2' }}</p>
-                  <p *ngIf="lot.street_type" class="text-[10px]">{{ lot.street_type }}</p>
+                  <p *ngIf="lot.street_type" class="text-[10px]">{{ lot.street_type.name }}</p>
                 </div>
                 <!-- Checkmark -->
                 <div *ngIf="selectedLot()?.lot_id === lot.lot_id"
