@@ -2,7 +2,7 @@ import { Component, EventEmitter, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { LucideAngularModule, Upload, Download, FileText, AlertCircle, CheckCircle, X, Loader, BarChart3, Trash2, ChevronUp, ChevronDown, History, FileX, Clock } from 'lucide-angular';
+import { LucideAngularModule, Upload, Download, FileText, AlertCircle, CheckCircle, X, Loader, BarChart3, Trash2, ChevronUp, ChevronDown, History, FileX, Clock, Users, FileCheck, RefreshCw, Calendar, Search, ShieldCheck, TrendingUp } from 'lucide-angular';
 import { ContractImportService, ImportResponse, ImportLog } from '../../../services/contract-import.service';
 import { finalize } from 'rxjs/operators';
 import { ThemeService } from '../../../../../core/services/theme.service';
@@ -40,6 +40,13 @@ export class ContractImportComponent {
   historyIcon = History;
   fileXIcon = FileX;
   clockIcon = Clock;
+  usersIcon = Users;
+  fileCheckIcon = FileCheck;
+  refreshIcon = RefreshCw;
+  calendarIcon = Calendar;
+  searchIcon = Search;
+  shieldIcon = ShieldCheck;
+  trendingIcon = TrendingUp;
 
   // Utility
   Math = Math;
@@ -98,31 +105,68 @@ export class ContractImportComponent {
   salesLoading = false;
   salesImporting = false;
   salesError: string | null = null;
+  salesCachedAt: string | null = null;
+  salesTotalFound = 0;
+  salesImportResult: { success: boolean; message: string; stats?: any } | null = null;
+  salesSearchPerformed = false;
 
   fetchSalesPreview(forceRefresh: boolean = false) {
     this.salesPreview = [];
     this.salesError = null;
     this.salesLoading = true;
+    this.salesImportResult = null;
+    this.salesSearchPerformed = true;
     this.externalImport.getSales(this.salesStartDate || undefined, this.salesEndDate || undefined, forceRefresh)
       .pipe(finalize(() => this.salesLoading = false))
       .subscribe({
         next: (res: any) => {
-          // expected shape: { success, data: { items: [...] } } or direct array
+          // expected shape: { success, data: { total, items: [...], cached_at } }
           if (res?.data?.items) this.salesPreview = res.data.items;
           else if (Array.isArray(res)) this.salesPreview = res;
           else if (res?.data) this.salesPreview = res.data;
           else this.salesPreview = [];
+
+          this.salesTotalFound = res?.data?.total ?? this.salesPreview.length;
+          this.salesCachedAt = res?.data?.cached_at ?? null;
         },
         error: (err: any) => {
           console.error('Error fetching sales preview', err);
           this.salesError = err?.error?.message || err.message || 'Error al obtener ventas';
+          this.salesTotalFound = 0;
         }
       });
+  }
+
+  /** Cuántos documentos (ventas) hay sumando todos los clientes */
+  get totalDocuments(): number {
+    let total = 0;
+    for (const item of this.salesPreview) {
+      if (item.documents && Array.isArray(item.documents)) {
+        total += item.documents.length;
+      } else {
+        total++; // si no tiene sub-documentos, contar como 1
+      }
+    }
+    return total;
+  }
+
+  /** Fecha formateada del caché */
+  get cachedAtFormatted(): string {
+    if (!this.salesCachedAt) return '';
+    try {
+      return new Date(this.salesCachedAt).toLocaleString('es-PE', {
+        day: '2-digit', month: '2-digit', year: 'numeric',
+        hour: '2-digit', minute: '2-digit'
+      });
+    } catch {
+      return this.salesCachedAt;
+    }
   }
 
   importSalesFromExternal(forceRefresh: boolean = false) {
     this.salesImporting = true;
     this.salesError = null;
+    this.salesImportResult = null;
     
     // Reset sales preview para indicar que está procesando
     const previousPreview = [...this.salesPreview];
@@ -135,22 +179,26 @@ export class ContractImportComponent {
         next: (res: any) => {
           console.log('Import sales result', res);
           if (res?.success) {
-            // Mostrar resultado exitoso
             this.salesError = null;
-            // Emit completed so parent reloads contracts
+            this.salesImportResult = {
+              success: true,
+              message: res.message || 'Importación completada exitosamente',
+              stats: res.data?.stats || null
+            };
             this.importCompleted.emit();
-            // Limpiar preview después de importar exitosamente
             this.salesPreview = [];
           } else {
             this.salesError = res?.message || 'Importación no completada';
-            this.salesPreview = previousPreview; // Restaurar preview
+            this.salesImportResult = { success: false, message: this.salesError! };
+            this.salesPreview = previousPreview;
           }
         },
         error: (err: any) => {
           console.error('Error importing sales', err);
           const errorMsg = err?.error?.message || err?.message || 'Error al importar ventas';
           this.salesError = `Error al importar: ${errorMsg}`;
-          this.salesPreview = previousPreview; // Restaurar preview
+          this.salesImportResult = { success: false, message: this.salesError! };
+          this.salesPreview = previousPreview;
         }
       });
   }

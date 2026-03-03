@@ -225,95 +225,280 @@
         </div>
       </div>
       
-      <!-- External (LOGICWARE) Sales Import -->
-      <div class="mb-8 p-6 bg-gradient-to-br from-indigo-50/20 to-violet-50/20 rounded-2xl border border-indigo-200/30 shadow-inner backdrop-blur-sm">
-        <div class="flex items-center justify-between mb-4">
-          <div>
-            <h3 class="text-lg font-bold text-gray-800 dark:text-white">Importar desde LOGICWARE</h3>
-            <p class="text-sm text-gray-600 dark:text-gray-300">Obtener ventas desde el CRM externo y crear clientes/contratos automáticamente.</p>
+      <!-- ════════════════════════════════════════════════════════════
+           IMPORTAR DESDE LOGICWARE
+           ════════════════════════════════════════════════════════════ -->
+      <div class="mb-8 p-6 bg-gradient-to-br from-indigo-500/5 via-violet-500/5 to-purple-500/5 dark:from-indigo-900/20 dark:via-violet-900/20 dark:to-purple-900/20 rounded-2xl border border-indigo-200/40 dark:border-indigo-700/40 shadow-xl backdrop-blur-sm">
+
+        <!-- Header -->
+        <div class="flex items-center gap-4 mb-6">
+          <div class="bg-gradient-to-br from-indigo-500 to-violet-600 dark:from-indigo-600 dark:to-violet-700 p-3 rounded-xl shadow-lg">
+            <lucide-angular [img]="trendingIcon" class="w-7 h-7 text-white"></lucide-angular>
           </div>
+          <div class="flex-1">
+            <h3 class="text-xl font-bold text-gray-800 dark:text-white">Importar desde LOGICWARE</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Obtener ventas desde el CRM externo y crear clientes/contratos automáticamente.</p>
+          </div>
+          <span class="hidden sm:inline-flex items-center gap-1 px-3 py-1 bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 rounded-full text-xs font-semibold">
+            <lucide-angular [img]="shieldIcon" size="14"></lucide-angular>
+            API Conectada
+          </span>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
-          <div>
-            <label class="text-sm font-medium">Fecha inicio</label>
-            <input type="date" [(ngModel)]="salesStartDate" class="mt-2 w-full p-2 rounded-lg border" />
+        <!-- Buscador de fechas -->
+        <div class="bg-white/60 dark:bg-gray-800/60 rounded-xl p-4 border border-gray-200/50 dark:border-gray-600/50 mb-5">
+          <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
+            <div class="sm:col-span-4">
+              <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                <lucide-angular [img]="calendarIcon" size="14" class="text-indigo-500"></lucide-angular>
+                Fecha inicio
+              </label>
+              <input type="date" [(ngModel)]="salesStartDate"
+                class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-all text-sm" />
+            </div>
+            <div class="sm:col-span-4">
+              <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                <lucide-angular [img]="calendarIcon" size="14" class="text-indigo-500"></lucide-angular>
+                Fecha fin
+              </label>
+              <input type="date" [(ngModel)]="salesEndDate"
+                class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-all text-sm" />
+            </div>
+            <div class="sm:col-span-4 flex gap-2">
+              <button (click)="fetchSalesPreview(false)"
+                [disabled]="salesLoading"
+                class="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white rounded-lg font-medium text-sm transition-all duration-200 hover:scale-[1.02] shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100">
+                <lucide-angular *ngIf="!salesLoading" [img]="searchIcon" size="16"></lucide-angular>
+                <lucide-angular *ngIf="salesLoading" [img]="loaderIcon" size="16" class="animate-spin"></lucide-angular>
+                <span>{{ salesLoading ? 'Buscando...' : 'Buscar' }}</span>
+              </button>
+              <button (click)="fetchSalesPreview(true)"
+                [disabled]="salesLoading"
+                class="flex items-center justify-center gap-1.5 px-3 py-2.5 bg-gradient-to-r from-violet-600 to-purple-700 hover:from-violet-700 hover:to-purple-800 text-white rounded-lg font-medium text-sm transition-all duration-200 hover:scale-[1.02] shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                title="Forzar actualización desde servidor (ignora caché)">
+                <lucide-angular [img]="refreshIcon" size="16"></lucide-angular>
+                <span class="hidden lg:inline">Forzar</span>
+              </button>
+            </div>
           </div>
-          <div>
-            <label class="text-sm font-medium">Fecha fin</label>
-            <input type="date" [(ngModel)]="salesEndDate" class="mt-2 w-full p-2 rounded-lg border" />
-          </div>
-          <div class="flex items-end gap-2">
-            <button (click)="fetchSalesPreview(false)" class="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg">Vista previa</button>
-            <button (click)="fetchSalesPreview(true)" class="px-4 py-2 bg-blue-600 text-white rounded-lg">Forzar</button>
-          </div>
+          <p *ngIf="salesCachedAt" class="mt-2 text-xs text-gray-400 dark:text-gray-500 flex items-center gap-1">
+            <lucide-angular [img]="clockIcon" size="12"></lucide-angular>
+            Datos en caché desde: {{ cachedAtFormatted }}
+          </p>
         </div>
 
-        <div *ngIf="salesLoading" class="mb-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
-          <div class="flex items-center gap-3">
-            <lucide-angular [img]="loaderIcon" class="animate-spin text-blue-600" size="20"></lucide-angular>
-            <span class="text-sm text-blue-700 dark:text-blue-300 font-medium">Cargando ventas desde Logicware...</span>
-          </div>
-        </div>
-
-        <div *ngIf="salesImporting" class="mb-4 p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-700">
-          <div class="flex items-center gap-3">
-            <lucide-angular [img]="loaderIcon" class="animate-spin text-emerald-600" size="20"></lucide-angular>
-            <div>
-              <p class="text-sm text-emerald-700 dark:text-emerald-300 font-medium">Importando contratos y cronogramas...</p>
-              <p class="text-xs text-emerald-600 dark:text-emerald-400 mt-1">Este proceso puede tardar varios minutos. Por favor, espere.</p>
+        <!-- Loading state -->
+        <div *ngIf="salesLoading" class="mb-5 animate-slide-in-up">
+          <div class="bg-gradient-to-r from-indigo-50 to-violet-50 dark:from-indigo-900/30 dark:to-violet-900/30 rounded-xl p-5 border border-indigo-200/50 dark:border-indigo-700/50">
+            <div class="flex items-center gap-4">
+              <div class="bg-indigo-100 dark:bg-indigo-800/50 p-3 rounded-xl">
+                <lucide-angular [img]="loaderIcon" class="w-6 h-6 text-indigo-600 dark:text-indigo-400 animate-spin"></lucide-angular>
+              </div>
+              <div class="flex-1">
+                <p class="font-semibold text-indigo-800 dark:text-indigo-200">Consultando Logicware...</p>
+                <p class="text-sm text-indigo-600 dark:text-indigo-400 mt-0.5">Obteniendo ventas del rango de fechas seleccionado</p>
+              </div>
+            </div>
+            <div class="mt-3 w-full bg-indigo-200/50 dark:bg-indigo-700/30 rounded-full h-1.5 overflow-hidden">
+              <div class="bg-gradient-to-r from-indigo-500 to-violet-500 h-full rounded-full animate-pulse" style="width: 60%"></div>
             </div>
           </div>
         </div>
 
-        <div *ngIf="salesError" class="mb-4 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-700">
-          <div class="flex items-start gap-3">
-            <lucide-angular [img]="alertIcon" class="text-red-600 flex-shrink-0" size="20"></lucide-angular>
-            <div class="flex-1">
-              <p class="text-sm text-red-700 dark:text-red-300 font-medium">{{ salesError }}</p>
+        <!-- Importing state -->
+        <div *ngIf="salesImporting" class="mb-5 animate-slide-in-up">
+          <div class="bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/30 dark:to-teal-900/30 rounded-xl p-5 border border-emerald-200/50 dark:border-emerald-700/50">
+            <div class="flex items-center gap-4">
+              <div class="bg-emerald-100 dark:bg-emerald-800/50 p-3 rounded-xl">
+                <lucide-angular [img]="loaderIcon" class="w-6 h-6 text-emerald-600 dark:text-emerald-400 animate-spin"></lucide-angular>
+              </div>
+              <div class="flex-1">
+                <p class="font-semibold text-emerald-800 dark:text-emerald-200">Importando contratos y cronogramas...</p>
+                <p class="text-sm text-emerald-600 dark:text-emerald-400 mt-0.5">Creando clientes, contratos y cronogramas de pago. Este proceso puede tardar varios minutos.</p>
+              </div>
+            </div>
+            <div class="mt-3 w-full bg-emerald-200/50 dark:bg-emerald-700/30 rounded-full h-1.5 overflow-hidden">
+              <div class="bg-gradient-to-r from-emerald-500 to-teal-500 h-full rounded-full animate-shimmer" style="width: 80%"></div>
             </div>
           </div>
         </div>
 
-        <div *ngIf="!salesImporting && !salesError && salesPreview?.length === 0 && !salesLoading" class="mb-4 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-700">
-          <div class="flex items-center gap-3">
-            <lucide-angular [img]="checkIcon" class="text-green-600" size="20"></lucide-angular>
-            <span class="text-sm text-green-700 dark:text-green-300 font-medium">Importación completada</span>
+        <!-- Error state -->
+        <div *ngIf="salesError" class="mb-5 animate-slide-in-up">
+          <div class="bg-gradient-to-r from-red-50 to-rose-50 dark:from-red-900/20 dark:to-rose-900/20 rounded-xl p-4 border border-red-200/50 dark:border-red-700/50">
+            <div class="flex items-start gap-3">
+              <div class="bg-red-100 dark:bg-red-800/50 p-2 rounded-lg flex-shrink-0">
+                <lucide-angular [img]="alertIcon" class="w-5 h-5 text-red-600 dark:text-red-400"></lucide-angular>
+              </div>
+              <div class="flex-1">
+                <p class="font-semibold text-red-800 dark:text-red-200 text-sm">Error en la operación</p>
+                <p class="text-sm text-red-600 dark:text-red-400 mt-0.5">{{ salesError }}</p>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div *ngIf="salesPreview?.length" class="mb-4">
-          <h4 class="font-semibold mb-2">Ventas (muestra)</h4>
-          <div class="max-h-40 overflow-y-auto bg-white/60 rounded p-3">
-            <ul class="space-y-2 text-sm">
-              <li *ngFor="let s of salesPreview">
-                <div class="flex justify-between">
-                  <div>
-                    <div class="font-medium">{{ s.documentNumber || s.document_number || s.code || s.id }}</div>
-                    <div class="text-xs text-gray-600">{{ s.fullName || s.full_name || s.clientName || s.client_name }}</div>
+        <!-- Import success result -->
+        <div *ngIf="salesImportResult?.success && !salesImporting" class="mb-5 animate-slide-in-up">
+          <div class="bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-900/20 dark:to-green-900/20 rounded-xl p-4 border border-emerald-200/50 dark:border-emerald-700/50">
+            <div class="flex items-start gap-3">
+              <div class="bg-emerald-100 dark:bg-emerald-800/50 p-2 rounded-lg flex-shrink-0">
+                <lucide-angular [img]="checkIcon" class="w-5 h-5 text-emerald-600 dark:text-emerald-400"></lucide-angular>
+              </div>
+              <div class="flex-1">
+                <p class="font-semibold text-emerald-800 dark:text-emerald-200 text-sm">¡Importación completada exitosamente!</p>
+                <p class="text-sm text-emerald-600 dark:text-emerald-400 mt-0.5">{{ salesImportResult.message }}</p>
+                <div *ngIf="salesImportResult.stats" class="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  <div class="text-center p-2 bg-white/60 dark:bg-gray-800/60 rounded-lg">
+                    <div class="text-xs text-gray-500 dark:text-gray-400">Procesados</div>
+                    <div class="text-lg font-bold text-gray-800 dark:text-white">{{ salesImportResult.stats.processed_documents || salesImportResult.stats.total || 0 }}</div>
                   </div>
-                  <div class="text-xs text-gray-500">{{ s.total || s.total_price || s.amount || '' }}</div>
+                  <div class="text-center p-2 bg-white/60 dark:bg-gray-800/60 rounded-lg">
+                    <div class="text-xs text-gray-500 dark:text-gray-400">Exitosos</div>
+                    <div class="text-lg font-bold text-emerald-600 dark:text-emerald-400">{{ salesImportResult.stats.successful_documents || salesImportResult.stats.created || 0 }}</div>
+                  </div>
+                  <div class="text-center p-2 bg-white/60 dark:bg-gray-800/60 rounded-lg">
+                    <div class="text-xs text-gray-500 dark:text-gray-400">Actualizados</div>
+                    <div class="text-lg font-bold text-blue-600 dark:text-blue-400">{{ salesImportResult.stats.updated || 0 }}</div>
+                  </div>
+                  <div class="text-center p-2 bg-white/60 dark:bg-gray-800/60 rounded-lg">
+                    <div class="text-xs text-gray-500 dark:text-gray-400">Errores</div>
+                    <div class="text-lg font-bold" [class.text-red-600]="(salesImportResult.stats.failed_documents || salesImportResult.stats.errors || 0) > 0" [class.text-gray-400]="(salesImportResult.stats.failed_documents || salesImportResult.stats.errors || 0) === 0">{{ salesImportResult.stats.failed_documents || salesImportResult.stats.errors || 0 }}</div>
+                  </div>
                 </div>
-              </li>
-            </ul>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div class="flex gap-4">
-          <button 
-            (click)="importSalesFromExternal(false)" 
-            class="flex-1 px-4 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2" 
-            [disabled]="salesImporting || salesLoading">
-            <lucide-angular *ngIf="salesImporting" [img]="loaderIcon" class="animate-spin" size="18"></lucide-angular>
-            <span>{{ salesImporting ? 'Importando...' : 'Importar' }}</span>
-          </button>
-          <button 
-            (click)="importSalesFromExternal(true)" 
-            class="px-4 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2" 
-            [disabled]="salesImporting || salesLoading">
-            <lucide-angular *ngIf="salesImporting" [img]="loaderIcon" class="animate-spin" size="18"></lucide-angular>
-            <span>{{ salesImporting ? 'Importando...' : 'Importar (Forzar)' }}</span>
-          </button>
+        <!-- ── Stats Cards (cuando hay resultados) ── -->
+        <div *ngIf="salesPreview?.length && !salesLoading" class="mb-5 animate-slide-in-up">
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <!-- Total Clientes -->
+            <div class="bg-white/70 dark:bg-gray-800/70 rounded-xl p-4 border border-gray-200/50 dark:border-gray-600/50 shadow-sm hover:shadow-md transition-shadow">
+              <div class="flex items-center gap-3 mb-2">
+                <div class="bg-indigo-100 dark:bg-indigo-900/40 p-2 rounded-lg">
+                  <lucide-angular [img]="usersIcon" size="18" class="text-indigo-600 dark:text-indigo-400"></lucide-angular>
+                </div>
+                <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Clientes</span>
+              </div>
+              <div class="text-2xl font-bold text-gray-800 dark:text-white">{{ salesPreview.length }}</div>
+              <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Encontrados en el rango</p>
+            </div>
+
+            <!-- Total Documentos/Ventas -->
+            <div class="bg-white/70 dark:bg-gray-800/70 rounded-xl p-4 border border-gray-200/50 dark:border-gray-600/50 shadow-sm hover:shadow-md transition-shadow">
+              <div class="flex items-center gap-3 mb-2">
+                <div class="bg-violet-100 dark:bg-violet-900/40 p-2 rounded-lg">
+                  <lucide-angular [img]="fileCheckIcon" size="18" class="text-violet-600 dark:text-violet-400"></lucide-angular>
+                </div>
+                <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Ventas</span>
+              </div>
+              <div class="text-2xl font-bold text-gray-800 dark:text-white">{{ totalDocuments }}</div>
+              <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Documentos de venta</p>
+            </div>
+
+            <!-- Total Lotes (API total) -->
+            <div class="bg-white/70 dark:bg-gray-800/70 rounded-xl p-4 border border-gray-200/50 dark:border-gray-600/50 shadow-sm hover:shadow-md transition-shadow col-span-2 sm:col-span-1">
+              <div class="flex items-center gap-3 mb-2">
+                <div class="bg-emerald-100 dark:bg-emerald-900/40 p-2 rounded-lg">
+                  <lucide-angular [img]="progressIcon" size="18" class="text-emerald-600 dark:text-emerald-400"></lucide-angular>
+                </div>
+                <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Total API</span>
+              </div>
+              <div class="text-2xl font-bold text-gray-800 dark:text-white">{{ salesTotalFound }}</div>
+              <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Reportado por Logicware</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Tabla de preview (mejorada) ── -->
+        <div *ngIf="salesPreview?.length && !salesLoading" class="mb-5 animate-slide-in-up">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+              <lucide-angular [img]="fileIcon" size="16" class="text-indigo-500"></lucide-angular>
+              Vista previa de clientes encontrados
+            </h4>
+            <span class="text-xs text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full">
+              {{ salesPreview.length }} registros
+            </span>
+          </div>
+
+          <div class="bg-white/80 dark:bg-gray-800/80 rounded-xl border border-gray-200/50 dark:border-gray-600/50 overflow-hidden shadow-sm">
+            <!-- Table header -->
+            <div class="grid grid-cols-12 gap-2 px-4 py-2.5 bg-gray-50 dark:bg-gray-700/50 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider border-b border-gray-200/50 dark:border-gray-600/50">
+              <div class="col-span-3">DNI/RUC</div>
+              <div class="col-span-5">Nombre completo</div>
+              <div class="col-span-2 text-center">Ventas</div>
+              <div class="col-span-2 text-right">Monto</div>
+            </div>
+
+            <!-- Table body -->
+            <div class="max-h-56 overflow-y-auto divide-y divide-gray-100 dark:divide-gray-700/50">
+              <div *ngFor="let s of salesPreview; let i = index"
+                class="grid grid-cols-12 gap-2 px-4 py-3 text-sm hover:bg-indigo-50/50 dark:hover:bg-indigo-900/10 transition-colors"
+                [class.bg-gray-50/30]="i % 2 === 0"
+                [class.dark:bg-gray-800/30]="i % 2 === 0">
+                <div class="col-span-3">
+                  <span class="font-mono text-xs px-2 py-1 bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 rounded-md">
+                    {{ s.documentNumber || s.document_number || '-' }}
+                  </span>
+                </div>
+                <div class="col-span-5 font-medium text-gray-800 dark:text-gray-200 truncate" [title]="s.fullName || s.full_name || s.clientName || s.client_name || '-'">
+                  {{ s.fullName || s.full_name || s.clientName || s.client_name || 'Sin nombre' }}
+                </div>
+                <div class="col-span-2 text-center">
+                  <span class="inline-flex items-center justify-center min-w-[24px] px-2 py-0.5 bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300 rounded-full text-xs font-semibold">
+                    {{ s.documents?.length || 1 }}
+                  </span>
+                </div>
+                <div class="col-span-2 text-right font-medium text-gray-700 dark:text-gray-300 text-xs">
+                  {{ s.total || s.total_price || s.amount || '-' }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- No results state -->
+        <div *ngIf="!salesImporting && !salesError && salesSearchPerformed && salesPreview?.length === 0 && !salesLoading && !salesImportResult?.success" class="mb-5">
+          <div class="text-center py-6 bg-white/50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-300 dark:border-gray-600">
+            <lucide-angular [img]="searchIcon" class="w-10 h-10 text-gray-300 dark:text-gray-600 mx-auto mb-2"></lucide-angular>
+            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">No se encontraron ventas en el rango seleccionado</p>
+            <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Intenta con un rango de fechas diferente o usa "Forzar" para refrescar la caché</p>
+          </div>
+        </div>
+
+        <!-- ── Botones de acción (importar) ── -->
+        <div *ngIf="salesPreview?.length && !salesLoading" class="animate-slide-in-up">
+          <div class="bg-white/40 dark:bg-gray-800/40 rounded-xl p-4 border border-gray-200/30 dark:border-gray-600/30">
+            <div class="flex items-center gap-2 mb-3">
+              <lucide-angular [img]="alertIcon" size="14" class="text-amber-500"></lucide-angular>
+              <p class="text-xs text-gray-500 dark:text-gray-400">
+                Se importarán <strong class="text-gray-700 dark:text-gray-200">{{ salesPreview.length }} clientes</strong> con <strong class="text-gray-700 dark:text-gray-200">{{ totalDocuments }} documentos</strong> de venta. Se crearán contratos y cronogramas de pago.
+              </p>
+            </div>
+            <div class="flex gap-3">
+              <button
+                (click)="importSalesFromExternal(false)"
+                [disabled]="salesImporting || salesLoading"
+                class="flex-1 flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white rounded-xl font-semibold text-sm transition-all duration-200 hover:scale-[1.02] shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100">
+                <lucide-angular *ngIf="!salesImporting" [img]="uploadIcon" size="18"></lucide-angular>
+                <lucide-angular *ngIf="salesImporting" [img]="loaderIcon" size="18" class="animate-spin"></lucide-angular>
+                <span>{{ salesImporting ? 'Importando...' : 'Importar Contratos' }}</span>
+              </button>
+              <button
+                (click)="importSalesFromExternal(true)"
+                [disabled]="salesImporting || salesLoading"
+                class="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white rounded-xl font-semibold text-sm transition-all duration-200 hover:scale-[1.02] shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                title="Importar forzando actualización de datos existentes">
+                <lucide-angular *ngIf="!salesImporting" [img]="refreshIcon" size="18"></lucide-angular>
+                <lucide-angular *ngIf="salesImporting" [img]="loaderIcon" size="18" class="animate-spin"></lucide-angular>
+                <span class="hidden sm:inline">{{ salesImporting ? 'Importando...' : 'Forzar Importación' }}</span>
+                <span class="sm:hidden">Forzar</span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
