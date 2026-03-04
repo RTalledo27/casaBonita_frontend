@@ -1,7 +1,6 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { LucideAngularModule, X } from 'lucide-angular';
 import { FamilyMembersService } from '../../../../services/family-members.service';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
@@ -12,7 +11,6 @@ import { TranslateModule } from '@ngx-translate/core';
     CommonModule,
     ReactiveFormsModule,
     TranslateModule,
-    LucideAngularModule,
   ],
   templateUrl: './family-member-form.component.html',
   styleUrl: './family-member-form.component.scss',
@@ -22,7 +20,6 @@ export class FamilyMemberFormComponent {
 
   form: any;
 
-  X = X;
   clientId: number;
   editingId?: number;
   isEditMode = false;
