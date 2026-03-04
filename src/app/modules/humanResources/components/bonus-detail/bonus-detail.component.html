@@ -1,36 +1,54 @@
-<div class="bonus-detail-container max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 bg-gray-50 min-h-screen">
-  <!-- Header -->
-  <div class="header bg-white p-6 rounded-2xl shadow-sm border border-gray-200 mb-8">
-    <button class="back-button inline-flex items-center gap-2 text-gray-700 hover:text-blue-600 font-medium mb-4 transition-all duration-200 hover:bg-blue-50 px-4 py-2 rounded-lg" (click)="goBack()">
-      <lucide-angular [img]="ArrowLeft" size="20"></lucide-angular>
-      Volver a Bonos
-    </button>
-    <div class="header-content">
-      <h1 class="title flex items-center gap-4 text-4xl font-extrabold text-gray-900 mb-2">
-        <lucide-angular [img]="Gift" size="28" class="title-icon text-blue-600"></lucide-angular>
-        Detalle del Bono
-      </h1>
-      <p class="subtitle text-gray-500 text-lg">Revisa todos los detalles del bono, su estado y acciones disponibles.</p>
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-indigo-900/30 relative overflow-hidden">
+  <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.08),transparent_50%)] dark:bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.04),transparent_50%)]"></div>
+
+  <div class="relative p-4 sm:p-6 lg:p-8 max-w-[1600px] mx-auto">
+    <!-- Header (estilo Contratos) -->
+    <div class="mb-6">
+      <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-5 sm:p-6">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <div class="flex items-center gap-4">
+            <button (click)="goBack()"
+              class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 border border-gray-200/50 dark:border-gray-600/50">
+              <lucide-angular [name]="ArrowLeft" size="16"></lucide-angular>
+              <span class="hidden sm:inline">Volver a Bonos</span>
+            </button>
+            <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-3 rounded-xl shadow-lg shadow-blue-500/20">
+              <lucide-angular [name]="Gift" class="w-6 h-6 text-white" size="24"></lucide-angular>
+            </div>
+            <div>
+              <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
+                Detalle del Bono
+              </h1>
+              <p class="text-sm text-gray-500 dark:text-gray-400">
+                Revisa todos los detalles del bono, su estado y acciones disponibles.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
 
   <!-- Loading State -->
   @if (loading()) {
-    <div class="loading-state bg-white p-12 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-center">
-      <div class="loading-spinner w-10 h-10 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin mb-4"></div>
-      <p class="text-gray-600">Cargando información del bono...</p>
+    <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-12 flex flex-col items-center justify-center">
+      <div class="flex gap-1.5 mb-4">
+        <div class="w-2.5 h-2.5 bg-blue-500 rounded-full animate-bounce"></div>
+        <div class="w-2.5 h-2.5 bg-blue-500 rounded-full animate-bounce" style="animation-delay:0.1s"></div>
+        <div class="w-2.5 h-2.5 bg-blue-500 rounded-full animate-bounce" style="animation-delay:0.2s"></div>
+      </div>
+      <p class="text-sm text-gray-500 dark:text-gray-400">Cargando información del bono...</p>
     </div>
   }
 
   <!-- Error State -->
   @if (error() && !loading()) {
-    <div class="error-state bg-white p-12 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center">
-      <div class="error-icon text-red-500 mb-4">
-        <lucide-angular [img]="XCircle" size="48"></lucide-angular>
+    <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-10 text-center flex flex-col items-center">
+      <div class="w-14 h-14 rounded-2xl bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 flex items-center justify-center mb-4">
+        <lucide-angular [name]="XCircle" size="28"></lucide-angular>
       </div>
-      <h3 class="text-xl font-semibold text-gray-900 mb-2">Error al cargar el bono</h3>
-      <p class="text-gray-600 mb-6">{{ error() }}</p>
-      <button class="btn btn-primary bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg font-medium transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/25" (click)="goBack()">
+      <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Error al cargar el bono</h3>
+      <p class="text-gray-600 dark:text-gray-300 mb-6">{{ error() }}</p>
+      <button class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md" (click)="goBack()">
         Volver a la lista
       </button>
     </div>
@@ -43,7 +61,7 @@
       <div class="status-actions-bar bg-white p-5 rounded-2xl shadow-sm border border-gray-200 mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div class="status-section">
           <span [class]="'status-badge inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold ' + getStatusClass(bonus()!.payment_status)">
-            <lucide-angular [img]="getStatusIcon(bonus()!.payment_status)" size="16"></lucide-angular>
+            <lucide-angular [name]="getStatusIcon(bonus()!.payment_status)" size="16"></lucide-angular>
             {{ getStatusLabel(bonus()!.payment_status) }}
           </span>
         </div>
@@ -51,28 +69,28 @@
         <div class="actions-section flex flex-wrap gap-3">
           @if (canEdit()) {
             <button class="btn btn-secondary bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2.5 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 hover:shadow-md hover:-translate-y-0.5">
-              <lucide-angular [img]="Edit" size="16"></lucide-angular>
+              <lucide-angular [name]="Edit" size="16"></lucide-angular>
               Editar
             </button>
           }
           
           @if (canApprove()) {
             <button class="btn btn-success bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 hover:shadow-lg hover:shadow-green-500/25 hover:-translate-y-0.5">
-              <lucide-angular [img]="CheckCircle" size="16"></lucide-angular>
+              <lucide-angular [name]="CheckCircle" size="16"></lucide-angular>
               Aprobar
             </button>
           }
           
           @if (canReject()) {
             <button class="btn btn-warning bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2.5 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 hover:shadow-lg hover:shadow-yellow-500/25 hover:-translate-y-0.5">
-              <lucide-angular [img]="XCircle" size="16"></lucide-angular>
+              <lucide-angular [name]="XCircle" size="16"></lucide-angular>
               Rechazar
             </button>
           }
           
           @if (canDelete()) {
             <button class="btn btn-danger bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 hover:shadow-lg hover:shadow-red-500/25 hover:-translate-y-0.5">
-              <lucide-angular [img]="Trash2" size="16"></lucide-angular>
+              <lucide-angular [name]="Trash2" size="16"></lucide-angular>
               Eliminar
             </button>
           }
@@ -85,7 +103,7 @@
         <div class="info-card bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg hover:border-blue-300 transition-all duration-300">
           <div class="card-header bg-gray-50 px-6 py-5 border-b border-gray-200 flex items-center gap-4">
             <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-              <lucide-angular [img]="Gift" size="20" class="text-white"></lucide-angular>
+              <lucide-angular [name]="Gift" size="20" class="text-white"></lucide-angular>
             </div>
             <h3 class="font-semibold text-lg text-gray-800">Información Básica</h3>
           </div>
@@ -115,7 +133,7 @@
         <div class="info-card bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg hover:border-purple-300 transition-all duration-300">
           <div class="card-header bg-gray-50 px-6 py-5 border-b border-gray-200 flex items-center gap-4">
             <div class="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center">
-              <lucide-angular [img]="User" size="20" class="text-white"></lucide-angular>
+              <lucide-angular [name]="User" size="20" class="text-white"></lucide-angular>
             </div>
             <h3 class="font-semibold text-lg text-gray-800">Información del Empleado</h3>
           </div>
@@ -141,7 +159,7 @@
         <div class="info-card bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg hover:border-green-300 transition-all duration-300">
           <div class="card-header bg-gray-50 px-6 py-5 border-b border-gray-200 flex items-center gap-4">
             <div class="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
-              <lucide-angular [img]="DollarSign" size="20" class="text-white"></lucide-angular>
+              <lucide-angular [name]="DollarSign" size="20" class="text-white"></lucide-angular>
             </div>
             <h3 class="font-semibold text-lg text-gray-800">Información Financiera</h3>
           </div>
@@ -180,7 +198,7 @@
         <div class="info-card bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg hover:border-orange-300 transition-all duration-300">
           <div class="card-header bg-gray-50 px-6 py-5 border-b border-gray-200 flex items-center gap-4">
             <div class="w-8 h-8 bg-orange-600 rounded-lg flex items-center justify-center">
-              <lucide-angular [img]="Calendar" size="20" class="text-white"></lucide-angular>
+              <lucide-angular [name]="Calendar" size="20" class="text-white"></lucide-angular>
             </div>
             <h3 class="font-semibold text-lg text-gray-800">Período</h3>
           </div>
@@ -201,7 +219,7 @@
           <div class="info-card bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-200 lg:col-span-2">
             <div class="card-header bg-gradient-to-r from-indigo-50 to-indigo-100 px-6 py-4 border-b border-gray-100 flex items-center gap-3">
               <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
-                <lucide-angular [img]="Target" size="20" class="text-white"></lucide-angular>
+                <lucide-angular [name]="Target" size="20" class="text-white"></lucide-angular>
               </div>
               <h3 class="font-semibold text-gray-900">Meta Asociada</h3>
             </div>
@@ -242,7 +260,7 @@
         <div class="info-card bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-200 lg:col-span-2">
           <div class="card-header bg-gradient-to-r from-teal-50 to-teal-100 px-6 py-4 border-b border-gray-100 flex items-center gap-3">
             <div class="w-8 h-8 bg-teal-600 rounded-lg flex items-center justify-center">
-              <lucide-angular [img]="Calendar" size="20" class="text-white"></lucide-angular>
+              <lucide-angular [name]="Calendar" size="20" class="text-white"></lucide-angular>
             </div>
             <h3 class="font-semibold text-gray-900">Fechas Importantes</h3>
           </div>
@@ -273,7 +291,7 @@
           <div class="info-card full-width bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-200 lg:col-span-2">
             <div class="card-header bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-100 flex items-center gap-3">
               <div class="w-8 h-8 bg-gray-600 rounded-lg flex items-center justify-center">
-                <lucide-angular [img]="Gift" size="20" class="text-white"></lucide-angular>
+                <lucide-angular [name]="Gift" size="20" class="text-white"></lucide-angular>
               </div>
               <h3 class="font-semibold text-gray-900">Información Adicional</h3>
             </div>
@@ -290,4 +308,5 @@
       </div>
     </div>
   }
+  </div>
 </div>

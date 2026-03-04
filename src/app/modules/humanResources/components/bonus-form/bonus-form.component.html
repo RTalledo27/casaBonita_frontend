@@ -1,49 +1,51 @@
-﻿<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-indigo-900/30 relative overflow-hidden">
-  <!-- Background patterns -->
-  <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.10),transparent_50%)] dark:bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.05),transparent_50%)]"></div>
-  <div class="absolute inset-0 bg-[radial-gradient(circle_at_70%_85%,rgba(168,85,247,0.08),transparent_50%)] dark:bg-[radial-gradient(circle_at_70%_85%,rgba(168,85,247,0.04),transparent_50%)]"></div>
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-indigo-900/30 relative overflow-hidden">
+  <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.08),transparent_50%)] dark:bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.04),transparent_50%)]"></div>
 
-  <div class="relative max-w-4xl mx-auto p-6">
-    <!-- Header -->
-    <div class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/50 p-6 mb-8 relative overflow-hidden">
-      <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/5 to-indigo-500/10 dark:from-blue-600/20 dark:via-purple-600/10 dark:to-indigo-600/20"></div>
-      <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500"></div>
-
-      <button class="group relative inline-flex items-center gap-2 text-gray-700 dark:text-gray-300 px-3 py-2 rounded-xl border border-white/40 dark:border-gray-600/60 bg-white/50 dark:bg-gray-700/40 hover:bg-white/70 dark:hover:bg-gray-700/60 transition-all hover:-translate-x-1 mb-4"
-              (click)="goBack()">
-        <lucide-angular [img]="ArrowLeft" size="18" class="group-hover:-translate-x-0.5 transition"></lucide-angular>
-        <span>Volver</span>
-      </button>
-
-      <div class="relative flex items-start gap-4">
-        <div class="bg-gradient-to-br from-blue-600 to-indigo-600 p-3 rounded-2xl shadow-lg">
-          <lucide-angular [img]="Gift" size="28" class="text-white"></lucide-angular>
-        </div>
-        <div>
-          <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-indigo-800 dark:from-white dark:via-blue-200 dark:to-indigo-200 bg-clip-text text-transparent">
-            {{ isEditMode() ? 'Editar Bono' : 'Nuevo Bono' }}
-          </h1>
-          <p class="text-gray-600 dark:text-gray-400 mt-1">
-            {{ isEditMode() ? 'Modifica los datos del bono' : 'Completa la información para crear un nuevo bono' }}
-          </p>
+  <div class="relative p-4 sm:p-6 lg:p-8 max-w-[1600px] mx-auto">
+    <!-- Header (estilo Contratos) -->
+    <div class="mb-6">
+      <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-5 sm:p-6">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <div class="flex items-center gap-4">
+            <button (click)="goBack()"
+              class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 border border-gray-200/50 dark:border-gray-600/50">
+              <lucide-angular [name]="ArrowLeft" size="16"></lucide-angular>
+              <span class="hidden sm:inline">Volver</span>
+            </button>
+            <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-3 rounded-xl shadow-lg shadow-blue-500/20">
+              <lucide-angular [name]="Gift" class="w-6 h-6 text-white" size="24"></lucide-angular>
+            </div>
+            <div>
+              <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
+                {{ isEditMode() ? 'Editar Bono' : 'Nuevo Bono' }}
+              </h1>
+              <p class="text-sm text-gray-500 dark:text-gray-400">
+                {{ isEditMode() ? 'Modifica los datos del bono' : 'Completa la información para crear un nuevo bono' }}
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- Loading -->
-    <div *ngIf="loading()" class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-xl border border-white/30 dark:border-gray-700/50 p-12 flex flex-col items-center">
-      <div class="w-10 h-10 rounded-full border-4 border-gray-200 dark:border-gray-600 border-t-blue-600 animate-spin mb-4"></div>
-      <p class="text-gray-600 dark:text-gray-300">Cargando datos...</p>
+    <div *ngIf="loading()" class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-12 flex flex-col items-center">
+      <div class="flex gap-1.5 mb-4">
+        <div class="w-2.5 h-2.5 bg-blue-500 rounded-full animate-bounce"></div>
+        <div class="w-2.5 h-2.5 bg-blue-500 rounded-full animate-bounce" style="animation-delay:0.1s"></div>
+        <div class="w-2.5 h-2.5 bg-blue-500 rounded-full animate-bounce" style="animation-delay:0.2s"></div>
+      </div>
+      <p class="text-sm text-gray-500 dark:text-gray-400">Cargando datos...</p>
     </div>
 
     <!-- Error -->
-    <div *ngIf="error()" class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-xl border border-white/30 dark:border-gray-700/50 p-10 text-center">
+    <div *ngIf="error()" class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-10 text-center">
       <div class="mx-auto w-14 h-14 rounded-2xl bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 flex items-center justify-center mb-4">
-        <lucide-angular [img]="XCircle" size="28"></lucide-angular>
+        <lucide-angular [name]="XCircle" size="28"></lucide-angular>
       </div>
       <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Error al cargar datos</h3>
       <p class="text-gray-600 dark:text-gray-300 mb-6">{{ error() }}</p>
-      <button class="px-5 py-2.5 rounded-2xl font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all"
+      <button class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md"
               (click)="loadData()">
         Reintentar
       </button>
@@ -57,7 +59,7 @@
           <div class="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-purple-500 via-indigo-500 to-blue-500"></div>
           <h3 class="flex items-center gap-3 text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">
             <div class="w-8 h-8 bg-purple-600 rounded-lg grid place-items-center">
-              <lucide-angular [img]="User" size="18" class="text-white"></lucide-angular>
+              <lucide-angular [name]="User" size="18" class="text-white"></lucide-angular>
             </div>
             Información del Empleado
           </h3>
@@ -75,7 +77,7 @@
             </option>
           </select>
           <div *ngIf="isFieldInvalid('employee_id')" class="mt-1 text-sm text-red-600 flex items-center gap-1">
-            <lucide-angular [img]="AlertCircle" size="14"></lucide-angular>
+            <lucide-angular [name]="AlertCircle" size="14"></lucide-angular>
             {{ getFieldError('employee_id') }}
           </div>
         </div>
@@ -85,7 +87,7 @@
           <div class="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-emerald-500 via-blue-500 to-indigo-500"></div>
           <h3 class="flex items-center gap-3 text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">
             <div class="w-8 h-8 bg-emerald-600 rounded-lg grid place-items-center">
-              <lucide-angular [img]="Gift" size="18" class="text-white"></lucide-angular>
+              <lucide-angular [name]="Gift" size="18" class="text-white"></lucide-angular>
             </div>
             Detalles del Bono
           </h3>
@@ -105,7 +107,7 @@
                 </option>
               </select>
               <div *ngIf="isFieldInvalid('bonus_type_id')" class="mt-1 text-sm text-red-600 flex items-center gap-1">
-                <lucide-angular [img]="AlertCircle" size="14"></lucide-angular>
+                <lucide-angular [name]="AlertCircle" size="14"></lucide-angular>
                 {{ getFieldError('bonus_type_id') }}
               </div>
             </div>
@@ -116,7 +118,7 @@
               </label>
               <div class="relative">
                 <div class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">
-                  <lucide-angular [img]="DollarSign" size="16"></lucide-angular>
+                  <lucide-angular [name]="DollarSign" size="16"></lucide-angular>
                 </div>
                 <input type="number" formControlName="amount" placeholder="0.00"
                        class="w-full pl-10 pr-4 py-3 rounded-2xl border border-gray-300/70 dark:border-gray-600/60 bg-white/70 dark:bg-gray-700/50 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500/60 focus:border-blue-500/60 transition"
@@ -124,7 +126,7 @@
                        [ngClass]="{'focus:border-red-500 focus:ring-red-500': isFieldInvalid('amount')}">
               </div>
               <div *ngIf="isFieldInvalid('amount')" class="mt-1 text-sm text-red-600 flex items-center gap-1">
-                <lucide-angular [img]="AlertCircle" size="14"></lucide-angular>
+                <lucide-angular [name]="AlertCircle" size="14"></lucide-angular>
                 {{ getFieldError('amount') }}
               </div>
             </div>
@@ -136,7 +138,7 @@
           <div class="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500"></div>
           <h3 class="flex items-center gap-3 text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">
             <div class="w-8 h-8 bg-orange-600 rounded-lg grid place-items-center">
-              <lucide-angular [img]="Calendar" size="18" class="text-white"></lucide-angular>
+              <lucide-angular [name]="Calendar" size="18" class="text-white"></lucide-angular>
             </div>
             Período
           </h3>
@@ -155,7 +157,7 @@
                 <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
               </select>
               <div *ngIf="isFieldInvalid('month')" class="mt-1 text-sm text-red-600 flex items-center gap-1">
-                <lucide-angular [img]="AlertCircle" size="14"></lucide-angular>
+                <lucide-angular [name]="AlertCircle" size="14"></lucide-angular>
                 {{ getFieldError('month') }}
               </div>
             </div>
@@ -173,7 +175,7 @@
                 <option value="2028">2028</option><option value="2029">2029</option>
               </select>
               <div *ngIf="isFieldInvalid('year')" class="mt-1 text-sm text-red-600 flex items-center gap-1">
-                <lucide-angular [img]="AlertCircle" size="14"></lucide-angular>
+                <lucide-angular [name]="AlertCircle" size="14"></lucide-angular>
                 {{ getFieldError('year') }}
               </div>
             </div>
@@ -185,7 +187,7 @@
           <div class="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
           <h3 class="flex items-center gap-3 text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">
             <div class="w-8 h-8 bg-indigo-600 rounded-lg grid place-items-center">
-              <lucide-angular [img]="FileText" size="18" class="text-white"></lucide-angular>
+              <lucide-angular [name]="FileText" size="18" class="text-white"></lucide-angular>
             </div>
             Información Adicional
           </h3>
@@ -220,7 +222,7 @@
                 [disabled]="saving() || bonusForm.invalid">
           <div class="absolute inset-0 rounded-2xl bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition"></div>
           <span class="inline-flex items-center gap-2 relative z-10">
-            <lucide-angular [img]="Save" size="16"></lucide-angular>
+            <lucide-angular [name]="Save" size="16"></lucide-angular>
             {{ saving() ? 'Guardando...' : (isEditMode() ? 'Actualizar Bono' : 'Crear Bono') }}
           </span>
         </button>

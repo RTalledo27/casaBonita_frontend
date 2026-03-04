@@ -1,27 +1,30 @@
-<div class="relative min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50 dark:from-gray-950 dark:via-blue-900/20 dark:to-indigo-900/30 overflow-hidden">
-  <!-- soft blobs -->
-  <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_10%,rgba(59,130,246,0.10),transparent_55%)] dark:bg-[radial-gradient(circle_at_15%_10%,rgba(59,130,246,0.06),transparent_55%)]"></div>
-  <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_90%_85%,rgba(168,85,247,0.10),transparent_55%)] dark:bg-[radial-gradient(circle_at_90%_85%,rgba(168,85,247,0.05),transparent_55%)]"></div>
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-indigo-900/30 relative overflow-hidden">
+  <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.08),transparent_50%)] dark:bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.04),transparent_50%)]"></div>
 
-  <div class="bonus-goal-form-container relative max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
-    <!-- Header -->
-    <div
-      class="header bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl p-6 rounded-2xl shadow-xl border border-white/20 dark:border-gray-700/50 mb-8">
-      <button
-        class="back-button inline-flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 font-medium mb-4 transition-all duration-200 hover:bg-blue-50 dark:hover:bg-blue-900/20 px-4 py-2 rounded-lg"
-        (click)="onCancel()">
-        <lucide-icon [img]="ArrowLeft" size="20"></lucide-icon>
-        Volver a Metas de Bonos
-      </button>
-      <div class="header-content">
-        <h1
-          class="title flex items-center gap-4 text-3xl sm:text-4xl font-extrabold bg-gradient-to-r from-gray-900 via-blue-800 to-indigo-800 dark:from-white dark:via-blue-200 dark:to-indigo-200 bg-clip-text text-transparent mb-2">
-          <lucide-icon [img]="Target" size="28" class="title-icon text-blue-600"></lucide-icon>
-          {{ isEditMode() ? 'Editar Meta de Bono' : 'Nueva Meta de Bono' }}
-        </h1>
-        <p class="subtitle text-gray-600 dark:text-gray-400 text-lg">
-          {{ isEditMode() ? 'Modifica la información de la meta de bono' : 'Crea una nueva meta para el cálculo de bonos' }}
-        </p>
+  <div class="relative p-4 sm:p-6 lg:p-8 max-w-[1600px] mx-auto">
+    <!-- Header (estilo Contratos) -->
+    <div class="mb-6">
+      <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-5 sm:p-6">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <div class="flex items-center gap-4">
+            <button (click)="onCancel()"
+              class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 border border-gray-200/50 dark:border-gray-600/50">
+              <lucide-angular [name]="ArrowLeft" size="16"></lucide-angular>
+              <span class="hidden sm:inline">Volver a Metas de Bonos</span>
+            </button>
+            <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-3 rounded-xl shadow-lg shadow-blue-500/20">
+              <lucide-angular [name]="Target" class="w-6 h-6 text-white" size="24"></lucide-angular>
+            </div>
+            <div>
+              <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
+                {{ isEditMode() ? 'Editar Meta de Bono' : 'Nueva Meta de Bono' }}
+              </h1>
+              <p class="text-sm text-gray-500 dark:text-gray-400">
+                {{ isEditMode() ? 'Modifica la información de la meta de bono' : 'Crea una nueva meta para el cálculo de bonos' }}
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -29,7 +32,7 @@
     @if (error()) {
       <div
         class="error-message bg-white/75 dark:bg-gray-800/75 backdrop-blur-xl border border-red-200 dark:border-red-800 rounded-xl p-4 mb-6 flex items-center gap-2 shadow">
-        <lucide-icon [img]="Target" size="20" class="text-red-500"></lucide-icon>
+        <lucide-angular [name]="Target" size="20" class="text-red-500"></lucide-angular>
         <p class="text-red-700 dark:text-red-400">{{ error() }}</p>
       </div>
     }
@@ -49,7 +52,7 @@
           class="basic-info bg-white/75 dark:bg-gray-800/75 backdrop-blur-xl p-8 rounded-2xl shadow-lg border border-white/20 dark:border-gray-700/50 hover:shadow-2xl transition-all duration-200">
           <h2
             class="section-title flex items-center gap-3 text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 border-b border-gray-100/70 dark:border-gray-600/60 pb-4">
-            <lucide-icon [img]="Target" size="24" class="text-blue-600"></lucide-icon>
+            <lucide-angular [name]="Target" size="24" class="text-blue-600"></lucide-angular>
             Información Básica
           </h2>
 
@@ -70,7 +73,7 @@
               </div>
               @if (isFieldInvalid('goal_name')) {
                 <p class="mt-2 text-sm text-red-600 flex items-center gap-1">
-                  <lucide-icon [img]="AlertCircle" size="16"></lucide-icon>
+                  <lucide-angular [name]="AlertCircle" size="16"></lucide-angular>
                   {{ getFieldError('goal_name') }}
                 </p>
               }
@@ -93,7 +96,7 @@
               </select>
               @if (isFieldInvalid('bonus_type_id')) {
                 <p class="mt-2 text-sm text-red-600 flex items-center gap-1">
-                  <lucide-icon [img]="AlertCircle" size="16"></lucide-icon>
+                  <lucide-angular [name]="AlertCircle" size="16"></lucide-angular>
                   {{ getFieldError('bonus_type_id') }}
                 </p>
               }
@@ -120,7 +123,7 @@
             @if (getSelectedTeamOffice()) {
               <div class="p-3 bg-teal-50/80 dark:bg-teal-900/20 rounded-xl border border-teal-200/60 dark:border-teal-800/40">
                 <div class="flex items-center gap-2">
-                  <lucide-icon [img]="Building2" size="16" class="text-teal-600 dark:text-teal-400"></lucide-icon>
+                  <lucide-angular [name]="Building2" size="16" class="text-teal-600 dark:text-teal-400"></lucide-angular>
                   <div>
                     <p class="text-xs font-medium text-teal-600 dark:text-teal-400 uppercase tracking-wide">Oficina del equipo</p>
                     <p class="text-sm font-semibold text-teal-800 dark:text-teal-200">{{ getSelectedTeamOffice()!.name }}</p>
@@ -158,7 +161,7 @@
                 [class.border-red-500]="isFieldInvalid('description')"></textarea>
               @if (isFieldInvalid('description')) {
                 <p class="mt-2 text-sm text-red-600 flex items-center gap-1">
-                  <lucide-icon [img]="AlertCircle" size="16"></lucide-icon>
+                  <lucide-angular [name]="AlertCircle" size="16"></lucide-angular>
                   {{ getFieldError('description') }}
                 </p>
               }
@@ -171,7 +174,7 @@
           class="target-config bg-white/75 dark:bg-gray-800/75 backdrop-blur-xl p-8 rounded-2xl shadow-lg border border-white/20 dark:border-gray-700/50 hover:shadow-2xl transition-all duration-200">
           <h2
             class="section-title flex items-center gap-3 text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 border-b border-gray-100/70 dark:border-gray-600/60 pb-4">
-            <lucide-icon [img]="Target" size="24" class="text-green-600"></lucide-icon>
+            <lucide-angular [name]="Target" size="24" class="text-green-600"></lucide-angular>
             Configuración de Metas
           </h2>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -192,7 +195,7 @@
               </div>
               @if (bonusGoalForm.get('target_value')?.invalid && bonusGoalForm.get('target_value')?.touched) {
                 <p class="mt-2 text-sm text-red-600 flex items-center gap-1">
-                  <lucide-icon [img]="AlertCircle" size="16"></lucide-icon>
+                  <lucide-angular [name]="AlertCircle" size="16"></lucide-angular>
                   El valor meta es requerido
                 </p>
               }
@@ -213,7 +216,7 @@
                 placeholder="100.00"/>
               @if (bonusGoalForm.get('achievement_percentage_100')?.invalid && bonusGoalForm.get('achievement_percentage_100')?.touched) {
                 <p class="mt-2 text-sm text-red-600 flex items-center gap-1">
-                  <lucide-icon [img]="AlertCircle" size="16"></lucide-icon>
+                  <lucide-angular [name]="AlertCircle" size="16"></lucide-angular>
                   El porcentaje es requerido
                 </p>
               }
@@ -241,7 +244,7 @@
           class="period-config bg-white/75 dark:bg-gray-800/75 backdrop-blur-xl p-8 rounded-2xl shadow-lg border border-white/20 dark:border-gray-700/50 hover:shadow-2xl transition-all duration-200">
           <h2
             class="section-title flex items-center gap-3 text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 border-b border-gray-100/70 dark:border-gray-600/60 pb-4">
-            <lucide-icon [img]="Calendar" size="24" class="text-purple-600"></lucide-icon>
+            <lucide-angular [name]="Calendar" size="24" class="text-purple-600"></lucide-angular>
             Configuración de Período
           </h2>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -257,7 +260,7 @@
                 class="w-full px-4 py-3 rounded-xl border border-gray-300/70 dark:border-gray-600/60 bg-white/70 dark:bg-gray-700/50 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500/60 focus:border-blue-500/60 transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500"/>
               @if (bonusGoalForm.get('start_date')?.invalid && bonusGoalForm.get('start_date')?.touched) {
                 <p class="mt-2 text-sm text-red-600 flex items-center gap-1">
-                  <lucide-icon [img]="AlertCircle" size="16"></lucide-icon>
+                  <lucide-angular [name]="AlertCircle" size="16"></lucide-angular>
                   La fecha de inicio es requerida
                 </p>
               }
@@ -275,7 +278,7 @@
                 class="w-full px-4 py-3 rounded-xl border border-gray-300/70 dark:border-gray-600/60 bg-white/70 dark:bg-gray-700/50 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500/60 focus:border-blue-500/60 transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500"/>
               @if (bonusGoalForm.get('end_date')?.invalid && bonusGoalForm.get('end_date')?.touched) {
                 <p class="mt-2 text-sm text-red-600 flex items-center gap-1">
-                  <lucide-icon [img]="AlertCircle" size="16"></lucide-icon>
+                  <lucide-angular [name]="AlertCircle" size="16"></lucide-angular>
                   La fecha de fin es requerida
                 </p>
               }

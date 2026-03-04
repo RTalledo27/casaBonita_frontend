@@ -1,20 +1,29 @@
-﻿<div class="bonus-type-form max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 bg-gray-50 dark:bg-gray-900 min-h-screen">
-    <!-- Header -->
-    <div class="header bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 mb-8">
-      <div class="flex items-center gap-4">
-        <button
-          (click)="onCancel()"
-          class="btn-icon w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 transition-all duration-200 flex items-center justify-center hover:shadow-md hover:-translate-y-0.5"
-        >
-          <lucide-icon [img]="ArrowLeft" size="20"></lucide-icon>
-        </button>
-        <div>
-          <h1 class="text-xl sm:text-2xl lg:text-3xl font-extrabold text-gray-900 dark:text-gray-100">
-            {{ isEditMode() ? 'Editar Tipo de Bono' : 'Nuevo Tipo de Bono' }}
-          </h1>
-          <p class="text-lg text-gray-500 dark:text-gray-400">
-            {{ isEditMode() ? 'Modifica la información del tipo de bono' : 'Crea un nuevo tipo de bono para el sistema' }}
-          </p>
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-indigo-900/30 relative overflow-hidden">
+  <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.08),transparent_50%)] dark:bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.04),transparent_50%)]"></div>
+
+  <div class="relative p-4 sm:p-6 lg:p-8 max-w-[1600px] mx-auto">
+    <!-- Header (estilo Contratos) -->
+    <div class="mb-6">
+      <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-5 sm:p-6">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <div class="flex items-center gap-4">
+            <button (click)="onCancel()"
+              class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 border border-gray-200/50 dark:border-gray-600/50">
+              <lucide-angular [name]="ArrowLeft" size="16"></lucide-angular>
+              <span class="hidden sm:inline">Volver</span>
+            </button>
+            <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-3 rounded-xl shadow-lg shadow-blue-500/20">
+              <lucide-angular [name]="Settings" class="w-6 h-6 text-white" size="24"></lucide-angular>
+            </div>
+            <div>
+              <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
+                {{ isEditMode() ? 'Editar Tipo de Bono' : 'Nuevo Tipo de Bono' }}
+              </h1>
+              <p class="text-sm text-gray-500 dark:text-gray-400">
+                {{ isEditMode() ? 'Modifica la información del tipo de bono' : 'Crea un nuevo tipo de bono para el sistema' }}
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -22,7 +31,7 @@
     <!-- Error Message -->
     @if (error()) {
       <div class="error-message bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4 mb-6 flex items-center gap-2 text-red-800 dark:text-red-200">
-        <lucide-icon [img]="AlertCircle" size="20"></lucide-icon>
+        <lucide-angular [name]="AlertCircle" size="20"></lucide-angular>
         <p>{{ error() }}</p>
       </div>
     }
@@ -40,7 +49,7 @@
         <div class="form-section bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-300">
           <div class="section-header flex items-center gap-4 mb-6 pb-4 border-b border-gray-200 dark:border-gray-600">
             <div class="icon-container bg-blue-100 text-blue-600 w-10 h-10 rounded-lg flex items-center justify-center">
-              <lucide-icon [img]="Settings" size="20"></lucide-icon>
+              <lucide-angular [name]="Settings" size="20"></lucide-angular>
             </div>
             <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200">Información Básica</h2>
           </div>
@@ -102,7 +111,7 @@
         <div class="form-section bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg hover:border-purple-300 dark:hover:border-purple-600 transition-all duration-300">
           <div class="section-header flex items-center gap-4 mb-6 pb-4 border-b border-gray-200 dark:border-gray-600">
             <div class="icon-container bg-purple-100 text-purple-600 w-10 h-10 rounded-lg flex items-center justify-center">
-              <lucide-icon [img]="Calendar" size="20"></lucide-icon>
+              <lucide-angular [name]="Calendar" size="20"></lucide-angular>
             </div>
             <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200">Configuración de Cálculo</h2>
           </div>
@@ -195,7 +204,7 @@
         <div class="form-section bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg hover:border-green-300 dark:hover:border-green-600 transition-all duration-300">
           <div class="section-header flex items-center gap-4 mb-6 pb-4 border-b border-gray-200 dark:border-gray-600">
             <div class="icon-container bg-green-100 text-green-600 w-10 h-10 rounded-lg flex items-center justify-center">
-              <lucide-icon [img]="Users" size="20"></lucide-icon>
+              <lucide-angular [name]="Users" size="20"></lucide-angular>
             </div>
             <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200">Tipos de Empleados Aplicables</h2>
           </div>
@@ -236,7 +245,7 @@
               @if (saving()) {
                 <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
               } @else {
-                <lucide-icon [img]="Save" size="16"></lucide-icon>
+                <lucide-angular [name]="Save" size="16"></lucide-angular>
               }
               {{ isEditMode() ? 'Actualizar' : 'Crear' }} Tipo de Bono
             </button>
@@ -245,3 +254,4 @@
       </form>
     }
   </div>
+</div>

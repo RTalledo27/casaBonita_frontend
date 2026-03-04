@@ -2,7 +2,7 @@ import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { LucideAngularModule, DollarSign, Calendar, Filter, Search, Eye, CheckCircle, XCircle, Clock, TrendingUp, Plus, Edit, Trash2, FileText, ChevronRight, Users, User, AlertTriangle, Shield, CheckCircle2, CreditCard, RefreshCw } from 'lucide-angular';
+import { LucideAngularModule, DollarSign, Calendar, Filter, Search, Eye, CheckCircle, XCircle, Clock, TrendingUp, Plus, Edit, Trash2, FileText, ChevronLeft, ChevronRight, Users, User, AlertTriangle, Shield, CheckCircle2, CreditCard, RefreshCw } from 'lucide-angular';
 import { AdvisorCommissionsModalComponent, AdvisorGroup } from '../advisor-commissions-modal/advisor-commissions-modal.component';
 import { CommissionService } from '../../services/commission.service';
 import { Commission } from '../../models/commission';
@@ -68,6 +68,7 @@ export class CommissionListComponent implements OnInit {
   Edit = Edit;
   Trash2 = Trash2;
   FileText = FileText;
+  ChevronLeft = ChevronLeft;
   ChevronRight = ChevronRight;
   Users = Users;
   User = User;
