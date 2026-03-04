@@ -2,7 +2,6 @@ import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { LucideAngularModule, Plus, Search, Filter, Edit, Trash2, Eye, Users, UserCheck, UserX, Upload, UserPlus, Grid, List, Download, Phone, Mail, Calendar, Briefcase, DollarSign } from 'lucide-angular';
 import { EmployeeService, EmployeeFilters } from '../../services/employee.service';
 import { Employee, Position } from '../../models/employee';
 import { ToastService } from '../../../../core/services/toast.service';
@@ -12,7 +11,7 @@ import { EmployeeImportModalComponent } from '../employee-import-modal/employee-
 @Component({
   selector: 'app-employee-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule, GenerateUserModalComponent, EmployeeImportModalComponent],
+  imports: [CommonModule, FormsModule, GenerateUserModalComponent, EmployeeImportModalComponent],
   templateUrl: './employee-list.component.html',
   styleUrls: ['./employee-list.component.scss']
 })
@@ -33,27 +32,6 @@ export class EmployeeListComponent implements OnInit {
   currentPage = signal<number>(1);
   itemsPerPage = signal<number>(10); // Empleados por página
   viewMode = signal<'table' | 'cards'>('cards'); // Vista por defecto: cards
-
-  // Iconos de Lucide
-  Plus = Plus;
-  Search = Search;
-  Filter = Filter;
-  Edit = Edit;
-  Trash2 = Trash2;
-  Eye = Eye;
-  Users = Users;
-  UserCheck = UserCheck;
-  UserX = UserX;
-  Upload = Upload;
-  UserPlus = UserPlus;
-  Grid = Grid;
-  List = List;
-  Download = Download;
-  Phone = Phone;
-  Mail = Mail;
-  Calendar = Calendar;
-  Briefcase = Briefcase;
-  DollarSign = DollarSign;
 
   // Math para usar en template
   Math = Math;
