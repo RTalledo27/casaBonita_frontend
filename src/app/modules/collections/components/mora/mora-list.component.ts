@@ -13,145 +13,186 @@ import { ToastService } from '../../../../core/services/toast.service';
   standalone: true,
   imports: [CommonModule, TranslateModule, FormsModule, RouterModule, SharedTableComponent, DecimalPipe],
   template: `
-    <div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
-      <div class="max-w-[1600px] mx-auto">
-        <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 mb-6">
-          <div class="p-6 sm:p-8 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-            <div class="min-w-0">
-              <div class="flex items-center gap-3">
-                <div class="p-2.5 bg-rose-100 dark:bg-rose-900/30 rounded-xl">
-                  <svg class="w-7 h-7 text-rose-600 dark:text-rose-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+    <div class="min-h-screen bg-gradient-to-br from-slate-50 via-rose-50/30 to-red-50 dark:from-gray-900 dark:via-rose-900/20 dark:to-red-900/30 relative overflow-hidden">
+      <!-- Background Pattern -->
+      <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(244,63,94,0.08),transparent_50%)] dark:bg-[radial-gradient(circle_at_30%_20%,rgba(244,63,94,0.04),transparent_50%)]"></div>
+
+      <div class="relative p-4 sm:p-6 lg:p-8 max-w-[1600px] mx-auto">
+
+        <!-- ═══════════════ HEADER ═══════════════ -->
+        <div class="mb-6">
+          <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-5 sm:p-6">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+              <!-- Title -->
+              <div class="flex items-center gap-4">
+                <div class="bg-gradient-to-br from-rose-500 to-red-600 p-3 rounded-xl shadow-lg shadow-rose-500/20">
+                  <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
                   </svg>
                 </div>
-                <div class="min-w-0">
-                  <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white truncate">Gestión de Mora</h1>
-                  <p class="text-gray-600 dark:text-gray-400">Pagos vencidos · Seguimiento prioritario</p>
+                <div>
+                  <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Gestión de Mora</h1>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">Pagos vencidos · Seguimiento prioritario</p>
                 </div>
               </div>
 
-              <div class="mt-4 flex flex-wrap items-center gap-2">
-                <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold bg-white/70 dark:bg-slate-900/30 text-slate-700 dark:text-slate-200 ring-1 ring-slate-200/70 dark:ring-slate-700/60">
-                  Tramo: {{ getTramoLabel() }}
-                </span>
-                <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-200 ring-1 ring-rose-200/70 dark:ring-rose-800/60">
-                  Casos: {{ rows.length }}
-                </span>
-                <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-200 ring-1 ring-red-200/70 dark:ring-red-800/60">
-                  Monto mora: {{ formatCurrency(sumOverdueAmount(rows)) }}
-                </span>
-                <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-200 ring-1 ring-amber-200/70 dark:ring-amber-800/60">
-                  Días prom.: {{ avgDays(rows) | number:'1.0-0' }}
-                </span>
-                <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold bg-slate-100 text-slate-700 dark:bg-slate-900/40 dark:text-slate-200 ring-1 ring-slate-200/70 dark:ring-slate-700/60">
-                  Sin seguimiento: {{ countWithoutFollowup() }}
-                </span>
-                <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-200 ring-1 ring-teal-200/70 dark:ring-teal-800/60">
-                  Compromisos pend.: {{ countPendingCommitments() }}
-                </span>
-              </div>
+              <!-- Actions -->
+              <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+                <div class="inline-flex rounded-xl bg-gray-100 dark:bg-gray-700/60 p-1 border border-gray-200/60 dark:border-gray-600/60">
+                  <button type="button" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors"
+                    [ngClass]="viewMode === 'compact' ? 'bg-white dark:bg-gray-900 text-gray-900 dark:text-white shadow' : 'text-gray-600 dark:text-gray-300'"
+                    (click)="viewMode = 'compact'">
+                    Vista compacta
+                  </button>
+                  <button type="button" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors"
+                    [ngClass]="viewMode === 'full' ? 'bg-white dark:bg-gray-900 text-gray-900 dark:text-white shadow' : 'text-gray-600 dark:text-gray-300'"
+                    (click)="viewMode = 'full'">
+                    Vista completa
+                  </button>
+                </div>
 
-              <div class="mt-4 text-sm text-gray-600 dark:text-gray-400">
-                Segmenta casos por antigüedad de mora para priorizar gestión.
+                <div class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-rose-50 dark:bg-rose-900/30 border border-rose-200/50 dark:border-rose-700/50">
+                  <span class="text-[11px] font-semibold uppercase tracking-wider text-rose-600 dark:text-rose-400">Tramo</span>
+                  <div class="relative">
+                    <select [(ngModel)]="tramo" (ngModelChange)="load()"
+                      class="appearance-none pr-8 pl-3 py-1.5 text-xs font-semibold rounded-lg bg-white dark:bg-gray-800 border border-rose-200 dark:border-rose-700 dark:text-gray-100">
+                      <option value="1">1-30 días</option>
+                      <option value="2">31-60 días</option>
+                      <option value="3">61+ días</option>
+                    </select>
+                    <svg class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>
+                  </div>
+                </div>
+
+                <button type="button"
+                  class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-xl transition-all duration-200 bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-700 hover:to-red-700 text-white shadow-md shadow-rose-500/20 hover:shadow-lg hover:shadow-rose-500/30 disabled:opacity-50"
+                  (click)="load()" [disabled]="loading">
+                  <svg *ngIf="!loading" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                  <svg *ngIf="loading" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+                  {{ loading ? 'Cargando...' : 'Actualizar' }}
+                </button>
               </div>
             </div>
+          </div>
+        </div>
 
-            <div class="flex flex-col sm:flex-row gap-2 sm:items-center">
-              <div class="inline-flex rounded-2xl bg-gray-100 dark:bg-gray-700/60 p-1 border border-gray-200/60 dark:border-gray-600/60">
-                <button type="button" class="px-3 py-2 rounded-xl text-sm font-semibold"
-                  [ngClass]="viewMode === 'compact' ? 'bg-white dark:bg-gray-900 text-gray-900 dark:text-white shadow' : 'text-gray-600 dark:text-gray-300'"
-                  (click)="viewMode = 'compact'">
-                  Vista compacta
-                </button>
-                <button type="button" class="px-3 py-2 rounded-xl text-sm font-semibold"
-                  [ngClass]="viewMode === 'full' ? 'bg-white dark:bg-gray-900 text-gray-900 dark:text-white shadow' : 'text-gray-600 dark:text-gray-300'"
-                  (click)="viewMode = 'full'">
-                  Vista completa
-                </button>
+        <!-- ═══════════════ KPI CARDS ═══════════════ -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
+          <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl border border-gray-200/50 dark:border-gray-700/50 p-4 sm:p-5 hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between mb-3">
+              <div class="p-2 bg-rose-100 dark:bg-rose-900/40 rounded-lg">
+                <svg class="w-5 h-5 text-rose-600 dark:text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/></svg>
+              </div>
+            </div>
+            <div class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">{{ rows.length }}</div>
+            <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">Casos en mora · {{ getTramoLabel() }}</p>
+          </div>
+
+          <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl border border-gray-200/50 dark:border-gray-700/50 p-4 sm:p-5 hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between mb-3">
+              <div class="p-2 bg-red-100 dark:bg-red-900/40 rounded-lg">
+                <svg class="w-5 h-5 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              </div>
+            </div>
+            <div class="text-2xl sm:text-3xl font-bold text-red-600 dark:text-red-400">{{ formatCurrency(sumOverdueAmount(rows)) }}</div>
+            <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">Monto mora total</p>
+          </div>
+
+          <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl border border-gray-200/50 dark:border-gray-700/50 p-4 sm:p-5 hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between mb-3">
+              <div class="p-2 bg-amber-100 dark:bg-amber-900/40 rounded-lg">
+                <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+              </div>
+            </div>
+            <div class="text-2xl sm:text-3xl font-bold text-amber-600 dark:text-amber-400">{{ avgDays(rows) | number:'1.0-0' }}</div>
+            <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">Días promedio mora</p>
+          </div>
+
+          <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl border border-gray-200/50 dark:border-gray-700/50 p-4 sm:p-5 hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between mb-3">
+              <div class="p-2 bg-teal-100 dark:bg-teal-900/40 rounded-lg">
+                <svg class="w-5 h-5 text-teal-600 dark:text-teal-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              </div>
+            </div>
+            <div class="text-2xl sm:text-3xl font-bold text-teal-600 dark:text-teal-400">{{ countPendingCommitments() }}</div>
+            <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">Compromisos pendientes</p>
+          </div>
+        </div>
+
+        <!-- ═══════════════ TABLE CARD ═══════════════ -->
+        <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 overflow-hidden">
+
+          <!-- Search + Filter Bar -->
+          <div class="p-4 sm:p-5 border-b border-gray-200/50 dark:border-gray-700/50">
+            <div class="flex flex-col sm:flex-row gap-3 sm:items-center">
+              <!-- Search Input -->
+              <div class="relative flex-1">
+                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                  <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                </div>
+                <input type="text" [(ngModel)]="search" (ngModelChange)="applyFilters()"
+                  placeholder="Buscar cliente, lote, teléfono, email, contrato..."
+                  class="w-full pl-10 pr-10 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500/30 focus:border-rose-400 transition-all" />
+                @if (search) {
+                  <button (click)="search = ''; applyFilters()" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                  </button>
+                }
               </div>
 
-              <div class="flex items-center gap-2 rounded-2xl border border-gray-200/60 dark:border-gray-700/60 bg-white/80 dark:bg-gray-900/30 px-3 py-2">
-                <div class="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Tramo</div>
+              <!-- Filter Chips -->
+              <div class="flex items-center gap-2 flex-wrap">
+                <label class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg cursor-pointer transition-colors"
+                  [ngClass]="onlyWithoutFollowup
+                    ? 'bg-rose-100 text-rose-700 dark:bg-rose-900/50 dark:text-rose-300 border border-rose-200 dark:border-rose-700'
+                    : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400 border border-gray-200 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600'">
+                  <input type="checkbox" class="sr-only" [(ngModel)]="onlyWithoutFollowup" (ngModelChange)="applyFilters()" />
+                  Sin seguimiento ({{ countWithoutFollowup() }})
+                </label>
+                <span class="ml-1 text-xs text-gray-400 dark:text-gray-500 tabular-nums">
+                  {{ total }} resultado{{ total !== 1 ? 's' : '' }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Table -->
+          <app-shared-table [columns]="columnsView()" [data]="pagedRows" [templates]="templates" [componentName]="'mora'" [permissionPrefix]="'collections'" [idField]="'sale_code'" [loading]="loading"></app-shared-table>
+          @if (error) {
+            <div class="p-4 text-sm font-semibold text-red-600">{{ error }}</div>
+          }
+
+          <!-- Pagination -->
+          <div class="bg-gray-50/50 dark:bg-gray-800/50 border-t border-gray-200/50 dark:border-gray-700/50 px-4 sm:px-5 py-3">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div class="flex items-center gap-3">
+                <label class="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Filas</label>
                 <div class="relative">
-                  <select [(ngModel)]="tramo" (ngModelChange)="load()"
-                    class="appearance-none pr-10 h-9 px-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 dark:text-gray-100 font-semibold">
-                    <option value="1">1-30</option>
-                    <option value="2">31-60</option>
-                    <option value="3">61+</option>
+                  <select class="appearance-none pr-8 pl-3 py-1.5 text-sm rounded-lg bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 dark:text-gray-100 font-semibold" [(ngModel)]="perPage" (ngModelChange)="setPerPage($event)">
+                    <option [ngValue]="25">25</option>
+                    <option [ngValue]="50">50</option>
+                    <option [ngValue]="100">100</option>
+                    <option [ngValue]="200">200</option>
                   </select>
-                  <svg class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>
+                  <svg class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>
                 </div>
+                <span class="text-sm text-gray-500 dark:text-gray-400">
+                  Mostrando <span class="font-semibold text-gray-900 dark:text-gray-100">{{ from }}</span>–<span class="font-semibold text-gray-900 dark:text-gray-100">{{ to }}</span> de <span class="font-semibold text-gray-900 dark:text-gray-100">{{ total }}</span>
+                </span>
               </div>
-
-              <button
-                type="button"
-                class="inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-2xl shadow-lg transition font-semibold disabled:opacity-50"
-                (click)="load()"
-                [disabled]="loading"
-              >
-                {{ loading ? 'Cargando...' : 'Actualizar' }}
-              </button>
+              <div class="flex items-center gap-1.5">
+                <button type="button" class="w-9 h-9 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-40 transition-colors" (click)="goToPage(page - 1)" [disabled]="page <= 1 || loading">
+                  <svg class="w-4 h-4 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                </button>
+                <span class="w-9 h-9 rounded-lg text-sm font-semibold bg-rose-600 text-white shadow-sm inline-flex items-center justify-center">{{ page }}</span>
+                <span class="text-sm text-gray-500 dark:text-gray-400">/ {{ lastPage }}</span>
+                <button type="button" class="w-9 h-9 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-40 transition-colors" (click)="goToPage(page + 1)" [disabled]="page >= lastPage || loading">
+                  <svg class="w-4 h-4 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </button>
+              </div>
             </div>
           </div>
         </div>
-
-      <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-4 mb-6">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-3 items-end">
-          <div class="md:col-span-2">
-            <label class="block text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">Buscar</label>
-            <input
-              type="text"
-              [(ngModel)]="search"
-              (ngModelChange)="applyFilters()"
-              class="w-full h-10 px-4 rounded-xl bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 dark:text-gray-100 text-sm"
-              placeholder="Cliente, lote, teléfono, email, contrato..."
-            />
-          </div>
-          <div class="flex items-center gap-2">
-            <label class="inline-flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
-              <input type="checkbox" class="h-4 w-4 rounded border-gray-300" [(ngModel)]="onlyWithoutFollowup" (ngModelChange)="applyFilters()" />
-              Solo sin seguimiento
-            </label>
-          </div>
-          <div class="flex items-center justify-end gap-3">
-            <label class="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Filas</label>
-            <div class="relative">
-              <select class="appearance-none pr-10 px-3 h-10 rounded-xl bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 dark:text-gray-100 font-semibold" [(ngModel)]="perPage" (ngModelChange)="setPerPage($event)">
-                <option [ngValue]="25">25</option>
-                <option [ngValue]="50">50</option>
-                <option [ngValue]="100">100</option>
-                <option [ngValue]="200">200</option>
-              </select>
-              <svg class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Table -->
-      <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 overflow-hidden">
-        <app-shared-table [columns]="columnsView()" [data]="pagedRows" [templates]="templates" [componentName]="'mora'" [permissionPrefix]="'collections'" [idField]="'sale_code'" [loading]="loading"></app-shared-table>
-        @if (error) {
-          <div class="p-4 text-sm font-semibold text-red-600">{{ error }}</div>
-        }
-        <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between p-4 border-t border-gray-200/60 dark:border-gray-700/60">
-          <div class="text-sm text-gray-600 dark:text-gray-300">
-            Mostrando <span class="font-semibold text-gray-900 dark:text-gray-100">{{ from }}</span> - <span class="font-semibold text-gray-900 dark:text-gray-100">{{ to }}</span>
-            de <span class="font-semibold text-gray-900 dark:text-gray-100">{{ total }}</span>
-          </div>
-          <div class="flex items-center gap-3">
-            <button type="button" class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-100 font-semibold disabled:opacity-50" (click)="goToPage(page - 1)" [disabled]="page <= 1 || loading">
-              Anterior
-            </button>
-            <div class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-              Página <span class="text-gray-900 dark:text-gray-100">{{ page }}</span> / <span class="text-gray-900 dark:text-gray-100">{{ lastPage }}</span>
-            </div>
-            <button type="button" class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-100 font-semibold disabled:opacity-50" (click)="goToPage(page + 1)" [disabled]="page >= lastPage || loading">
-              Siguiente
-            </button>
-          </div>
-        </div>
-      </div>
 
       <!-- Templates -->
       <ng-template #clientTpl let-row>
@@ -360,7 +401,7 @@ import { ToastService } from '../../../../core/services/toast.service';
               <button type="button" class="px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-600 font-semibold" (click)="closeActionModal()" [disabled]="actionSaving">
                 Cancelar
               </button>
-              <button type="button" class="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-semibold disabled:opacity-50" (click)="submitActionModal()" [disabled]="actionSaving">
+              <button type="button" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-700 hover:to-red-700 text-white font-semibold shadow-md shadow-rose-500/20 disabled:opacity-50" (click)="submitActionModal()" [disabled]="actionSaving">
                 {{ actionSaving ? 'Guardando...' : 'Guardar' }}
               </button>
             </div>
@@ -406,7 +447,7 @@ import { ToastService } from '../../../../core/services/toast.service';
               <button type="button" class="px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-600 font-semibold" (click)="closeCommitmentModal()" [disabled]="commitmentSaving">
                 Cancelar
               </button>
-              <button type="button" class="px-5 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-semibold disabled:opacity-50" (click)="submitCommitment()" [disabled]="commitmentSaving">
+              <button type="button" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-700 hover:to-red-700 text-white font-semibold shadow-md shadow-rose-500/20 disabled:opacity-50" (click)="submitCommitment()" [disabled]="commitmentSaving">
                 {{ commitmentSaving ? 'Guardando...' : 'Guardar compromiso' }}
               </button>
             </div>

@@ -3,7 +3,6 @@ import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { LucideAngularModule, FileText, Search, Plus, Phone, Mail, MessageSquare, Home, Copy } from 'lucide-angular';
 import { EmployeeService } from '../../../humanResources/services/employee.service';
 import { Employee } from '../../../humanResources/models/employee';
 import { ColumnDef, SharedTableComponent } from '../../../../shared/components/shared-table/shared-table.component';
@@ -16,253 +15,323 @@ import { ToastService } from '../../../../core/services/toast.service';
 @Component({
   selector: 'app-client-followups',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, LucideAngularModule, RouterModule, SharedTableComponent, ClientFollowupEditComponent, FollowupCommitmentComponent],
+  imports: [CommonModule, FormsModule, TranslateModule, RouterModule, SharedTableComponent, ClientFollowupEditComponent, FollowupCommitmentComponent],
   template: `
-    <div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
-      <div class="max-w-[1400px] mx-auto">
-        <div class="relative overflow-hidden rounded-3xl border border-gray-200/60 dark:border-gray-700/60 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl shadow-xl mb-6">
-          <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-sky-500 to-emerald-500"></div>
-          <div class="p-6 sm:p-8 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-            <div class="min-w-0">
+    <div class="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/30 to-sky-50 dark:from-gray-900 dark:via-indigo-900/20 dark:to-sky-900/30 relative overflow-hidden">
+      <!-- Background Pattern -->
+      <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(99,102,241,0.08),transparent_50%)] dark:bg-[radial-gradient(circle_at_30%_20%,rgba(99,102,241,0.04),transparent_50%)]"></div>
+
+      <div class="relative p-4 sm:p-6 lg:p-8 max-w-[1600px] mx-auto">
+
+        <!-- ═══════════════ HEADER ═══════════════ -->
+        <div class="mb-6">
+          <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-5 sm:p-6">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+              <!-- Title -->
+              <div class="flex items-center gap-4">
+                <div class="bg-gradient-to-br from-indigo-500 to-sky-600 p-3 rounded-xl shadow-lg shadow-indigo-500/20">
+                  <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"/>
+                  </svg>
+                </div>
+                <div>
+                  <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{{ 'collections.followups.title' | translate }}</h1>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">{{ 'collections.followups.subtitle' | translate }}</p>
+                </div>
+              </div>
+
+              <!-- Actions -->
+              <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+                <div class="inline-flex rounded-xl bg-gray-100 dark:bg-gray-700/60 p-1 border border-gray-200/60 dark:border-gray-600/60">
+                  <button type="button" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors"
+                    [ngClass]="viewMode() === 'compact' ? 'bg-white dark:bg-gray-900 text-gray-900 dark:text-white shadow' : 'text-gray-600 dark:text-gray-300'"
+                    (click)="setViewMode('compact')">
+                    Vista compacta
+                  </button>
+                  <button type="button" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors"
+                    [ngClass]="viewMode() === 'full' ? 'bg-white dark:bg-gray-900 text-gray-900 dark:text-white shadow' : 'text-gray-600 dark:text-gray-300'"
+                    (click)="setViewMode('full')">
+                    Vista completa
+                  </button>
+                </div>
+
+                <button (click)="openCreate()" class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold rounded-xl transition-all bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200/50 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-700/50 dark:hover:bg-emerald-900/50">
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                  {{ 'collections.followups.new' | translate }}
+                </button>
+                <button (click)="exportExcel()" class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold rounded-xl transition-all bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200/50 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-700/50 dark:hover:bg-blue-900/50">
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
+                  {{ 'collections.followups.exportExcel' | translate }}
+                </button>
+                <button (click)="openEmailTestGlobal()" class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold rounded-xl transition-all bg-purple-50 text-purple-700 hover:bg-purple-100 border border-purple-200/50 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-700/50 dark:hover:bg-purple-900/50">
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg>
+                  Test Email
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════════════ KPI CARDS ═══════════════ -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
+          <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl border border-gray-200/50 dark:border-gray-700/50 p-4 sm:p-5 hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between mb-3">
+              <div class="p-2 bg-indigo-100 dark:bg-indigo-900/40 rounded-lg">
+                <svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              </div>
+            </div>
+            <div class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">{{ globalStats().total }}</div>
+            <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">Total seguimientos</p>
+          </div>
+
+          <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl border border-gray-200/50 dark:border-gray-700/50 p-4 sm:p-5 hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between mb-3">
+              <div class="p-2 bg-amber-100 dark:bg-amber-900/40 rounded-lg">
+                <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              </div>
+            </div>
+            <div class="text-2xl sm:text-3xl font-bold text-amber-600 dark:text-amber-400">{{ globalStats().pending }}</div>
+            <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">Pendientes</p>
+          </div>
+
+          <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl border border-gray-200/50 dark:border-gray-700/50 p-4 sm:p-5 hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between mb-3">
+              <div class="p-2 bg-emerald-100 dark:bg-emerald-900/40 rounded-lg">
+                <svg class="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              </div>
+            </div>
+            <div class="text-2xl sm:text-3xl font-bold text-emerald-600 dark:text-emerald-400">{{ globalStats().resolved }}</div>
+            <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">Resueltos</p>
+          </div>
+
+          <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl border border-gray-200/50 dark:border-gray-700/50 p-4 sm:p-5 hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between mb-3">
+              <div class="p-2 bg-rose-100 dark:bg-rose-900/40 rounded-lg">
+                <svg class="w-5 h-5 text-rose-600 dark:text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/></svg>
+              </div>
+            </div>
+            <div class="text-2xl sm:text-3xl font-bold text-rose-600 dark:text-rose-400">{{ globalStats().overdueCases }}</div>
+            <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">Con mora</p>
+          </div>
+        </div>
+
+        <!-- ═══════════════ TABLE CARD ═══════════════ -->
+        <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 overflow-hidden">
+
+          <!-- Filter Chips -->
+          <div class="p-4 sm:p-5 border-b border-gray-200/50 dark:border-gray-700/50">
+            <div class="flex flex-wrap gap-2 mb-3 items-center">
+              <button class="px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors" [ngClass]="status()==='pending' ? 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/50 dark:text-amber-300 dark:border-amber-700' : 'bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-700 dark:text-gray-400 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600'" (click)="status.set('pending')">Pendiente</button>
+              <button class="px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors" [ngClass]="status()==='in_progress' ? 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-700' : 'bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-700 dark:text-gray-400 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600'" (click)="status.set('in_progress')">En curso</button>
+              <button class="px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors" [ngClass]="status()==='resolved' ? 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/50 dark:text-emerald-300 dark:border-emerald-700' : 'bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-700 dark:text-gray-400 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600'" (click)="status.set('resolved')">Resuelto</button>
+              <button class="px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors" [ngClass]="overdueMin()==='1' ? 'bg-rose-100 text-rose-700 border-rose-200 dark:bg-rose-900/50 dark:text-rose-300 dark:border-rose-700' : 'bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-700 dark:text-gray-400 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600'" (click)="overdueMin.set('1')">Vencidas 1+</button>
+              <button class="px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors" [ngClass]="showCommitments()==='pending' ? 'bg-teal-100 text-teal-700 border-teal-200 dark:bg-teal-900/50 dark:text-teal-300 dark:border-teal-700' : 'bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-700 dark:text-gray-400 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600'" (click)="toggleCommitmentFilter()">Con Compromiso</button>
+              <button class="ml-auto px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-100 text-gray-600 border border-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors" (click)="clearFilters()">Limpiar</button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-7 gap-3 items-end">
+              <div class="relative">
+                <label class="block text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">{{ 'collections.followups.filters.search' | translate }}</label>
+                <div class="relative">
+                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                  </div>
+                  <input type="text" [ngModel]="query()" (ngModelChange)="query.set($event)" class="w-full h-9 pl-9 pr-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400 transition-all" placeholder="{{ 'collections.followups.filters.searchPlaceholder' | translate }}" />
+                </div>
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">{{ 'collections.followups.filters.status' | translate }}</label>
+                <div class="relative">
+                  <select [ngModel]="status()" (ngModelChange)="status.set($event)" class="w-full h-9 px-3 appearance-none pr-8 rounded-xl bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 dark:text-gray-100 text-sm">
+                    <option value="">{{ 'common.all' | translate }}</option>
+                    <option value="pending">{{ 'collections.followups.status.pending' | translate }}</option>
+                    <option value="in_progress">{{ 'collections.followups.status.in_progress' | translate }}</option>
+                    <option value="resolved">{{ 'collections.followups.status.resolved' | translate }}</option>
+                    <option value="unreachable">{{ 'collections.followups.status.unreachable' | translate }}</option>
+                    <option value="escalated">{{ 'collections.followups.status.escalated' | translate }}</option>
+                  </select>
+                  <svg class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>
+                </div>
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">{{ 'collections.followups.filters.owner' | translate }}</label>
+                <input type="text" [ngModel]="owner()" (ngModelChange)="owner.set($event)" class="w-full h-9 px-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400 transition-all" placeholder="Nombre de responsable" />
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">{{ 'collections.followups.filters.client' | translate }}</label>
+                <input type="text" [ngModel]="clientSearch()" (ngModelChange)="clientSearch.set($event)" class="w-full h-9 px-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400 transition-all" placeholder="{{ 'collections.followups.filters.clientPlaceholder' | translate }}" />
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">{{ 'collections.followups.filters.contract' | translate }}</label>
+                <input type="text" [ngModel]="contractSearch()" (ngModelChange)="contractSearch.set($event)" class="w-full h-9 px-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400 transition-all" placeholder="{{ 'collections.followups.filters.contractPlaceholder' | translate }}" />
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">{{ 'collections.followups.filters.overdue' | translate }}</label>
+                <div class="relative">
+                  <select [ngModel]="overdueMin()" (ngModelChange)="overdueMin.set($event)" class="w-full h-9 px-3 appearance-none pr-8 rounded-xl bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 dark:text-gray-100 text-sm">
+                    <option value="">{{ 'common.all' | translate }}</option>
+                    <option value="0">0+</option>
+                    <option value="1">1+</option>
+                    <option value="2">2+</option>
+                    <option value="3">3+</option>
+                  </select>
+                  <svg class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>
+                </div>
+              </div>
+              <div class="flex gap-2">
+                <button (click)="clearFilters()" class="px-3 h-9 rounded-xl border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm font-semibold transition-colors">{{ 'common.clearFilters' | translate }}</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Table -->
+          <app-shared-table [columns]="columnsView()" [data]="paged()" [templates]="templates" [componentName]="'followups'" [permissionPrefix]="'collections'" [idField]="'sale_code'" [loading]="loading()"
+          (onEdit)="openEdit($event)"></app-shared-table>
+
+          @if (error()) {
+            <div class="p-4 text-sm font-semibold text-red-600">{{ error() }}</div>
+          }
+
+          <!-- Pagination -->
+          <div class="bg-gray-50/50 dark:bg-gray-800/50 border-t border-gray-200/50 dark:border-gray-700/50 px-4 sm:px-5 py-3">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div class="flex items-center gap-3">
-                <div class="h-12 w-12 rounded-2xl bg-gradient-to-br from-indigo-600 to-sky-600 flex items-center justify-center text-white shadow-lg">
-                  <span class="text-xl">📞</span>
+                <label class="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Filas</label>
+                <div class="relative">
+                  <select class="appearance-none pr-8 pl-3 py-1.5 text-sm rounded-lg bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 dark:text-gray-100 font-semibold" [ngModel]="perPage()" (ngModelChange)="setPerPage($event)">
+                    <option [ngValue]="25">25</option>
+                    <option [ngValue]="50">50</option>
+                    <option [ngValue]="100">100</option>
+                    <option [ngValue]="200">200</option>
+                  </select>
+                  <svg class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>
                 </div>
-                <div class="min-w-0">
-                  <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white truncate">{{ 'collections.followups.title' | translate }}</h1>
-                  <p class="text-gray-600 dark:text-gray-400">{{ 'collections.followups.subtitle' | translate }}</p>
-                </div>
-              </div>
-              <div class="mt-4 flex flex-wrap items-center gap-2">
-                <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold bg-white/70 dark:bg-slate-900/30 text-slate-700 dark:text-slate-200 ring-1 ring-slate-200/70 dark:ring-slate-700/60">
-                  Total: {{ globalStats().total }}
-                </span>
-                <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-200 ring-1 ring-amber-200/70 dark:ring-amber-800/60">
-                  Pendientes: {{ globalStats().pending }}
-                </span>
-                <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-200 ring-1 ring-blue-200/70 dark:ring-blue-800/60">
-                  En curso: {{ globalStats().inProgress }}
-                </span>
-                <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-200 ring-1 ring-emerald-200/70 dark:ring-emerald-800/60">
-                  Resueltos: {{ globalStats().resolved }}
-                </span>
-                <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-200 ring-1 ring-rose-200/70 dark:ring-rose-800/60">
-                  Con mora: {{ globalStats().overdueCases }}
-                </span>
-                <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-200 ring-1 ring-teal-200/70 dark:ring-teal-800/60">
-                  Compromisos pendientes: {{ globalStats().pendingCommitments }}
+                <span class="text-sm text-gray-500 dark:text-gray-400">
+                  Mostrando <span class="font-semibold text-gray-900 dark:text-gray-100">{{ from() }}</span>–<span class="font-semibold text-gray-900 dark:text-gray-100">{{ to() }}</span> de <span class="font-semibold text-gray-900 dark:text-gray-100">{{ filteredCount() }}</span>
                 </span>
               </div>
-            </div>
-            <div class="flex flex-col sm:flex-row gap-2 sm:items-center">
-              <div class="inline-flex rounded-2xl bg-gray-100 dark:bg-gray-700/60 p-1 border border-gray-200/60 dark:border-gray-600/60">
-                <button type="button" class="px-3 py-2 rounded-xl text-sm font-semibold"
-                  [ngClass]="viewMode() === 'compact' ? 'bg-white dark:bg-gray-900 text-gray-900 dark:text-white shadow' : 'text-gray-600 dark:text-gray-300'"
-                  (click)="setViewMode('compact')">
-                  Vista compacta
+              <div class="flex items-center gap-1.5">
+                <button type="button" class="w-9 h-9 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-40 transition-colors" (click)="goToPage(page() - 1)" [disabled]="pageSafe() <= 1">
+                  <svg class="w-4 h-4 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                 </button>
-                <button type="button" class="px-3 py-2 rounded-xl text-sm font-semibold"
-                  [ngClass]="viewMode() === 'full' ? 'bg-white dark:bg-gray-900 text-gray-900 dark:text-white shadow' : 'text-gray-600 dark:text-gray-300'"
-                  (click)="setViewMode('full')">
-                  Vista completa
+                <span class="w-9 h-9 rounded-lg text-sm font-semibold bg-indigo-600 text-white shadow-sm inline-flex items-center justify-center">{{ pageSafe() }}</span>
+                <span class="text-sm text-gray-500 dark:text-gray-400">/ {{ lastPage() }}</span>
+                <button type="button" class="w-9 h-9 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-40 transition-colors" (click)="goToPage(page() + 1)" [disabled]="pageSafe() >= lastPage()">
+                  <svg class="w-4 h-4 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                 </button>
               </div>
-              <button (click)="openCreate()" class="inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-2xl shadow-lg transition font-semibold">
-                <lucide-angular [img]="plusIcon" [size]="18"></lucide-angular>
-                <span>{{ 'collections.followups.new' | translate }}</span>
-              </button>
-              <button (click)="exportExcel()" class="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-2xl shadow-lg transition font-semibold">
-                <lucide-angular [img]="fileIcon" [size]="18"></lucide-angular>
-                <span>{{ 'collections.followups.exportExcel' | translate }}</span>
-              </button>
-              <button (click)="openEmailTestGlobal()" class="inline-flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2.5 rounded-2xl shadow-lg transition font-semibold">
-                <span>Test Email</span>
-              </button>
             </div>
           </div>
         </div>
-
-      <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow border border-gray-200 dark:border-gray-700 mb-4">
-        <div class="flex flex-wrap gap-2 mb-3 items-center">
-          <button class="px-3 py-1 rounded-full text-xs border" [ngClass]="{'bg-yellow-50 text-yellow-700 border-yellow-200': status()==='pending', 'bg-white text-gray-700 border-gray-200 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700': status()!== 'pending'}" (click)="status.set('pending')">Pendiente</button>
-          <button class="px-3 py-1 rounded-full text-xs border" [ngClass]="{'bg-blue-50 text-blue-700 border-blue-200': status()==='in_progress', 'bg-white text-gray-700 border-gray-200 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700': status()!== 'in_progress'}" (click)="status.set('in_progress')">En curso</button>
-          <button class="px-3 py-1 rounded-full text-xs border" [ngClass]="{'bg-green-50 text-green-700 border-green-200': status()==='resolved', 'bg-white text-gray-700 border-gray-200 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700': status()!== 'resolved'}" (click)="status.set('resolved')">Resuelto</button>
-          <button class="px-3 py-1 rounded-full text-xs border" [ngClass]="{'bg-red-50 text-red-700 border-red-200': overdueMin()==='1', 'bg-white text-gray-700 border-gray-200 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700': overdueMin()!=='1'}" (click)="overdueMin.set('1')">Vencidas 1+</button>
-          <button class="px-3 py-1 rounded-full text-xs border" [ngClass]="{'bg-emerald-50 text-emerald-700 border-emerald-200': showCommitments()==='pending', 'bg-white text-gray-700 border-gray-200 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700': showCommitments()!=='pending'}" (click)="toggleCommitmentFilter()">🤝 Con Compromiso</button>
-          <button class="ml-auto px-3 py-1 rounded-full text-xs bg-gray-100 text-gray-700 border border-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600" (click)="clearFilters()">Limpiar</button>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-7 gap-3 items-end">
-          <div class="relative">
-            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">{{ 'collections.followups.filters.search' | translate }}</label>
-            <input type="text" [ngModel]="query()" (ngModelChange)="query.set($event)" class="w-full h-9 px-10 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100 text-sm" placeholder="{{ 'collections.followups.filters.searchPlaceholder' | translate }}" />
-            <lucide-angular [img]="searchIcon" [size]="16" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></lucide-angular>
-          </div>
-          <div>
-            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">{{ 'collections.followups.filters.status' | translate }}</label>
-            <select [ngModel]="status()" (ngModelChange)="status.set($event)" class="w-full h-9 px-3 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100 text-sm">
-              <option value="">{{ 'common.all' | translate }}</option>
-              <option value="pending">{{ 'collections.followups.status.pending' | translate }}</option>
-              <option value="in_progress">{{ 'collections.followups.status.in_progress' | translate }}</option>
-              <option value="resolved">{{ 'collections.followups.status.resolved' | translate }}</option>
-              <option value="unreachable">{{ 'collections.followups.status.unreachable' | translate }}</option>
-              <option value="escalated">{{ 'collections.followups.status.escalated' | translate }}</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">{{ 'collections.followups.filters.owner' | translate }}</label>
-            <input type="text" [ngModel]="owner()" (ngModelChange)="owner.set($event)" class="w-full h-9 px-3 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100 text-sm" placeholder="Nombre de responsable" />
-          </div>
-          <div>
-            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">{{ 'collections.followups.filters.client' | translate }}</label>
-            <input type="text" [ngModel]="clientSearch()" (ngModelChange)="clientSearch.set($event)" class="w-full h-9 px-3 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100 text-sm" placeholder="{{ 'collections.followups.filters.clientPlaceholder' | translate }}" />
-          </div>
-          <div>
-            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">{{ 'collections.followups.filters.contract' | translate }}</label>
-            <input type="text" [ngModel]="contractSearch()" (ngModelChange)="contractSearch.set($event)" class="w-full h-9 px-3 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100 text-sm" placeholder="{{ 'collections.followups.filters.contractPlaceholder' | translate }}" />
-          </div>
-          <div>
-            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">{{ 'collections.followups.filters.overdue' | translate }}</label>
-            <select [ngModel]="overdueMin()" (ngModelChange)="overdueMin.set($event)" class="w-full h-9 px-3 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100 text-sm">
-              <option value="">{{ 'common.all' | translate }}</option>
-              <option value="0">0+</option>
-              <option value="1">1+</option>
-              <option value="2">2+</option>
-              <option value="3">3+</option>
-            </select>
-          </div>
-          <div class="flex gap-2">
-            <button (click)="clearFilters()" class="px-3 h-9 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm">{{ 'common.clearFilters' | translate }}</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-lg overflow-hidden">
-        <app-shared-table [columns]="columnsView()" [data]="paged()" [templates]="templates" [componentName]="'followups'" [permissionPrefix]="'collections'" [idField]="'sale_code'" [loading]="loading()"
-        (onEdit)="openEdit($event)"></app-shared-table>
-      </div>
-      <div *ngIf="error()" class="mt-3 text-sm font-semibold text-red-600">{{ error() }}</div>
-
-      <div class="mt-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 px-4 py-3">
-        <div class="text-sm text-gray-600 dark:text-gray-300">
-          Mostrando <span class="font-semibold text-gray-900 dark:text-gray-100">{{ from() }}</span> - <span class="font-semibold text-gray-900 dark:text-gray-100">{{ to() }}</span>
-          de <span class="font-semibold text-gray-900 dark:text-gray-100">{{ filteredCount() }}</span>
-        </div>
-        <div class="flex items-center gap-3">
-          <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Filas</label>
-          <select class="px-3 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg font-semibold" [ngModel]="perPage()" (ngModelChange)="setPerPage($event)">
-            <option [ngValue]="25">25</option>
-            <option [ngValue]="50">50</option>
-            <option [ngValue]="100">100</option>
-            <option [ngValue]="200">200</option>
-          </select>
-          <button type="button" class="px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100 font-semibold disabled:opacity-50" (click)="goToPage(page() - 1)" [disabled]="pageSafe() <= 1">
-            Anterior
-          </button>
-          <div class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-            Página <span class="text-gray-900 dark:text-gray-100">{{ pageSafe() }}</span> / <span class="text-gray-900 dark:text-gray-100">{{ lastPage() }}</span>
-          </div>
-          <button type="button" class="px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100 font-semibold disabled:opacity-50" (click)="goToPage(page() + 1)" [disabled]="pageSafe() >= lastPage()">
-            Siguiente
-          </button>
-        </div>
-      </div>
 
       <app-client-followup-edit [visible]="editVisible" [record]="selected" (save)="onModalSave($event)" (cancel)="closeEdit()"></app-client-followup-edit>
       <app-followup-commitment [visible]="commitVisible" (save)="saveCommit($event)" (cancel)="commitVisible=false"></app-followup-commitment>
       <ng-template [ngIf]="actionVisible">
-        <div class="fixed inset-0 bg-black/50 z-40" (click)="actionVisible=false"></div>
-        <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full sm:w-[520px] bg-white dark:bg-gray-900 z-50 shadow-2xl rounded-xl border border-gray-200 dark:border-gray-700">
-          <div class="px-6 py-4 bg-gradient-to-r from-sky-600 to-indigo-600 dark:from-sky-900 dark:to-indigo-900 text-white flex items-center justify-between">
+        <div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40" (click)="actionVisible=false"></div>
+        <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(94vw,34rem)] bg-white dark:bg-gray-900 z-50 shadow-2xl rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div class="px-6 py-4 bg-indigo-600 dark:bg-indigo-700 text-white flex items-center justify-between">
             <div class="text-lg font-semibold">Registrar Gestión</div>
-            <button class="px-2 py-1 rounded bg-white/20 hover:bg-white/30" (click)="actionVisible=false">Cerrar</button>
+            <button class="h-9 w-9 inline-flex items-center justify-center rounded-xl bg-white/20 hover:bg-white/30" (click)="actionVisible=false">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
           </div>
           <div class="p-6 space-y-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Canal</label>
-              <input type="text" [value]="actionChannel" disabled class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100" />
+              <label class="block text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">Canal</label>
+              <input type="text" [value]="actionChannel" disabled class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 dark:text-gray-100" />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Resultado</label>
-              <select [(ngModel)]="actionResult" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100">
-                <option value="contacted">Contactado</option>
-                <option value="sent" *ngIf="actionChannel==='email'">Enviado</option>
-                <option value="letter_sent" *ngIf="actionChannel==='letter'">Carta enviada</option>
-                <option value="unreachable">No responde</option>
-                <option value="resolved">Resuelto</option>
-              </select>
+              <label class="block text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">Resultado</label>
+              <div class="relative">
+                <select [(ngModel)]="actionResult" class="w-full appearance-none pr-10 px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 dark:text-gray-100 font-semibold">
+                  <option value="contacted">Contactado</option>
+                  <option value="sent" *ngIf="actionChannel==='email'">Enviado</option>
+                  <option value="letter_sent" *ngIf="actionChannel==='letter'">Carta enviada</option>
+                  <option value="unreachable">No responde</option>
+                  <option value="resolved">Resuelto</option>
+                </select>
+                <svg class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>
+              </div>
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notas</label>
-              <textarea rows="5" [(ngModel)]="actionNotes" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"></textarea>
+              <label class="block text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">Notas</label>
+              <textarea rows="5" [(ngModel)]="actionNotes" class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 dark:text-gray-100"></textarea>
             </div>
             <div class="flex justify-end gap-2">
-              <button class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600" (click)="actionVisible=false" [disabled]="actionSaving">Cancelar</button>
-              <button class="px-4 py-2 rounded-lg bg-sky-600 hover:bg-sky-700 text-white disabled:opacity-50 disabled:cursor-not-allowed" (click)="submitAction()" [disabled]="actionSaving">{{ actionSaving ? 'Guardando...' : 'Guardar' }}</button>
+              <button class="px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-600 font-semibold" (click)="actionVisible=false" [disabled]="actionSaving">Cancelar</button>
+              <button class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-sky-600 hover:from-indigo-700 hover:to-sky-700 text-white font-semibold shadow-md shadow-indigo-500/20 disabled:opacity-50" (click)="submitAction()" [disabled]="actionSaving">{{ actionSaving ? 'Guardando...' : 'Guardar' }}</button>
             </div>
           </div>
         </div>
       </ng-template>
       <ng-template [ngIf]="visitVisible">
-        <div class="fixed inset-0 bg-black/50 z-40" (click)="visitVisible=false"></div>
-        <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full sm:w-[520px] bg-white dark:bg-gray-900 z-50 shadow-2xl rounded-xl border border-gray-200 dark:border-gray-700">
-          <div class="px-6 py-4 bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-900 dark:to-teal-900 text-white flex items-center justify-between">
+        <div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40" (click)="visitVisible=false"></div>
+        <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(94vw,34rem)] bg-white dark:bg-gray-900 z-50 shadow-2xl rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div class="px-6 py-4 bg-emerald-600 dark:bg-emerald-700 text-white flex items-center justify-between">
             <div class="text-lg font-semibold">Registrar Visita Domiciliaria</div>
-            <button class="px-2 py-1 rounded bg-white/20 hover:bg-white/30" (click)="visitVisible=false">Cerrar</button>
+            <button class="h-9 w-9 inline-flex items-center justify-center rounded-xl bg-white/20 hover:bg-white/30" (click)="visitVisible=false">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
           </div>
           <div class="p-6 space-y-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Fecha de visita</label>
-              <input type="date" [(ngModel)]="visitDate" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100" />
+              <label class="block text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">Fecha de visita</label>
+              <input type="date" [(ngModel)]="visitDate" class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 dark:text-gray-100 font-semibold" />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Motivo</label>
-              <input type="text" [(ngModel)]="visitReason" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100" />
+              <label class="block text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">Motivo</label>
+              <input type="text" [(ngModel)]="visitReason" class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 dark:text-gray-100" />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Resultado</label>
-              <select [(ngModel)]="visitResult" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100">
-                <option value="">Selecciona...</option>
-                <option value="visita_realizada">Visita realizada</option>
-                <option value="no_encontrado">No encontrado</option>
-                <option value="compromiso_pago">Compromiso de pago</option>
-                <option value="sin_respuesta">Sin respuesta</option>
-                <option value="resuelto">Resuelto</option>
-              </select>
+              <label class="block text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">Resultado</label>
+              <div class="relative">
+                <select [(ngModel)]="visitResult" class="w-full appearance-none pr-10 px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 dark:text-gray-100 font-semibold">
+                  <option value="">Selecciona...</option>
+                  <option value="visita_realizada">Visita realizada</option>
+                  <option value="no_encontrado">No encontrado</option>
+                  <option value="compromiso_pago">Compromiso de pago</option>
+                  <option value="sin_respuesta">Sin respuesta</option>
+                  <option value="resuelto">Resuelto</option>
+                </select>
+                <svg class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>
+              </div>
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Observaciones</label>
-              <textarea rows="5" [(ngModel)]="visitNotes" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"></textarea>
+              <label class="block text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">Observaciones</label>
+              <textarea rows="5" [(ngModel)]="visitNotes" class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 dark:text-gray-100"></textarea>
             </div>
             <div class="flex justify-end gap-2">
-              <button class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600" (click)="visitVisible=false">Cancelar</button>
-              <button class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white" (click)="submitVisit()">Guardar</button>
+              <button class="px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-600 font-semibold" (click)="visitVisible=false">Cancelar</button>
+              <button class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold shadow-md shadow-emerald-500/20" (click)="submitVisit()">Guardar</button>
             </div>
           </div>
         </div>
       </ng-template>
       <ng-template [ngIf]="emailVisible">
-        <div class="fixed inset-0 bg-black/50 z-40" (click)="emailVisible=false"></div>
-        <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full sm:w-[640px] bg-white dark:bg-gray-900 z-50 shadow-2xl rounded-xl border border-gray-200 dark:border-gray-700">
-          <div class="px-6 py-4 bg-gradient-to-r from-indigo-600 to-sky-600 dark:from-indigo-900 dark:to-sky-900 text-white flex items-center justify-between">
+        <div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40" (click)="emailVisible=false"></div>
+        <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(94vw,40rem)] bg-white dark:bg-gray-900 z-50 shadow-2xl rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div class="px-6 py-4 bg-indigo-600 dark:bg-indigo-700 text-white flex items-center justify-between">
             <div class="text-lg font-semibold">Enviar Email</div>
-            <button class="px-2 py-1 rounded bg-white/20 hover:bg-white/30" (click)="emailVisible=false">Cerrar</button>
+            <button class="h-9 w-9 inline-flex items-center justify-center rounded-xl bg-white/20 hover:bg-white/30" (click)="emailVisible=false">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
           </div>
           <div class="p-6 space-y-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Para</label>
-              <input type="text" [(ngModel)]="toEmail" [disabled]="!emailTestMode" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100" />
+              <label class="block text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">Para</label>
+              <input type="text" [(ngModel)]="toEmail" [disabled]="!emailTestMode" class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 dark:text-gray-100" />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Asunto</label>
-              <input type="text" [(ngModel)]="emailSubject" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100" />
+              <label class="block text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">Asunto</label>
+              <input type="text" [(ngModel)]="emailSubject" class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 dark:text-gray-100" />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Contenido</label>
-              <textarea rows="8" [(ngModel)]="emailBody" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"></textarea>
+              <label class="block text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">Contenido</label>
+              <textarea rows="8" [(ngModel)]="emailBody" class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 dark:text-gray-100"></textarea>
             </div>
             <div class="flex justify-end gap-2">
-              <button class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600" (click)="emailVisible=false">Cancelar</button>
-              <button class="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white" (click)="sendEmail()">Enviar</button>
+              <button class="px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-600 font-semibold" (click)="emailVisible=false">Cancelar</button>
+              <button class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-sky-600 hover:from-indigo-700 hover:to-sky-700 text-white font-semibold shadow-md shadow-indigo-500/20" (click)="sendEmail()">Enviar</button>
             </div>
           </div>
         </div>
@@ -270,14 +339,16 @@ import { ToastService } from '../../../../core/services/toast.service';
       <ng-template [ngIf]="summaryVisible">
         <div class="fixed inset-0 bg-black/50 z-40" (click)="summaryVisible=false"></div>
         <div class="fixed top-0 right-0 h-full w-full sm:w-[460px] bg-white dark:bg-gray-900 z-50 shadow-2xl border-l border-gray-200 dark:border-gray-700">
-          <div class="px-6 py-4 bg-gradient-to-r from-indigo-600 to-sky-600 dark:from-indigo-900 dark:to-sky-900 text-white flex items-center justify-between">
+          <div class="px-6 py-4 bg-indigo-600 dark:bg-indigo-700 text-white flex items-center justify-between">
             <div class="text-lg font-semibold">{{ 'collections.followups.summary.title' | translate }}</div>
             <div class="flex gap-2">
-              <button class="px-3 py-1 rounded bg-white/20 hover:bg-white/30 flex items-center gap-1" (click)="downloadPersonalReport()">
-                <lucide-angular [img]="fileIcon" [size]="16"></lucide-angular>
-                <span>Descargar Reporte</span>
+              <button class="px-3 py-1.5 rounded-xl bg-white/20 hover:bg-white/30 flex items-center gap-1 text-sm font-semibold" (click)="downloadPersonalReport()">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
+                Descargar Reporte
               </button>
-              <button class="px-2 py-1 rounded bg-white/20 hover:bg-white/30" (click)="summaryVisible=false">{{ 'common.close' | translate }}</button>
+              <button class="h-9 w-9 inline-flex items-center justify-center rounded-xl bg-white/20 hover:bg-white/30" (click)="summaryVisible=false">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+              </button>
             </div>
           </div>
           <div class="p-6 space-y-5 h-[calc(100%-64px)] overflow-y-auto">
@@ -392,11 +463,13 @@ import { ToastService } from '../../../../core/services/toast.service';
         </div>
       </ng-template>
       <ng-template [ngIf]="commitmentManageVisible">
-        <div class="fixed inset-0 bg-black/50 z-40" (click)="commitmentManageVisible=false"></div>
-        <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full sm:w-[520px] bg-white dark:bg-gray-900 z-50 shadow-2xl rounded-xl border border-gray-200 dark:border-gray-700">
-          <div class="px-6 py-4 bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-900 dark:to-teal-900 text-white flex items-center justify-between">
+        <div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40" (click)="commitmentManageVisible=false"></div>
+        <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(94vw,34rem)] bg-white dark:bg-gray-900 z-50 shadow-2xl rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div class="px-6 py-4 bg-emerald-600 dark:bg-emerald-700 text-white flex items-center justify-between">
             <div class="text-lg font-semibold">Gestionar Compromiso de Pago</div>
-            <button class="px-2 py-1 rounded bg-white/20 hover:bg-white/30" (click)="commitmentManageVisible=false">Cerrar</button>
+            <button class="h-9 w-9 inline-flex items-center justify-center rounded-xl bg-white/20 hover:bg-white/30" (click)="commitmentManageVisible=false">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
           </div>
           <div class="p-6 space-y-4">
             <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
@@ -538,14 +611,6 @@ import { ToastService } from '../../../../core/services/toast.service';
   styleUrls: ['./client-followups.component.scss']
 })
 export class ClientFollowupsComponent implements AfterViewInit {
-  fileIcon = FileText;
-  searchIcon = Search;
-  plusIcon = Plus;
-  phoneIcon = Phone;
-  mailIcon = Mail;
-  whatsappIcon = MessageSquare;
-  homeIcon = Home;
-  copyIcon = Copy;
   query = signal('');
   status = signal('');
   owner = signal('');
