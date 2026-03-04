@@ -2,7 +2,6 @@ import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
-import { LucideAngularModule, Save, ArrowLeft, User, Mail, Phone, Calendar, DollarSign, Building, Users, Briefcase } from 'lucide-angular';
 import { EmployeeService } from '../../services/employee.service';
 import { Employee } from '../../models/employee';
 import { User as UserModel } from '../../../Secutiry/users/models/user';
@@ -14,7 +13,7 @@ import { Position } from '../../models/position';
 @Component({
   selector: 'app-employee-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './employee-form.component.html',
   styleUrls: ['./employee-form.component.scss']
 })
@@ -35,18 +34,6 @@ export class EmployeeFormComponent implements OnInit {
   users = signal<UserModel[]>([]);
   teams = signal<Team[]>([]);
   positions = signal<Position[]>([]);
-
-  // Iconos de Lucide
-  Save = Save;
-  ArrowLeft = ArrowLeft;
-  User = User;
-  Mail = Mail;
-  Phone = Phone;
-  Calendar = Calendar;
-  DollarSign = DollarSign;
-  Building = Building;
-  Users = Users;
-  Briefcase = Briefcase;
 
   // Formulario reactivo
   employeeForm: FormGroup;
