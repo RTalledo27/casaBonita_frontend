@@ -12,6 +12,14 @@ import { GenerateScheduleRequest, GenerateScheduleResponse } from '../../models/
   selector: 'app-schedule-generator',
   standalone: true,
   imports: [CommonModule, RouterModule, FormsModule, ReactiveFormsModule],
+  styles: [`
+    .contract-scroll::-webkit-scrollbar { width: 4px; }
+    .contract-scroll::-webkit-scrollbar-track { background: transparent; }
+    .contract-scroll::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 9999px; }
+    .contract-scroll::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+    :host-context(.dark) .contract-scroll::-webkit-scrollbar-thumb { background: #4b5563; }
+    :host-context(.dark) .contract-scroll::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+  `],
   template: `
     <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-indigo-900/30 relative overflow-hidden">
       <!-- Background Pattern -->
@@ -97,7 +105,7 @@ import { GenerateScheduleRequest, GenerateScheduleResponse } from '../../models/
                       <p class="text-sm text-gray-500 dark:text-gray-400 mt-3">Buscando contratos...</p>
                     </div>
                   } @else if (filteredContracts().length > 0) {
-                    <div class="space-y-2 max-h-[400px] overflow-y-auto pr-1">
+                    <div class="space-y-2 max-h-[350px] overflow-y-auto pr-1.5 contract-scroll">
                       @for (contract of filteredContracts(); track contract.contract_id) {
                         <div (click)="selectContract(contract)"
                           [class]="selectedContract()?.contract_id === contract.contract_id ?
@@ -318,7 +326,7 @@ import { GenerateScheduleRequest, GenerateScheduleResponse } from '../../models/
                     <p class="text-xs text-gray-400 mt-1">Ajusta los filtros de búsqueda</p>
                   </div>
                 } @else {
-                  <div class="max-h-[380px] overflow-y-auto space-y-2 pr-1">
+                  <div class="max-h-[350px] overflow-y-auto space-y-2 pr-1.5 contract-scroll">
                     @for (contract of filteredContracts(); track contract.contract_id) {
                       <div (click)="toggleContractSelection(contract.contract_id)"
                         class="flex items-center gap-3 p-3.5 bg-gray-50/80 dark:bg-gray-700/30 rounded-xl hover:bg-violet-50/50 dark:hover:bg-violet-900/10 border border-transparent hover:border-violet-200/50 cursor-pointer transition-all">
