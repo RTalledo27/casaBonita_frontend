@@ -3,7 +3,7 @@ import { Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } fro
 import { ActivatedRoute, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { RolesService } from '../../services/roles.service';
 import { map, Observable, shareReplay, Subject, switchMap, takeUntil } from 'rxjs';
-import { LucideAngularModule, ArrowLeft, Shield, Users, Calendar, Edit, Trash2, Key, Settings, ChevronLeft, ChevronRight } from 'lucide-angular';
+
 import { Role } from '../../users/models/role';
 import { Permission } from '../../users/models/permission';
 import { RoleFormComponent } from '../role-form/role-form.component';
@@ -21,10 +21,9 @@ import { FormsModule } from '@angular/forms';
     CommonModule,
     RouterLink,
     DatePipe,
-    LucideAngularModule,
     RouterOutlet,
     TranslateModule,
-    FormsModule, // 👈 necesario para [(ngModel)]
+    FormsModule,
   ],
   templateUrl: './role-details.component.html',
   styleUrl: './role-details.component.scss'
@@ -41,30 +40,9 @@ export class RoleDetailsComponent implements OnInit {
   currentModuleIndex = 0;
 
 
-  // Iconos
-  ArrowLeft = ArrowLeft;
-  Shield = Shield;
-  Users = Users;
-  Calendar = Calendar;
-  Edit = Edit;
-  Trash2 = Trash2;
-  Key = Key;
-  Settings = Settings;
-  ChevronLeft = ChevronLeft;
-  ChevronRight = ChevronRight;
-
   // Permisos
   canEditPerm = false;
   canDeletePerm = false;
-
-  // Mapa de iconos estable (evita getModuleIcon() en template)
-  iconMap: Record<string, any> = {
-    security: this.Shield,
-    users: this.Users,
-    roles: this.Key,
-    general: this.Settings,
-    default: this.Settings
-  };
 
   // trackBy handlers (estables)
   trackGroupBy = (_: number, g: { key: string }) => g.key;
