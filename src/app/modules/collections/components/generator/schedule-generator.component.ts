@@ -5,78 +5,57 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } 
 import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
 import { switchMap, catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
-import { 
-  LucideAngularModule, 
-  Search, 
-  Calculator, 
-  Calendar, 
-  DollarSign, 
-  FileText, 
-  AlertCircle,
-  CheckCircle,
-  ArrowLeft
-} from 'lucide-angular';
 import { CollectionsSimplifiedService, ContractWithSchedules } from '../../services/collections-simplified.service';
 import { GenerateScheduleRequest, GenerateScheduleResponse } from '../../models/payment-schedule';
 
 @Component({
   selector: 'app-schedule-generator',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, ReactiveFormsModule, LucideAngularModule],
+  imports: [CommonModule, RouterModule, FormsModule, ReactiveFormsModule],
   template: `
     <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-indigo-900/30 relative overflow-hidden">
       <!-- Background Pattern -->
       <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.08),transparent_50%)] dark:bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.04),transparent_50%)]"></div>
-      <div class="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.06),transparent_50%)] dark:bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.03),transparent_50%)]"></div>
-      
-      <div class="relative p-6 space-y-8">
-        <!-- Modern Header -->
-        <div class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/50 p-8 relative overflow-hidden">
-          <!-- Header Gradient Background -->
-          <div class="absolute inset-0 bg-gradient-to-r from-blue-400/8 via-purple-400/4 to-indigo-400/8 dark:from-blue-500/15 dark:via-purple-500/8 dark:to-indigo-500/15"></div>
-          <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 via-purple-400 to-indigo-400"></div>
-          
-          <div class="relative flex items-center justify-between">
-            <div class="flex items-center space-x-6">
-              <button 
-                routerLink="/collections/dashboard"
-                class="group relative p-3 bg-gradient-to-br from-gray-100/80 to-white/80 dark:from-gray-700/80 dark:to-gray-600/80 hover:from-blue-100/80 hover:to-indigo-100/80 dark:hover:from-blue-800/50 dark:hover:to-indigo-800/50 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-white/30 dark:border-gray-600/30"
-              >
-                <div class="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
-                <lucide-angular [img]="ArrowLeftIcon" class="w-6 h-6 text-gray-600 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 relative z-10 transition-colors duration-300"></lucide-angular>
+
+      <div class="relative p-4 sm:p-6 lg:p-8 max-w-[1600px] mx-auto space-y-6">
+
+        <!-- ═══════════════ HEADER ═══════════════ -->
+        <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-5 sm:p-6">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div class="flex items-center gap-4">
+              <button routerLink="/collections-simplified/dashboard"
+                class="p-2.5 rounded-xl bg-gray-100 dark:bg-gray-700/50 hover:bg-gray-200 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-600 transition-colors">
+                <svg class="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
               </button>
-              
-              <div class="flex items-center space-x-4">
-                <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-4 rounded-2xl shadow-lg">
-                  <lucide-angular [img]="CalendarIcon" class="w-8 h-8 text-white"></lucide-angular>
-                </div>
-                <div>
-                  <h1 class="text-3xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-indigo-800 dark:from-white dark:via-blue-200 dark:to-indigo-200 bg-clip-text text-transparent">
-                    Generador de Cronogramas
-                  </h1>
-                  <p class="text-gray-600 dark:text-gray-400 mt-1 font-medium">Crear cronogramas de pago para contratos</p>
-                </div>
+              <div class="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/20">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <div>
+                <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Generador de Cronogramas</h1>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Crear cronogramas de pago para contratos</p>
               </div>
             </div>
 
             <!-- Tabs -->
-            <div class="flex bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm rounded-2xl p-2 shadow-lg border border-white/30 dark:border-gray-600/30">
+            <div class="flex bg-gray-100 dark:bg-gray-700/50 rounded-xl p-1 border border-gray-200/50 dark:border-gray-600/50">
               <button
                 (click)="switchTab('individual')"
-                [class]="activeTab() === 'individual' ? 
-                  'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg' : 
-                  'text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400'"
-                class="px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105"
-              >
+                [class]="activeTab() === 'individual' ?
+                  'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm' :
+                  'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
+                class="px-5 py-2 rounded-lg text-sm font-semibold transition-all">
                 Individual
               </button>
               <button
                 (click)="switchTab('mass')"
-                [class]="activeTab() === 'mass' ? 
-                  'bg-gradient-to-r from-purple-500 to-pink-600 text-white shadow-lg' : 
-                  'text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400'"
-                class="px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105"
-              >
+                [class]="activeTab() === 'mass' ?
+                  'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm' :
+                  'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
+                class="px-5 py-2 rounded-lg text-sm font-semibold transition-all">
                 Masivo
               </button>
             </div>
@@ -85,340 +64,68 @@ import { GenerateScheduleRequest, GenerateScheduleResponse } from '../../models/
 
         <!-- Contenido condicional según el tab activo -->
         @if (activeTab() === 'individual') {
-          <!-- Contenedor de ambas secciones - Individual -->
-          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 xl:gap-8">
+          <!-- Individual Tab -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
             <!-- Seleccionar Contrato (izquierda) -->
             <section class="lg:col-span-5">
-            <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/30 dark:border-gray-700/50 p-8 relative overflow-hidden h-fit">
-            <!-- Card Header Gradient -->
-            <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/8 via-green-500/4 to-teal-500/8 dark:from-emerald-600/15 dark:via-green-600/8 dark:to-teal-600/15"></div>
-            <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-emerald-500 via-green-500 to-teal-500"></div>
-            
-            <div class="relative">
-              <div class="flex items-center space-x-3 mb-6">
-                <div class="bg-gradient-to-br from-emerald-500 to-green-600 p-3 rounded-2xl shadow-lg">
-                  <lucide-angular [img]="SearchIcon" class="w-6 h-6 text-white"></lucide-angular>
+              <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 overflow-hidden h-fit">
+                <div class="px-5 py-4 border-b border-gray-200/50 dark:border-gray-700/50 flex items-center gap-2.5">
+                  <div class="p-1.5 bg-emerald-100 dark:bg-emerald-900/40 rounded-lg">
+                    <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                  </div>
+                  <h2 class="text-sm font-bold text-gray-900 dark:text-white">Seleccionar Contrato</h2>
                 </div>
-                <h2 class="text-xl font-bold bg-gradient-to-r from-emerald-700 to-green-700 dark:from-emerald-300 dark:to-green-300 bg-clip-text text-transparent">Seleccionar Contrato</h2>
-              </div>
-          
-              <!-- Search Contract -->
-              <div class="mb-6">
-                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Buscar Contrato</label>
-                <div class="relative group">
-                  <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-green-500/20 rounded-2xl blur-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-300"></div>
-                  <div class="relative bg-white/90 dark:bg-gray-700/90 backdrop-blur-sm rounded-2xl border border-gray-200/50 dark:border-gray-600/50 shadow-lg group-focus-within:shadow-xl group-focus-within:border-emerald-300/50 dark:group-focus-within:border-emerald-500/50 transition-all duration-300">
-                    <lucide-angular [img]="SearchIcon" class="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500 group-focus-within:text-emerald-500 transition-colors duration-300"></lucide-angular>
-                    <input
-                      type="text"
-                      [ngModel]="searchTerm()"
-                      (input)="onSearchChange($event)"
-                      placeholder="Buscar por número de contrato, cliente o lote..."
-                      class="w-full pl-12 pr-4 py-4 bg-transparent text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none font-medium"
-                    >
-                  </div>
-                </div>
-              </div>
 
-              <!-- Contract List -->
-              @if (isLoadingContracts()) {
-                <div class="text-center py-12">
-                  <div class="relative">
-                    <div class="animate-spin rounded-full h-12 w-12 border-4 border-emerald-200 dark:border-emerald-800 border-t-emerald-500 mx-auto"></div>
-                    <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-green-500/20 rounded-full blur-xl animate-pulse"></div>
-                  </div>
-                  <p class="text-gray-600 dark:text-gray-400 mt-4 font-medium">Buscando contratos...</p>
-                </div>
-              } @else if (filteredContracts().length > 0) {
-                <div class="space-y-3 max-h-80 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-emerald-300 dark:scrollbar-thumb-emerald-600 scrollbar-track-transparent">
-                  @for (contract of filteredContracts(); track contract.contract_id) {
-                    <div 
-                      (click)="selectContract(contract)"
-                      [class]="selectedContract()?.contract_id === contract.contract_id ? 
-                        'group relative bg-gradient-to-br from-emerald-50/80 to-green-50/80 dark:from-emerald-900/30 dark:to-green-900/30 border-2 border-emerald-300/50 dark:border-emerald-500/50 cursor-pointer p-5 rounded-2xl shadow-lg backdrop-blur-sm transform scale-[1.02]' : 
-                        'group relative bg-white/60 dark:bg-gray-700/60 hover:bg-gradient-to-br hover:from-emerald-50/60 hover:to-green-50/60 dark:hover:from-emerald-900/20 dark:hover:to-green-900/20 cursor-pointer p-5 border border-gray-200/50 dark:border-gray-600/50 hover:border-emerald-200/50 dark:hover:border-emerald-500/30 rounded-2xl shadow-md hover:shadow-xl backdrop-blur-sm transition-all duration-300 transform hover:scale-[1.01]'"
-                    >
-                      <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-green-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
-                      <div class="relative flex justify-between items-start">
-                        <div class="space-y-1">
-                          <p class="font-bold text-gray-900 dark:text-white text-lg">{{ contract.contract_number }}</p>
-                          <p class="text-sm text-emerald-600 dark:text-emerald-400 font-semibold">{{ contract.client_name }}</p>
-                          <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">Lote: {{ contract.lot_name }}</p>
-                        </div>
-                        <div class="text-right space-y-1">
-                          <p class="text-sm font-bold text-gray-900 dark:text-white">{{ formatCurrency(+(contract.financing_amount ?? 0)) }}</p>
-                          <p class="text-xs text-emerald-600 dark:text-emerald-400 font-semibold">{{ contract.term_months || 0 }} meses</p>
-                        </div>
-                      </div>
-                    </div>
-                  }
-                </div>
-              } @else {
-                <div class="text-center py-12">
-                  <div class="bg-gradient-to-br from-gray-100/80 to-gray-200/80 dark:from-gray-700/50 dark:to-gray-800/50 p-8 rounded-3xl mb-6 inline-block backdrop-blur-sm">
-                    <lucide-angular [img]="FileTextIcon" class="w-16 h-16 mx-auto text-gray-400 dark:text-gray-500"></lucide-angular>
-                  </div>
-                  <p class="text-gray-600 dark:text-gray-400 font-semibold text-lg">No se encontraron contratos</p>
-                  @if (searchTerm()) {
-                    <p class="text-sm text-gray-500 dark:text-gray-500 mt-2">Intenta con otros términos de búsqueda</p>
-                  }
-                </div>
-              }
-            </div>
-            </div>
-          </section>
-
-          <!-- Configuración del Cronograma (derecha) -->
-          <section class="lg:col-span-7">
-            <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/30 dark:border-gray-700/50 p-8 relative overflow-hidden h-fit">
-              <!-- Card Header Gradient -->
-              <div class="absolute inset-0 bg-gradient-to-br from-blue-400/8 via-indigo-400/4 to-purple-400/8 dark:from-blue-500/15 dark:via-indigo-500/8 dark:to-purple-500/15"></div>
-              <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400"></div>
-            
-            <div class="relative">
-              <div class="flex items-center space-x-3 mb-6">
-                <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-3 rounded-2xl shadow-lg">
-                  <lucide-angular [img]="CalculatorIcon" class="w-6 h-6 text-white"></lucide-angular>
-                </div>
-                <h2 class="text-xl font-bold bg-gradient-to-r from-blue-700 to-indigo-700 dark:from-blue-300 dark:to-indigo-300 bg-clip-text text-transparent">Configuración del Cronograma</h2>
-              </div>
-          
-              @if (selectedContract()) {
-                <form [formGroup]="scheduleForm" (ngSubmit)="generateSchedule()" class="space-y-6">
-                  <!-- Contract Details -->
-                  <div class="bg-gradient-to-br from-blue-50/80 to-indigo-50/80 dark:from-blue-900/30 dark:to-indigo-900/30 p-6 rounded-2xl border border-blue-200/50 dark:border-blue-700/50 backdrop-blur-sm">
-                    <div class="flex items-center space-x-3 mb-4">
-                      <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-2 rounded-xl shadow-md">
-                        <lucide-angular [img]="FileTextIcon" class="w-5 h-5 text-white"></lucide-angular>
-                      </div>
-                      <h3 class="font-bold text-blue-900 dark:text-blue-200 text-lg">Detalles del Contrato</h3>
-                    </div>
-                    <div class="grid grid-cols-2 gap-6 text-sm">
-                      <div class="space-y-1">
-                        <span class="text-blue-600 dark:text-blue-400 font-semibold">Cliente:</span>
-                        <p class="font-bold text-blue-900 dark:text-blue-100">{{ selectedContract()!.client_name }}</p>
-                      </div>
-                      <div class="space-y-1">
-                        <span class="text-blue-600 dark:text-blue-400 font-semibold">Lote:</span>
-                        <p class="font-bold text-blue-900 dark:text-blue-100">{{ selectedContract()!.lot_name }}</p>
-                      </div>
-                      <div class="space-y-1">
-                        <span class="text-blue-600 dark:text-blue-400 font-semibold">Monto a Financiar:</span>
-                        <p class="font-bold text-blue-900 dark:text-blue-100">{{ formatCurrency(+(selectedContract()!.financing_amount ?? 0)) }}</p>
-                      </div>
-                      <div class="space-y-1">
-                        <span class="text-blue-600 dark:text-blue-400 font-semibold">Plazo:</span>
-                        <p class="font-bold text-blue-900 dark:text-blue-100">{{ selectedContract()!.term_months }} meses</p>
-                      </div>
-                    </div>
+                <div class="p-5">
+                  <!-- Search -->
+                  <div class="relative mb-4">
+                    <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    <input type="text" [ngModel]="searchTerm()" (input)="onSearchChange($event)"
+                      placeholder="Buscar por contrato, cliente o lote..."
+                      class="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300 transition-all" />
                   </div>
 
-                  <!-- Schedule Parameters -->
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="space-y-2">
-                      <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Fecha de Inicio</label>
-                      <div class="relative group">
-                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-indigo-500/20 rounded-2xl blur-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-300"></div>
-                        <input
-                          type="date"
-                          formControlName="start_date"
-                          class="relative w-full px-4 py-4 bg-white/90 dark:bg-gray-700/90 backdrop-blur-sm border border-gray-200/50 dark:border-gray-600/50 rounded-2xl shadow-lg focus:shadow-xl focus:border-blue-300/50 dark:focus:border-blue-500/50 focus:outline-none text-gray-900 dark:text-white font-medium transition-all duration-300"
-                        >
-                      </div>
-                      @if (scheduleForm.get('start_date')?.invalid && scheduleForm.get('start_date')?.touched) {
-                        <p class="text-red-500 dark:text-red-400 text-xs mt-2 font-medium">La fecha de inicio es requerida</p>
-                      }
-                    </div>
-
-                    <div class="space-y-2">
-                      <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Frecuencia de Pago</label>
-                      <div class="relative group">
-                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-indigo-500/20 rounded-2xl blur-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-300"></div>
-                        <select
-                          formControlName="frequency"
-                          class="relative w-full px-4 py-4 bg-white/90 dark:bg-gray-700/90 backdrop-blur-sm border border-gray-200/50 dark:border-gray-600/50 rounded-2xl shadow-lg focus:shadow-xl focus:border-blue-300/50 dark:focus:border-blue-500/50 focus:outline-none text-gray-900 dark:text-white font-medium transition-all duration-300 appearance-none cursor-pointer"
-                        >
-                          <option value="monthly">Mensual</option>
-                          <option value="biweekly">Quincenal</option>
-                          <option value="weekly">Semanal</option>
-                        </select>
-                        <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
-                          <svg class="w-5 h-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                          </svg>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Payment Calculation -->
-                  <div class="bg-gradient-to-br from-indigo-50/80 to-purple-50/80 dark:from-indigo-900/30 dark:to-purple-900/30 p-6 rounded-2xl border border-indigo-200/50 dark:border-indigo-700/50 backdrop-blur-sm">
-                    <div class="flex items-center space-x-3 mb-4">
-                      <div class="bg-gradient-to-br from-indigo-500 to-purple-600 p-2 rounded-xl shadow-md">
-                        <lucide-angular [img]="CalculatorIcon" class="w-5 h-5 text-white"></lucide-angular>
-                      </div>
-                      <h4 class="font-bold text-indigo-900 dark:text-indigo-200 text-lg">Cálculo de Cuotas</h4>
-                    </div>
-                    <div class="grid grid-cols-2 gap-6 text-sm">
-                      <div class="space-y-1">
-                        <span class="text-indigo-600 dark:text-indigo-400 font-semibold">Cuota Mensual:</span>
-                        <p class="font-bold text-indigo-900 dark:text-indigo-100 text-lg">{{ formatCurrency(calculatedMonthlyPayment()) }}</p>
-                      </div>
-                      <div class="space-y-1">
-                        <span class="text-indigo-600 dark:text-indigo-400 font-semibold">Total de Cuotas:</span>
-                        <p class="font-bold text-indigo-900 dark:text-indigo-100 text-lg">{{ selectedContract()!.term_months }}</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Notes -->
-                  <div class="space-y-2">
-                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Notas (Opcional)</label>
-                    <div class="relative group">
-                      <div class="absolute inset-0 bg-gradient-to-r from-violet-500/20 to-purple-500/20 rounded-2xl blur-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-300"></div>
-                      <textarea
-                        formControlName="notes"
-                        rows="3"
-                        placeholder="Agregar notas sobre el cronograma..."
-                        class="relative w-full px-4 py-4 bg-white/90 dark:bg-gray-700/90 backdrop-blur-sm border border-gray-200/50 dark:border-gray-600/50 rounded-2xl shadow-lg focus:shadow-xl focus:border-violet-300/50 dark:focus:border-violet-500/50 focus:outline-none text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 font-medium transition-all duration-300 resize-none"
-                      ></textarea>
-                    </div>
-                  </div>
-
-                  <!-- Actions -->
-                  <div class="flex space-x-4 pt-6">
-                    <button
-                      type="submit"
-                      [disabled]="scheduleForm.invalid || isGenerating()"
-                      class="group relative flex-1 bg-gradient-to-br from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 disabled:from-gray-400 disabled:to-gray-500 text-white py-4 px-6 rounded-2xl shadow-xl hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-3 font-semibold text-lg transition-all duration-300 transform hover:scale-[1.02] disabled:hover:scale-100"
-                    >
-                      <div class="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 group-disabled:opacity-0 transition-opacity duration-300 rounded-2xl"></div>
-                      @if (isGenerating()) {
-                        <div class="animate-spin rounded-full h-5 w-5 border-2 border-white/30 border-t-white relative z-10"></div>
-                        <span class="relative z-10">Generando...</span>
-                      } @else {
-                        <lucide-angular [img]="CalendarIcon" class="w-5 h-5 relative z-10"></lucide-angular>
-                        <span class="relative z-10">Generar Cronograma</span>
-                      }
-                    </button>
-                    <button
-                      type="button"
-                      (click)="clearSelection()"
-                      class="group relative px-6 py-4 bg-white/80 dark:bg-gray-700/80 hover:bg-gray-50/80 dark:hover:bg-gray-600/80 border border-gray-200/50 dark:border-gray-600/50 hover:border-gray-300/50 dark:hover:border-gray-500/50 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white rounded-2xl shadow-lg hover:shadow-xl backdrop-blur-sm font-semibold transition-all duration-300 transform hover:scale-[1.02]"
-                    >
-                      <div class="absolute inset-0 bg-gradient-to-r from-gray-100/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
-                      <span class="relative z-10">Limpiar</span>
-                    </button>
-                  </div>
-            </form>
-          } @else {
-            <div class="text-center py-12 text-gray-500">
-              <lucide-angular [img]="FileTextIcon" class="w-12 h-12 mx-auto mb-4 text-gray-400"></lucide-angular>
-              <p class="text-lg font-medium">Selecciona un Contrato</p>
-              <p class="text-sm">Elige un contrato de la lista para configurar su cronograma de pagos</p>
-            </div>
-          }
-            </div>
-            </div>
-          </section>
-        </div>
-        } @else {
-          <!-- Sección de Generación Masiva -->
-          <div class="space-y-6">
-            <!-- Lista de contratos con selección múltiple -->
-            <section>
-              <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/30 dark:border-gray-700/50 p-8 relative overflow-hidden">
-                <!-- Card Header Gradient -->
-                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-violet-400 via-purple-400 to-indigo-400"></div>
-                <div class="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-indigo-500/5 rounded-3xl"></div>
-                
-                <div class="relative z-10">
-                  <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center space-x-3">
-                      <div class="bg-gradient-to-br from-violet-500 to-indigo-600 p-3 rounded-2xl shadow-lg">
-                        <lucide-angular [img]="FileTextIcon" class="w-6 h-6 text-white"></lucide-angular>
-                      </div>
-                      <span>Seleccionar Contratos</span>
-                    </h3>
-                    <div class="text-sm text-gray-600 dark:text-gray-400">
-                      {{ getSelectedContractsCount() }} de {{ filteredContracts().length }} seleccionados
-                    </div>
-                  </div>
-
-                  <!-- Búsqueda -->
-                  <div class="relative mb-6">
-                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                      <lucide-angular [img]="SearchIcon" class="w-5 h-5 text-gray-400"></lucide-angular>
-                    </div>
-                    <input
-                      type="text"
-                      placeholder="Buscar por número de contrato, cliente o lote..."
-                      (input)="onSearchChange($event)"
-                      class="w-full pl-12 pr-4 py-4 bg-white/90 dark:bg-gray-700/90 backdrop-blur-sm border border-gray-200/50 dark:border-gray-600/50 rounded-2xl shadow-lg focus:shadow-xl focus:border-violet-300/50 dark:focus:border-violet-500/50 focus:outline-none text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 font-medium transition-all duration-300"
-                    />
-                  </div>
-
-                  <!-- Acciones de selección -->
-                  <div class="flex space-x-4 mb-6">
-                    <button
-                      type="button"
-                      (click)="selectAllContracts()"
-                      class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-medium transition-colors duration-200"
-                    >
-                      Seleccionar Todos
-                    </button>
-                    <button
-                      type="button"
-                      (click)="clearBulkSelection()"
-                      class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-xl font-medium transition-colors duration-200"
-                    >
-                      Limpiar Selección
-                    </button>
-                  </div>
-
-                  <!-- Lista de contratos -->
+                  <!-- Contract List -->
                   @if (isLoadingContracts()) {
-                    <div class="text-center py-12">
-                      <div class="animate-spin rounded-full h-12 w-12 border-4 border-violet-200 border-t-violet-600 mx-auto mb-4"></div>
-                      <p class="text-gray-600 dark:text-gray-400 font-medium">Cargando contratos...</p>
+                    <div class="text-center py-10">
+                      <div class="animate-spin rounded-full h-8 w-8 border-2 border-emerald-200 border-t-emerald-500 mx-auto"></div>
+                      <p class="text-sm text-gray-500 dark:text-gray-400 mt-3">Buscando contratos...</p>
                     </div>
-                  } @else if (filteredContracts().length === 0) {
-                    <div class="text-center py-12 text-gray-500">
-                      <lucide-angular [img]="FileTextIcon" class="w-12 h-12 mx-auto mb-4 text-gray-400"></lucide-angular>
-                      <p class="text-lg font-medium">No se encontraron contratos</p>
-                      <p class="text-sm">Intenta ajustar los filtros de búsqueda</p>
-                    </div>
-                  } @else {
-                    <div class="max-h-96 overflow-y-auto space-y-3">
+                  } @else if (filteredContracts().length > 0) {
+                    <div class="space-y-2 max-h-[400px] overflow-y-auto pr-1">
                       @for (contract of filteredContracts(); track contract.contract_id) {
-                        <div 
-                          class="group relative bg-white/60 dark:bg-gray-700/60 hover:bg-white/80 dark:hover:bg-gray-700/80 backdrop-blur-sm border border-gray-200/30 dark:border-gray-600/30 hover:border-violet-300/50 dark:hover:border-violet-500/50 rounded-2xl p-4 cursor-pointer transition-all duration-300 hover:shadow-lg"
-                          (click)="toggleContractSelection(contract.contract_id)"
-                        >
-                          <div class="flex items-center space-x-4">
-                            <div class="flex-shrink-0">
-                              <input
-                                type="checkbox"
-                                [checked]="isContractSelected(contract.contract_id)"
-                                class="w-5 h-5 text-violet-600 bg-white border-gray-300 rounded focus:ring-violet-500 focus:ring-2"
-                                (click)="$event.stopPropagation()"
-                                (change)="toggleContractSelection(contract.contract_id)"
-                              />
-                            </div>
-                            <div class="flex-1 min-w-0">
-                              <div class="flex items-center justify-between">
-                                <h4 class="text-lg font-bold text-gray-900 dark:text-white truncate">
-                                  {{ contract.contract_number }}
-                                </h4>
-                                <span class="text-sm font-medium text-violet-600 dark:text-violet-400">
-                                  {{ formatCurrency(+(contract.financing_amount || 0)) }}
-                                </span>
-                              </div>
-                              <p class="text-gray-600 dark:text-gray-400 font-medium truncate">{{ contract.client_name }}</p>
-                              <p class="text-sm text-gray-500 dark:text-gray-500 truncate">{{ contract.lot_name }}</p>
-                            </div>
+                        <div (click)="selectContract(contract)"
+                          [class]="selectedContract()?.contract_id === contract.contract_id ?
+                            'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-300 dark:border-emerald-600 ring-1 ring-emerald-200 dark:ring-emerald-700' :
+                            'bg-gray-50/80 dark:bg-gray-700/30 border-transparent hover:bg-emerald-50/50 dark:hover:bg-emerald-900/10 hover:border-emerald-200/50'"
+                          class="flex items-center justify-between p-3.5 rounded-xl border cursor-pointer transition-all">
+                          <div class="min-w-0">
+                            <p class="text-sm font-semibold text-gray-900 dark:text-white truncate">{{ contract.contract_number }}</p>
+                            <p class="text-xs text-emerald-600 dark:text-emerald-400 font-medium truncate">{{ contract.client_name }}</p>
+                            <p class="text-[10px] text-gray-400 dark:text-gray-500">Lote: {{ contract.lot_name }}</p>
+                          </div>
+                          <div class="text-right flex-shrink-0 ml-3">
+                            <p class="text-sm font-bold text-gray-900 dark:text-white">{{ formatCurrency(+(contract.financing_amount ?? 0)) }}</p>
+                            <p class="text-[10px] text-emerald-500 font-semibold">{{ contract.term_months || 0 }} meses</p>
                           </div>
                         </div>
+                      }
+                    </div>
+                  } @else {
+                    <div class="text-center py-10">
+                      <div class="p-3 rounded-full bg-gray-100 dark:bg-gray-700/50 inline-flex mb-3">
+                        <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                      </div>
+                      <p class="text-sm text-gray-500 dark:text-gray-400 font-medium">No se encontraron contratos</p>
+                      @if (searchTerm()) {
+                        <p class="text-xs text-gray-400 mt-1">Intenta con otros términos</p>
                       }
                     </div>
                   }
@@ -426,197 +133,360 @@ import { GenerateScheduleRequest, GenerateScheduleResponse } from '../../models/
               </div>
             </section>
 
-            <!-- Configuración global -->
-            <section>
-              <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/30 dark:border-gray-700/50 p-8 relative overflow-hidden">
-                <!-- Card Header Gradient -->
-                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400"></div>
-                <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 rounded-3xl"></div>
-                
-                <div class="relative z-10">
-                  <h3 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center space-x-3 mb-6">
-                    <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-3 rounded-2xl shadow-lg">
-                      <lucide-angular [img]="CalculatorIcon" class="w-6 h-6 text-white"></lucide-angular>
-                    </div>
-                    <span>Configuración Global</span>
-                  </h3>
+            <!-- Configuración del Cronograma (derecha) -->
+            <section class="lg:col-span-7">
+              <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 overflow-hidden h-fit">
+                <div class="px-5 py-4 border-b border-gray-200/50 dark:border-gray-700/50 flex items-center gap-2.5">
+                  <div class="p-1.5 bg-blue-100 dark:bg-blue-900/40 rounded-lg">
+                    <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <h2 class="text-sm font-bold text-gray-900 dark:text-white">Configuración del Cronograma</h2>
+                </div>
 
-                  <form [formGroup]="bulkScheduleForm" class="space-y-6">
-                    <!-- Fecha de inicio -->
-                    <div>
-                      <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-3">
-                        Fecha de Inicio
-                      </label>
-                      <input
-                        type="date"
-                        formControlName="start_date"
-                        class="w-full px-4 py-4 bg-white/90 dark:bg-gray-700/90 backdrop-blur-sm border border-gray-200/50 dark:border-gray-600/50 rounded-2xl shadow-lg focus:shadow-xl focus:border-blue-300/50 dark:focus:border-blue-500/50 focus:outline-none text-gray-900 dark:text-white font-medium transition-all duration-300"
-                      />
-                    </div>
+                <div class="p-5">
+                  @if (selectedContract()) {
+                    <form [formGroup]="scheduleForm" (ngSubmit)="generateSchedule()" class="space-y-5">
+                      <!-- Contract Details -->
+                      <div class="bg-blue-50/60 dark:bg-blue-900/20 rounded-xl p-4 border border-blue-200/50 dark:border-blue-700/40">
+                        <div class="flex items-center gap-2 mb-3">
+                          <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                          <h3 class="text-xs font-bold text-blue-800 dark:text-blue-300 uppercase tracking-wider">Detalles del Contrato</h3>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                          <div>
+                            <span class="text-[11px] text-blue-500 dark:text-blue-400 font-semibold uppercase tracking-wider">Cliente</span>
+                            <p class="font-semibold text-gray-900 dark:text-white mt-0.5">{{ selectedContract()!.client_name }}</p>
+                          </div>
+                          <div>
+                            <span class="text-[11px] text-blue-500 dark:text-blue-400 font-semibold uppercase tracking-wider">Lote</span>
+                            <p class="font-semibold text-gray-900 dark:text-white mt-0.5">{{ selectedContract()!.lot_name }}</p>
+                          </div>
+                          <div>
+                            <span class="text-[11px] text-blue-500 dark:text-blue-400 font-semibold uppercase tracking-wider">Monto a Financiar</span>
+                            <p class="font-semibold text-gray-900 dark:text-white mt-0.5">{{ formatCurrency(+(selectedContract()!.financing_amount ?? 0)) }}</p>
+                          </div>
+                          <div>
+                            <span class="text-[11px] text-blue-500 dark:text-blue-400 font-semibold uppercase tracking-wider">Plazo</span>
+                            <p class="font-semibold text-gray-900 dark:text-white mt-0.5">{{ selectedContract()!.term_months }} meses</p>
+                          </div>
+                        </div>
+                      </div>
 
-                    <!-- Frecuencia de pago -->
+                      <!-- Schedule Parameters -->
+                      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label class="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">Fecha de Inicio</label>
+                          <input type="date" formControlName="start_date"
+                            class="w-full px-3.5 py-2.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300 transition-all" />
+                          @if (scheduleForm.get('start_date')?.invalid && scheduleForm.get('start_date')?.touched) {
+                            <p class="text-red-500 text-xs mt-1">La fecha de inicio es requerida</p>
+                          }
+                        </div>
+                        <div>
+                          <label class="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">Frecuencia de Pago</label>
+                          <select formControlName="frequency"
+                            class="w-full px-3.5 py-2.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300 transition-all appearance-none cursor-pointer">
+                            <option value="monthly">Mensual</option>
+                            <option value="biweekly">Quincenal</option>
+                            <option value="weekly">Semanal</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <!-- Payment Calculation -->
+                      <div class="bg-indigo-50/60 dark:bg-indigo-900/20 rounded-xl p-4 border border-indigo-200/50 dark:border-indigo-700/40">
+                        <div class="flex items-center gap-2 mb-3">
+                          <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                          </svg>
+                          <h4 class="text-xs font-bold text-indigo-800 dark:text-indigo-300 uppercase tracking-wider">Cálculo de Cuotas</h4>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                          <div>
+                            <span class="text-[11px] text-indigo-500 dark:text-indigo-400 font-semibold uppercase tracking-wider">Cuota Mensual</span>
+                            <p class="text-lg font-bold text-gray-900 dark:text-white mt-0.5">{{ formatCurrency(calculatedMonthlyPayment()) }}</p>
+                          </div>
+                          <div>
+                            <span class="text-[11px] text-indigo-500 dark:text-indigo-400 font-semibold uppercase tracking-wider">Total de Cuotas</span>
+                            <p class="text-lg font-bold text-gray-900 dark:text-white mt-0.5">{{ selectedContract()!.term_months }}</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Notes -->
+                      <div>
+                        <label class="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">Notas (Opcional)</label>
+                        <textarea formControlName="notes" rows="3" placeholder="Agregar notas sobre el cronograma..."
+                          class="w-full px-3.5 py-2.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300 transition-all resize-none"></textarea>
+                      </div>
+
+                      <!-- Actions -->
+                      <div class="flex gap-3 pt-2">
+                        <button type="submit" [disabled]="scheduleForm.invalid || isGenerating()"
+                          class="flex-1 inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl hover:from-blue-600 hover:to-indigo-700 shadow-md shadow-blue-500/20 hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                          @if (isGenerating()) {
+                            <div class="animate-spin rounded-full h-4 w-4 border-2 border-white/30 border-t-white"></div>
+                            <span>Generando...</span>
+                          } @else {
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <span>Generar Cronograma</span>
+                          }
+                        </button>
+                        <button type="button" (click)="clearSelection()"
+                          class="px-5 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 shadow-sm transition-all">
+                          Limpiar
+                        </button>
+                      </div>
+                    </form>
+                  } @else {
+                    <div class="text-center py-14">
+                      <div class="p-3 rounded-full bg-gray-100 dark:bg-gray-700/50 inline-flex mb-3">
+                        <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                      </div>
+                      <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Selecciona un Contrato</p>
+                      <p class="text-xs text-gray-400 mt-1">Elige un contrato de la lista para configurar su cronograma</p>
+                    </div>
+                  }
+                </div>
+              </div>
+            </section>
+          </div>
+        } @else {
+          <!-- ═══════════════ MASS TAB ═══════════════ -->
+          <div class="space-y-6">
+
+            <!-- Seleccionar Contratos -->
+            <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 overflow-hidden">
+              <div class="px-5 py-4 border-b border-gray-200/50 dark:border-gray-700/50 flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                  <div class="p-1.5 bg-violet-100 dark:bg-violet-900/40 rounded-lg">
+                    <svg class="w-4 h-4 text-violet-600 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </div>
+                  <h3 class="text-sm font-bold text-gray-900 dark:text-white">Seleccionar Contratos</h3>
+                </div>
+                <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700/50 px-2.5 py-1 rounded-lg">
+                  {{ getSelectedContractsCount() }} de {{ filteredContracts().length }} seleccionados
+                </span>
+              </div>
+
+              <div class="p-5">
+                <!-- Search -->
+                <div class="relative mb-4">
+                  <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                  <input type="text" placeholder="Buscar por contrato, cliente o lote..." (input)="onSearchChange($event)"
+                    class="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 transition-all" />
+                </div>
+
+                <!-- Selection Actions -->
+                <div class="flex gap-2 mb-4">
+                  <button type="button" (click)="selectAllContracts()"
+                    class="px-3.5 py-1.5 text-xs font-semibold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/30 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-800/40 transition-colors">
+                    Seleccionar Todos
+                  </button>
+                  <button type="button" (click)="clearBulkSelection()"
+                    class="px-3.5 py-1.5 text-xs font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700/50 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                    Limpiar Selección
+                  </button>
+                </div>
+
+                <!-- Contract List -->
+                @if (isLoadingContracts()) {
+                  <div class="text-center py-10">
+                    <div class="animate-spin rounded-full h-8 w-8 border-2 border-violet-200 border-t-violet-500 mx-auto"></div>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-3">Cargando contratos...</p>
+                  </div>
+                } @else if (filteredContracts().length === 0) {
+                  <div class="text-center py-10">
+                    <div class="p-3 rounded-full bg-gray-100 dark:bg-gray-700/50 inline-flex mb-3">
+                      <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </div>
+                    <p class="text-sm text-gray-500 font-medium">No se encontraron contratos</p>
+                    <p class="text-xs text-gray-400 mt-1">Ajusta los filtros de búsqueda</p>
+                  </div>
+                } @else {
+                  <div class="max-h-[380px] overflow-y-auto space-y-2 pr-1">
+                    @for (contract of filteredContracts(); track contract.contract_id) {
+                      <div (click)="toggleContractSelection(contract.contract_id)"
+                        class="flex items-center gap-3 p-3.5 bg-gray-50/80 dark:bg-gray-700/30 rounded-xl hover:bg-violet-50/50 dark:hover:bg-violet-900/10 border border-transparent hover:border-violet-200/50 cursor-pointer transition-all">
+                        <input type="checkbox" [checked]="isContractSelected(contract.contract_id)"
+                          class="w-4 h-4 text-violet-600 bg-white border-gray-300 rounded focus:ring-violet-500 flex-shrink-0"
+                          (click)="$event.stopPropagation()" (change)="toggleContractSelection(contract.contract_id)" />
+                        <div class="flex-1 min-w-0 flex items-center justify-between">
+                          <div class="min-w-0">
+                            <p class="text-sm font-semibold text-gray-900 dark:text-white truncate">{{ contract.contract_number }}</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ contract.client_name }} · {{ contract.lot_name }}</p>
+                          </div>
+                          <span class="text-sm font-bold text-gray-900 dark:text-white flex-shrink-0 ml-3">{{ formatCurrency(+(contract.financing_amount || 0)) }}</span>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- Configuración Global -->
+            <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 overflow-hidden">
+              <div class="px-5 py-4 border-b border-gray-200/50 dark:border-gray-700/50 flex items-center gap-2.5">
+                <div class="p-1.5 bg-blue-100 dark:bg-blue-900/40 rounded-lg">
+                  <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <h3 class="text-sm font-bold text-gray-900 dark:text-white">Configuración Global</h3>
+              </div>
+
+              <div class="p-5">
+                <form [formGroup]="bulkScheduleForm" class="space-y-4">
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-3">
-                        Frecuencia de Pago
-                      </label>
-                      <select
-                        formControlName="frequency"
-                        class="w-full px-4 py-4 bg-white/90 dark:bg-gray-700/90 backdrop-blur-sm border border-gray-200/50 dark:border-gray-600/50 rounded-2xl shadow-lg focus:shadow-xl focus:border-blue-300/50 dark:focus:border-blue-500/50 focus:outline-none text-gray-900 dark:text-white font-medium transition-all duration-300"
-                      >
+                      <label class="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">Fecha de Inicio</label>
+                      <input type="date" formControlName="start_date"
+                        class="w-full px-3.5 py-2.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300 transition-all" />
+                    </div>
+                    <div>
+                      <label class="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">Frecuencia de Pago</label>
+                      <select formControlName="frequency"
+                        class="w-full px-3.5 py-2.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300 transition-all appearance-none cursor-pointer">
                         <option value="monthly">Mensual</option>
                         <option value="biweekly">Quincenal</option>
                         <option value="weekly">Semanal</option>
                       </select>
                     </div>
-
-                    <!-- Notas -->
-                    <div>
-                      <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-3">
-                        Notas (Opcional)
-                      </label>
-                      <textarea
-                        formControlName="notes"
-                        rows="3"
-                        placeholder="Agregar notas para todos los cronogramas..."
-                        class="w-full px-4 py-4 bg-white/90 dark:bg-gray-700/90 backdrop-blur-sm border border-gray-200/50 dark:border-gray-600/50 rounded-2xl shadow-lg focus:shadow-xl focus:border-blue-300/50 dark:focus:border-blue-500/50 focus:outline-none text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 font-medium transition-all duration-300 resize-none"
-                      ></textarea>
-                    </div>
-                  </form>
-                </div>
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">Notas (Opcional)</label>
+                    <textarea formControlName="notes" rows="2" placeholder="Agregar notas para todos los cronogramas..."
+                      class="w-full px-3.5 py-2.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300 transition-all resize-none"></textarea>
+                  </div>
+                </form>
               </div>
-            </section>
+            </div>
 
-            <!-- Botón de generación masiva -->
-            <section>
-              <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/30 dark:border-gray-700/50 p-8 relative overflow-hidden">
-                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-400 via-emerald-400 to-teal-400"></div>
-                <div class="absolute inset-0 bg-gradient-to-br from-green-500/5 to-teal-500/5 rounded-3xl"></div>
-                
-                <div class="relative z-10">
-                  @if (isBulkGenerating()) {
-                    <!-- Progreso de generación -->
-                    <div class="text-center">
-                      <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Generando Cronogramas...</h3>
-                      <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4 mb-4">
-                        <div 
-                          class="bg-gradient-to-r from-green-500 to-emerald-600 h-4 rounded-full transition-all duration-300"
-                          [style.width.%]="bulkProgress()"
-                        ></div>
-                      </div>
-                      <p class="text-gray-600 dark:text-gray-400">{{ bulkProgress() }}% completado</p>
+            <!-- Generate Button / Progress -->
+            <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-5">
+              @if (isBulkGenerating()) {
+                <div class="text-center">
+                  <h3 class="text-sm font-bold text-gray-900 dark:text-white mb-4">Generando Cronogramas...</h3>
+                  <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 mb-3">
+                    <div class="bg-gradient-to-r from-emerald-500 to-green-500 h-2.5 rounded-full transition-all"
+                      [style.width.%]="bulkProgress()"></div>
+                  </div>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">{{ bulkProgress() }}% completado</p>
+                </div>
+              } @else {
+                <div class="text-center">
+                  <button type="button" (click)="generateBulkSchedules()"
+                    [disabled]="getSelectedContractsCount() === 0 || bulkScheduleForm.invalid"
+                    class="inline-flex items-center gap-2 px-6 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-emerald-500 to-green-600 rounded-xl hover:from-emerald-600 hover:to-green-700 shadow-md shadow-emerald-500/20 hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    Generar {{ getSelectedContractsCount() }} Cronogramas
+                  </button>
+                  @if (getSelectedContractsCount() === 0) {
+                    <p class="text-xs text-gray-400 mt-2">Selecciona al menos un contrato para continuar</p>
+                  }
+                </div>
+              }
+            </div>
+
+            <!-- Bulk Results -->
+            @if (bulkResults()) {
+              <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 overflow-hidden">
+                <div class="px-5 py-4 border-b border-gray-200/50 dark:border-gray-700/50 flex items-center gap-2.5">
+                  <div class="p-1.5 bg-blue-100 dark:bg-blue-900/40 rounded-lg">
+                    <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <h3 class="text-sm font-bold text-gray-900 dark:text-white">Resultados de Generación</h3>
+                </div>
+
+                <div class="p-5">
+                  <div class="grid grid-cols-3 gap-4 mb-5">
+                    <div class="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 text-center border border-blue-200/50 dark:border-blue-700/40">
+                      <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ bulkResults()?.total_contracts }}</p>
+                      <p class="text-[11px] font-semibold text-blue-500 uppercase tracking-wider mt-0.5">Total</p>
                     </div>
-                  } @else {
-                    <!-- Botón de generación -->
-                    <div class="text-center">
-                      <button
-                        type="button"
-                        (click)="generateBulkSchedules()"
-                        [disabled]="getSelectedContractsCount() === 0 || bulkScheduleForm.invalid"
-                        class="group relative bg-gradient-to-br from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 disabled:from-gray-400 disabled:to-gray-500 text-white py-4 px-8 rounded-2xl shadow-xl hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-3 font-semibold text-lg transition-all duration-300 transform hover:scale-[1.02] disabled:hover:scale-100 mx-auto"
-                      >
-                        <div class="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 group-disabled:opacity-0 transition-opacity duration-300 rounded-2xl"></div>
-                        <lucide-angular [img]="CalendarIcon" class="w-5 h-5 relative z-10"></lucide-angular>
-                        <span class="relative z-10">Generar {{ getSelectedContractsCount() }} Cronogramas</span>
-                      </button>
-                      @if (getSelectedContractsCount() === 0) {
-                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Selecciona al menos un contrato para continuar</p>
+                    <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-xl p-4 text-center border border-emerald-200/50 dark:border-emerald-700/40">
+                      <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{{ bulkResults()?.successful }}</p>
+                      <p class="text-[11px] font-semibold text-emerald-500 uppercase tracking-wider mt-0.5">Exitosos</p>
+                    </div>
+                    <div class="bg-red-50 dark:bg-red-900/20 rounded-xl p-4 text-center border border-red-200/50 dark:border-red-700/40">
+                      <p class="text-2xl font-bold text-red-600 dark:text-red-400">{{ bulkResults()?.failed }}</p>
+                      <p class="text-[11px] font-semibold text-red-500 uppercase tracking-wider mt-0.5">Fallidos</p>
+                    </div>
+                  </div>
+
+                  @if (bulkResults()?.results && bulkResults()!.results.length > 0) {
+                    <div class="max-h-60 overflow-y-auto space-y-1.5">
+                      <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Detalles</h4>
+                      @for (detail of bulkResults()?.results; track detail.contract_id) {
+                        <div class="flex items-center justify-between p-2.5 bg-gray-50/80 dark:bg-gray-700/30 rounded-lg">
+                          <span class="text-sm font-medium text-gray-900 dark:text-white">{{ detail.contract_number }}</span>
+                          @if (detail.success) {
+                            <span class="text-xs font-semibold text-emerald-600 dark:text-emerald-400">✓ Exitoso</span>
+                          } @else {
+                            <span class="text-xs font-semibold text-red-600 dark:text-red-400">✗ {{ detail.error }}</span>
+                          }
+                        </div>
                       }
                     </div>
                   }
                 </div>
               </div>
-            </section>
-
-            <!-- Resultados de generación masiva -->
-            @if (bulkResults()) {
-              <section>
-                <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/30 dark:border-gray-700/50 p-8 relative overflow-hidden">
-                  <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400"></div>
-                  <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 rounded-3xl"></div>
-                  
-                  <div class="relative z-10">
-                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center space-x-3">
-                      <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-3 rounded-2xl shadow-lg">
-                        <lucide-angular [img]="CheckCircleIcon" class="w-6 h-6 text-white"></lucide-angular>
-                      </div>
-                      <span>Resultados de Generación</span>
-                    </h3>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                      <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-2xl p-6 text-center">
-                        <div class="text-3xl font-bold text-blue-600 dark:text-blue-400">{{ bulkResults()?.total_contracts }}</div>
-                        <div class="text-sm text-blue-600 dark:text-blue-400 font-medium">Total Procesados</div>
-                      </div>
-                      <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-2xl p-6 text-center">
-                        <div class="text-3xl font-bold text-green-600 dark:text-green-400">{{ bulkResults()?.successful }}</div>
-                        <div class="text-sm text-green-600 dark:text-green-400 font-medium">Exitosos</div>
-                      </div>
-                      <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-2xl p-6 text-center">
-                        <div class="text-3xl font-bold text-red-600 dark:text-red-400">{{ bulkResults()?.failed }}</div>
-                        <div class="text-sm text-red-600 dark:text-red-400 font-medium">Fallidos</div>
-                      </div>
-                    </div>
-
-                    @if (bulkResults()?.results && bulkResults()!.results.length > 0) {
-                      <div class="max-h-64 overflow-y-auto">
-                        <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Detalles:</h4>
-                        @for (detail of bulkResults()?.results; track detail.contract_id) {
-                          <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl mb-2">
-                            <span class="text-sm font-medium text-gray-900 dark:text-white">{{ detail.contract_number }}</span>
-                            @if (detail.success) {
-                              <span class="text-sm text-green-600 dark:text-green-400 font-medium">✓ Exitoso</span>
-                            } @else {
-                              <span class="text-sm text-red-600 dark:text-red-400 font-medium">✗ {{ detail.error }}</span>
-                            }
-                          </div>
-                        }
-                      </div>
-                    }
-                  </div>
-                </div>
-              </section>
             }
           </div>
         }
 
         <!-- Success/Error Messages -->
-      @if (successMessage()) {
-        <div class="relative bg-gradient-to-br from-emerald-50/90 to-green-50/90 dark:from-emerald-900/30 dark:to-green-900/30 backdrop-blur-xl border border-emerald-200/50 dark:border-emerald-700/50 rounded-3xl p-8 shadow-2xl overflow-hidden">
-          <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-green-500/10 rounded-3xl blur-xl"></div>
-          <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-400 via-green-400 to-teal-400"></div>
-          <div class="relative z-10 flex items-start space-x-4">
-            <div class="bg-gradient-to-br from-emerald-500 to-green-600 p-3 rounded-2xl shadow-lg flex-shrink-0">
-              <lucide-angular [img]="CheckCircleIcon" class="w-6 h-6 text-white"></lucide-angular>
+        @if (successMessage()) {
+          <div class="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200/50 dark:border-emerald-700/50 rounded-2xl p-5 flex items-start gap-4">
+            <div class="p-2 bg-emerald-100 dark:bg-emerald-900/40 rounded-lg flex-shrink-0">
+              <svg class="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
             </div>
             <div class="flex-1">
-              <p class="text-emerald-900 dark:text-emerald-100 font-bold text-lg mb-2">{{ successMessage() }}</p>
-              <button 
-                (click)="viewGeneratedSchedule()"
-                class="group relative inline-flex items-center space-x-2 bg-gradient-to-br from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white px-4 py-2 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]"
-              >
-                <div class="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
-                <span class="relative z-10">Ver cronograma generado</span>
-                <svg class="w-4 h-4 relative z-10 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+              <p class="text-sm font-semibold text-emerald-800 dark:text-emerald-200 mb-2">{{ successMessage() }}</p>
+              <button (click)="viewGeneratedSchedule()"
+                class="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-300 hover:text-emerald-900 dark:hover:text-emerald-100 transition-colors">
+                Ver cronograma generado
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                 </svg>
               </button>
             </div>
           </div>
-        </div>
-      }
+        }
 
-      @if (errorMessage()) {
-        <div class="relative bg-gradient-to-br from-red-50/90 to-rose-50/90 dark:from-red-900/30 dark:to-rose-900/30 backdrop-blur-xl border border-red-200/50 dark:border-red-700/50 rounded-3xl p-8 shadow-2xl overflow-hidden">
-          <div class="absolute inset-0 bg-gradient-to-r from-red-500/10 to-rose-500/10 rounded-3xl blur-xl"></div>
-          <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-400 via-rose-400 to-pink-400"></div>
-          <div class="relative z-10 flex items-center space-x-4">
-            <div class="bg-gradient-to-br from-red-500 to-rose-600 p-3 rounded-2xl shadow-lg flex-shrink-0">
-              <lucide-angular [img]="AlertCircleIcon" class="w-6 h-6 text-white"></lucide-angular>
+        @if (errorMessage()) {
+          <div class="bg-red-50 dark:bg-red-900/20 border border-red-200/50 dark:border-red-700/50 rounded-2xl p-5 flex items-center gap-4">
+            <div class="p-2 bg-red-100 dark:bg-red-900/40 rounded-lg flex-shrink-0">
+              <svg class="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a10 10 0 11-20 0 10 10 0 0120 0z" />
+              </svg>
             </div>
-            <p class="text-red-900 dark:text-red-100 font-bold text-lg">{{ errorMessage() }}</p>
+            <p class="text-sm font-semibold text-red-800 dark:text-red-200">{{ errorMessage() }}</p>
           </div>
-        </div>
-      }
+        }
+
+      </div>
     </div>
   `
 })
@@ -625,16 +495,6 @@ export class ScheduleGeneratorComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly destroy$ = new Subject<void>();
-
-  // Icons
-  SearchIcon = Search;
-  CalculatorIcon = Calculator;
-  CalendarIcon = Calendar;
-  DollarSignIcon = DollarSign;
-  FileTextIcon = FileText;
-  AlertCircleIcon = AlertCircle;
-  CheckCircleIcon = CheckCircle;
-  ArrowLeftIcon = ArrowLeft;
 
   // Signals
   contracts = signal<ContractWithSchedules[]>([]);
