@@ -4,7 +4,7 @@
   <div class="flex-shrink-0 px-5 py-5 border-b border-gray-100 dark:border-gray-800">
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/25">
+        <div class="w-10 h-10 bg-gradient-to-br from-amber-400 via-yellow-500 to-amber-600 rounded-xl flex items-center justify-center shadow-lg shadow-amber-500/25">
           <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
           </svg>
@@ -33,19 +33,19 @@
           <!-- Link directo (sin hijos) -->
           <a *ngIf="!item.children || item.children.length === 0"
              [routerLink]="item.route"
-             routerLinkActive="!bg-blue-50 dark:!bg-blue-900/20 !text-blue-700 dark:!text-blue-400 !font-semibold sidebar-active"
-             class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/60 hover:text-gray-900 dark:hover:text-gray-200 transition-all duration-200 group">
-            <lucide-icon [name]="item.icon" class="w-[18px] h-[18px] flex-shrink-0 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors"></lucide-icon>
+             routerLinkActive="!bg-amber-50 dark:!bg-amber-900/15 !text-amber-700 dark:!text-amber-400 !font-semibold sidebar-active"
+             class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 dark:text-gray-400 hover:bg-amber-50/60 dark:hover:bg-amber-900/10 hover:text-amber-700 dark:hover:text-amber-400 transition-all duration-200 group">
+            <lucide-icon [name]="item.icon" class="w-[18px] h-[18px] flex-shrink-0 text-gray-400 dark:text-gray-500 group-hover:text-amber-500 dark:group-hover:text-amber-400 transition-colors"></lucide-icon>
             <span class="text-[13px] font-medium">{{ item.label | translate }}</span>
           </a>
 
           <!-- Expandible (con hijos) -->
           <div *ngIf="item.children && item.children.length > 0">
             <button (click)="toggle(item)"
-                    class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/60 hover:text-gray-900 dark:hover:text-gray-200 transition-all duration-200 group"
-                    [ngClass]="{ 'bg-gray-50 dark:bg-gray-800/40': item.expanded }">
+                    class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-gray-600 dark:text-gray-400 hover:bg-amber-50/60 dark:hover:bg-amber-900/10 hover:text-amber-700 dark:hover:text-amber-400 transition-all duration-200 group"
+                    [ngClass]="{ 'bg-amber-50/50 dark:bg-amber-900/10': item.expanded }">
               <div class="flex items-center gap-3">
-                <lucide-icon [name]="item.icon" class="w-[18px] h-[18px] flex-shrink-0 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors"></lucide-icon>
+                <lucide-icon [name]="item.icon" class="w-[18px] h-[18px] flex-shrink-0 text-gray-400 dark:text-gray-500 group-hover:text-amber-500 dark:group-hover:text-amber-400 transition-colors"></lucide-icon>
                 <span class="text-[13px] font-medium">{{ item.label | translate }}</span>
               </div>
               <lucide-icon [name]="chevronDown[0].icon"
@@ -55,12 +55,12 @@
 
             <!-- Submenú -->
             <div *ngIf="item.expanded"
-                 class="ml-5 mt-0.5 pl-3 border-l-2 border-blue-100 dark:border-blue-900/40 space-y-0.5 animate-fadeIn">
+                 class="ml-5 mt-0.5 pl-3 border-l-2 border-amber-200 dark:border-amber-800/40 space-y-0.5 animate-fadeIn">
               <ng-container *ngFor="let child of item.children">
                 <a [routerLink]="child.route"
-                   routerLinkActive="!bg-blue-50 dark:!bg-blue-900/20 !text-blue-700 dark:!text-blue-400 !font-semibold"
-                   class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/60 hover:text-gray-800 dark:hover:text-gray-200 transition-all duration-200 group">
-                  <div class="w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-gray-600 group-hover:bg-blue-500 dark:group-hover:bg-blue-400 transition-colors flex-shrink-0"></div>
+                   routerLinkActive="!bg-amber-50 dark:!bg-amber-900/15 !text-amber-700 dark:!text-amber-400 !font-semibold"
+                   class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] text-gray-500 dark:text-gray-400 hover:bg-amber-50/60 dark:hover:bg-amber-900/10 hover:text-amber-700 dark:hover:text-amber-400 transition-all duration-200 group">
+                  <div class="w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-gray-600 group-hover:bg-amber-500 dark:group-hover:bg-amber-400 transition-colors flex-shrink-0"></div>
                   <span>{{ child.label | translate }}</span>
                 </a>
               </ng-container>
