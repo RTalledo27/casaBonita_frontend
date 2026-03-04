@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { LucideAngularModule, CalendarCheck, Plus } from 'lucide-angular';
 import { AttendanceService } from '../../services/attendance.service';
 import { EmployeeService } from '../../services/employee.service';
 import { Attendance } from '../../models/attendance';
@@ -10,12 +11,13 @@ import { Employee } from '../../models/employee';
 @Component({
   selector: 'app-attendance-list',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, LucideAngularModule],
   templateUrl: './attendance-list.component.html',
   styleUrls: ['./attendance-list.component.scss']
 })
 export class AttendanceListComponent implements OnInit {
-  // Make Math available in template
+  CalendarCheck = CalendarCheck;
+  Plus = Plus;
   Math = Math;
   
   attendances: Attendance[] = [];

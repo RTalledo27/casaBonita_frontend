@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { LucideAngularModule, ArrowLeft, CalendarCheck } from 'lucide-angular';
 import { AttendanceService } from '../../services/attendance.service';
 import { EmployeeService } from '../../services/employee.service';
 import { Attendance } from '../../models/attendance';
@@ -10,11 +11,13 @@ import { Employee } from '../../models/employee';
 @Component({
   selector: 'app-attendance-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule],
   templateUrl: './attendance-form.component.html',
   styleUrls: ['./attendance-form.component.scss']
 })
 export class AttendanceFormComponent implements OnInit {
+  ArrowLeft = ArrowLeft;
+  CalendarCheck = CalendarCheck;
   attendanceForm: FormGroup;
   isEditMode = false;
   isLoading = false;

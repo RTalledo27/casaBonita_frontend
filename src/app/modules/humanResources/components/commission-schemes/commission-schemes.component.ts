@@ -11,6 +11,7 @@
 import { Component, OnInit, inject, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { LucideAngularModule, FileText, Plus } from 'lucide-angular';
 
 // Shared Components
 import { TooltipPopoverComponent } from '../../../../shared/components/tooltip-popover/tooltip-popover.component';
@@ -32,11 +33,13 @@ import { HrCommissionService, CommissionScheme } from '../../services/hr-commiss
 @Component({
   selector: 'app-commission-schemes',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, TooltipPopoverComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, LucideAngularModule, TooltipPopoverComponent],
   templateUrl: './commission-schemes.component.html',
   styleUrls: ['./commission-schemes.component.css']
 })
 export class CommissionSchemesComponent implements OnInit {
+  FileText = FileText;
+  Plus = Plus;
   // ==========================================
   // DEPENDENCY INJECTION
   // ==========================================

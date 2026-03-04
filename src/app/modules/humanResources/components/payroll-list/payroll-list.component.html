@@ -1,84 +1,93 @@
-﻿<div class="payroll-list-container max-w-7xl mx-auto p-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
-  <!-- Header -->
-  <div class="header bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 mb-8">
-    <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 mb-6">
-      <div class="header-content flex-1">
-        <h1 class="title text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">Gestión de Nómina</h1>
-        <p class="subtitle text-gray-600 dark:text-gray-400 text-lg">Administra y procesa las nóminas de los empleados</p>
-      </div>
-      <div class="header-actions flex flex-col sm:flex-row gap-3">
-        <button 
-          class="btn btn-secondary bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 px-4 py-2.5 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 hover:shadow-md hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
-          [disabled]="processing()"
-          (click)="processPayroll()">
-          <lucide-angular [img]="Calculator" size="16"></lucide-angular>
-          {{ processing() ? 'Procesando...' : 'Procesar Nóminas Masivo' }}
-        </button>
-        <button 
-          class="btn btn-primary bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 hover:shadow-lg hover:shadow-blue-500/25 hover:-translate-y-0.5"
-          (click)="generatePayroll()">
-          <lucide-angular [img]="Plus" size="16"></lucide-angular>
-          Generar Nómina
-        </button>
-      </div>
-    </div>
-    
-    <!-- Period Statistics -->
-    <div class="period-stats bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
-      <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Estadísticas del Período Actual</h3>
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-         <div class="stat-item text-center">
-           <div class="stat-value text-lg font-bold text-blue-600 dark:text-blue-400">{{ getPeriodStats().borrador }}</div>
-           <div class="stat-label text-xs text-gray-600 dark:text-gray-400">Borradores</div>
-         </div>
-         <div class="stat-item text-center">
-           <div class="stat-value text-lg font-bold text-orange-600 dark:text-orange-400">{{ getPeriodStats().procesado }}</div>
-           <div class="stat-label text-xs text-gray-600 dark:text-gray-400">Procesadas</div>
-         </div>
-         <div class="stat-item text-center">
-           <div class="stat-value text-lg font-bold text-green-600 dark:text-green-400">{{ getPeriodStats().aprobado }}</div>
-           <div class="stat-label text-xs text-gray-600 dark:text-gray-400">Aprobadas</div>
-         </div>
-         <div class="stat-item text-center">
-           <div class="stat-value text-lg font-bold text-gray-600 dark:text-gray-400">{{ getPeriodStats().total }}</div>
-           <div class="stat-label text-xs text-gray-600 dark:text-gray-400">Total</div>
-         </div>
-       </div>
-    </div>
-  </div>
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-indigo-900/30 relative overflow-hidden">
+  <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.08),transparent_50%)] dark:bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.04),transparent_50%)]"></div>
 
-  <!-- Statistics Cards -->
-  <div class="stats-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-    <div class="stat-card bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md hover:-translate-y-1 transition-all duration-200 flex items-center gap-4">
-      <div class="stat-icon bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 w-12 h-12 rounded-xl flex items-center justify-center">
-        <lucide-angular [img]="DollarSign" size="24"></lucide-angular>
+  <div class="relative p-4 sm:p-6 lg:p-8 max-w-[1600px] mx-auto">
+    <!-- Header (estilo Contratos) -->
+    <div class="mb-6">
+      <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-5 sm:p-6">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <div class="flex items-center gap-4">
+            <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-3 rounded-xl shadow-lg shadow-blue-500/20">
+              <lucide-angular [name]="FileText" class="w-6 h-6 text-white" size="24"></lucide-angular>
+            </div>
+            <div>
+              <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Gestión de Nómina</h1>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Administra y procesa las nóminas de los empleados</p>
+            </div>
+          </div>
+          <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+            <button 
+              [disabled]="processing()"
+              (click)="processPayroll()"
+              class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 border border-gray-200/50 dark:border-gray-600/50 disabled:opacity-50 disabled:cursor-not-allowed">
+              <lucide-angular [name]="Calculator" size="16"></lucide-angular>
+              {{ processing() ? 'Procesando...' : 'Procesar Nóminas Masivo' }}
+            </button>
+            <button 
+              (click)="generatePayroll()"
+              class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md">
+              <lucide-angular [name]="Plus" size="16"></lucide-angular>
+              Generar Nómina
+            </button>
+          </div>
+        </div>
+        <!-- Period Statistics -->
+        <div class="mt-4 pt-4 border-t border-gray-200/50 dark:border-gray-600/50">
+          <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Estadísticas del Período Actual</h3>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div class="stat-item text-center p-2 rounded-lg bg-gray-50/80 dark:bg-gray-700/30">
+              <div class="stat-value text-lg font-bold text-blue-600 dark:text-blue-400">{{ getPeriodStats().borrador }}</div>
+              <div class="stat-label text-xs text-gray-600 dark:text-gray-400">Borradores</div>
+            </div>
+            <div class="stat-item text-center p-2 rounded-lg bg-gray-50/80 dark:bg-gray-700/30">
+              <div class="stat-value text-lg font-bold text-orange-600 dark:text-orange-400">{{ getPeriodStats().procesado }}</div>
+              <div class="stat-label text-xs text-gray-600 dark:text-gray-400">Procesadas</div>
+            </div>
+            <div class="stat-item text-center p-2 rounded-lg bg-gray-50/80 dark:bg-gray-700/30">
+              <div class="stat-value text-lg font-bold text-green-600 dark:text-green-400">{{ getPeriodStats().aprobado }}</div>
+              <div class="stat-label text-xs text-gray-600 dark:text-gray-400">Aprobadas</div>
+            </div>
+            <div class="stat-item text-center p-2 rounded-lg bg-gray-50/80 dark:bg-gray-700/30">
+              <div class="stat-value text-lg font-bold text-gray-600 dark:text-gray-400">{{ getPeriodStats().total }}</div>
+              <div class="stat-label text-xs text-gray-600 dark:text-gray-400">Total</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  <!-- Statistics Cards (KPIs) -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
+    <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl border border-gray-200/50 dark:border-gray-700/50 p-4 sm:p-5 hover:shadow-md transition-shadow flex items-center gap-4">
+      <div class="p-2 bg-blue-100 dark:bg-blue-900/40 rounded-lg">
+        <lucide-angular [name]="DollarSign" size="20" class="text-blue-600 dark:text-blue-400"></lucide-angular>
       </div>
       <div class="stat-content flex-1">
         <h3 class="stat-value text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">{{ formatCurrency(totalGross()) }}</h3>
         <p class="stat-label text-gray-600 dark:text-gray-400 text-sm">Total Bruto</p>
       </div>
     </div>
-    <div class="stat-card bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md hover:-translate-y-1 transition-all duration-200 flex items-center gap-4">
-      <div class="stat-icon bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 w-12 h-12 rounded-xl flex items-center justify-center">
-        <lucide-angular [img]="CheckCircle" size="24"></lucide-angular>
+    <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl border border-gray-200/50 dark:border-gray-700/50 p-4 sm:p-5 hover:shadow-md transition-shadow flex items-center gap-4">
+      <div class="p-2 bg-green-100 dark:bg-green-900/40 rounded-lg">
+        <lucide-angular [name]="CheckCircle" size="20" class="text-green-600 dark:text-green-400"></lucide-angular>
       </div>
       <div class="stat-content flex-1">
         <h3 class="stat-value text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">{{ formatCurrency(totalNet()) }}</h3>
         <p class="stat-label text-gray-600 dark:text-gray-400 text-sm">Total Neto</p>
       </div>
     </div>
-    <div class="stat-card bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md hover:-translate-y-1 transition-all duration-200 flex items-center gap-4">
-      <div class="stat-icon bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 w-12 h-12 rounded-xl flex items-center justify-center">
-        <lucide-angular [img]="XCircle" size="24"></lucide-angular>
+    <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl border border-gray-200/50 dark:border-gray-700/50 p-4 sm:p-5 hover:shadow-md transition-shadow flex items-center gap-4">
+      <div class="p-2 bg-red-100 dark:bg-red-900/40 rounded-lg">
+        <lucide-angular [name]="XCircle" size="20" class="text-red-600 dark:text-red-400"></lucide-angular>
       </div>
       <div class="stat-content flex-1">
         <h3 class="stat-value text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">{{ formatCurrency(totalDeductions()) }}</h3>
         <p class="stat-label text-gray-600 dark:text-gray-400 text-sm">Deducciones</p>
       </div>
     </div>
-    <div class="stat-card bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md hover:-translate-y-1 transition-all duration-200 flex items-center gap-4">
-      <div class="stat-icon bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 w-12 h-12 rounded-xl flex items-center justify-center">
-        <lucide-angular [img]="FileText" size="24"></lucide-angular>
+    <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl border border-gray-200/50 dark:border-gray-700/50 p-4 sm:p-5 hover:shadow-md transition-shadow flex items-center gap-4">
+      <div class="p-2 bg-purple-100 dark:bg-purple-900/40 rounded-lg">
+        <lucide-angular [name]="FileText" size="20" class="text-purple-600 dark:text-purple-400"></lucide-angular>
       </div>
       <div class="stat-content flex-1">
         <h3 class="stat-value text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">{{ filteredPayrolls().length }}</h3>
@@ -88,13 +97,13 @@
   </div>
 
   <!-- Filters -->
-  <div class="filters-section bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 mb-6">
+  <div class="filters-section bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-5 sm:p-6 mb-6">
     <div class="filters-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
       <!-- Search -->
       <div class="filter-group">
         <label class="filter-label block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Buscar empleado</label>
         <div class="search-input relative">
-          <lucide-angular [img]="Search" size="16" class="search-icon absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500"></lucide-angular>
+          <lucide-angular [name]="Search" size="16" class="search-icon absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500"></lucide-angular>
           <input
             type="text"
             placeholder="Buscar por nombre o código..."
@@ -143,25 +152,29 @@
   </div>
 
   <!-- Loading State -->
-  <div *ngIf="loading()" class="loading-state bg-white dark:bg-gray-800 p-12 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col items-center justify-center">
-    <div class="loading-spinner w-10 h-10 border-4 border-gray-200 dark:border-gray-600 border-t-blue-600 rounded-full animate-spin mb-4"></div>
-    <p class="text-gray-600 dark:text-gray-400">Cargando nóminas...</p>
+  <div *ngIf="loading()" class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-12 flex flex-col items-center">
+    <div class="flex gap-1.5 mb-4">
+      <div class="w-2.5 h-2.5 bg-blue-500 rounded-full animate-bounce"></div>
+      <div class="w-2.5 h-2.5 bg-blue-500 rounded-full animate-bounce" style="animation-delay:0.1s"></div>
+      <div class="w-2.5 h-2.5 bg-blue-500 rounded-full animate-bounce" style="animation-delay:0.2s"></div>
+    </div>
+    <p class="text-sm text-gray-500 dark:text-gray-400">Cargando nóminas...</p>
   </div>
 
   <!-- Error State -->
-  <div *ngIf="error()" class="error-state bg-white dark:bg-gray-800 p-12 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col items-center justify-center text-center">
-    <div class="error-icon text-red-500 mb-4">
-      <lucide-angular [img]="XCircle" size="48"></lucide-angular>
+  <div *ngIf="error()" class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-10 text-center flex flex-col items-center">
+    <div class="w-14 h-14 rounded-2xl bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 flex items-center justify-center mb-4">
+      <lucide-angular [name]="XCircle" size="28"></lucide-angular>
     </div>
     <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Error al cargar datos</h3>
-    <p class="text-gray-600 dark:text-gray-400 mb-6">{{ error() }}</p>
-    <button class="btn btn-primary bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg font-medium transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/25" (click)="loadPayrolls()">
+    <p class="text-gray-600 dark:text-gray-300 mb-6">{{ error() }}</p>
+    <button class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md" (click)="loadPayrolls()">
       Reintentar
     </button>
   </div>
 
   <!-- Payrolls Table -->
-  <div *ngIf="!loading() && !error()" class="table-container bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+  <div *ngIf="!loading() && !error()" class="table-container bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 overflow-hidden">
     <div class="table-wrapper overflow-x-auto">
       <table class="table w-full">
         <thead class="bg-gray-50 dark:bg-gray-700">
@@ -217,7 +230,7 @@
             </td>
             <td class="px-4 py-4 text-center">
               <span [class]="'status-badge inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ' + getStatusClass(payroll.status)">
-                <lucide-angular [img]="getStatusIcon(payroll.status)" size="14"></lucide-angular>
+                <lucide-angular [name]="getStatusIcon(payroll.status)" size="14"></lucide-angular>
                 {{ getStatusLabel(payroll.status) }}
               </span>
             </td>
@@ -228,7 +241,7 @@
                   class="btn-icon btn-icon-primary w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-800/50 hover:scale-110 transition-all duration-200 flex items-center justify-center"
                   (click)="viewPayroll(payroll)"
                   title="Ver detalle">
-                  <lucide-angular [img]="Eye" size="14"></lucide-angular>
+                  <lucide-angular [name]="Eye" size="14"></lucide-angular>
                 </button>
                 
                 <!-- Procesar individual -->
@@ -237,7 +250,7 @@
                   class="btn-icon btn-icon-warning w-8 h-8 rounded-lg bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-800/50 hover:scale-110 transition-all duration-200 flex items-center justify-center"
                   (click)="processIndividualPayroll(payroll)"
                   title="Procesar nómina">
-                  <lucide-angular [img]="Calculator" size="14"></lucide-angular>
+                  <lucide-angular [name]="Calculator" size="14"></lucide-angular>
                 </button>
                 
                 <!-- Aprobar -->
@@ -246,7 +259,7 @@
                   class="btn-icon btn-icon-success w-8 h-8 rounded-lg bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-800/50 hover:scale-110 transition-all duration-200 flex items-center justify-center"
                   (click)="approvePayroll(payroll)"
                   title="Aprobar nómina">
-                  <lucide-angular [img]="CheckCircle" size="14"></lucide-angular>
+                  <lucide-angular [name]="CheckCircle" size="14"></lucide-angular>
                 </button>
                 
                 <!-- Descargar -->
@@ -255,7 +268,7 @@
                   class="btn-icon btn-icon-secondary w-8 h-8 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 hover:scale-110 transition-all duration-200 flex items-center justify-center"
                   (click)="downloadPayroll(payroll)"
                   title="Descargar PDF">
-                  <lucide-angular [img]="Download" size="14"></lucide-angular>
+                  <lucide-angular [name]="Download" size="14"></lucide-angular>
                 </button>
                 
                 <!-- Editar -->
@@ -264,7 +277,7 @@
                   class="btn-icon btn-icon-info w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-800/50 hover:scale-110 transition-all duration-200 flex items-center justify-center"
                   (click)="editPayroll(payroll)"
                   title="Editar nómina">
-                  <lucide-angular [img]="Edit" size="14"></lucide-angular>
+                  <lucide-angular [name]="Edit" size="14"></lucide-angular>
                 </button>
               </div>
             </td>
@@ -274,12 +287,12 @@
       <!-- Empty State -->
       <div *ngIf="filteredPayrolls().length === 0" class="empty-state p-12 flex flex-col items-center justify-center text-center">
         <div class="empty-icon text-gray-300 dark:text-gray-600 mb-4">
-          <lucide-angular [img]="FileText" size="48"></lucide-angular>
+          <lucide-angular [name]="FileText" size="48"></lucide-angular>
         </div>
         <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">No hay nóminas</h3>
         <p class="text-gray-600 dark:text-gray-400 mb-6">No se encontraron nóminas para los filtros seleccionados.</p>
         <button class="btn btn-primary bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 hover:shadow-lg hover:shadow-blue-500/25" (click)="generatePayroll()">
-          <lucide-angular [img]="Plus" size="16"></lucide-angular>
+          <lucide-angular [name]="Plus" size="16"></lucide-angular>
           Generar Primera Nómina
         </button>
       </div>
@@ -287,7 +300,7 @@
   </div>
 
   <!-- Pagination Controls -->
-  <div *ngIf="totalPages() > 1 || totalItems() > 0" class="pagination-container bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 mt-6">
+  <div *ngIf="totalPages() > 1 || totalItems() > 0" class="pagination-container bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-5 sm:p-6 mt-6">
     
     <!-- Pagination Info and Items Per Page Selector -->
     <div class="pagination-header flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
@@ -317,7 +330,7 @@
         [disabled]="currentPage() === 1"
         (click)="goToFirstPage()"
         title="Primera página">
-        <lucide-angular [img]="ChevronFirst" size="16"></lucide-angular>
+        <lucide-angular [name]="ChevronFirst" size="16"></lucide-angular>
       </button>
       
       <!-- Previous Page Button -->
@@ -326,7 +339,7 @@
         [disabled]="currentPage() === 1"
         (click)="onPageChange(currentPage() - 1)"
         title="Página anterior">
-        <lucide-angular [img]="ChevronLeft" size="16"></lucide-angular>
+        <lucide-angular [name]="ChevronLeft" size="16"></lucide-angular>
       </button>
       
       <!-- Page Numbers -->
@@ -353,7 +366,7 @@
         [disabled]="currentPage() === totalPages()"
         (click)="onPageChange(currentPage() + 1)"
         title="Página siguiente">
-        <lucide-angular [img]="ChevronRight" size="16"></lucide-angular>
+        <lucide-angular [name]="ChevronRight" size="16"></lucide-angular>
       </button>
       
       <!-- Last Page Button -->
@@ -362,10 +375,11 @@
         [disabled]="currentPage() === totalPages()"
         (click)="goToLastPage()"
         title="Última página">
-        <lucide-angular [img]="ChevronLast" size="16"></lucide-angular>
+        <lucide-angular [name]="ChevronLast" size="16"></lucide-angular>
       </button>
       
     </div>
     
+  </div>
   </div>
 </div>

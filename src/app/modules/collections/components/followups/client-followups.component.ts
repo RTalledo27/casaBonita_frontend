@@ -186,7 +186,7 @@ import { ToastService } from '../../../../core/services/toast.service';
 
           <!-- Table -->
           <app-shared-table [columns]="columnsView()" [data]="paged()" [templates]="templates" [componentName]="'followups'" [permissionPrefix]="'collections'" [idField]="'sale_code'" [loading]="loading()"
-          (onEdit)="openEdit($event)"></app-shared-table>
+          [variant]="'contracts'" (onEdit)="openEdit($event)"></app-shared-table>
 
           @if (error()) {
             <div class="p-4 text-sm font-semibold text-red-600">{{ error() }}</div>

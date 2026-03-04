@@ -1,238 +1,259 @@
-<div class="lot-detail-container" *ngIf="lot">
-    <!-- Encabezado mejorado -->
-    <div class="detail-header">
-        <button (click)="back()" class="back-button">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd"
-                    d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
-                    clip-rule="evenodd" />
-            </svg>
-            {{ 'common.back' | translate }}
-        </button>
+<div
+  *ngIf="lot"
+  class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-indigo-900/30 relative overflow-hidden">
+  <!-- Background Pattern -->
+  <div
+    class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.08),transparent_50%)] dark:bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.04),transparent_50%)]">
+  </div>
 
-        <div class="title-container">
-            <h1>{{ 'inventory.lots.detailTitle' | translate }}</h1>
-            <div class="status-badge">
-                <span class="dot"></span>
-                {{ ('inventory.lots.status.' + lot.status) | translate }}
+  <div class="relative p-4 sm:p-6 lg:p-8 max-w-[1600px] mx-auto">
+
+    <!-- HEADER -->
+    <div class="mb-6">
+      <div
+        class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-5 sm:p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div class="flex flex-wrap items-center gap-4">
+            <button (click)="back()"
+              class="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-xl text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+              </svg>
+              {{ 'common.back' | translate }}
+            </button>
+            <div class="flex items-center gap-4">
+              <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-3 rounded-xl shadow-lg shadow-blue-500/20">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+              </div>
+              <div>
+                <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
+                  {{ 'inventory.lots.detailTitle' | translate }}
+                </h1>
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                  {{ lot.manzana?.name || '-' }} · Lote {{ lot.num_lot || '-' }}
+                </p>
+              </div>
             </div>
-            </div>
+          </div>
+          <span
+            class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-semibold rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300 border border-blue-200/50 dark:border-blue-700/50">
+            <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+            {{ ('inventory.lots.status.' + lot.status) | translate }}
+          </span>
+        </div>
+      </div>
     </div>
 
-    <!-- Grid principal -->
-    <div class="detail-grid">
-        <!-- Columna de datos -->
-        <div class="data-column">
-            <!-- Datos generales -->
-            <div class="data-card">
-                <h2 class="card-title">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="title-icon" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                    </svg>
-                    {{ 'inventory.lots.generalTitle' | translate }}
-                </h2>
-
-                <div class="data-grid">
-                    <div class="data-item">
-                        <span class="data-label">{{ 'inventory.lots.manzana' | translate }}</span>
-                        <span class="data-value">{{ lot.manzana?.name || '-' }}</span>
-                    </div>
-
-                    <div class="data-item">
-                        <span class="data-label">{{ 'inventory.lots.streetType' | translate }}</span>
-                        <span class="data-value">{{ lot.street_type?.name || '-' }}</span>
-                    </div>
-
-                    <div class="data-item">
-                        <span class="data-label">{{ 'inventory.lots.numLot' | translate }}</span>
-                        <span class="data-value">{{ lot.num_lot || '-' }}</span>
-                    </div>
-
-                    <div class="data-item">
-                        <span class="data-label">{{ 'inventory.lots.areaM2' | translate }}</span>
-                        <span class="data-value">{{ lot.area_m2 || '-' }} m²</span>
-                    </div>
-
-                    <div class="data-item">
-                        <span class="data-label">{{ 'inventory.lots.areaConstructionM2' | translate }}</span>
-                        <span class="data-value">{{ lot.area_construction_m2 || '-' }} m²</span>
-                    </div>
-
-                    <div class="data-item">
-                        <span class="data-label">{{ 'inventory.lots.status.label' | translate }}</span>
-                        <span class="data-value status-available">{{ lot.status || '-' }}</span>
-                    </div>
-                </div>
+    <!-- CONTENT GRID -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+      <!-- Columna datos generales y finanzas -->
+      <div class="space-y-4 sm:space-y-6">
+        <!-- Datos generales -->
+        <div
+          class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+          <div class="px-5 py-4 border-b border-gray-200/50 dark:border-gray-700/50 flex items-center gap-3">
+            <div class="p-2 bg-blue-100 dark:bg-blue-900/40 rounded-lg">
+              <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+              </svg>
             </div>
-
-            <!-- Finanzas - Datos del Financial Template -->
-            <div class="data-card" *ngIf="template">
-                <h2 class="card-title">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="title-icon" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    Información Financiera
-                </h2>
-
-                <div class="data-grid">
-                    <div class="data-item">
-                        <span class="data-label">Precio Lista</span>
-                        <span class="data-value">{{ formatCurrency(template.precio_lista) }}</span>
-                    </div>
-
-                    <div class="data-item" *ngIf="template.descuento > 0">
-                        <span class="data-label">Descuento</span>
-                        <span class="data-value" style="color: #ef4444;">-{{ formatCurrency(template.descuento) }}</span>
-                    </div>
-
-                    <div class="data-item">
-                        <span class="data-label">Precio Venta (Financiado)</span>
-                        <span class="data-value" style="font-weight: 700;">{{ formatCurrency(template.precio_venta) }}</span>
-                    </div>
-
-                    <div class="data-item" *ngIf="template.precio_contado > 0">
-                        <span class="data-label">Precio Contado</span>
-                        <span class="data-value">{{ formatCurrency(template.precio_contado) }}</span>
-                    </div>
-
-                    <div class="data-item">
-                        <span class="data-label">Cuota Inicial</span>
-                        <span class="data-value">{{ formatCurrency(template.cuota_inicial) }}</span>
-                    </div>
-
-                    <div class="data-item" *ngIf="template.ci_fraccionamiento > 0 && template.ci_fraccionamiento !== template.cuota_inicial">
-                        <span class="data-label">CI Fraccionamiento</span>
-                        <span class="data-value">{{ formatCurrency(template.ci_fraccionamiento) }}</span>
-                    </div>
-
-                    <div class="data-item" *ngIf="template.cuota_balon > 0">
-                        <span class="data-label">Cuota Balón</span>
-                        <span class="data-value">{{ formatCurrency(template.cuota_balon) }}</span>
-                    </div>
-                </div>
-
-                <!-- Planes de cuotas -->
-                <div *ngIf="getInstallmentOptions().length > 0" style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color, #e2e8f0);">
-                    <span class="data-label" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Planes de Financiamiento</span>
-                    <div class="data-grid">
-                        <div class="data-item" *ngFor="let opt of getInstallmentOptions()">
-                            <span class="data-label">{{ opt.months }} meses</span>
-                            <span class="data-value">{{ formatCurrency(opt.amount) }}/mes</span>
-                        </div>
-                    </div>
-                </div>
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">{{ 'inventory.lots.generalTitle' | translate }}</h2>
+          </div>
+          <div class="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="flex flex-col gap-1">
+              <span class="text-xs font-medium text-gray-500 dark:text-gray-400">{{ 'inventory.lots.manzana' | translate }}</span>
+              <span class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ lot.manzana?.name || '-' }}</span>
             </div>
-
-            <!-- Sin información financiera -->
-            <div class="data-card" *ngIf="!template">
-                <h2 class="card-title">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="title-icon" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    Información Financiera
-                </h2>
-                <div class="data-grid">
-                    <div class="data-item">
-                        <span class="data-label">{{ 'inventory.lots.totalPrice' | translate }}</span>
-                        <span class="data-value">{{ formatCurrency(lot.total_price) }}</span>
-                    </div>
-                    <div class="data-item">
-                        <span class="data-label">{{ 'inventory.lots.currency' | translate }}</span>
-                        <span class="data-value">{{ lot.currency || '-' }}</span>
-                    </div>
-                </div>
+            <div class="flex flex-col gap-1">
+              <span class="text-xs font-medium text-gray-500 dark:text-gray-400">{{ 'inventory.lots.streetType' | translate }}</span>
+              <span class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ lot.street_type?.name || '-' }}</span>
             </div>
+            <div class="flex flex-col gap-1">
+              <span class="text-xs font-medium text-gray-500 dark:text-gray-400">{{ 'inventory.lots.numLot' | translate }}</span>
+              <span class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ lot.num_lot || '-' }}</span>
+            </div>
+            <div class="flex flex-col gap-1">
+              <span class="text-xs font-medium text-gray-500 dark:text-gray-400">{{ 'inventory.lots.areaM2' | translate }}</span>
+              <span class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ lot.area_m2 || '-' }} m²</span>
+            </div>
+            <div class="flex flex-col gap-1">
+              <span class="text-xs font-medium text-gray-500 dark:text-gray-400">{{ 'inventory.lots.areaConstructionM2' | translate }}</span>
+              <span class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ lot.area_construction_m2 || '-' }} m²</span>
+            </div>
+            <div class="flex flex-col gap-1">
+              <span class="text-xs font-medium text-gray-500 dark:text-gray-400">{{ 'inventory.lots.status.label' | translate }}</span>
+              <span class="text-sm font-semibold text-emerald-600 dark:text-emerald-400">{{ lot.status || '-' }}</span>
+            </div>
+          </div>
         </div>
 
-        <!-- Columna de detalles adicionales -->
-        <div class="details-column">
-            <!-- Bono Techo Propio y Precio Total Real -->
-            <div class="data-card" *ngIf="template">
-                <h2 class="card-title">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="title-icon" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM10 8.5a.5.5 0 11-1 0 .5.5 0 011 0zm5 5a.5.5 0 11-1 0 .5.5 0 011 0z" />
-                    </svg>
-                    Bono y Precio Total Real
-                </h2>
-
-                <div class="data-grid">
-                    <div class="data-item">
-                        <span class="data-label">Precio Venta (Logicware)</span>
-                        <span class="data-value">{{ formatCurrency(template.precio_venta) }}</span>
-                    </div>
-
-                    <div class="data-item">
-                        <span class="data-label">Bono Techo Propio</span>
-                        <span class="data-value" style="color: #22c55e; font-weight: 600;">+ {{ formatCurrency(template.bono_techo_propio) }}</span>
-                    </div>
-
-                    <div class="data-item" *ngIf="template.bono_bpp > 0">
-                        <span class="data-label">Bono BPP (Buen Pagador)</span>
-                        <span class="data-value" style="color: #22c55e;">{{ formatCurrency(template.bono_bpp) }}</span>
-                    </div>
-                </div>
-
-                <div style="margin-top: 1rem; padding: 1rem; background: linear-gradient(135deg, #eff6ff, #eef2ff); border-radius: 0.75rem; border: 1px solid #bfdbfe;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-                        <span style="font-size: 0.875rem; font-weight: 600; color: #1e40af;">Precio Total Real</span>
-                        <span style="font-size: 1.25rem; font-weight: 800; color: #1e40af;">{{ formatCurrency(precioTotalReal) }}</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 0.5rem; border-top: 1px dashed #93c5fd;">
-                        <span style="font-size: 0.875rem; font-weight: 600; color: #7c3aed;">5% del Total Real</span>
-                        <span style="font-size: 1.125rem; font-weight: 700; color: #7c3aed;">{{ formatCurrency(fivePercent) }}</span>
-                    </div>
-                </div>
+        <!-- Información Financiera (con template) -->
+        <div *ngIf="template"
+          class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+          <div class="px-5 py-4 border-b border-gray-200/50 dark:border-gray-700/50 flex items-center gap-3">
+            <div class="p-2 bg-violet-100 dark:bg-violet-900/40 rounded-lg">
+              <svg class="w-5 h-5 text-violet-600 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
             </div>
-
-            <!-- Multimedia -->
-            <div class="data-card">
-                <h2 class="card-title">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="title-icon" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    {{ 'inventory.lots.media' | translate }}
-                </h2>
-
-                <div class="media-grid">
-                    <ng-container *ngFor="let m of lot.media">
-                        <div class="media-item">
-                            <div class="media-content">
-                                <img *ngIf="m.type !== 'doc'" [src]="backendBaseUrl+m.url" class="media-image"
-                                    alt="Media" />
-
-                                <a *ngIf="m.type === 'doc'" [href]="m.url" target="_blank" class="doc-link">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="doc-icon" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                    </svg>
-                                    <span>{{ getFileName(m.url) }}</span>
-                                </a>
-                            </div>
-                            <div class="media-type">{{ m.type }}</div>
-                        </div>
-                    </ng-container>
-
-                    <div *ngIf="!lot.media || lot.media.length === 0" class="no-media">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="no-media-icon" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        No hay elementos multimedia
-                    </div>
-                </div>
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Información Financiera</h2>
+          </div>
+          <div class="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="flex flex-col gap-1">
+              <span class="text-xs font-medium text-gray-500 dark:text-gray-400">Precio Lista</span>
+              <span class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ formatCurrency(template.precio_lista) }}</span>
             </div>
+            <div class="flex flex-col gap-1" *ngIf="template.descuento > 0">
+              <span class="text-xs font-medium text-gray-500 dark:text-gray-400">Descuento</span>
+              <span class="text-sm font-medium text-red-600 dark:text-red-400">-{{ formatCurrency(template.descuento) }}</span>
+            </div>
+            <div class="flex flex-col gap-1">
+              <span class="text-xs font-medium text-gray-500 dark:text-gray-400">Precio Venta (Financiado)</span>
+              <span class="text-sm font-bold text-gray-900 dark:text-gray-100">{{ formatCurrency(template.precio_venta) }}</span>
+            </div>
+            <div class="flex flex-col gap-1" *ngIf="template.precio_contado > 0">
+              <span class="text-xs font-medium text-gray-500 dark:text-gray-400">Precio Contado</span>
+              <span class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ formatCurrency(template.precio_contado) }}</span>
+            </div>
+            <div class="flex flex-col gap-1">
+              <span class="text-xs font-medium text-gray-500 dark:text-gray-400">Cuota Inicial</span>
+              <span class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ formatCurrency(template.cuota_inicial) }}</span>
+            </div>
+            <div class="flex flex-col gap-1" *ngIf="template.ci_fraccionamiento > 0 && template.ci_fraccionamiento !== template.cuota_inicial">
+              <span class="text-xs font-medium text-gray-500 dark:text-gray-400">CI Fraccionamiento</span>
+              <span class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ formatCurrency(template.ci_fraccionamiento) }}</span>
+            </div>
+            <div class="flex flex-col gap-1" *ngIf="template.cuota_balon > 0">
+              <span class="text-xs font-medium text-gray-500 dark:text-gray-400">Cuota Balón</span>
+              <span class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ formatCurrency(template.cuota_balon) }}</span>
+            </div>
+          </div>
+          <div *ngIf="getInstallmentOptions().length > 0"
+            class="px-5 pb-5 pt-0 border-t border-gray-100 dark:border-gray-700/50">
+            <span class="text-xs font-semibold text-gray-600 dark:text-gray-400 block mb-3">Planes de Financiamiento</span>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div *ngFor="let opt of getInstallmentOptions()" class="flex flex-col gap-0.5 p-3 rounded-xl bg-gray-50 dark:bg-gray-700/30">
+                <span class="text-xs text-gray-500 dark:text-gray-400">{{ opt.months }} meses</span>
+                <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">{{ formatCurrency(opt.amount) }}/mes</span>
+              </div>
+            </div>
+          </div>
         </div>
+
+        <!-- Sin información financiera (solo total_price) -->
+        <div *ngIf="!template"
+          class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+          <div class="px-5 py-4 border-b border-gray-200/50 dark:border-gray-700/50 flex items-center gap-3">
+            <div class="p-2 bg-violet-100 dark:bg-violet-900/40 rounded-lg">
+              <svg class="w-5 h-5 text-violet-600 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Información Financiera</h2>
+          </div>
+          <div class="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="flex flex-col gap-1">
+              <span class="text-xs font-medium text-gray-500 dark:text-gray-400">{{ 'inventory.lots.totalPrice' | translate }}</span>
+              <span class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ formatCurrency(lot.total_price) }}</span>
+            </div>
+            <div class="flex flex-col gap-1">
+              <span class="text-xs font-medium text-gray-500 dark:text-gray-400">{{ 'inventory.lots.currency' | translate }}</span>
+              <span class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ lot.currency || '-' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Columna Bono/Total Real y Multimedia -->
+      <div class="space-y-4 sm:space-y-6">
+        <!-- Bono Techo Propio y Precio Total Real -->
+        <div *ngIf="template"
+          class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+          <div class="px-5 py-4 border-b border-gray-200/50 dark:border-gray-700/50 flex items-center gap-3">
+            <div class="p-2 bg-amber-100 dark:bg-amber-900/40 rounded-lg">
+              <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z" />
+              </svg>
+            </div>
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Bono y Precio Total Real</h2>
+          </div>
+          <div class="p-5 space-y-4">
+            <div class="flex flex-col gap-1">
+              <span class="text-xs font-medium text-gray-500 dark:text-gray-400">Precio Venta (Logicware)</span>
+              <span class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ formatCurrency(template.precio_venta) }}</span>
+            </div>
+            <div class="flex flex-col gap-1">
+              <span class="text-xs font-medium text-gray-500 dark:text-gray-400">Bono Techo Propio</span>
+              <span class="text-sm font-semibold text-emerald-600 dark:text-emerald-400">+ {{ formatCurrency(template.bono_techo_propio) }}</span>
+            </div>
+            <div class="flex flex-col gap-1" *ngIf="template.bono_bpp > 0">
+              <span class="text-xs font-medium text-gray-500 dark:text-gray-400">Bono BPP (Buen Pagador)</span>
+              <span class="text-sm font-medium text-emerald-600 dark:text-emerald-400">{{ formatCurrency(template.bono_bpp) }}</span>
+            </div>
+            <div class="rounded-xl p-4 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200/50 dark:border-blue-700/50">
+              <div class="flex justify-between items-center mb-3">
+                <span class="text-sm font-semibold text-blue-800 dark:text-blue-300">Precio Total Real</span>
+                <span class="text-xl font-bold text-blue-800 dark:text-blue-200">{{ formatCurrency(precioTotalReal) }}</span>
+              </div>
+              <div class="flex justify-between items-center pt-3 border-t border-dashed border-blue-200 dark:border-blue-700/50">
+                <span class="text-sm font-semibold text-violet-700 dark:text-violet-300">5% del Total Real</span>
+                <span class="text-lg font-bold text-violet-700 dark:text-violet-300">{{ formatCurrency(fivePercent) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Multimedia -->
+        <div
+          class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+          <div class="px-5 py-4 border-b border-gray-200/50 dark:border-gray-700/50 flex items-center gap-3">
+            <div class="p-2 bg-emerald-100 dark:bg-emerald-900/40 rounded-lg">
+              <svg class="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">{{ 'inventory.lots.media' | translate }}</h2>
+          </div>
+          <div class="p-5">
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+              <ng-container *ngFor="let m of lot.media">
+                <div class="rounded-xl overflow-hidden border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/30 transition-shadow hover:shadow-md">
+                  <div class="aspect-square flex items-center justify-center bg-gray-100 dark:bg-gray-700/50">
+                    <img *ngIf="m.type !== 'doc'" [src]="backendBaseUrl+m.url" class="w-full h-full object-cover" alt="Media" />
+                    <a *ngIf="m.type === 'doc'" [href]="m.url" target="_blank"
+                      class="flex flex-col items-center justify-center p-4 text-blue-600 dark:text-blue-400 hover:underline">
+                      <svg class="w-10 h-10 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      <span class="text-xs text-center break-all">{{ getFileName(m.url) }}</span>
+                    </a>
+                  </div>
+                  <div class="px-2 py-1.5 text-center text-[10px] font-medium uppercase text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700/50">
+                    {{ m.type }}
+                  </div>
+                </div>
+              </ng-container>
+            </div>
+            <div *ngIf="!lot.media || lot.media.length === 0"
+              class="flex flex-col items-center justify-center py-12 text-gray-500 dark:text-gray-400">
+              <svg class="w-12 h-12 mb-3 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <span class="text-sm font-medium">No hay elementos multimedia</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-    </div>
+  </div>
+</div>

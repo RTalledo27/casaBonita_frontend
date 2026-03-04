@@ -1,81 +1,97 @@
-﻿<div class="p-4 sm:p-6 bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
-  <!-- Header -->
-  <div class="flex items-center gap-4 mb-8 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 transition-colors">
-    <button (click)="onCancel()" class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
-      <lucide-angular [img]="ArrowLeft" size="24"></lucide-angular>
-    </button>
-    <div>
-      <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">Generar Nóminas</h1>
-      <p class="text-gray-600 dark:text-gray-400 mt-1">Procesa las nóminas para el período seleccionado</p>
-    </div>
-  </div>
-
-  <!-- Loading State -->
-  <div *ngIf="isLoading" class="flex flex-col items-center justify-center p-16 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 transition-colors">
-    <div class="w-12 h-12 border-4 border-gray-200 dark:border-gray-600 border-t-primary-500 rounded-full animate-spin mb-4"></div>
-    <p class="text-lg font-semibold text-gray-700 dark:text-gray-300">Cargando empleados...</p>
-  </div>
-
-  <!-- Generation Complete State -->
-  <div *ngIf="generationComplete()" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-8 transition-colors">
-    <!-- Success Icon -->
-    <div class="flex flex-col items-center text-center mb-8">
-      <div class="w-20 h-20 rounded-full flex items-center justify-center mb-4"
-        [ngClass]="generationResult()?.failed === 0 ? 'bg-green-100 dark:bg-green-900/30' : 'bg-yellow-100 dark:bg-yellow-900/30'">
-        <lucide-angular 
-          [img]="generationResult()?.failed === 0 ? CheckCircle : AlertCircle" 
-          [ngClass]="generationResult()?.failed === 0 ? 'text-green-600 dark:text-green-400' : 'text-yellow-600 dark:text-yellow-400'" 
-          size="40">
-        </lucide-angular>
-      </div>
-      <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-        {{ generationResult()?.failed === 0 ? 'Nóminas Generadas Exitosamente' : 'Generación Completada con Observaciones' }}
-      </h2>
-      <p class="text-gray-600 dark:text-gray-400">
-        {{ getMonthName(payrollForm.get('period_month')?.value) }} {{ payrollForm.get('period_year')?.value }}
-      </p>
-    </div>
-
-    <!-- Results Summary -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8 max-w-2xl mx-auto">
-      <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-xl p-4 text-center">
-        <div class="text-xl sm:text-2xl lg:text-3xl font-bold text-green-600 dark:text-green-400">{{ generationResult()?.successful || 0 }}</div>
-        <div class="text-sm text-green-700 dark:text-green-300 mt-1">Generadas</div>
-      </div>
-      <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-xl p-4 text-center">
-        <div class="text-xl sm:text-2xl lg:text-3xl font-bold text-red-600 dark:text-red-400">{{ generationResult()?.failed || 0 }}</div>
-        <div class="text-sm text-red-700 dark:text-red-300 mt-1">Fallidas</div>
-      </div>
-      <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-xl p-4 text-center">
-        <div class="text-xl sm:text-2xl lg:text-3xl font-bold text-blue-600 dark:text-blue-400">{{ (generationResult()?.successful || 0) + (generationResult()?.failed || 0) }}</div>
-        <div class="text-sm text-blue-700 dark:text-blue-300 mt-1">Total Procesadas</div>
-      </div>
-    </div>
-
-    <!-- Errors Detail -->
-    <div *ngIf="generationResult()?.errors?.length" class="mb-8 max-w-2xl mx-auto">
-      <h3 class="text-sm font-semibold text-red-700 dark:text-red-400 mb-3">Detalle de errores:</h3>
-      <div class="space-y-2">
-        <div *ngFor="let err of generationResult()?.errors" 
-          class="flex items-center gap-3 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg text-sm">
-          <lucide-angular [img]="AlertCircle" size="16" class="text-red-500 flex-shrink-0"></lucide-angular>
-          <span class="text-red-800 dark:text-red-300">
-            <strong>{{ err.employee_name || 'Empleado ' + err.employee_id }}</strong>: {{ err.error }}
-          </span>
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-indigo-900/30 relative overflow-hidden">
+  <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.08),transparent_50%)] dark:bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.04),transparent_50%)]"></div>
+  <div class="relative p-4 sm:p-6 lg:p-8 max-w-[1600px] mx-auto">
+    <!-- Header (estilo Contratos) -->
+    <div class="mb-6">
+      <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-5 sm:p-6">
+        <div class="flex items-center gap-4">
+          <button (click)="onCancel()"
+            class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 border border-gray-200/50 dark:border-gray-600/50">
+            <lucide-angular [name]="ArrowLeft" size="16"></lucide-angular>
+            <span class="hidden sm:inline">Volver</span>
+          </button>
+          <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-3 rounded-xl shadow-lg shadow-blue-500/20">
+            <lucide-angular [name]="Calculator" class="w-6 h-6 text-white" size="24"></lucide-angular>
+          </div>
+          <div>
+            <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Generar Nóminas</h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Procesa las nóminas para el período seleccionado</p>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Action Buttons -->
-    <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
-      <button type="button" (click)="resetForNewGeneration()" 
-        class="px-6 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
-        Generar Más Nóminas
-      </button>
-      <button type="button" (click)="goToPayrollList()" 
-        class="btn-generate px-6 py-2.5 text-sm font-medium text-white rounded-lg shadow-lg transition-all">
-        Ver Listado de Nóminas
-      </button>
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-12 flex flex-col items-center">
+    <div class="flex gap-1.5 mb-4">
+      <div class="w-2.5 h-2.5 bg-blue-500 rounded-full animate-bounce"></div>
+      <div class="w-2.5 h-2.5 bg-blue-500 rounded-full animate-bounce" style="animation-delay:0.1s"></div>
+      <div class="w-2.5 h-2.5 bg-blue-500 rounded-full animate-bounce" style="animation-delay:0.2s"></div>
+    </div>
+    <p class="text-sm text-gray-500 dark:text-gray-400">Cargando empleados y parámetros...</p>
+  </div>
+
+  <!-- Generation Complete State -->
+  <div *ngIf="generationComplete()" class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 overflow-hidden">
+    <div class="p-6 sm:p-8">
+      <div class="flex flex-col items-center text-center mb-8">
+        <div class="w-16 h-16 rounded-2xl flex items-center justify-center mb-4 shadow-lg"
+          [ngClass]="generationResult()?.failed === 0 ? 'bg-emerald-100 dark:bg-emerald-900/40' : 'bg-amber-100 dark:bg-amber-900/40'">
+          <lucide-angular 
+            [name]="generationResult()?.failed === 0 ? CheckCircle : AlertCircle" 
+            [ngClass]="generationResult()?.failed === 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'" 
+            size="32">
+          </lucide-angular>
+        </div>
+        <h2 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-1">
+          {{ generationResult()?.failed === 0 ? 'Nóminas generadas correctamente' : 'Generación completada con observaciones' }}
+        </h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400">
+          {{ getMonthName(payrollForm.get('period_month')?.value) }} {{ payrollForm.get('period_year')?.value }}
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8 max-w-2xl mx-auto">
+        <div class="bg-white/80 dark:bg-gray-700/50 rounded-xl border border-emerald-200/60 dark:border-emerald-700/50 p-4 text-center shadow-sm">
+          <div class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{{ generationResult()?.successful || 0 }}</div>
+          <div class="text-xs font-medium text-emerald-700 dark:text-emerald-300 mt-1">Generadas</div>
+        </div>
+        <div class="bg-white/80 dark:bg-gray-700/50 rounded-xl border border-red-200/60 dark:border-red-700/50 p-4 text-center shadow-sm">
+          <div class="text-2xl font-bold text-red-600 dark:text-red-400">{{ generationResult()?.failed || 0 }}</div>
+          <div class="text-xs font-medium text-red-700 dark:text-red-300 mt-1">Fallidas</div>
+        </div>
+        <div class="bg-white/80 dark:bg-gray-700/50 rounded-xl border border-blue-200/60 dark:border-blue-700/50 p-4 text-center shadow-sm">
+          <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ (generationResult()?.successful || 0) + (generationResult()?.failed || 0) }}</div>
+          <div class="text-xs font-medium text-blue-700 dark:text-blue-300 mt-1">Total procesadas</div>
+        </div>
+      </div>
+
+      <div *ngIf="generationResult()?.errors?.length" class="mb-8 max-w-2xl mx-auto">
+        <h3 class="text-sm font-semibold text-red-600 dark:text-red-400 mb-3 flex items-center gap-2">
+          <lucide-angular [name]="AlertCircle" size="16"></lucide-angular>
+          Detalle de errores
+        </h3>
+        <div class="space-y-2">
+          <div *ngFor="let err of generationResult()?.errors" 
+            class="flex items-center gap-3 p-3 bg-red-50/80 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-xl text-sm">
+            <lucide-angular [name]="AlertCircle" size="16" class="text-red-500 flex-shrink-0"></lucide-angular>
+            <span class="text-red-800 dark:text-red-300">
+              <strong>{{ err.employee_name || 'Empleado ' + err.employee_id }}</strong>: {{ err.error }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+        <button type="button" (click)="resetForNewGeneration()" 
+          class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 border border-gray-200/50 dark:border-gray-600/50 transition-colors">
+          Generar más nóminas
+        </button>
+        <button type="button" (click)="goToPayrollList()" 
+          class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md transition-all">
+          Ver listado de nóminas
+        </button>
+      </div>
     </div>
   </div>
 
@@ -84,9 +100,9 @@
     <form [formGroup]="payrollForm" (ngSubmit)="onSubmit()">
       
       <!-- Tax Parameters Warning / Info -->
-      <div *ngIf="taxParamsError()" class="mb-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400 rounded-lg">
+      <div *ngIf="taxParamsError()" class="mb-6 p-4 bg-amber-50/80 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl">
         <div class="flex items-start gap-3">
-          <lucide-angular [img]="AlertCircle" class="text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" size="20"></lucide-angular>
+          <lucide-angular [name]="AlertCircle" class="text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" size="20"></lucide-angular>
           <div class="flex-1">
             <h4 class="font-semibold text-yellow-800 dark:text-yellow-300">Parámetros Tributarios No Disponibles</h4>
             <p class="text-sm text-yellow-700 dark:text-yellow-400 mt-1">
@@ -103,16 +119,15 @@
       </div>
 
       <!-- Tax Parameters Info Card - Collapsible -->
-      <div *ngIf="taxParameters() && !loadingTaxParams()" class="mb-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <!-- Header - Clickable to toggle -->
+      <div *ngIf="taxParameters() && !loadingTaxParams()" class="mb-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 overflow-hidden">
         <button
           type="button"
           (click)="toggleTaxDetails()"
-          class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-700 dark:to-indigo-700 px-6 py-4 flex items-center justify-between cursor-pointer hover:from-blue-700 hover:to-indigo-700 transition-all"
+          class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-700 dark:to-indigo-700 px-5 py-4 flex items-center justify-between cursor-pointer hover:from-blue-700 hover:to-indigo-700 transition-all"
         >
           <div class="flex items-center gap-3">
             <div class="p-2 bg-white/20 rounded-lg">
-              <lucide-angular [img]="Calculator" size="20" class="text-white"></lucide-angular>
+              <lucide-angular [name]="Calculator" size="20" class="text-white"></lucide-angular>
             </div>
             <div class="text-left">
               <h3 class="text-lg font-bold text-white">
@@ -125,7 +140,7 @@
               </p>
             </div>
           </div>
-          <lucide-angular [img]="showTaxDetails() ? ChevronUp : ChevronDown" size="20" class="text-white"></lucide-angular>
+          <lucide-angular [name]="showTaxDetails() ? ChevronUp : ChevronDown" size="20" class="text-white"></lucide-angular>
         </button>
         
         <!-- Collapsible Content -->
@@ -133,7 +148,7 @@
           <!-- Valores Base -->
           <div class="mb-6">
             <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
-              <lucide-angular [img]="DollarSign" size="16" class="text-gray-500"></lucide-angular>
+              <lucide-angular [name]="DollarSign" size="16" class="text-gray-500"></lucide-angular>
               Valores Base
             </h4>
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -161,7 +176,7 @@
           <!-- Pension Systems -->
           <div class="mb-6">
             <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
-              <lucide-angular [img]="Percent" size="16" class="text-gray-500"></lucide-angular>
+              <lucide-angular [name]="Percent" size="16" class="text-gray-500"></lucide-angular>
               Sistemas Pensionarios (% del sueldo bruto)
             </h4>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -205,7 +220,7 @@
           <!-- Income Tax Brackets -->
           <div>
             <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
-              <lucide-angular [img]="TrendingUp" size="16" class="text-gray-500"></lucide-angular>
+              <lucide-angular [name]="TrendingUp" size="16" class="text-gray-500"></lucide-angular>
               Impuesto a la Renta - 5ta Categoría
             </h4>
             <div class="bg-gradient-to-br from-slate-50 to-gray-100 dark:from-slate-800 dark:to-gray-800 p-4 rounded-lg border border-slate-200 dark:border-slate-600">
@@ -273,18 +288,16 @@
       </div>
       
       <!-- Configuración del Período -->
-      <div class="mb-8 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 transition-colors">
-        <div class="flex items-center gap-3 mb-6">
-          <div class="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-            <lucide-angular [img]="Calendar" size="20" class="text-blue-600 dark:text-blue-400"></lucide-angular>
+      <div class="mb-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-5 sm:p-6">
+        <div class="flex items-center gap-3 mb-5">
+          <div class="p-2 bg-blue-100 dark:bg-blue-900/40 rounded-xl">
+            <lucide-angular [name]="Calendar" size="20" class="text-blue-600 dark:text-blue-400"></lucide-angular>
           </div>
-          <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
-            Configuración del Período
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+            Configuración del período
           </h3>
         </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <!-- Mes -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
           <div>
             <label for="period_month" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Mes <span class="text-red-500">*</span>
@@ -292,7 +305,7 @@
             <select
               id="period_month"
               formControlName="period_month"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+              class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
             >
               <option *ngFor="let month of [1,2,3,4,5,6,7,8,9,10,11,12]" [value]="month">
                 {{ getMonthName(month) }}
@@ -300,7 +313,6 @@
             </select>
           </div>
 
-          <!-- Año -->
           <div>
             <label for="period_year" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Año <span class="text-red-500">*</span>
@@ -311,109 +323,100 @@
               formControlName="period_year"
               min="2020"
               max="2030"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+              class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
             />
           </div>
-
-          <!-- Fecha de Pago -->
           <div>
             <label for="pay_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Fecha de Pago <span class="text-red-500">*</span>
+              Fecha de pago <span class="text-red-500">*</span>
             </label>
             <input
               type="date"
               id="pay_date"
               formControlName="pay_date"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+              class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
             />
           </div>
         </div>
       </div>
 
       <!-- Opciones de Cálculo -->
-      <div class="mb-8 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 transition-colors">
-        <div class="flex items-center gap-3 mb-6">
-          <div class="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-            <lucide-angular [img]="Calculator" size="20" class="text-purple-600 dark:text-purple-400"></lucide-angular>
+      <div class="mb-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-5 sm:p-6">
+        <div class="flex items-center gap-3 mb-5">
+          <div class="p-2 bg-violet-100 dark:bg-violet-900/40 rounded-xl">
+            <lucide-angular [name]="Calculator" size="20" class="text-violet-600 dark:text-violet-400"></lucide-angular>
           </div>
-          <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
-            Opciones de Cálculo
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+            Opciones de cálculo
           </h3>
         </div>
-
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <label class="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-colors">
-            <input
-              type="checkbox"
-              formControlName="include_commissions"
-              class="w-5 h-5 text-primary-500 bg-white dark:bg-gray-600 border-gray-300 dark:border-gray-500 rounded focus:ring-primary-500 focus:ring-2"
-            />
-            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Incluir Comisiones</span>
+          <label class="flex items-center gap-3 p-4 bg-gray-50/80 dark:bg-gray-700/50 rounded-xl border border-gray-200/50 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-colors">
+            <input type="checkbox" formControlName="include_commissions" class="w-5 h-5 text-blue-600 bg-white dark:bg-gray-600 border-gray-300 dark:border-gray-500 rounded focus:ring-blue-500 focus:ring-2" />
+            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Incluir comisiones</span>
           </label>
-
-          <label class="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-colors">
-            <input
-              type="checkbox"
-              formControlName="include_bonuses"
-              class="w-5 h-5 text-primary-500 bg-white dark:bg-gray-600 border-gray-300 dark:border-gray-500 rounded focus:ring-primary-500 focus:ring-2"
-            />
-            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Incluir Bonificaciones</span>
+          <label class="flex items-center gap-3 p-4 bg-gray-50/80 dark:bg-gray-700/50 rounded-xl border border-gray-200/50 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-colors">
+            <input type="checkbox" formControlName="include_bonuses" class="w-5 h-5 text-blue-600 bg-white dark:bg-gray-600 border-gray-300 dark:border-gray-500 rounded focus:ring-blue-500 focus:ring-2" />
+            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Incluir bonificaciones</span>
           </label>
-
-          <label class="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-colors">
-            <input
-              type="checkbox"
-              formControlName="include_overtime"
-              class="w-5 h-5 text-primary-500 bg-white dark:bg-gray-600 border-gray-300 dark:border-gray-500 rounded focus:ring-primary-500 focus:ring-2"
-            />
-            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Incluir Horas Extra</span>
+          <label class="flex items-center gap-3 p-4 bg-gray-50/80 dark:bg-gray-700/50 rounded-xl border border-gray-200/50 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-colors">
+            <input type="checkbox" formControlName="include_overtime" class="w-5 h-5 text-blue-600 bg-white dark:bg-gray-600 border-gray-300 dark:border-gray-500 rounded focus:ring-blue-500 focus:ring-2" />
+            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Incluir horas extra</span>
           </label>
         </div>
       </div>
 
       <!-- Selección de Empleados -->
-      <div class="mb-8 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 transition-colors">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+      <div class="mb-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-5 sm:p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5">
           <div class="flex items-center gap-3">
-            <div class="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
-              <lucide-angular [img]="Users" size="20" class="text-green-600 dark:text-green-400"></lucide-angular>
+            <div class="p-2 bg-emerald-100 dark:bg-emerald-900/40 rounded-xl">
+              <lucide-angular [name]="Users" size="20" class="text-emerald-600 dark:text-emerald-400"></lucide-angular>
             </div>
-            <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
-              Selección de Empleados
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+              Selección de empleados
             </h3>
           </div>
           <div class="flex flex-wrap gap-2">
-            <button type="button" (click)="selectAllEmployees()" class="px-3 py-2 text-sm font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors">
-              Seleccionar Página
+            <button type="button" (click)="selectAllEmployees()" class="px-3 py-2 text-sm font-medium rounded-xl text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 border border-blue-200/50 dark:border-blue-700/50 transition-colors">
+              Seleccionar página
             </button>
-            <button type="button" (click)="selectAllEmployeesGlobal()" class="px-3 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors">
-              Seleccionar Todos
+            <button type="button" (click)="selectAllEmployeesGlobal()" class="px-3 py-2 text-sm font-medium rounded-xl text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 border border-emerald-200/50 dark:border-emerald-700/50 transition-colors">
+              Seleccionar todos
             </button>
-            <button type="button" (click)="clearSelection()" class="px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
-              Limpiar Selección
+            <button type="button" (click)="clearSelection()" class="px-3 py-2 text-sm font-medium rounded-xl text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200/50 dark:border-gray-600/50 transition-colors">
+              Limpiar
             </button>
           </div>
         </div>
 
-        <!-- Resumen de Selección -->
-        <div class="mb-6">
-          <div class="bg-gradient-to-r from-primary-500 to-purple-600 dark:from-primary-600 dark:to-purple-700 text-white p-6 rounded-xl shadow-lg">
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
-              <div>
-                <span class="block text-sm font-medium opacity-90 mb-1">Empleados Seleccionados</span>
-                <span class="text-xl sm:text-2xl lg:text-3xl font-bold">{{ selectedCount() }}</span>
-                <span class="block text-xs opacity-75 mt-1">De {{ totalEmployees() }} totales</span>
-              </div>
-              <div>
-                <span class="block text-sm font-medium opacity-90 mb-1">Total Salarios Base</span>
-                <span class="text-xl sm:text-2xl lg:text-3xl font-bold">{{ formatCurrency(estimatedTotal()) }}</span>
-                <span class="block text-xs opacity-75 mt-1">Estimado mensual</span>
-              </div>
-              <div>
-                <span class="block text-sm font-medium opacity-90 mb-1">En Esta Página</span>
-                <span class="text-2xl font-bold">{{ getSelectedInCurrentPage() }}/{{ employees().length }}</span>
-                <span class="block text-xs opacity-75 mt-1">Seleccionados aquí</span>
-              </div>
+        <!-- Resumen de Selección (KPIs) -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
+          <div class="bg-white/80 dark:bg-gray-700/50 rounded-xl border border-gray-200/50 dark:border-gray-600/50 p-4 flex items-center gap-4">
+            <div class="p-2 bg-blue-100 dark:bg-blue-900/40 rounded-lg">
+              <lucide-angular [name]="Users" size="20" class="text-blue-600 dark:text-blue-400"></lucide-angular>
+            </div>
+            <div>
+              <div class="text-2xl font-bold text-gray-900 dark:text-white">{{ selectedCount() }}</div>
+              <div class="text-xs text-gray-500 dark:text-gray-400">de {{ totalEmployees() }} empleados</div>
+            </div>
+          </div>
+          <div class="bg-white/80 dark:bg-gray-700/50 rounded-xl border border-gray-200/50 dark:border-gray-600/50 p-4 flex items-center gap-4">
+            <div class="p-2 bg-emerald-100 dark:bg-emerald-900/40 rounded-lg">
+              <lucide-angular [name]="DollarSign" size="20" class="text-emerald-600 dark:text-emerald-400"></lucide-angular>
+            </div>
+            <div>
+              <div class="text-2xl font-bold text-gray-900 dark:text-white">{{ formatCurrency(estimatedTotal()) }}</div>
+              <div class="text-xs text-gray-500 dark:text-gray-400">Total base estimado</div>
+            </div>
+          </div>
+          <div class="bg-white/80 dark:bg-gray-700/50 rounded-xl border border-gray-200/50 dark:border-gray-600/50 p-4 flex items-center gap-4">
+            <div class="p-2 bg-violet-100 dark:bg-violet-900/40 rounded-lg">
+              <lucide-angular [name]="FileText" size="20" class="text-violet-600 dark:text-violet-400"></lucide-angular>
+            </div>
+            <div>
+              <div class="text-2xl font-bold text-gray-900 dark:text-white">{{ getSelectedInCurrentPage() }}/{{ employees().length }}</div>
+              <div class="text-xs text-gray-500 dark:text-gray-400">En esta página</div>
             </div>
           </div>
         </div>
@@ -421,13 +424,13 @@
         <!-- Search + Pagination Info -->
         <div class="mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <div class="relative w-full sm:w-72">
-            <lucide-angular [img]="Search" size="16" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></lucide-angular>
+            <lucide-angular [name]="Search" size="16" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></lucide-angular>
             <input
               type="text"
               [value]="searchTerm()"
               (input)="onSearchChange($event)"
               placeholder="Buscar por nombre o código..."
-              class="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+              class="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
             />
           </div>
           <div class="flex items-center gap-2 text-sm">
@@ -441,12 +444,12 @@
         </div>
 
         <!-- Lista de Empleados -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 min-h-[200px] p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-600">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 min-h-[200px] p-4 bg-gray-50/80 dark:bg-gray-900/30 rounded-xl border border-gray-200/50 dark:border-gray-600/50">
           <div
             *ngFor="let employee of filteredEmployees()"
-            class="flex items-center gap-4 p-4 bg-white dark:bg-gray-700 rounded-lg border-2 cursor-pointer transition-all hover:shadow-md"
+            class="flex items-center gap-4 p-4 bg-white dark:bg-gray-700/80 rounded-xl border-2 cursor-pointer transition-all hover:shadow-md"
             [ngClass]="isEmployeeSelected(employee.employee_id) 
-              ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20' 
+              ? 'border-blue-500 bg-blue-50/50 dark:bg-blue-900/20' 
               : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'"
             (click)="toggleEmployeeSelection(employee.employee_id)"
           >
@@ -454,7 +457,7 @@
               <input
                 type="checkbox"
                 [checked]="isEmployeeSelected(employee.employee_id)"
-                class="w-5 h-5 text-primary-500 bg-white dark:bg-gray-600 border-gray-300 dark:border-gray-500 rounded focus:ring-primary-500 focus:ring-2"
+                class="w-5 h-5 text-blue-600 bg-white dark:bg-gray-600 border-gray-300 dark:border-gray-500 rounded focus:ring-blue-500 focus:ring-2"
                 readonly
               />
             </div>
@@ -464,7 +467,7 @@
               </div>
               <div class="text-sm text-gray-500 dark:text-gray-400">{{ employee.employee_code }}</div>
               <div class="flex items-center gap-1 text-sm font-medium text-green-600 dark:text-green-400 mt-1">
-                <lucide-angular [img]="DollarSign" size="14"></lucide-angular>
+                <lucide-angular [name]="DollarSign" size="14"></lucide-angular>
                 {{ formatCurrency(employee.base_salary) }}
               </div>
             </div>
@@ -472,7 +475,7 @@
 
           <!-- Empty state when search has no results -->
           <div *ngIf="filteredEmployees().length === 0 && searchTerm()" class="col-span-full flex flex-col items-center justify-center py-12 text-gray-500 dark:text-gray-400">
-            <lucide-angular [img]="Search" size="40" class="mb-3 opacity-40"></lucide-angular>
+            <lucide-angular [name]="Search" size="40" class="mb-3 opacity-40"></lucide-angular>
             <p class="text-sm">No se encontraron empleados con "<strong>{{ searchTerm() }}</strong>"</p>
           </div>
         </div>
@@ -531,14 +534,14 @@
                 (click)="onPageChange(currentPage() - 1)"
                 class="relative inline-flex items-center px-2 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                <lucide-angular [img]="ChevronLeft" size="20"></lucide-angular>
+                <lucide-angular [name]="ChevronLeft" size="20"></lucide-angular>
               </button>
               
               <button
                 type="button"
                 *ngFor="let page of getPageNumbers()"
                 [ngClass]="currentPage() === page 
-                  ? 'z-10 bg-primary-50 dark:bg-primary-900/50 border-primary-500 dark:border-primary-400 text-primary-600 dark:text-primary-300' 
+                  ? 'z-10 bg-blue-50 dark:bg-blue-900/30 border-blue-500 dark:border-blue-400 text-blue-600 dark:text-blue-300' 
                   : 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600'"
                 (click)="onPageChange(page)"
                 class="relative inline-flex items-center px-4 py-2 border text-sm font-medium transition-colors"
@@ -552,7 +555,7 @@
                 (click)="onPageChange(currentPage() + 1)"
                 class="relative inline-flex items-center px-2 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                <lucide-angular [img]="ChevronRight" size="20"></lucide-angular>
+                <lucide-angular [name]="ChevronRight" size="20"></lucide-angular>
               </button>
               
               <button
@@ -572,64 +575,58 @@
       </div>
 
       <!-- Notas -->
-      <div class="mb-8 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 transition-colors">
-        <div>
-          <label for="notes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Notas Adicionales
-          </label>
-          <textarea
-            id="notes"
-            formControlName="notes"
-            placeholder="Notas sobre este proceso de nómina..."
-            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors resize-vertical"
-            rows="3"
-          ></textarea>
-        </div>
+      <div class="mb-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-5 sm:p-6">
+        <label for="notes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          Notas adicionales
+        </label>
+        <textarea
+          id="notes"
+          formControlName="notes"
+          placeholder="Notas sobre este proceso de nómina (opcional)..."
+          class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"
+          rows="3"
+        ></textarea>
       </div>
 
-      <!-- Spacer for fixed buttons -->
-      <div class="h-28"></div>
+      <div class="h-24 sm:h-28"></div>
     </form>
   </div>
-</div>
 
-<!-- Fixed Form Actions -->\n<div *ngIf="!generationComplete()" class="fixed bottom-0 left-0 right-0 sm:left-[240px] bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-lg z-50 transition-colors">
-  <div class="w-full px-4 sm:px-6 py-3">
-    <div class="flex items-center justify-between gap-4">
-      <!-- Summary Info -->
-      <div class="flex items-center gap-3 text-sm min-w-0 overflow-hidden">
-        <div class="flex items-center gap-2 flex-shrink-0">
-          <lucide-angular [img]="Users" size="16" class="text-blue-600 dark:text-blue-400"></lucide-angular>
-          <span class="text-gray-700 dark:text-gray-300">
-            <strong class="text-blue-600 dark:text-blue-400">{{ selectedCount() }}</strong> empleados
-          </span>
+  <!-- Fixed Form Actions (lg:left-64 para no invadir el sidebar) -->
+  <div *ngIf="!isLoading && !generationComplete()" class="fixed bottom-0 left-0 right-0 lg:left-64 z-50 bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl border-t border-gray-200/50 dark:border-gray-700/50 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_-4px_20px_rgba(0,0,0,0.2)]">
+    <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-3">
+      <div class="flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3 text-sm min-w-0 overflow-hidden">
+          <div class="flex items-center gap-2 flex-shrink-0">
+            <lucide-angular [name]="Users" size="16" class="text-blue-600 dark:text-blue-400"></lucide-angular>
+            <span class="text-gray-700 dark:text-gray-300">
+              <strong class="text-blue-600 dark:text-blue-400">{{ selectedCount() }}</strong> empleados
+            </span>
+          </div>
+          <div class="h-4 w-px bg-gray-300 dark:bg-gray-600 hidden sm:block flex-shrink-0"></div>
+          <div class="items-center gap-2 hidden sm:flex flex-shrink-0">
+            <lucide-angular [name]="DollarSign" size="16" class="text-emerald-600 dark:text-emerald-400"></lucide-angular>
+            <span class="text-gray-700 dark:text-gray-300">
+              <strong class="text-emerald-600 dark:text-emerald-400">{{ formatCurrency(estimatedTotal()) }}</strong>
+            </span>
+          </div>
         </div>
-        <div class="h-4 w-px bg-gray-300 dark:bg-gray-600 hidden sm:block flex-shrink-0"></div>
-        <div class="items-center gap-2 hidden sm:flex flex-shrink-0">
-          <lucide-angular [img]="DollarSign" size="16" class="text-green-600 dark:text-green-400"></lucide-angular>
-          <span class="text-gray-700 dark:text-gray-300">
-            <strong class="text-green-600 dark:text-green-400">{{ formatCurrency(estimatedTotal()) }}</strong>
-          </span>
+        <div class="flex items-center gap-3 flex-shrink-0">
+          <button type="button" (click)="onCancel()" class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-xl text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 border border-gray-200/50 dark:border-gray-600/50 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+            Cancelar
+          </button>
+          <button
+            type="button"
+            (click)="onSubmit()"
+            [disabled]="isGenerating || selectedCount() === 0"
+            class="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          >
+            <lucide-angular *ngIf="!isGenerating" [name]="Send" size="16"></lucide-angular>
+            <div *ngIf="isGenerating" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            <span *ngIf="!isGenerating">Generar nóminas ({{ selectedCount() }})</span>
+            <span *ngIf="isGenerating">Generando...</span>
+          </button>
         </div>
-      </div>
-      
-      <!-- Action Buttons -->
-      <div class="flex items-center gap-3 flex-shrink-0">
-        <button type="button" (click)="onCancel()" class="px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
-          Cancelar
-        </button>
-        
-        <button
-          type="button"
-          (click)="onSubmit()"
-          [disabled]="isGenerating || selectedCount() === 0"
-          class="btn-generate flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-medium text-white rounded-lg shadow-lg transition-all"
-        >
-          <lucide-angular *ngIf="!isGenerating" [img]="Send" size="16"></lucide-angular>
-          <div *ngIf="isGenerating" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-          <span *ngIf="!isGenerating">Generar Nóminas ({{ selectedCount() }})</span>
-          <span *ngIf="isGenerating">Generando...</span>
-        </button>
       </div>
     </div>
   </div>
@@ -644,12 +641,11 @@
     <!-- Center trick for alignment -->
     <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
-    <!-- Modal panel -->
-    <div class="relative inline-block align-bottom bg-white dark:bg-gray-800 rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
-      <div class="bg-white dark:bg-gray-800 px-6 pt-5 pb-4">
+    <div class="relative inline-block align-bottom bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-2xl text-left overflow-hidden shadow-xl border border-gray-200/50 dark:border-gray-700/50 transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
+      <div class="px-6 pt-5 pb-4">
         <div class="sm:flex sm:items-start">
-          <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-900/30 sm:mx-0 sm:h-10 sm:w-10">
-            <lucide-angular [img]="Info" class="text-blue-600 dark:text-blue-400" size="24"></lucide-angular>
+          <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-xl bg-blue-100 dark:bg-blue-900/40 sm:mx-0 sm:h-10 sm:w-10">
+            <lucide-angular [name]="Info" class="text-blue-600 dark:text-blue-400" size="24"></lucide-angular>
           </div>
           <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left flex-1">
             <h3 class="text-lg leading-6 font-semibold text-gray-900 dark:text-white" id="modal-title">
@@ -694,7 +690,7 @@
               <div class="space-y-2 text-sm">
                 <div class="flex items-center gap-2">
                   <lucide-angular 
-                    [img]="payrollForm.get('include_commissions')?.value ? CheckCircle : AlertCircle" 
+                    [name]="payrollForm.get('include_commissions')?.value ? CheckCircle : AlertCircle" 
                     [ngClass]="payrollForm.get('include_commissions')?.value ? 'text-green-600' : 'text-gray-400'" 
                     size="16"
                   ></lucide-angular>
@@ -704,7 +700,7 @@
                 </div>
                 <div class="flex items-center gap-2">
                   <lucide-angular 
-                    [img]="payrollForm.get('include_bonuses')?.value ? CheckCircle : AlertCircle" 
+                    [name]="payrollForm.get('include_bonuses')?.value ? CheckCircle : AlertCircle" 
                     [ngClass]="payrollForm.get('include_bonuses')?.value ? 'text-green-600' : 'text-gray-400'" 
                     size="16"
                   ></lucide-angular>
@@ -714,7 +710,7 @@
                 </div>
                 <div class="flex items-center gap-2">
                   <lucide-angular 
-                    [img]="payrollForm.get('include_overtime')?.value ? CheckCircle : AlertCircle" 
+                    [name]="payrollForm.get('include_overtime')?.value ? CheckCircle : AlertCircle" 
                     [ngClass]="payrollForm.get('include_overtime')?.value ? 'text-green-600' : 'text-gray-400'" 
                     size="16"
                   ></lucide-angular>
@@ -727,7 +723,7 @@
               <!-- Tax Parameters Info -->
               <div *ngIf="taxParameters()" class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg">
                 <div class="flex items-start gap-2">
-                  <lucide-angular [img]="TrendingUp" class="text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" size="16"></lucide-angular>
+                  <lucide-angular [name]="TrendingUp" class="text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" size="16"></lucide-angular>
                   <div class="text-xs text-blue-800 dark:text-blue-300">
                     <div class="font-semibold mb-1">Parámetros Tributarios {{ payrollForm.get('period_year')?.value }}</div>
                     <div class="flex gap-3 flex-wrap">
@@ -741,7 +737,7 @@
               
               <div *ngIf="taxParamsError()" class="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg">
                 <div class="flex items-start gap-2">
-                  <lucide-angular [img]="AlertCircle" class="text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" size="16"></lucide-angular>
+                  <lucide-angular [name]="AlertCircle" class="text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" size="16"></lucide-angular>
                   <p class="text-xs text-yellow-800 dark:text-yellow-300">
                     Se usarán parámetros por defecto ya que no hay parámetros configurados para {{ payrollForm.get('period_year')?.value }}.
                   </p>
@@ -751,25 +747,19 @@
           </div>
         </div>
       </div>
-      <div class="bg-gray-50 dark:bg-gray-700 px-6 py-4 flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
-        <button
-          type="button"
-          (click)="cancelConfirmation()"
-          class="w-full sm:w-auto px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-500 focus:ring-2 focus:ring-gray-500 transition-colors"
-        >
+      <div class="bg-gray-50/80 dark:bg-gray-700/50 px-6 py-4 flex flex-col-reverse sm:flex-row sm:justify-end gap-3 rounded-b-2xl">
+        <button type="button" (click)="cancelConfirmation()"
+          class="w-full sm:w-auto px-4 py-2.5 text-sm font-medium rounded-xl text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-500 transition-colors">
           Cancelar
         </button>
-        <button
-          type="button"
-          (click)="confirmGeneration()"
-          [disabled]="isGenerating"
-          class="btn-generate w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white rounded-lg focus:ring-2 focus:ring-primary-500 transition-colors"
-        >
-          <lucide-angular [img]="Send" size="16" *ngIf="!isGenerating"></lucide-angular>
+        <button type="button" (click)="confirmGeneration()" [disabled]="isGenerating"
+          class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md disabled:opacity-50 transition-all">
+          <lucide-angular [name]="Send" size="16" *ngIf="!isGenerating"></lucide-angular>
           <div *ngIf="isGenerating" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-          <span>{{ isGenerating ? 'Generando...' : 'Confirmar y Generar' }}</span>
+          <span>{{ isGenerating ? 'Generando...' : 'Confirmar y generar' }}</span>
         </button>
       </div>
     </div>
+  </div>
   </div>
 </div>

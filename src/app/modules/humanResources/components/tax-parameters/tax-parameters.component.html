@@ -1,45 +1,47 @@
-﻿<div class="tax-parameters-container">
-  <!-- Header -->
-  <div class="page-header">
-    <div class="header-content">
-      <div class="title-section">
-        <h1 class="page-title">
-          <lucide-angular [img]="Calculator" [size]="32" class="title-icon"></lucide-angular>
-          Parámetros Tributarios
-        </h1>
-        <p class="page-subtitle">
-          Gestiona los valores dinámicos para cálculo de planillas (UIT, RMV, AFP, ONP, Impuesto a la Renta)
-        </p>
-      </div>
-
-      <div class="header-actions">
-        @if (isNewYear()) {
-          <button 
-            class="btn btn-secondary"
-            (click)="copyFromPreviousYear()"
-            [disabled]="loading()">
-            <lucide-angular [img]="Copy" [size]="18"></lucide-angular>
-            Copiar {{ selectedYear() - 1 }}
-          </button>
-        }
-        
-        <button 
-          class="btn btn-primary"
-          (click)="save()"
-          [disabled]="!isFormValid() || !hasChanges() || saving()">
-          @if (saving()) {
-            <lucide-angular [img]="RefreshCw" [size]="18" class="spin"></lucide-angular>
-            Guardando...
-          } @else {
-            <lucide-angular [img]="Save" [size]="18"></lucide-angular>
-            Guardar Cambios
-          }
-        </button>
-      </div>
-    </div>
-
-    <!-- Year Selector -->
-    <div class="year-selector">
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-indigo-900/30 relative overflow-hidden">
+  <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.08),transparent_50%)] dark:bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.04),transparent_50%)]"></div>
+  <div class="relative p-4 sm:p-6 lg:p-8 max-w-[1600px] mx-auto">
+    <!-- Header (estilo Contratos) -->
+    <div class="mb-6">
+      <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-5 sm:p-6">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <div class="flex items-center gap-4">
+            <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-3 rounded-xl shadow-lg shadow-blue-500/20">
+              <lucide-angular [name]="Calculator" class="w-6 h-6 text-white" size="24"></lucide-angular>
+            </div>
+            <div>
+              <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Parámetros Tributarios</h1>
+              <p class="text-sm text-gray-500 dark:text-gray-400">
+                Gestiona los valores dinámicos para cálculo de planillas (UIT, RMV, AFP, ONP, Impuesto a la Renta)
+              </p>
+            </div>
+          </div>
+          <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+            @if (isNewYear()) {
+              <button 
+                (click)="copyFromPreviousYear()"
+                [disabled]="loading()"
+                class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 border border-gray-200/50 dark:border-gray-600/50 disabled:opacity-50">
+                <lucide-angular [name]="Copy" size="16"></lucide-angular>
+                Copiar {{ selectedYear() - 1 }}
+              </button>
+            }
+            <button 
+              (click)="save()"
+              [disabled]="!isFormValid() || !hasChanges() || saving()"
+              class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md disabled:opacity-50 disabled:cursor-not-allowed">
+              @if (saving()) {
+                <lucide-angular [name]="RefreshCw" size="16" class="animate-spin"></lucide-angular>
+                Guardando...
+              } @else {
+                <lucide-angular [name]="Save" size="16"></lucide-angular>
+                Guardar Cambios
+              }
+            </button>
+          </div>
+        </div>
+        <!-- Year Selector -->
+        <div class="year-selector mt-4 pt-4 border-t border-gray-200/50 dark:border-gray-600/50">
       <div class="years-list">
         @for (year of availableYears(); track year) {
           <button 
@@ -55,17 +57,18 @@
         <button 
           class="year-badge year-badge-new"
           (click)="createNewYear()">
-          <lucide-angular [img]="Calendar" [size]="18"></lucide-angular>
+          <lucide-angular [name]="Calendar" size="18"></lucide-angular>
           Nuevo Año
         </button>
       </div>
+        </div>
+      </div>
     </div>
-  </div>
 
   <!-- Loading State -->
   @if (loading()) {
     <div class="loading-container">
-      <lucide-angular [img]="RefreshCw" [size]="48" class="spin"></lucide-angular>
+      <lucide-angular [name]="RefreshCw" [size]="48" class="spin"></lucide-angular>
       <p>Cargando parámetros...</p>
     </div>
   } @else {
@@ -75,7 +78,7 @@
       <!-- Valores Base -->
       <div class="form-section">
         <div class="section-header">
-          <lucide-angular [img]="DollarSign" [size]="24" class="section-icon"></lucide-angular>
+          <lucide-angular [name]="DollarSign" [size]="24" class="section-icon"></lucide-angular>
           <div>
             <h2 class="section-title">Valores Base</h2>
             <p class="section-description">UIT, RMV y Asignación Familiar</p>
@@ -99,7 +102,7 @@
             </div>
             @if (form.get('uit_amount')?.value) {
               <small class="form-hint success">
-                <lucide-angular [img]="CheckCircle" [size]="14"></lucide-angular>
+                <lucide-angular [name]="CheckCircle" [size]="14"></lucide-angular>
                 7 UIT = S/ {{ (form.get('uit_amount')?.value * 7).toFixed(2) }} (deducción anual)
               </small>
             }
@@ -120,7 +123,7 @@
                 placeholder="1130.00">
             </div>
             <small class="form-hint">
-              <lucide-angular [img]="AlertCircle" [size]="14"></lucide-angular>
+              <lucide-angular [name]="AlertCircle" [size]="14"></lucide-angular>
               Al cambiar RMV, se calcula automáticamente la asignación familiar
             </small>
           </div>
@@ -143,11 +146,11 @@
                 class="input-suffix-btn"
                 (click)="calculateFamilyAllowance()"
                 title="Recalcular">
-                <lucide-angular [img]="Calculator" [size]="16"></lucide-angular>
+                <lucide-angular [name]="Calculator" [size]="16"></lucide-angular>
               </button>
             </div>
             <small class="form-hint success">
-              <lucide-angular [img]="CheckCircle" [size]="14"></lucide-angular>
+              <lucide-angular [name]="CheckCircle" [size]="14"></lucide-angular>
               Calculado automáticamente
             </small>
           </div>
@@ -157,7 +160,7 @@
       <!-- AFP -->
       <div class="form-section">
         <div class="section-header">
-          <lucide-angular [img]="Percent" [size]="24" class="section-icon"></lucide-angular>
+          <lucide-angular [name]="Percent" [size]="24" class="section-icon"></lucide-angular>
           <div>
             <h2 class="section-title">AFP - Administradora de Fondos de Pensiones</h2>
             <p class="section-description">Tasas de aporte, seguro y comisiones por AFP</p>
@@ -278,7 +281,7 @@
       <!-- ONP y EsSalud -->
       <div class="form-section">
         <div class="section-header">
-          <lucide-angular [img]="TrendingUp" [size]="24" class="section-icon"></lucide-angular>
+          <lucide-angular [name]="TrendingUp" [size]="24" class="section-icon"></lucide-angular>
           <div>
             <h2 class="section-title">ONP y EsSalud</h2>
             <p class="section-description">Tasas de aportación social</p>
@@ -327,7 +330,7 @@
       <!-- Impuesto a la Renta -->
       <div class="form-section">
         <div class="section-header">
-          <lucide-angular [img]="DollarSign" [size]="24" class="section-icon"></lucide-angular>
+          <lucide-angular [name]="DollarSign" [size]="24" class="section-icon"></lucide-angular>
           <div>
             <h2 class="section-title">Impuesto a la Renta - 5ta Categoría</h2>
             <p class="section-description">Tramos y tasas progresivas</p>
@@ -350,7 +353,7 @@
           </div>
           @if (form.get('rent_tax_deduction_uit')?.value && form.get('uit_amount')?.value) {
             <small class="form-hint success">
-              <lucide-angular [img]="CheckCircle" [size]="14"></lucide-angular>
+              <lucide-angular [name]="CheckCircle" [size]="14"></lucide-angular>
               {{ form.get('rent_tax_deduction_uit')?.value }} UIT = S/ {{ (form.get('rent_tax_deduction_uit')?.value * form.get('uit_amount')?.value).toFixed(2) }} anuales
             </small>
           }
@@ -501,14 +504,15 @@
           (click)="save()"
           [disabled]="!isFormValid() || !hasChanges() || saving()">
           @if (saving()) {
-            <lucide-angular [img]="RefreshCw" [size]="18" class="spin"></lucide-angular>
+            <lucide-angular [name]="RefreshCw" [size]="18" class="spin"></lucide-angular>
             Guardando...
           } @else {
-            <lucide-angular [img]="Save" [size]="18"></lucide-angular>
+            <lucide-angular [name]="Save" [size]="18"></lucide-angular>
             Guardar Parámetros
           }
         </button>
       </div>
     </form>
   }
+  </div>
 </div>

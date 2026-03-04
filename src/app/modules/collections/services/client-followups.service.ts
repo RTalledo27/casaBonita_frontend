@@ -38,291 +38,226 @@ export class ClientFollowupsService {
   async exportToExcel(data: ClientFollowupRecord[], filename: string = 'gestion-cobranzas', logsData?: any[]): Promise<void> {
     const workbook = new Workbook();
     workbook.creator = 'Casa Bonita - Cobranzas';
-    
+
+    // Paleta Casa Bonita (logo: negro, blanco, dorado)
+    const gold = 'FFCC9933';                 // dorado del marco del logo
+    const black = 'FF000000';
+    const creamLight = 'FFFFFBF5';           // crema muy suave (zebra)
+    const creamBorder = 'FFE8DCC4';           // borde dorado suave
+    const headerBg = gold;
+    const headerFg = black;
+    const subtitleBg = creamLight;
+    const subtitleFg = black;
+    const borderColor = creamBorder;
+    const zebraBg = creamLight;
+    const textColor = black;
+    const overdueBg = 'FFFFF5F5';            // rojo muy suave para vencidas
+    const tabColor = gold;
+
     // ===== HOJA 1: DATOS PRINCIPALES =====
-    const sheet = workbook.addWorksheet('Datos de Seguimiento', {
-      properties: { tabColor: { argb: 'FF6366F1' } }
+    const sheet = workbook.addWorksheet('Seguimiento', {
+      properties: { tabColor: { argb: tabColor } }
     });
 
-    // Título principal con gradiente moderno
     sheet.mergeCells('A1:AJ1');
     const title = sheet.getCell('A1');
-    title.value = '📊 GESTIÓN DE COBRANZAS - SEGUIMIENTO DE CLIENTES';
-    title.font = { bold: true, size: 20, color: { argb: 'FFFFFFFF' } };
-    title.alignment = { vertical: 'middle', horizontal: 'center' };
-    title.fill = { type: 'gradient', gradient: 'angle', degree: 90, stops: [
-      { position: 0, color: { argb: 'FF6366F1' } },
-      { position: 0.5, color: { argb: 'FF8B5CF6' } },
-      { position: 1, color: { argb: 'FFA855F7' } }
-    ]};
-    sheet.getRow(1).height = 35;
+    title.value = 'Gestión de cobranzas – Seguimiento de clientes';
+    title.font = { bold: true, size: 14, color: { argb: headerFg } };
+    title.alignment = { vertical: 'middle', horizontal: 'left', indent: 1 };
+    title.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: headerBg } };
+    sheet.getRow(1).height = 28;
 
-    // Subtítulo con fecha
     sheet.mergeCells('A2:AJ2');
     const subtitle = sheet.getCell('A2');
-    subtitle.value = `📅 Generado: ${new Date().toLocaleString('es-PE', { dateStyle: 'full', timeStyle: 'short' })} | Total registros: ${data.length}`;
-    subtitle.font = { italic: true, size: 11, color: { argb: 'FF64748B' }, bold: true };
-    subtitle.alignment = { horizontal: 'center', vertical: 'middle' };
-    subtitle.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F5F9' } };
-    sheet.getRow(2).height = 25;
+    subtitle.value = `Generado: ${new Date().toLocaleString('es-PE', { dateStyle: 'medium', timeStyle: 'short' })}  |  Registros: ${data.length}`;
+    subtitle.font = { size: 10, color: { argb: subtitleFg } };
+    subtitle.alignment = { horizontal: 'left', vertical: 'middle', indent: 1 };
+    subtitle.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: subtitleBg } };
+    sheet.getRow(2).height = 22;
 
-    // Espacio
     sheet.addRow([]);
 
-    // Sección 1: INFORMACIÓN DEL CLIENTE
-    sheet.mergeCells('A4:K4');
-    const section1 = sheet.getCell('A4');
-    section1.value = '👤 INFORMACIÓN DEL CLIENTE';
-    section1.font = { bold: true, size: 12, color: { argb: 'FFFFFFFF' } };
-    section1.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF3B82F6' } };
-    section1.alignment = { horizontal: 'left', vertical: 'middle', indent: 1 };
-    sheet.getRow(4).height = 25;
-
-    const clientHeaders = ['COD.VENTA', 'Cliente', 'DNI', 'Teléfono 1', 'Teléfono 2', 'Correo', 'Dirección', 'Distrito', 'Provincia', 'Departamento', 'Asesor'];
-    const headerRow1 = sheet.addRow(clientHeaders);
-    headerRow1.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 10 };
-    headerRow1.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E40AF' } };
-    headerRow1.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
-    headerRow1.height = 30;
-
-    // Sección 2: INFORMACIÓN DEL LOTE
-    sheet.mergeCells('L4:L4');
-    const section2 = sheet.getCell('L4');
-    section2.value = '🏡 LOTE';
-    section2.font = { bold: true, size: 12, color: { argb: 'FFFFFFFF' } };
-    section2.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF10B981' } };
-    section2.alignment = { horizontal: 'center', vertical: 'middle' };
-
-    // Sección 3: ESTADO FINANCIERO
-    sheet.mergeCells('M4:U4');
-    const section3 = sheet.getCell('M4');
-    section3.value = '💰 ESTADO FINANCIERO';
-    section3.font = { bold: true, size: 12, color: { argb: 'FFFFFFFF' } };
-    section3.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFEF4444' } };
-    section3.alignment = { horizontal: 'center', vertical: 'middle' };
-
-    // Sección 4: GESTIÓN
-    sheet.mergeCells('V4:AJ4');
-    const section4 = sheet.getCell('V4');
-    section4.value = '📝 GESTIÓN Y SEGUIMIENTO';
-    section4.font = { bold: true, size: 12, color: { argb: 'FFFFFFFF' } };
-    section4.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF59E0B' } };
-    section4.alignment = { horizontal: 'center', vertical: 'middle' };
-
-    const financialHeaders = ['Lote', 'Precio Venta', 'Monto Pagado', 'Monto por Pagar', 'Cuota Mensual', 'Cuotas Pagadas', 'Cuotas Pendientes', 'Total Cuotas', 'Cuotas Vencidas'];
-    const managementHeaders = ['Fecha Vencimiento', 'Estado Contrato', 'Último Contacto', 'Acción Tomada', 'Resultado', 'Observaciones', 'Fecha Visita', 'Motivo Visita', 'Resultado Visita', 'Notas Visita', 'Estado Gestión', 'Próxima Acción', 'Responsable', 'Notas Generales', 'Motivo General'];
-    
+    const clientHeaders = ['Cód. venta', 'Cliente', 'DNI', 'Tel. 1', 'Tel. 2', 'Correo', 'Dirección', 'Distrito', 'Provincia', 'Departamento', 'Asesor'];
+    const financialHeaders = ['Lote', 'Precio venta', 'Pagado', 'Por pagar', 'Cuota mens.', 'Cuotas pag.', 'Cuotas pend.', 'Total cuotas', 'Cuotas venc.'];
+    const managementHeaders = ['Vencimiento', 'Estado contrato', 'Últ. contacto', 'Acción', 'Resultado', 'Observaciones', 'Fecha visita', 'Motivo visita', 'Resultado visita', 'Notas visita', 'Estado gestión', 'Próxima acción', 'Responsable', 'Notas generales', 'Motivo'];
     const allHeaders = [...clientHeaders, ...financialHeaders, ...managementHeaders];
-    const headerRow2 = sheet.getRow(5);
-    allHeaders.forEach((h, i) => {
-      const cell = headerRow2.getCell(i + 1);
-      cell.value = h;
+
+    const headerRow = sheet.addRow(allHeaders);
+    headerRow.font = { bold: true, size: 10, color: { argb: headerFg } };
+    headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: headerBg } };
+    headerRow.alignment = { vertical: 'middle', horizontal: 'left', wrapText: true };
+    headerRow.height = 24;
+    headerRow.eachCell(cell => {
+      cell.font = { bold: true, size: 10, color: { argb: headerFg } };
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: headerBg } };
+      cell.border = {
+        top: { style: 'thin', color: { argb: borderColor } },
+        bottom: { style: 'thin', color: { argb: borderColor } },
+        left: { style: 'thin', color: { argb: borderColor } },
+        right: { style: 'thin', color: { argb: borderColor } }
+      };
     });
 
-    // Agregar datos
     data.forEach((r, idx) => {
       const rowData = [
-        r.sale_code, r.client_name, r.dni, r.phone1, r.phone2 ?? '', r.email ?? '', r.address ?? '', 
+        r.sale_code, r.client_name, r.dni, r.phone1, r.phone2 ?? '', r.email ?? '', r.address ?? '',
         r.district ?? '', r.province ?? '', r.department ?? '', r.advisor_name ?? '',
         r.lot ?? '', r.sale_price ?? 0, r.amount_paid ?? 0, r.amount_due ?? 0, r.monthly_quota ?? 0,
         r.paid_installments ?? 0, r.pending_installments ?? 0, r.total_installments ?? 0, r.overdue_installments ?? 0,
         r.due_date ?? '', r.contract_status ?? '', r.contact_date ?? '', r.action_taken ?? '', r.management_result ?? '',
         r.management_notes ?? '', r.home_visit_date ?? '', r.home_visit_reason ?? '', r.home_visit_result ?? '',
-        r.home_visit_notes ?? '', r.management_status ?? '', r.next_action ?? '', r.owner ?? '', 
+        r.home_visit_notes ?? '', r.management_status ?? '', r.next_action ?? '', r.owner ?? '',
         r.general_notes ?? '', r.general_reason ?? ''
       ];
 
       const row = sheet.addRow(rowData);
-      
-      // Zebra striping con colores más suaves
-      const bgColor = (idx % 2 === 0) ? 'FFFFFFFF' : 'FFF8FAFC';
-      row.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: bgColor } };
-      row.font = { color: { argb: 'FF1E293B' }, size: 10 };
+      const bg = idx % 2 === 0 ? 'FFFFFFFF' : zebraBg;
+      row.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: bg } };
+      row.font = { color: { argb: textColor }, size: 10 };
       row.alignment = { vertical: 'middle', wrapText: true };
-      row.height = 45;
+      row.height = 22;
 
-      // Bordes elegantes
-      row.eachCell((cell, colNum) => {
+      row.eachCell(cell => {
+        cell.font = { color: { argb: textColor }, size: 10 };
         cell.border = {
-          top: { style: 'thin', color: { argb: 'FFE2E8F0' } },
-          left: { style: 'thin', color: { argb: 'FFE2E8F0' } },
-          bottom: { style: 'thin', color: { argb: 'FFE2E8F0' } },
-          right: { style: 'thin', color: { argb: 'FFE2E8F0' } }
+          top: { style: 'thin', color: { argb: borderColor } },
+          left: { style: 'thin', color: { argb: borderColor } },
+          bottom: { style: 'thin', color: { argb: borderColor } },
+          right: { style: 'thin', color: { argb: borderColor } }
         };
       });
 
-      // Formatos numéricos para montos
       [13, 14, 15, 16].forEach(col => {
         const cell = row.getCell(col);
         cell.numFmt = 'S/ #,##0.00';
         cell.alignment = { horizontal: 'right', vertical: 'middle' };
       });
-
-      // Formatos de número para cuotas
       [17, 18, 19, 20].forEach(col => {
-        const cell = row.getCell(col);
-        cell.alignment = { horizontal: 'center', vertical: 'middle' };
-        cell.font = { ...cell.font, bold: true };
+        row.getCell(col).alignment = { horizontal: 'center', vertical: 'middle' };
       });
 
-      // Colorear cuotas vencidas
       const overdueCell = row.getCell(20);
-      const overdueVal = Number(overdueCell.value || 0);
+      const overdueVal = Number(overdueCell.value ?? 0);
       if (overdueVal > 0) {
-        overdueCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFECACA' } };
-        overdueCell.font = { color: { argb: 'FFDC2626' }, bold: true, size: 11 };
+        overdueCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: overdueBg } };
       }
 
-      // Estado de gestión con colores
       const statusCell = row.getCell(31);
-      const status = String(statusCell.value || '').toLowerCase();
-      const statusStyles: Record<string, {bg: string, fg: string, text: string}> = {
-        pending: { bg: 'FFFEF3C7', fg: 'FF92400E', text: '⏳ Pendiente' },
-        in_progress: { bg: 'FFDBEAFE', fg: 'FF5B21B6', text: '🔄 En Proceso' },
-        resolved: { bg: 'FFD1FAE5', fg: 'FF065F46', text: '✅ Resuelto' },
-        unreachable: { bg: 'FFF1F5F9', fg: 'FF475569', text: '❌ No Contactado' },
-        escalated: { bg: 'FFFECACA', fg: 'FFDC2626', text: '⚠️ Escalado' },
+      const statusLabels: Record<string, string> = {
+        pending: 'Pendiente',
+        in_progress: 'En proceso',
+        resolved: 'Resuelto',
+        unreachable: 'No contactado',
+        escalated: 'Escalado'
       };
-      const style = statusStyles[status] || { bg: 'FFF1F5F9', fg: 'FF64748B', text: String(statusCell.value || '—') };
-      statusCell.value = style.text;
-      statusCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: style.bg } };
-      statusCell.font = { color: { argb: style.fg }, bold: true, size: 10 };
-      statusCell.alignment = { horizontal: 'center', vertical: 'middle' };
+      const status = String(statusCell.value ?? '').toLowerCase();
+      statusCell.value = statusLabels[status] || statusCell.value || '—';
+      statusCell.alignment = { horizontal: 'left', vertical: 'middle' };
     });
 
-    // Anchos de columna optimizados
-    const columnWidths = [15, 30, 12, 15, 15, 30, 35, 20, 20, 20, 25, 20, 15, 15, 15, 15, 12, 12, 12, 12, 18, 20, 18, 20, 20, 40, 18, 30, 25, 40, 18, 30, 25, 40, 30];
+    const columnWidths = [14, 28, 11, 14, 14, 26, 32, 18, 18, 18, 22, 18, 14, 14, 14, 14, 11, 11, 11, 11, 16, 18, 16, 18, 18, 36, 16, 26, 22, 36, 16, 26, 22, 36, 26];
     columnWidths.forEach((w, i) => sheet.getColumn(i + 1).width = w);
 
-    sheet.autoFilter = { from: { row: 5, column: 1 }, to: { row: 5, column: allHeaders.length } };
-    sheet.views = [{ state: 'frozen', xSplit: 0, ySplit: 5 }];
+    sheet.autoFilter = { from: { row: 4, column: 1 }, to: { row: 4, column: allHeaders.length } };
+    sheet.views = [{ state: 'frozen', xSplit: 0, ySplit: 4 }];
 
-    // ===== HOJA 2: HISTORIAL DE ACCIONES =====
+    // ===== HOJA 2: HISTORIAL =====
     if (logsData && logsData.length > 0) {
-      const logsSheet = workbook.addWorksheet('Historial de Gestiones', {
-        properties: { tabColor: { argb: 'FF10B981' } }
+      const logsSheet = workbook.addWorksheet('Historial', {
+        properties: { tabColor: { argb: tabColor } }
       });
 
-      // Título
       logsSheet.mergeCells('A1:G1');
       const logsTitle = logsSheet.getCell('A1');
-      logsTitle.value = '📋 HISTORIAL DETALLADO DE GESTIONES Y ACCIONES';
-      logsTitle.font = { bold: true, size: 18, color: { argb: 'FFFFFFFF' } };
-      logsTitle.alignment = { vertical: 'middle', horizontal: 'center' };
-      logsTitle.fill = { type: 'gradient', gradient: 'angle', degree: 90, stops: [
-        { position: 0, color: { argb: 'FF10B981' } },
-        { position: 1, color: { argb: 'FF059669' } }
-      ]};
-      logsSheet.getRow(1).height = 35;
+      logsTitle.value = 'Historial de gestiones';
+      logsTitle.font = { bold: true, size: 14, color: { argb: headerFg } };
+      logsTitle.alignment = { vertical: 'middle', horizontal: 'left', indent: 1 };
+      logsTitle.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: headerBg } };
+      logsSheet.getRow(1).height = 28;
 
-      // Subtítulo
       logsSheet.mergeCells('A2:G2');
       const logsSubtitle = logsSheet.getCell('A2');
-      logsSubtitle.value = `Total de gestiones registradas: ${logsData.length}`;
-      logsSubtitle.font = { italic: true, size: 11, color: { argb: 'FF64748B' }, bold: true };
-      logsSubtitle.alignment = { horizontal: 'center', vertical: 'middle' };
-      logsSubtitle.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF0FDF4' } };
+      logsSubtitle.value = `Total: ${logsData.length} gestiones`;
+      logsSubtitle.font = { size: 10, color: { argb: subtitleFg } };
+      logsSubtitle.alignment = { horizontal: 'left', vertical: 'middle', indent: 1 };
+      logsSubtitle.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: subtitleBg } };
       logsSheet.getRow(2).height = 22;
 
       logsSheet.addRow([]);
 
-      // Headers
-      const logsHeaders = ['Fecha y Hora', 'Canal', 'Resultado', 'Responsable', 'Cliente', 'Contrato', 'Observaciones'];
+      const logsHeaders = ['Fecha y hora', 'Canal', 'Resultado', 'Responsable', 'Cliente', 'Contrato', 'Observaciones'];
       const logsHeaderRow = logsSheet.addRow(logsHeaders);
-      logsHeaderRow.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 11 };
-      logsHeaderRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF059669' } };
-      logsHeaderRow.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
-      logsHeaderRow.height = 30;
+      logsHeaderRow.font = { bold: true, size: 10, color: { argb: headerFg } };
+      logsHeaderRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: headerBg } };
+      logsHeaderRow.alignment = { vertical: 'middle', horizontal: 'left', wrapText: true };
+      logsHeaderRow.height = 24;
+      logsHeaderRow.eachCell(cell => {
+        cell.font = { bold: true, size: 10, color: { argb: headerFg } };
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: headerBg } };
+        cell.border = {
+          top: { style: 'thin', color: { argb: borderColor } },
+          bottom: { style: 'thin', color: { argb: borderColor } },
+          left: { style: 'thin', color: { argb: borderColor } },
+          right: { style: 'thin', color: { argb: borderColor } }
+        };
+      });
 
-      // Datos
+      const channelLabels: Record<string, string> = {
+        call: 'Llamada',
+        whatsapp: 'WhatsApp',
+        email: 'Email',
+        letter: 'Carta',
+        home_visit: 'Visita',
+        sms: 'SMS'
+      };
+      const resultLabels: Record<string, string> = {
+        contacted: 'Contactado',
+        sent: 'Enviado',
+        letter_sent: 'Carta enviada',
+        unreachable: 'No responde',
+        resolved: 'Resuelto',
+        promise: 'Compromiso'
+      };
+
       logsData.forEach((log, idx) => {
-        const channelMap: Record<string, string> = {
-          call: '📞 Llamada',
-          whatsapp: '💬 WhatsApp',
-          email: '📧 Email',
-          letter: '✉️ Carta',
-          home_visit: '🏠 Visita',
-          sms: '💬 SMS'
-        };
-        const resultMap: Record<string, string> = {
-          contacted: '✅ Contactado',
-          sent: '📤 Enviado',
-          letter_sent: '📮 Carta Enviada',
-          unreachable: '❌ No Responde',
-          resolved: '✔️ Resuelto',
-          promise: '🤝 Compromiso'
-        };
-
         const rowData = [
-          log.logged_at || '',
-          channelMap[log.channel] || log.channel || '—',
-          resultMap[log.result] || log.result || '—',
-          log.employee_name || '—',
-          log.client_name || '—',
-          log.sale_code || '—',
-          log.notes || '—'
+          log.logged_at ?? '',
+          channelLabels[log.channel] ?? log.channel ?? '—',
+          resultLabels[log.result] ?? log.result ?? '—',
+          log.employee_name ?? '—',
+          log.client_name ?? '—',
+          log.sale_code ?? '—',
+          log.notes ?? '—'
         ];
 
         const logRow = logsSheet.addRow(rowData);
-        
-        // Zebra striping
-        const bgColor = (idx % 2 === 0) ? 'FFFFFFFF' : 'FFF0FDF4';
-        logRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: bgColor } };
-        logRow.font = { color: { argb: 'FF1E293B' }, size: 10 };
+        const bg = idx % 2 === 0 ? 'FFFFFFFF' : zebraBg;
+        logRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: bg } };
+        logRow.font = { color: { argb: textColor }, size: 10 };
         logRow.alignment = { vertical: 'middle', wrapText: true };
-        logRow.height = 40;
+        logRow.height = 20;
 
-        // Bordes
         logRow.eachCell(cell => {
+          cell.font = { color: { argb: textColor }, size: 10 };
           cell.border = {
-            top: { style: 'thin', color: { argb: 'FFD1FAE5' } },
-            left: { style: 'thin', color: { argb: 'FFD1FAE5' } },
-            bottom: { style: 'thin', color: { argb: 'FFD1FAE5' } },
-            right: { style: 'thin', color: { argb: 'FFD1FAE5' } }
+            top: { style: 'thin', color: { argb: borderColor } },
+            left: { style: 'thin', color: { argb: borderColor } },
+            bottom: { style: 'thin', color: { argb: borderColor } },
+            right: { style: 'thin', color: { argb: borderColor } }
           };
         });
 
-        // Formato de fecha
         const dateCell = logRow.getCell(1);
         if (dateCell.value) {
           try {
             const date = new Date(dateCell.value as string);
             dateCell.value = date;
-            dateCell.numFmt = 'dd/mm/yyyy hh:mm AM/PM';
-          } catch (e) {}
+            dateCell.numFmt = 'dd/mm/yyyy hh:mm';
+          } catch (_) {}
         }
-
-        // Color por canal
-        const channelCell = logRow.getCell(2);
-        const channelColors: Record<string, string> = {
-          '📞 Llamada': 'FFDBEAFE',
-          '💬 WhatsApp': 'FFD1FAE5',
-          '📧 Email': 'FFFEF3C7',
-          '✉️ Carta': 'FFFECACA',
-          '🏠 Visita': 'FFE0E7FF'
-        };
-        const channelColor = channelColors[String(channelCell.value)] || 'FFF1F5F9';
-        channelCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: channelColor } };
-        channelCell.font = { ...channelCell.font, bold: true };
-        channelCell.alignment = { horizontal: 'center', vertical: 'middle' };
-
-        // Color por resultado
-        const resultCell = logRow.getCell(3);
-        const resultColors: Record<string, {bg: string, fg: string}> = {
-          '✅ Contactado': { bg: 'FFD1FAE5', fg: 'FF065F46' },
-          '✔️ Resuelto': { bg: 'FFBEF264', fg: 'FF3F6212' },
-          '❌ No Responde': { bg: 'FFFECACA', fg: 'FFDC2626' },
-          '📤 Enviado': { bg: 'FFDBEAFE', fg: 'FF5B21B6' },
-          '🤝 Compromiso': { bg: 'FFFEF3C7', fg: 'FF92400E' }
-        };
-        const resultStyle = resultColors[String(resultCell.value)] || { bg: 'FFF1F5F9', fg: 'FF64748B' };
-        resultCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: resultStyle.bg } };
-        resultCell.font = { color: { argb: resultStyle.fg }, bold: true, size: 10 };
-        resultCell.alignment = { horizontal: 'center', vertical: 'middle' };
       });
 
-      // Anchos
-      [25, 20, 20, 25, 30, 18, 50].forEach((w, i) => logsSheet.getColumn(i + 1).width = w);
+      [22, 14, 14, 22, 26, 14, 48].forEach((w, i) => logsSheet.getColumn(i + 1).width = w);
       logsSheet.autoFilter = { from: { row: 4, column: 1 }, to: { row: 4, column: 7 } };
       logsSheet.views = [{ state: 'frozen', xSplit: 0, ySplit: 4 }];
     }

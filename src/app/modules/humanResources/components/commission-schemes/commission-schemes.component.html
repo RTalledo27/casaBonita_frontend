@@ -1,34 +1,46 @@
-﻿<div class="commission-schemes-container">
-  <div class="content-wrapper">
-    <!-- Page Header -->
-    <div class="page-header">
-      <div class="header-title">
-        <h2 class="page-title">
-          <svg class="icon-title" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-            </path>
-          </svg>
-          Esquemas de Comisión
-        </h2>
-        <p class="page-subtitle">Gestiona los esquemas de comisiones y sus reglas vigentes.</p>
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-indigo-900/30 relative overflow-hidden">
+  <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.08),transparent_50%)] dark:bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.04),transparent_50%)]"></div>
+
+  <div class="relative p-4 sm:p-6 lg:p-8 max-w-[1600px] mx-auto">
+    <!-- Header (estilo Contratos) -->
+    <div class="mb-6">
+      <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-5 sm:p-6">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <div class="flex items-center gap-4">
+            <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-3 rounded-xl shadow-lg shadow-blue-500/20">
+              <lucide-angular [name]="FileText" class="w-6 h-6 text-white" size="24"></lucide-angular>
+            </div>
+            <div>
+              <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Esquemas de Comisión</h1>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Gestiona los esquemas de comisiones y sus reglas vigentes.</p>
+            </div>
+          </div>
+          <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+            <button (click)="openCreate()"
+              class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-xl transition-all duration-200 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md">
+              <lucide-angular [name]="Plus" size="16"></lucide-angular>
+              Nuevo Esquema
+            </button>
+          </div>
+        </div>
       </div>
-      <button (click)="openCreate()" class="btn btn-primary">
-        <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-        </svg>
-        Nuevo Esquema
-      </button>
     </div>
 
     <!-- Error Message -->
-    <div *ngIf="error" class="alert alert-error">{{ error }}</div>
+    <div *ngIf="error" class="mb-6 p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-sm">{{ error }}</div>
 
     <!-- Loading State -->
-    <div *ngIf="isLoading" class="loading-state">Cargando datos...</div>
+    <div *ngIf="isLoading" class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-12 flex flex-col items-center">
+      <div class="flex gap-1.5 mb-4">
+        <div class="w-2.5 h-2.5 bg-blue-500 rounded-full animate-bounce"></div>
+        <div class="w-2.5 h-2.5 bg-blue-500 rounded-full animate-bounce" style="animation-delay:0.1s"></div>
+        <div class="w-2.5 h-2.5 bg-blue-500 rounded-full animate-bounce" style="animation-delay:0.2s"></div>
+      </div>
+      <p class="text-sm text-gray-500 dark:text-gray-400">Cargando datos...</p>
+    </div>
 
     <!-- Schemes List (Accordion) -->
-    <div *ngIf="!isLoading" class="schemes-list">
+    <div *ngIf="!isLoading" class="schemes-list space-y-4">
       <div *ngFor="let s of schemes" class="card scheme-card" [class.expanded]="expandedSchemeId === s.id">
         <!-- Card Header (Clickable) -->
         <div class="card-header scheme-header" (click)="toggleScheme(s.id!)">
@@ -169,6 +181,7 @@
         </div>
       </div>
     </div>
+  </div>
   </div>
 
   <!-- Modal: Scheme Create/Edit -->
@@ -364,4 +377,3 @@
       </div>
     </div>
   </div>
-</div>

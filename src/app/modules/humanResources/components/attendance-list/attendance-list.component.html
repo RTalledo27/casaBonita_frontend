@@ -1,20 +1,32 @@
-<div class="container mx-auto px-4 py-6">
-  <!-- Header -->
-  <div class="flex justify-between items-center mb-6">
-    <div>
-      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Asistencias</h1>
-      <p class="text-gray-600 dark:text-gray-400 mt-1">Gestión de registros de asistencia de empleados</p>
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-indigo-900/30 relative overflow-hidden">
+  <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.08),transparent_50%)] dark:bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.04),transparent_50%)]"></div>
+  <div class="relative p-4 sm:p-6 lg:p-8 max-w-[1600px] mx-auto">
+    <!-- Header (estilo Contratos) -->
+    <div class="mb-6">
+      <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-5 sm:p-6">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <div class="flex items-center gap-4">
+            <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-3 rounded-xl shadow-lg shadow-blue-500/20">
+              <lucide-angular [name]="CalendarCheck" class="w-6 h-6 text-white" size="24"></lucide-angular>
+            </div>
+            <div>
+              <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Asistencias</h1>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Gestión de registros de asistencia de empleados</p>
+            </div>
+          </div>
+          <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+            <button (click)="onNew()"
+              class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md">
+              <lucide-angular [name]="Plus" size="16"></lucide-angular>
+              Nuevo Registro
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
-    <button
-      (click)="onNew()"
-      class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-    >
-      Nuevo Registro
-    </button>
-  </div>
 
   <!-- Filters -->
-  <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm mb-6">
+  <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-5 sm:p-6 mb-6">
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
       <!-- Search -->
       <div>
@@ -111,13 +123,17 @@
   </div>
 
   <!-- Loading State -->
-  <div *ngIf="isLoading" class="flex justify-center items-center py-12">
-    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-    <span class="ml-2 text-gray-600">Cargando asistencias...</span>
+  <div *ngIf="isLoading" class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-12 flex flex-col items-center">
+    <div class="flex gap-1.5 mb-4">
+      <div class="w-2.5 h-2.5 bg-blue-500 rounded-full animate-bounce"></div>
+      <div class="w-2.5 h-2.5 bg-blue-500 rounded-full animate-bounce" style="animation-delay:0.1s"></div>
+      <div class="w-2.5 h-2.5 bg-blue-500 rounded-full animate-bounce" style="animation-delay:0.2s"></div>
+    </div>
+    <p class="text-sm text-gray-500 dark:text-gray-400">Cargando asistencias...</p>
   </div>
 
   <!-- Attendance Table -->
-  <div *ngIf="!isLoading" class="bg-white dark:bg-gray-800 shadow-sm rounded-lg overflow-hidden">
+  <div *ngIf="!isLoading" class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 overflow-hidden">
     <div class="overflow-x-auto">
       <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
         <thead class="bg-gray-50 dark:bg-gray-700">
@@ -263,7 +279,7 @@
     </div>
 
     <!-- Pagination -->
-    <div *ngIf="filteredAttendances.length > 0" class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+    <div *ngIf="filteredAttendances.length > 0" class="bg-white/80 dark:bg-gray-800/80 px-4 py-3 flex items-center justify-between border-t border-gray-200 dark:border-gray-600 sm:px-6">
       <div class="flex-1 flex justify-between sm:hidden">
         <button
           (click)="onPageChange(currentPage - 1)"
@@ -326,5 +342,6 @@
         </div>
       </div>
     </div>
+  </div>
   </div>
 </div>

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy, TemplateRef, ChangeDetectorRef } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy, TemplateRef, ChangeDetectorRef, HostBinding } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { Database, Edit, Eye, LucideAngularModule, Trash2 } from 'lucide-angular';
@@ -73,6 +73,18 @@ export class SharedTableComponent {
   @Input() showActions: boolean = true;
   /** Field that contains the id for each row */
   @Input() idField?: string;
+
+  /** 'contracts' = estilo alineado con módulo Contratos (tabla, hover azul, acciones en hover). 'default' = tabla estándar. */
+  @Input() variant: 'default' | 'contracts' = 'default';
+
+  /** Usar en template para aplicar estilos tipo Contratos de forma consistente. */
+  get isContractsVariant(): boolean {
+    return this.variant === 'contracts';
+  }
+
+  @HostBinding('class.shared-table-contracts') get hostContractsClass(): boolean {
+    return this.variant === 'contracts';
+  }
 
   //----------------------------------
 
