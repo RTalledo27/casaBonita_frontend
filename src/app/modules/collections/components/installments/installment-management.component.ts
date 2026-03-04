@@ -632,19 +632,29 @@ export class InstallmentManagementComponent implements OnInit, OnDestroy {
     return this.contracts();
   });
 
-  // KPI computed properties
-  totalSchedules = computed(() => this.contracts().reduce((sum, c) => sum + c.total_schedules, 0));
-  paidSchedules = computed(() => this.contracts().reduce((sum, c) => sum + c.paid_schedules, 0));
-  pendingSchedules = computed(() => this.contracts().reduce((sum, c) => sum + c.pending_schedules, 0));
-  overdueSchedules = computed(() => this.contracts().reduce((sum, c) => sum + c.overdue_schedules, 0));
-  totalAmount = computed(() => this.contracts().reduce((sum, c) => sum + (c.total_amount || 0), 0));
-  paidAmount = computed(() => this.contracts().reduce((sum, c) => sum + (c.paid_amount || 0), 0));
-  pendingAmount = computed(() => this.contracts().reduce((sum, c) => sum + (c.pending_amount || 0), 0));
-  overdueAmount = computed(() => this.contracts().reduce((sum, c) => sum + (c.overdue_amount || 0), 0));
-  collectionRate = computed(() => {
-    const total = this.totalAmount();
-    return total > 0 ? Math.round((this.paidAmount() / total) * 100) : 0;
-  });
+  // KPI global summary (from backend, not per-page)
+  kpiSummary = signal<{
+    total_schedules: number;
+    paid_schedules: number;
+    pending_schedules: number;
+    overdue_schedules: number;
+    total_amount: number;
+    paid_amount: number;
+    pending_amount: number;
+    overdue_amount: number;
+    collection_rate: number;
+  }>({ total_schedules: 0, paid_schedules: 0, pending_schedules: 0, overdue_schedules: 0, total_amount: 0, paid_amount: 0, pending_amount: 0, overdue_amount: 0, collection_rate: 0 });
+
+  // KPI computed properties (read from global summary)
+  totalSchedules = computed(() => this.kpiSummary().total_schedules);
+  paidSchedules = computed(() => this.kpiSummary().paid_schedules);
+  pendingSchedules = computed(() => this.kpiSummary().pending_schedules);
+  overdueSchedules = computed(() => this.kpiSummary().overdue_schedules);
+  totalAmount = computed(() => this.kpiSummary().total_amount);
+  paidAmount = computed(() => this.kpiSummary().paid_amount);
+  pendingAmount = computed(() => this.kpiSummary().pending_amount);
+  overdueAmount = computed(() => this.kpiSummary().overdue_amount);
+  collectionRate = computed(() => this.kpiSummary().collection_rate);
 
   Math = Math;
   currentDate =  new Date();
@@ -750,6 +760,11 @@ this.collectionsService.getContractsWithSchedulesSummary(paginationFilters)
       expanded: false
     }));
     this.contracts.set(contractsWithExpanded);
+
+    // Update global KPI summary
+    if (response.summary) {
+      this.kpiSummary.set(response.summary);
+    }
 
     if (response.pagination) {
       this.paginationInfo.set(response.pagination);

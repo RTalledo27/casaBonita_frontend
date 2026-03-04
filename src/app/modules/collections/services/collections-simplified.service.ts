@@ -327,6 +327,17 @@ export class CollectionsSimplifiedService {
   }): Observable<{
     success: boolean;
     data: ContractSummary[];
+    summary?: {
+      total_schedules: number;
+      paid_schedules: number;
+      pending_schedules: number;
+      overdue_schedules: number;
+      total_amount: number;
+      paid_amount: number;
+      pending_amount: number;
+      overdue_amount: number;
+      collection_rate: number;
+    };
     pagination?: {
       current_page: number;
       last_page: number;
@@ -346,6 +357,17 @@ export class CollectionsSimplifiedService {
     return this.http.get<{
       success: boolean;
       data: ContractSummary[];
+      summary?: {
+        total_schedules: number;
+        paid_schedules: number;
+        pending_schedules: number;
+        overdue_schedules: number;
+        total_amount: number;
+        paid_amount: number;
+        pending_amount: number;
+        overdue_amount: number;
+        collection_rate: number;
+      };
       pagination?: {
         current_page: number;
         last_page: number;
