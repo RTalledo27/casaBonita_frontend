@@ -1,10 +1,8 @@
 import { Component } from '@angular/core';
-import { BehaviorSubject, catchError, Observable, of } from 'rxjs';
-import { Role } from '../users/models/role';
+import { BehaviorSubject } from 'rxjs';
 import { CommonModule } from '@angular/common';
-import { LucideAngularModule } from 'lucide-angular';
+import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { ColumnDef, SharedTableComponent } from '../../../shared/components/shared-table/shared-table.component';
 import { PermissionsService } from '../services/permissions.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { Permission } from '../users/models/permission';
@@ -33,38 +31,26 @@ interface PaginatedResponse<T> {
   selector: 'app-permissions',
   imports: [
     CommonModule,
-    LucideAngularModule,
+    FormsModule,
     TranslateModule,
-    SharedTableComponent,
     PaginationComponent,
   ],
   templateUrl: './permissions.component.html',
   styleUrl: './permissions.component.scss',
 })
 export class PermissionsComponent {
-  columns: ColumnDef[] = [
-    { field: 'name', header: 'security.permissions.codName',translateContent:false },
-    { field: 'name', header: 'security.permissions.name', translateContent:true },
-    {
-      field: 'created_at',
-      header: 'common.created',
-      align: 'right',
-      width: '160px',
-      tpl: 'date', // Nueva plantilla para fechas
-    },
-  ];
-
-  permissionsSubject = new BehaviorSubject<Permission[]>([]);
-  permissions$ = this.permissionsSubject.asObservable();
+  private permissionsSubject = new BehaviorSubject<Permission[]>([]);
+  allPermissions: Permission[] = [];
+  filteredPermissions: Permission[] = [];
+  filter = '';
   loading = false;
-
 
   // Propiedades de paginación
   pagination = {
     currentPage: 1,
     totalPages: 1,
     total: 0,
-    perPage: 10
+    perPage: 10,
   };
 
   constructor(
@@ -73,9 +59,6 @@ export class PermissionsComponent {
   ) {}
 
   ngOnInit(): void {
-    //Called after the constructor, initializing input properties, and the first call to ngOnChanges.
-    //Add 'implements OnInit' to the class.
-
     this.getPermissions();
   }
 
@@ -84,12 +67,13 @@ export class PermissionsComponent {
     this.permissionService.list(page, this.pagination.perPage).subscribe({
       next: (res: PaginatedResponse<Permission>) => {
         this.permissionsSubject.next(res.data);
-        // Actualizar propiedades de paginación desde meta
+        this.allPermissions = res.data;
+        this.applyFilter();
         this.pagination = {
           currentPage: res.meta?.current_page || page,
           totalPages: res.meta?.last_page || 1,
           total: res.meta?.total || 0,
-          perPage: res.meta?.per_page || 10
+          perPage: res.meta?.per_page || 10,
         };
         this.loading = false;
       },
@@ -104,5 +88,24 @@ export class PermissionsComponent {
     this.getPermissions(page);
   }
 
+  applyFilter(): void {
+    const term = this.filter.toLowerCase().trim();
+    if (!term) {
+      this.filteredPermissions = [...this.allPermissions];
+    } else {
+      this.filteredPermissions = this.allPermissions.filter((p) =>
+        p.name.toLowerCase().includes(term)
+      );
+    }
+  }
 
+  /** Extraer módulo del nombre del permiso (ej: "users.create" → "users") */
+  getModule(name: string): string {
+    const parts = name.split('.');
+    return parts.length > 1 ? parts[0] : 'general';
+  }
+
+  trackPerm(_: number, p: Permission): number {
+    return p.id;
+  }
 }
