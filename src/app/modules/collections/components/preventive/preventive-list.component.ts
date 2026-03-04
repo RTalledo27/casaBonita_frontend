@@ -1,4 +1,4 @@
-import { Component, ViewChild, TemplateRef, HostListener } from '@angular/core';
+﻿import { Component, ViewChild, TemplateRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
@@ -6,22 +6,23 @@ import { RouterModule } from '@angular/router';
 import { SharedTableComponent, ColumnDef } from '../../../../shared/components/shared-table/shared-table.component';
 import { ClientFollowupsService } from '../../services/client-followups.service';
 import { ToastService } from '../../../../core/services/toast.service';
-import { LucideAngularModule, MessageSquare, Phone, Mail, MoreVertical, Send, FileText, Calendar, CheckCircle2, Ban, X } from 'lucide-angular';
 
 @Component({
   selector: 'app-preventive-list',
   standalone: true,
-  imports: [CommonModule, TranslateModule, FormsModule, RouterModule, SharedTableComponent, LucideAngularModule],
+  imports: [CommonModule, TranslateModule, FormsModule, RouterModule, SharedTableComponent],
   template: `
     <div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
-      <div class="max-w-[1400px] mx-auto">
-        <div class="relative overflow-hidden rounded-3xl border border-gray-200/60 dark:border-gray-700/60 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl shadow-xl mb-6">
-          <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500"></div>
+      <div class="max-w-[1600px] mx-auto">
+        <!-- Header Card -->
+        <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 mb-6">
           <div class="p-6 sm:p-8 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
             <div class="min-w-0">
               <div class="flex items-center gap-3">
-                <div class="h-12 w-12 rounded-2xl bg-gradient-to-br from-amber-600 to-orange-600 flex items-center justify-center text-white shadow-lg">
-                  <span class="text-xl">⚠️</span>
+                <div class="p-2.5 bg-amber-100 dark:bg-amber-900/30 rounded-xl">
+                  <svg class="w-7 h-7 text-amber-600 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m0-10.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285zm0 13.036h.008v.008H12v-.008z"/>
+                  </svg>
                 </div>
                 <div class="min-w-0">
                   <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white truncate">Gestión Preventiva</h1>
@@ -67,12 +68,12 @@ import { LucideAngularModule, MessageSquare, Phone, Mail, MoreVertical, Send, Fi
               </div>
 
               <div class="flex items-center gap-2 rounded-2xl border border-gray-200/60 dark:border-gray-700/60 bg-white/80 dark:bg-gray-900/30 px-3 py-2">
-                <div class="text-xs font-semibold text-gray-600 dark:text-gray-300">Días</div>
+                <div class="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Días</div>
                 <div class="flex items-center gap-2">
                   <button type="button" class="px-2 py-1 rounded-xl text-xs font-semibold bg-amber-100 text-amber-700" (click)="setWindow(7)">7</button>
                   <button type="button" class="px-2 py-1 rounded-xl text-xs font-semibold bg-amber-100 text-amber-700" (click)="setWindow(15)">15</button>
                   <button type="button" class="px-2 py-1 rounded-xl text-xs font-semibold bg-amber-100 text-amber-700" (click)="setWindow(30)">30</button>
-                  <input type="number" min="1" max="90" class="w-20 h-9 px-3 rounded-xl border border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100 font-semibold text-center" [(ngModel)]="window" />
+                  <input type="number" min="1" max="90" class="w-20 h-9 px-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 dark:text-gray-100 font-semibold text-center" [(ngModel)]="window" />
                 </div>
               </div>
 
@@ -88,15 +89,16 @@ import { LucideAngularModule, MessageSquare, Phone, Mail, MoreVertical, Send, Fi
           </div>
         </div>
 
-      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow border border-gray-200 dark:border-gray-700 p-4 mb-6">
+      <!-- Filter Section -->
+      <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-4 mb-6">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-3 items-end">
           <div class="md:col-span-2">
-            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Buscar</label>
+            <label class="block text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">Buscar</label>
             <input
               type="text"
               [(ngModel)]="search"
               (ngModelChange)="applyFilters()"
-              class="w-full h-10 px-4 rounded-xl border border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100 text-sm"
+              class="w-full h-10 px-4 rounded-xl bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 dark:text-gray-100 text-sm"
               placeholder="Cliente, lote, teléfono, email, contrato..."
             />
           </div>
@@ -107,21 +109,26 @@ import { LucideAngularModule, MessageSquare, Phone, Mail, MoreVertical, Send, Fi
             </label>
           </div>
           <div class="flex items-center justify-end gap-3">
-            <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Filas</label>
-            <select class="px-3 h-10 rounded-xl border border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100 font-semibold" [(ngModel)]="perPage" (ngModelChange)="setPerPage($event)">
-              <option [ngValue]="25">25</option>
-              <option [ngValue]="50">50</option>
-              <option [ngValue]="100">100</option>
-              <option [ngValue]="200">200</option>
-            </select>
+            <label class="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Filas</label>
+            <div class="relative">
+              <select class="appearance-none pr-10 px-3 h-10 rounded-xl bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 dark:text-gray-100 font-semibold" [(ngModel)]="perPage" (ngModelChange)="setPerPage($event)">
+                <option [ngValue]="25">25</option>
+                <option [ngValue]="50">50</option>
+                <option [ngValue]="100">100</option>
+                <option [ngValue]="200">200</option>
+              </select>
+              <svg class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>
+            </div>
           </div>
         </div>
       </div>
 
       <!-- Table -->
-      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 overflow-hidden">
         <app-shared-table [columns]="columnsView()" [data]="pagedRows" [templates]="templates" [componentName]="'preventive'" [permissionPrefix]="'collections'" [idField]="'sale_code'" [loading]="loading"></app-shared-table>
-        <div *ngIf="error" class="p-4 text-sm font-semibold text-red-600">{{ error }}</div>
+        @if (error) {
+          <div class="p-4 text-sm font-semibold text-red-600">{{ error }}</div>
+        }
         <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between p-4 border-t border-gray-200/60 dark:border-gray-700/60">
           <div class="text-sm text-gray-600 dark:text-gray-300">
             Mostrando <span class="font-semibold text-gray-900 dark:text-gray-100">{{ from }}</span> - <span class="font-semibold text-gray-900 dark:text-gray-100">{{ to }}</span>
@@ -150,8 +157,11 @@ import { LucideAngularModule, MessageSquare, Phone, Mail, MoreVertical, Send, Fi
       </ng-template>
       
       <ng-template #lotTpl let-row>
-        <a *ngIf="row.lot_id" [routerLink]="['/inventory/lots', row.lot_id]" class="text-indigo-700 dark:text-indigo-300 font-semibold hover:underline">{{ row.lot }}</a>
-        <span *ngIf="!row.lot_id" class="text-slate-500">{{ row.lot || '—' }}</span>
+        @if (row.lot_id) {
+          <a [routerLink]="['/inventory/lots', row.lot_id]" class="text-indigo-700 dark:text-indigo-300 font-semibold hover:underline">{{ row.lot }}</a>
+        } @else {
+          <span class="text-slate-500">{{ row.lot || '—' }}</span>
+        }
       </ng-template>
 
       <ng-template #contactTpl let-row>
@@ -181,20 +191,27 @@ import { LucideAngularModule, MessageSquare, Phone, Mail, MoreVertical, Send, Fi
 
       <ng-template #statusTpl let-row>
         <div class="flex flex-wrap items-center gap-2">
-          <span *ngIf="row.has_followup" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200">
-            En seguimiento
-          </span>
-          <span *ngIf="!row.has_followup" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200">
-            Sin seguimiento
-          </span>
+          @if (row.has_followup) {
+            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200">
+              En seguimiento
+            </span>
+          } @else {
+            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200">
+              Sin seguimiento
+            </span>
+          }
 
-          <span *ngIf="row.commitment_date && row.commitment_status === 'pending'" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-200">
-            Compromiso: {{ row.commitment_date | date:'dd/MM' }} · {{ formatCurrency(row.commitment_amount || 0) }}
-          </span>
+          @if (row.commitment_date && row.commitment_status === 'pending') {
+            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-200">
+              Compromiso: {{ row.commitment_date | date:'dd/MM' }} · {{ formatCurrency(row.commitment_amount || 0) }}
+            </span>
+          }
 
-          <a *ngIf="row.has_followup" [routerLink]="['/collections/client-followups', row.followup_id]" class="text-blue-600 hover:underline text-xs font-semibold" title="Ver seguimiento">
-            Ver
-          </a>
+          @if (row.has_followup) {
+            <a [routerLink]="['/collections/client-followups', row.followup_id]" class="text-blue-600 hover:underline text-xs font-semibold" title="Ver seguimiento">
+              Ver
+            </a>
+          }
         </div>
       </ng-template>
 
@@ -207,7 +224,7 @@ import { LucideAngularModule, MessageSquare, Phone, Mail, MoreVertical, Send, Fi
             (click)="runQuick(row, 'whatsapp')"
             title="Enviar WhatsApp (mensaje por defecto)"
           >
-            <lucide-angular [img]="whatsappIcon" [size]="18"></lucide-angular>
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.625 9.75a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375m-13.5 3.01c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.184-4.183a1.14 1.14 0 01.778-.332 48.294 48.294 0 005.83-.498c1.585-.233 2.708-1.626 2.708-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"/></svg>
           </button>
 
           <button
@@ -217,7 +234,7 @@ import { LucideAngularModule, MessageSquare, Phone, Mail, MoreVertical, Send, Fi
             (click)="openActionModal(row, 'call')"
             title="Registrar llamada"
           >
-            <lucide-angular [img]="phoneIcon" [size]="18"></lucide-angular>
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"/></svg>
           </button>
 
           <button
@@ -227,7 +244,7 @@ import { LucideAngularModule, MessageSquare, Phone, Mail, MoreVertical, Send, Fi
             (click)="openCommitmentModal(row)"
             title="Compromiso de pago"
           >
-            <lucide-angular [img]="calendarIcon" [size]="18"></lucide-angular>
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/></svg>
           </button>
 
           <button
@@ -237,109 +254,127 @@ import { LucideAngularModule, MessageSquare, Phone, Mail, MoreVertical, Send, Fi
             (click)="toggleMenu(row)"
             title="Más acciones"
           >
-            <lucide-angular [img]="moreIcon" [size]="18"></lucide-angular>
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z"/></svg>
           </button>
 
-          <div *ngIf="menuKey === rowKey(row)" class="absolute right-0 top-11 w-64 rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-2xl overflow-hidden z-50">
-            <button type="button" class="w-full px-4 py-3 text-sm font-semibold text-left hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center gap-2" (click)="openActionModal(row, 'whatsapp')">
-              <lucide-angular [img]="whatsappIcon" [size]="18"></lucide-angular>
-              WhatsApp (personalizar)
-            </button>
-            <button type="button" class="w-full px-4 py-3 text-sm font-semibold text-left hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center gap-2" (click)="openActionModal(row, 'sms')">
-              <lucide-angular [img]="sendIcon" [size]="18"></lucide-angular>
-              SMS (personalizar)
-            </button>
-            <button type="button" class="w-full px-4 py-3 text-sm font-semibold text-left hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center gap-2" (click)="openActionModal(row, 'email')">
-              <lucide-angular [img]="mailIcon" [size]="18"></lucide-angular>
-              Email (personalizar)
-            </button>
-            <button type="button" class="w-full px-4 py-3 text-sm font-semibold text-left hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center gap-2" (click)="openCommitmentModal(row)">
-              <lucide-angular [img]="calendarIcon" [size]="18"></lucide-angular>
-              Compromiso de pago
-            </button>
-            <button *ngIf="row.commitment_date && row.commitment_status === 'pending' && row.has_followup" type="button" class="w-full px-4 py-3 text-sm font-semibold text-left hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center gap-2" (click)="markCommitmentFulfilled(row)">
-              <lucide-angular [img]="checkIcon" [size]="18"></lucide-angular>
-              Marcar compromiso cumplido
-            </button>
-            <button *ngIf="row.commitment_date && row.commitment_status === 'pending' && row.has_followup" type="button" class="w-full px-4 py-3 text-sm font-semibold text-left hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center gap-2" (click)="cancelCommitment(row)">
-              <lucide-angular [img]="cancelIcon" [size]="18"></lucide-angular>
-              Cancelar compromiso
-            </button>
-            <button type="button" class="w-full px-4 py-3 text-sm font-semibold text-left hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center gap-2" (click)="openActionModal(row, 'letter')">
-              <lucide-angular [img]="letterIcon" [size]="18"></lucide-angular>
-              Registrar carta
-            </button>
-          </div>
+          @if (menuKey === rowKey(row)) {
+            <div class="absolute right-0 top-11 w-64 rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-2xl overflow-hidden z-50">
+              <button type="button" class="w-full px-4 py-3 text-sm font-semibold text-left hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center gap-2" (click)="openActionModal(row, 'whatsapp')">
+                <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.625 9.75a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375m-13.5 3.01c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.184-4.183a1.14 1.14 0 01.778-.332 48.294 48.294 0 005.83-.498c1.585-.233 2.708-1.626 2.708-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"/></svg>
+                WhatsApp (personalizar)
+              </button>
+              <button type="button" class="w-full px-4 py-3 text-sm font-semibold text-left hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center gap-2" (click)="openActionModal(row, 'sms')">
+                <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg>
+                SMS (personalizar)
+              </button>
+              <button type="button" class="w-full px-4 py-3 text-sm font-semibold text-left hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center gap-2" (click)="openActionModal(row, 'email')">
+                <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg>
+                Email (personalizar)
+              </button>
+              <button type="button" class="w-full px-4 py-3 text-sm font-semibold text-left hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center gap-2" (click)="openCommitmentModal(row)">
+                <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/></svg>
+                Compromiso de pago
+              </button>
+              @if (row.commitment_date && row.commitment_status === 'pending' && row.has_followup) {
+                <button type="button" class="w-full px-4 py-3 text-sm font-semibold text-left hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center gap-2" (click)="markCommitmentFulfilled(row)">
+                  <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                  Marcar compromiso cumplido
+                </button>
+              }
+              @if (row.commitment_date && row.commitment_status === 'pending' && row.has_followup) {
+                <button type="button" class="w-full px-4 py-3 text-sm font-semibold text-left hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center gap-2" (click)="cancelCommitment(row)">
+                  <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+                  Cancelar compromiso
+                </button>
+              }
+              <button type="button" class="w-full px-4 py-3 text-sm font-semibold text-left hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center gap-2" (click)="openActionModal(row, 'letter')">
+                <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
+                Registrar carta
+              </button>
+            </div>
+          }
         </div>
       </ng-template>
       
-      <ng-template [ngIf]="actionVisible">
+      <!-- Action Modal -->
+      @if (actionVisible) {
         <div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40" (click)="closeActionModal()"></div>
-        <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(94vw,44rem)] bg-white dark:bg-gray-900 z-50 shadow-2xl rounded-3xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-          <div class="px-6 py-4 bg-gradient-to-r from-amber-600 to-orange-600 dark:from-amber-900 dark:to-orange-900 text-white flex items-center justify-between">
+        <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(94vw,44rem)] bg-white dark:bg-gray-900 z-50 shadow-2xl rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div class="px-6 py-4 bg-amber-600 dark:bg-amber-700 text-white flex items-center justify-between">
             <div class="text-lg font-semibold">Registrar acción</div>
             <button class="h-9 w-9 inline-flex items-center justify-center rounded-xl bg-white/20 hover:bg-white/30" (click)="closeActionModal()">
-              <lucide-angular [img]="closeIcon" [size]="18"></lucide-angular>
+              <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
           </div>
           <div class="p-6 space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Canal</label>
-                <select [(ngModel)]="actionChannel" class="w-full px-4 py-3 rounded-2xl border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 font-semibold">
-                  <option value="whatsapp">WhatsApp</option>
-                  <option value="sms">SMS</option>
-                  <option value="email">Email</option>
-                  <option value="call">Llamada</option>
-                  <option value="letter">Carta</option>
-                </select>
+                <label class="block text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">Canal</label>
+                <div class="relative">
+                  <select [(ngModel)]="actionChannel" class="w-full appearance-none pr-10 px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 dark:text-gray-100 font-semibold">
+                    <option value="whatsapp">WhatsApp</option>
+                    <option value="sms">SMS</option>
+                    <option value="email">Email</option>
+                    <option value="call">Llamada</option>
+                    <option value="letter">Carta</option>
+                  </select>
+                  <svg class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>
+                </div>
               </div>
               <div>
-                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Resultado</label>
-                <select [(ngModel)]="actionResult" class="w-full px-4 py-3 rounded-2xl border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 font-semibold">
-                  <option value="sent">Enviado</option>
-                  <option value="contacted">Contactado</option>
-                  <option value="unreachable">No responde</option>
-                  <option value="resolved">Resuelto</option>
-                  <option value="failed">Falló</option>
-                </select>
+                <label class="block text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">Resultado</label>
+                <div class="relative">
+                  <select [(ngModel)]="actionResult" class="w-full appearance-none pr-10 px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 dark:text-gray-100 font-semibold">
+                    <option value="sent">Enviado</option>
+                    <option value="contacted">Contactado</option>
+                    <option value="unreachable">No responde</option>
+                    <option value="resolved">Resuelto</option>
+                    <option value="failed">Falló</option>
+                  </select>
+                  <svg class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>
+                </div>
               </div>
             </div>
 
-            <div *ngIf="actionChannel === 'email'">
-              <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Asunto</label>
-              <input type="text" [(ngModel)]="actionSubject" class="w-full px-4 py-3 rounded-2xl border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100" placeholder="Recordatorio de Pago - Casa Bonita" />
-            </div>
+            @if (actionChannel === 'email') {
+              <div>
+                <label class="block text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">Asunto</label>
+                <input type="text" [(ngModel)]="actionSubject" class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 dark:text-gray-100" placeholder="Recordatorio de Pago - Casa Bonita" />
+              </div>
+            }
 
-            <div *ngIf="actionChannel === 'whatsapp' || actionChannel === 'sms' || actionChannel === 'email'">
-              <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Mensaje</label>
-              <textarea rows="4" [(ngModel)]="actionMessage" class="w-full px-4 py-3 rounded-2xl border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100" placeholder="Escribe el mensaje..."></textarea>
-            </div>
+            @if (actionChannel === 'whatsapp' || actionChannel === 'sms' || actionChannel === 'email') {
+              <div>
+                <label class="block text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">Mensaje</label>
+                <textarea rows="4" [(ngModel)]="actionMessage" class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 dark:text-gray-100" placeholder="Escribe el mensaje..."></textarea>
+              </div>
+            }
 
             <div>
-              <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Notas (se guardan en el historial)</label>
-              <textarea rows="3" [(ngModel)]="actionNotes" class="w-full px-4 py-3 rounded-2xl border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100" placeholder="Ej: cliente confirma pago mañana a las 6pm..."></textarea>
+              <label class="block text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">Notas (se guardan en el historial)</label>
+              <textarea rows="3" [(ngModel)]="actionNotes" class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 dark:text-gray-100" placeholder="Ej: cliente confirma pago mañana a las 6pm..."></textarea>
             </div>
 
             <div class="flex justify-end gap-2">
-              <button type="button" class="px-4 py-2 rounded-2xl border border-gray-300 dark:border-gray-600 font-semibold" (click)="closeActionModal()" [disabled]="actionSaving">
+              <button type="button" class="px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-600 font-semibold" (click)="closeActionModal()" [disabled]="actionSaving">
                 Cancelar
               </button>
-              <button type="button" class="px-5 py-2.5 rounded-2xl bg-orange-600 hover:bg-orange-700 text-white font-semibold disabled:opacity-50" (click)="submitActionModal()" [disabled]="actionSaving">
+              <button type="button" class="px-5 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-semibold disabled:opacity-50" (click)="submitActionModal()" [disabled]="actionSaving">
                 {{ actionSaving ? 'Guardando...' : 'Guardar' }}
               </button>
             </div>
           </div>
         </div>
-      </ng-template>
+      }
 
-      <ng-template [ngIf]="commitmentVisible">
+      <!-- Commitment Modal -->
+      @if (commitmentVisible) {
         <div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40" (click)="closeCommitmentModal()"></div>
-        <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(94vw,44rem)] bg-white dark:bg-gray-900 z-50 shadow-2xl rounded-3xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-          <div class="px-6 py-4 bg-gradient-to-r from-amber-600 to-orange-600 dark:from-amber-900 dark:to-orange-900 text-white flex items-center justify-between">
+        <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(94vw,44rem)] bg-white dark:bg-gray-900 z-50 shadow-2xl rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div class="px-6 py-4 bg-amber-600 dark:bg-amber-700 text-white flex items-center justify-between">
             <div class="text-lg font-semibold">Compromiso de pago</div>
             <button class="h-9 w-9 inline-flex items-center justify-center rounded-xl bg-white/20 hover:bg-white/30" (click)="closeCommitmentModal()">
-              <lucide-angular [img]="closeIcon" [size]="18"></lucide-angular>
+              <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
           </div>
           <div class="p-6 space-y-4">
@@ -352,31 +387,31 @@ import { LucideAngularModule, MessageSquare, Phone, Mail, MoreVertical, Send, Fi
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Fecha compromiso</label>
-                <input type="date" [(ngModel)]="commitmentDate" class="w-full px-4 py-3 rounded-2xl border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 font-semibold" />
+                <label class="block text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">Fecha compromiso</label>
+                <input type="date" [(ngModel)]="commitmentDate" class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 dark:text-gray-100 font-semibold" />
               </div>
               <div>
-                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Monto</label>
-                <input type="number" step="0.01" [(ngModel)]="commitmentAmount" class="w-full px-4 py-3 rounded-2xl border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 font-semibold" />
+                <label class="block text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">Monto</label>
+                <input type="number" step="0.01" [(ngModel)]="commitmentAmount" class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 dark:text-gray-100 font-semibold" />
               </div>
             </div>
 
             <div>
-              <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Notas (opcional)</label>
-              <textarea rows="3" [(ngModel)]="commitmentNotes" class="w-full px-4 py-3 rounded-2xl border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100" placeholder="Ej: se compromete a pagar por transferencia mañana antes de las 5pm."></textarea>
+              <label class="block text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">Notas (opcional)</label>
+              <textarea rows="3" [(ngModel)]="commitmentNotes" class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 dark:text-gray-100" placeholder="Ej: se compromete a pagar por transferencia mañana antes de las 5pm."></textarea>
             </div>
 
             <div class="flex justify-end gap-2">
-              <button type="button" class="px-4 py-2 rounded-2xl border border-gray-300 dark:border-gray-600 font-semibold" (click)="closeCommitmentModal()" [disabled]="commitmentSaving">
+              <button type="button" class="px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-600 font-semibold" (click)="closeCommitmentModal()" [disabled]="commitmentSaving">
                 Cancelar
               </button>
-              <button type="button" class="px-5 py-2.5 rounded-2xl bg-orange-600 hover:bg-orange-700 text-white font-semibold disabled:opacity-50" (click)="submitCommitment()" [disabled]="commitmentSaving">
+              <button type="button" class="px-5 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-semibold disabled:opacity-50" (click)="submitCommitment()" [disabled]="commitmentSaving">
                 {{ commitmentSaving ? 'Guardando...' : 'Guardar compromiso' }}
               </button>
             </div>
           </div>
         </div>
-      </ng-template>
+      }
       </div>
   `,
 })
@@ -414,16 +449,6 @@ export class PreventiveListComponent {
   commitmentNotes = '';
   commitmentSaving = false;
 
-  whatsappIcon = MessageSquare;
-  phoneIcon = Phone;
-  mailIcon = Mail;
-  moreIcon = MoreVertical;
-  sendIcon = Send;
-  letterIcon = FileText;
-  calendarIcon = Calendar;
-  checkIcon = CheckCircle2;
-  cancelIcon = Ban;
-  closeIcon = X;
   perPage = 50;
   page = 1;
   total = 0;
@@ -853,7 +878,7 @@ export class PreventiveListComponent {
     const start = new Date();
     const end = new Date();
     end.setDate(end.getDate() + (Number(this.window) || 0));
-    return `${start.toLocaleDateString('es-PE')} → ${end.toLocaleDateString('es-PE')}`;
+    return start.toLocaleDateString('es-PE') + ' → ' + end.toLocaleDateString('es-PE');
   }
 
 }
