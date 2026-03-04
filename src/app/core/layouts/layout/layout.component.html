@@ -9,9 +9,9 @@
     <!-- Desktop: always visible, fixed width -->
     <!-- Mobile: hidden by default, slides in as overlay -->
     <app-sidebar
-        class="flex-shrink-0 w-64 bg-white dark:bg-gradient-to-b dark:from-gray-950 dark:to-gray-800 border-r border-gray-200 dark:border-gray-700
-               fixed inset-y-0 left-0 z-50 transition-transform duration-300 ease-in-out
-               lg:relative lg:translate-x-0"
+        class="flex-shrink-0 w-64 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-r border-gray-200/80 dark:border-gray-800
+               fixed inset-y-0 left-0 z-50 transition-transform duration-300 ease-in-out shadow-lg shadow-gray-200/20 dark:shadow-black/20
+               lg:relative lg:translate-x-0 lg:shadow-none"
         [class.-translate-x-full]="!sidebarService.isMobileOpen()"
         [class.translate-x-0]="sidebarService.isMobileOpen()">
     </app-sidebar>
