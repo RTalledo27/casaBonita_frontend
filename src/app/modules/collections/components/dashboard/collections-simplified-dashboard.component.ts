@@ -4,18 +4,6 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Subject, takeUntil, interval, of } from 'rxjs';
 import { startWith, switchMap, catchError, tap } from 'rxjs/operators';
-import { 
-  LucideAngularModule, 
-  TrendingUp, 
-  TrendingDown, 
-  DollarSign, 
-  Calendar, 
-  AlertTriangle, 
-  CheckCircle,
-  Clock,
-  FileText,
-  Activity
-} from 'lucide-angular';
 import { CollectionsSimplifiedService, CollectionsSimplifiedDashboard } from '../../services/collections-simplified.service';
 import { PaymentSchedule } from '../../models/payment-schedule';
 import { RecentContract } from '../../models/recent-contract';
@@ -23,343 +11,304 @@ import { RecentContract } from '../../models/recent-contract';
 @Component({
   selector: 'app-collections-simplified-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, LucideAngularModule],
+  imports: [CommonModule, RouterModule, FormsModule],
   template: `
-    <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-indigo-50/80 dark:from-gray-900 dark:via-blue-900/15 dark:to-indigo-900/25 relative overflow-hidden">
+    <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-indigo-900/30 relative overflow-hidden">
       <!-- Background Pattern -->
-      <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.06),transparent_50%)] dark:bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.03),transparent_50%)]"></div>
-      <div class="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.05),transparent_50%)] dark:bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.025),transparent_50%)]"></div>
-      
-      <div class="relative p-6 space-y-6">
-        <!-- Modern Header -->
-        <div class="mb-8">
-          <div class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/50 p-8 relative overflow-hidden">
-            <!-- Header Gradient Background -->
-            <div class="absolute inset-0 bg-gradient-to-r from-blue-400/8 via-purple-400/4 to-indigo-400/8 dark:from-blue-500/15 dark:via-purple-500/8 dark:to-indigo-500/15"></div>
-            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 via-purple-400 to-indigo-400"></div>
-            
-            <div class="relative flex justify-between items-center">
-              <!-- Title Section -->
-              <div class="flex items-center space-x-4">
-                <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-4 rounded-2xl shadow-lg">
-                  <lucide-angular [img]="ActivityIcon" class="w-8 h-8 text-white"></lucide-angular>
-                </div>
-                <div>
-                  <h1 class="text-3xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-indigo-800 dark:from-white dark:via-blue-200 dark:to-indigo-200 bg-clip-text text-transparent">
-                    Dashboard de Cronogramas
-                  </h1>
-                  <p class="text-gray-600 dark:text-gray-400 mt-1 font-medium">Gestión simplificada de cronogramas de pagos</p>
-                </div>
+      <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.08),transparent_50%)] dark:bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.04),transparent_50%)]"></div>
+
+      <div class="relative p-4 sm:p-6 lg:p-8 max-w-[1600px] mx-auto space-y-6">
+
+        <!-- ═══════════════ HEADER ═══════════════ -->
+        <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-5 sm:p-6">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div class="flex items-center gap-4">
+              <div class="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/20">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
               </div>
-              
-              <!-- Action Buttons -->
-              <div class="flex gap-4">
-                <button 
-                  (click)="refreshDashboard()"
-                  [disabled]="isLoading()"
-                  class="group relative flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 font-semibold overflow-hidden disabled:opacity-50"
-                >
-                  <div class="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <lucide-angular [img]="ActivityIcon" class="w-5 h-5 relative z-10"></lucide-angular>
-                  <span class="relative z-10">{{ isLoading() ? 'Actualizando...' : 'Actualizar' }}</span>
-                  <div class="absolute inset-0 rounded-2xl bg-gradient-to-r from-emerald-400/50 to-green-500/50 blur-xl opacity-0 group-hover:opacity-70 transition-opacity duration-300 -z-10"></div>
-                </button>
-                
-                <button 
-                  routerLink="/collections-simplified/generator"
-                  class="group relative flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 font-semibold overflow-hidden"
-                >
-                  <div class="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <lucide-angular [img]="FileTextIcon" class="w-5 h-5 relative z-10"></lucide-angular>
-                  <span class="relative z-10">Generar Cronograma</span>
-                  <div class="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-400/50 to-indigo-500/50 blur-xl opacity-0 group-hover:opacity-70 transition-opacity duration-300 -z-10"></div>
-                </button>
+              <div>
+                <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Dashboard de Cronogramas</h1>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Gestión simplificada de cronogramas de pagos</p>
               </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <button (click)="refreshDashboard()" [disabled]="isLoading()"
+                class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 shadow-sm transition-all disabled:opacity-50">
+                <svg class="w-4 h-4" [class.animate-spin]="isLoading()" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                {{ isLoading() ? 'Actualizando...' : 'Actualizar' }}
+              </button>
+              <button routerLink="/collections-simplified/generator"
+                class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl hover:from-blue-600 hover:to-indigo-700 shadow-md shadow-blue-500/20 hover:shadow-lg transition-all">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                Generar Cronograma
+              </button>
             </div>
           </div>
         </div>
 
-        <!-- Modern Statistics Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <!-- Total Contracts -->
-          <div class="group bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/30 dark:border-gray-700/50 p-6 relative overflow-hidden hover:shadow-3xl transition-all duration-300 transform hover:scale-105">
-            <div class="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-indigo-500/5 to-purple-500/10 dark:from-blue-600/20 dark:via-indigo-600/10 dark:to-purple-600/20"></div>
-            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
-            <div class="relative flex items-center justify-between">
-              <div>
-                <p class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2">Contratos Activos</p>
-                <p class="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-1">{{ dashboardData()?.total_contracts || 0 }}</p>
-                <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">Con cronogramas</p>
-              </div>
-              <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-4 rounded-2xl shadow-lg group-hover:shadow-xl transition-all duration-300">
-                <lucide-angular [img]="FileTextIcon" class="w-8 h-8 text-white"></lucide-angular>
+        <!-- ═══════════════ KPI STATS ═══════════════ -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- Contratos Activos -->
+          <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-5">
+            <div class="flex items-center justify-between mb-3">
+              <div class="p-2 bg-blue-100 dark:bg-blue-900/40 rounded-lg">
+                <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
               </div>
             </div>
+            <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ dashboardData()?.total_contracts || 0 }}</p>
+            <p class="text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mt-1">Contratos Activos</p>
+            <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">Con cronogramas</p>
           </div>
 
-          <!-- Pending Amount -->
-          <div class="group bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/30 dark:border-gray-700/50 p-6 relative overflow-hidden hover:shadow-3xl transition-all duration-300 transform hover:scale-105">
-            <div class="absolute inset-0 bg-gradient-to-br from-yellow-500/10 via-orange-500/5 to-amber-500/10 dark:from-yellow-600/20 dark:via-orange-600/10 dark:to-amber-600/20"></div>
-            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-500 to-orange-600"></div>
-            <div class="relative flex items-center justify-between">
-              <div>
-                <p class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2">Monto Pendiente</p>
-                <p class="text-3xl font-bold bg-gradient-to-r from-yellow-600 to-orange-600 bg-clip-text text-transparent mb-1">
-                  {{ formatCurrency(dashboardData()?.pending_amount || 0) }}
-                </p>
-                <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">Por cobrar</p>
-              </div>
-              <div class="bg-gradient-to-br from-yellow-500 to-orange-600 p-4 rounded-2xl shadow-lg group-hover:shadow-xl transition-all duration-300">
-                <lucide-angular [img]="ClockIcon" class="w-8 h-8 text-white"></lucide-angular>
+          <!-- Monto Pendiente -->
+          <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-5">
+            <div class="flex items-center justify-between mb-3">
+              <div class="p-2 bg-amber-100 dark:bg-amber-900/40 rounded-lg">
+                <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
               </div>
             </div>
+            <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ formatCurrency(dashboardData()?.pending_amount || 0) }}</p>
+            <p class="text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mt-1">Monto Pendiente</p>
+            <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">Por cobrar</p>
           </div>
 
-          <!-- Overdue Amount -->
-          <div class="group bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/30 dark:border-gray-700/50 p-6 relative overflow-hidden hover:shadow-3xl transition-all duration-300 transform hover:scale-105">
-            <div class="absolute inset-0 bg-gradient-to-br from-red-500/10 via-pink-500/5 to-rose-500/10 dark:from-red-600/20 dark:via-pink-600/10 dark:to-rose-600/20"></div>
-            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-500 to-pink-600"></div>
-            <div class="relative flex items-center justify-between">
-              <div>
-                <p class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2">Monto Vencido</p>
-                <p class="text-3xl font-bold bg-gradient-to-r from-red-600 to-pink-600 bg-clip-text text-transparent mb-1">
-                  {{ formatCurrency(dashboardData()?.overdue_amount || 0) }}
-                </p>
-                <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">{{ dashboardData()?.overdue_count || 0 }} cuotas</p>
-              </div>
-              <div class="bg-gradient-to-br from-red-500 to-pink-600 p-4 rounded-2xl shadow-lg group-hover:shadow-xl transition-all duration-300">
-                <lucide-angular [img]="AlertTriangleIcon" class="w-8 h-8 text-white"></lucide-angular>
+          <!-- Monto Vencido -->
+          <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-5">
+            <div class="flex items-center justify-between mb-3">
+              <div class="p-2 bg-red-100 dark:bg-red-900/40 rounded-lg">
+                <svg class="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
               </div>
             </div>
+            <p class="text-2xl font-bold text-red-600 dark:text-red-400">{{ formatCurrency(dashboardData()?.overdue_amount || 0) }}</p>
+            <p class="text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mt-1">Monto Vencido</p>
+            <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{{ dashboardData()?.overdue_count || 0 }} cuotas</p>
           </div>
 
-          <!-- Payment Rate -->
-          <div class="group bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/30 dark:border-gray-700/50 p-6 relative overflow-hidden hover:shadow-3xl transition-all duration-300 transform hover:scale-105">
-            <div class="absolute inset-0 bg-gradient-to-br from-green-500/10 via-emerald-500/5 to-teal-500/10 dark:from-green-600/20 dark:via-emerald-600/10 dark:to-teal-600/20"></div>
-            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-500 to-emerald-600"></div>
-            <div class="relative flex items-center justify-between">
-              <div>
-                <p class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2">Tasa de Pago</p>
-                <p class="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent mb-1">
-                  {{ (dashboardData()?.payment_rate || 0).toFixed(1) }}%
-                </p>
-                <div class="flex items-center">
-                  <lucide-angular [img]="TrendingUpIcon" class="w-4 h-4 text-green-500 mr-1"></lucide-angular>
-                  <span class="text-xs text-green-600 dark:text-green-400 font-medium">Este mes</span>
-                </div>
+          <!-- Tasa de Pago -->
+          <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-5">
+            <div class="flex items-center justify-between mb-3">
+              <div class="p-2 bg-emerald-100 dark:bg-emerald-900/40 rounded-lg">
+                <svg class="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
               </div>
-              <div class="bg-gradient-to-br from-green-500 to-emerald-600 p-4 rounded-2xl shadow-lg group-hover:shadow-xl transition-all duration-300">
-                <lucide-angular [img]="CheckCircleIcon" class="w-8 h-8 text-white"></lucide-angular>
-              </div>
+            </div>
+            <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{{ (dashboardData()?.payment_rate || 0).toFixed(1) }}%</p>
+            <p class="text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mt-1">Tasa de Pago</p>
+            <div class="flex items-center gap-1 mt-0.5">
+              <svg class="w-3 h-3 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+              </svg>
+              <span class="text-xs text-emerald-600 dark:text-emerald-400 font-medium">Este mes</span>
             </div>
           </div>
         </div>
 
-        <!-- Modern Three sections: Recent Created, Upcoming, and Overdue -->
+        <!-- ═══════════════ THREE SECTIONS ═══════════════ -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <!-- Recently Created Schedules -->
-          <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/30 dark:border-gray-700/50 p-6 relative overflow-hidden">
-            <div class="absolute inset-0 bg-gradient-to-br from-green-500/10 via-emerald-500/5 to-teal-500/10 dark:from-green-600/20 dark:via-emerald-600/10 dark:to-teal-600/20"></div>
-            <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500"></div>
-            
-            <div class="relative">
-              <div class="flex justify-between items-center mb-6">
-                <h3 class="text-lg font-bold bg-gradient-to-r from-green-700 to-emerald-700 dark:from-green-300 dark:to-emerald-300 bg-clip-text text-transparent">Cronogramas Recién Creados</h3>
-                <button 
-                  routerLink="/collections-simplified/schedules"
-                  class="group text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-200 text-sm font-semibold transition-all duration-300 hover:scale-105"
-                >
-                  Ver todos
-                </button>
+
+          <!-- Cronogramas Recién Creados -->
+          <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 overflow-hidden">
+            <div class="px-5 py-4 border-b border-gray-200/50 dark:border-gray-700/50 flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <div class="p-1.5 bg-emerald-100 dark:bg-emerald-900/40 rounded-lg">
+                  <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <h3 class="text-sm font-bold text-gray-900 dark:text-white">Recién Creados</h3>
               </div>
+              <a routerLink="/collections-simplified/schedules" class="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline">Ver todos</a>
+            </div>
+            <div class="p-4">
               @if (recentCreatedSchedules().length > 0) {
-                <div class="space-y-4">
+                <div class="space-y-3">
                   @for (contract of recentCreatedSchedules(); track contract.contract_id) {
-                    <div class="group flex items-center justify-between p-4 bg-gradient-to-r from-green-50/60 to-emerald-50/60 dark:from-green-900/20 dark:to-emerald-900/20 rounded-2xl border border-green-200/30 dark:border-green-700/30 hover:shadow-lg transition-all duration-300 transform hover:scale-102">
-                      <div>
-                        <p class="font-bold text-gray-900 dark:text-white mb-1">{{ contract.contract_number }}</p>
-                        <p class="text-sm font-medium text-green-600 dark:text-green-400">{{ contract.client_name }}</p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">{{ contract.lot_name }}</p>
+                    <div class="flex items-center justify-between p-3 bg-gray-50/80 dark:bg-gray-700/30 rounded-xl hover:bg-emerald-50/50 dark:hover:bg-emerald-900/10 transition-colors group">
+                      <div class="min-w-0">
+                        <p class="text-sm font-semibold text-gray-900 dark:text-white truncate">{{ contract.contract_number }}</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ contract.client_name }}</p>
+                        <p class="text-[10px] text-gray-400 dark:text-gray-500">{{ contract.lot_name }}</p>
                       </div>
-                      <div class="text-right">
-                        <p class="font-bold text-2xl bg-gradient-to-r from-green-500 to-emerald-500 bg-clip-text text-transparent">{{ contract.total_schedules }}</p>
-                        <p class="text-xs text-green-500 dark:text-green-400 font-semibold">cuotas</p>
+                      <div class="text-right flex-shrink-0 ml-3">
+                        <p class="text-lg font-bold text-emerald-600 dark:text-emerald-400">{{ contract.total_schedules }}</p>
+                        <p class="text-[10px] text-emerald-500 font-semibold uppercase">cuotas</p>
                       </div>
                     </div>
                   }
                 </div>
               } @else {
-                <div class="text-center py-12">
-                  <div class="bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/50 dark:to-emerald-900/50 p-6 rounded-2xl mb-4 inline-block">
-                    <lucide-angular [img]="FileTextIcon" class="w-12 h-12 mx-auto text-green-500 dark:text-green-400"></lucide-angular>
+                <div class="text-center py-10">
+                  <div class="p-3 rounded-full bg-gray-100 dark:bg-gray-700/50 inline-flex mb-3">
+                    <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
                   </div>
-                  <p class="text-gray-600 dark:text-gray-400 font-medium">No hay cronogramas recién creados</p>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">Sin cronogramas recientes</p>
                 </div>
               }
             </div>
           </div>
 
-          <!-- Upcoming Payment Schedules -->
-          <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/30 dark:border-gray-700/50 p-6 relative overflow-hidden">
-            <div class="absolute inset-0 bg-gradient-to-br from-blue-400/8 via-indigo-400/4 to-purple-400/8 dark:from-blue-500/15 dark:via-indigo-500/8 dark:to-purple-500/15"></div>
-            <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400"></div>
-            
-            <div class="relative">
-              <div class="flex justify-between items-center mb-6">
-                <h3 class="text-lg font-bold bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-300 dark:to-indigo-300 bg-clip-text text-transparent">Cuotas Próximas a Vencer</h3>
-                <button 
-                  routerLink="/collections-simplified/schedules"
-                  class="group text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 text-sm font-semibold transition-all duration-300 hover:scale-105"
-                >
-                  Ver todas
-                </button>
+          <!-- Cuotas Próximas a Vencer -->
+          <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 overflow-hidden">
+            <div class="px-5 py-4 border-b border-gray-200/50 dark:border-gray-700/50 flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <div class="p-1.5 bg-blue-100 dark:bg-blue-900/40 rounded-lg">
+                  <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <h3 class="text-sm font-bold text-gray-900 dark:text-white">Próximas a Vencer</h3>
               </div>
+              <a routerLink="/collections-simplified/schedules" class="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline">Ver todas</a>
+            </div>
+            <div class="p-4">
               @if (recentSchedules().length > 0) {
-                <div class="space-y-4">
+                <div class="space-y-3">
                   @for (schedule of recentSchedules(); track schedule.schedule_id) {
-                    <div class="group flex items-center justify-between p-4 bg-gradient-to-r from-blue-50/60 to-indigo-50/60 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-2xl border border-blue-200/30 dark:border-blue-700/30 hover:shadow-lg transition-all duration-300 transform hover:scale-102">
-                      <div>
-                        <p class="font-bold text-gray-900 dark:text-white mb-1">Contrato #{{ schedule.contract_number }}</p>
-                        <p class="text-sm font-medium text-blue-600 dark:text-blue-400">Vence: {{ formatDate(schedule.due_date) }}</p>
+                    <div class="flex items-center justify-between p-3 bg-gray-50/80 dark:bg-gray-700/30 rounded-xl hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-colors group">
+                      <div class="min-w-0">
+                        <p class="text-sm font-semibold text-gray-900 dark:text-white truncate">Contrato #{{ schedule.contract_number }}</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Vence: {{ formatDate(schedule.due_date) }}</p>
                       </div>
-                      <div class="text-right">
-                        <p class="font-bold text-lg bg-gradient-to-r from-blue-500 to-indigo-500 bg-clip-text text-transparent mb-1">{{ formatCurrency(schedule.amount) }}</p>
-                        <span [class]="getStatusClass(schedule.status)">
-                          {{ getStatusLabel(schedule.status) }}
-                        </span>
+                      <div class="text-right flex-shrink-0 ml-3">
+                        <p class="text-sm font-bold text-gray-900 dark:text-white">{{ formatCurrency(schedule.amount) }}</p>
+                        <span [class]="getStatusClass(schedule.status)">{{ getStatusLabel(schedule.status) }}</span>
                       </div>
                     </div>
                   }
                 </div>
               } @else {
-                <div class="text-center py-12">
-                  <div class="bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/50 dark:to-indigo-900/50 p-6 rounded-2xl mb-4 inline-block">
-                    <lucide-angular [img]="CalendarIcon" class="w-12 h-12 mx-auto text-blue-500 dark:text-blue-400"></lucide-angular>
+                <div class="text-center py-10">
+                  <div class="p-3 rounded-full bg-gray-100 dark:bg-gray-700/50 inline-flex mb-3">
+                    <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
                   </div>
-                  <p class="text-gray-600 dark:text-gray-400 font-medium">No hay cuotas próximas a vencer</p>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">Sin cuotas próximas</p>
                 </div>
               }
             </div>
           </div>
 
-          <!-- Overdue Schedules -->
-          <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/30 dark:border-gray-700/50 p-6 relative overflow-hidden">
-            <div class="absolute inset-0 bg-gradient-to-br from-red-400/8 via-pink-400/4 to-rose-400/8 dark:from-red-500/15 dark:via-pink-500/8 dark:to-rose-500/15"></div>
-            <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-red-400 via-pink-400 to-rose-400"></div>
-            
-            <div class="relative">
-              <div class="flex justify-between items-center mb-6">
-                <h3 class="text-lg font-bold bg-gradient-to-r from-red-600 to-pink-600 dark:from-red-300 dark:to-pink-300 bg-clip-text text-transparent">Cuotas Vencidas</h3>
-                <button 
-                  routerLink="/collections-simplified/installments"
-                  [queryParams]="{ status: 'vencido' }"
-                  class="group text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-200 text-sm font-semibold transition-all duration-300 hover:scale-105"
-                >
-                  Ver todas
-                </button>
+          <!-- Cuotas Vencidas -->
+          <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 overflow-hidden">
+            <div class="px-5 py-4 border-b border-gray-200/50 dark:border-gray-700/50 flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <div class="p-1.5 bg-red-100 dark:bg-red-900/40 rounded-lg">
+                  <svg class="w-4 h-4 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                  </svg>
+                </div>
+                <h3 class="text-sm font-bold text-gray-900 dark:text-white">Cuotas Vencidas</h3>
               </div>
+              <a routerLink="/collections-simplified/installments" [queryParams]="{ status: 'vencido' }" class="text-xs font-semibold text-red-600 dark:text-red-400 hover:underline">Ver todas</a>
+            </div>
+            <div class="p-4">
               @if (overdueSchedules().length > 0) {
-                <div class="space-y-4">
+                <div class="space-y-3">
                   @for (schedule of overdueSchedules(); track schedule.schedule_id) {
-                    <div class="group flex items-center justify-between p-4 bg-gradient-to-r from-red-50/60 to-pink-50/60 dark:from-red-900/20 dark:to-pink-900/20 rounded-2xl border border-red-200/30 dark:border-red-700/30 hover:shadow-lg transition-all duration-300 transform hover:scale-102">
-                      <div>
-                        <p class="font-bold text-gray-900 dark:text-white mb-1">Contrato #{{ schedule.contract_number }}</p>
-                        <p class="text-sm font-medium text-red-600 dark:text-red-400">Vencido: {{ formatDate(schedule.due_date) }}</p>
+                    <div class="flex items-center justify-between p-3 bg-gray-50/80 dark:bg-gray-700/30 rounded-xl hover:bg-red-50/50 dark:hover:bg-red-900/10 transition-colors group">
+                      <div class="min-w-0">
+                        <p class="text-sm font-semibold text-gray-900 dark:text-white truncate">Contrato #{{ schedule.contract_number }}</p>
+                        <p class="text-xs text-red-500 dark:text-red-400">Vencido: {{ formatDate(schedule.due_date) }}</p>
                       </div>
-                      <div class="text-right">
-                        <p class="font-bold text-lg bg-gradient-to-r from-red-500 to-pink-500 bg-clip-text text-transparent mb-2">{{ formatCurrency(schedule.amount) }}</p>
-                        <button 
-                          (click)="markAsPaid(schedule)"
-                          class="group relative px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white text-xs font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 overflow-hidden"
-                        >
-                          <div class="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                          <span class="relative z-10">Marcar Pagado</span>
+                      <div class="text-right flex-shrink-0 ml-3">
+                        <p class="text-sm font-bold text-red-600 dark:text-red-400 mb-1">{{ formatCurrency(schedule.amount) }}</p>
+                        <button (click)="markAsPaid(schedule)"
+                          class="text-[10px] font-semibold px-2.5 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded-lg hover:bg-emerald-200 dark:hover:bg-emerald-800/40 transition-colors">
+                          Marcar Pagado
                         </button>
                       </div>
                     </div>
                   }
                 </div>
               } @else {
-                <div class="text-center py-12">
-                  <div class="bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/50 dark:to-emerald-900/50 p-6 rounded-2xl mb-4 inline-block">
-                    <lucide-angular [img]="CheckCircleIcon" class="w-12 h-12 mx-auto text-green-500 dark:text-green-400"></lucide-angular>
+                <div class="text-center py-10">
+                  <div class="p-3 rounded-full bg-emerald-100 dark:bg-emerald-900/30 inline-flex mb-3">
+                    <svg class="w-6 h-6 text-emerald-500 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
                   </div>
-                  <p class="text-green-600 dark:text-green-400 font-semibold">No hay cuotas vencidas</p>
+                  <p class="text-sm font-medium text-emerald-600 dark:text-emerald-400">Sin cuotas vencidas</p>
                 </div>
               }
             </div>
           </div>
-      </div>
+        </div>
 
-        <!-- Quick Actions -->
-        <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/30 dark:border-gray-700/50 p-6 relative overflow-hidden">
-          <div class="absolute inset-0 bg-gradient-to-br from-purple-400/8 via-blue-400/4 to-indigo-400/8 dark:from-purple-500/15 dark:via-blue-500/8 dark:to-indigo-500/15"></div>
-          <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-purple-400 via-blue-400 to-indigo-400"></div>
-          
-          <div class="relative">
-            <h3 class="text-lg font-bold bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-300 dark:to-blue-300 bg-clip-text text-transparent mb-6">Acciones Rápidas</h3>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <button 
-                routerLink="/collections-simplified/generator"
-                class="group relative flex items-center space-x-4 p-6 bg-gradient-to-br from-blue-50/60 to-indigo-50/60 dark:from-blue-900/20 dark:to-indigo-900/20 hover:from-blue-100/70 hover:to-indigo-100/70 dark:hover:from-blue-800/30 dark:hover:to-indigo-800/30 rounded-2xl border border-blue-200/30 dark:border-blue-700/30 transition-all duration-300 transform hover:scale-105 hover:shadow-xl overflow-hidden"
-              >
-                <div class="absolute inset-0 bg-gradient-to-r from-blue-400/8 to-indigo-400/8 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div class="bg-gradient-to-br from-blue-400 to-indigo-500 p-3 rounded-xl shadow-lg relative z-10">
-                  <lucide-angular [img]="FileTextIcon" class="w-6 h-6 text-white"></lucide-angular>
-                </div>
-                <div class="text-left relative z-10">
-                  <p class="font-bold text-gray-900 dark:text-white mb-1">Generar Cronograma</p>
-                  <p class="text-sm text-blue-500 dark:text-blue-400 font-medium">Crear nuevo cronograma de pagos</p>
-                </div>
-              </button>
-              
-              <button 
-                routerLink="/collections-simplified/installments"
-                class="group relative flex items-center space-x-4 p-6 bg-gradient-to-br from-green-50/60 to-emerald-50/60 dark:from-green-900/20 dark:to-emerald-900/20 hover:from-green-100/70 hover:to-emerald-100/70 dark:hover:from-green-800/30 dark:hover:to-emerald-800/30 rounded-2xl border border-green-200/30 dark:border-green-700/30 transition-all duration-300 transform hover:scale-105 hover:shadow-xl overflow-hidden"
-              >
-                <div class="absolute inset-0 bg-gradient-to-r from-green-400/8 to-emerald-400/8 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div class="bg-gradient-to-br from-green-400 to-emerald-500 p-3 rounded-xl shadow-lg relative z-10">
-                  <lucide-angular [img]="DollarSignIcon" class="w-6 h-6 text-white"></lucide-angular>
-                </div>
-                <div class="text-left relative z-10">
-                  <p class="font-bold text-gray-900 dark:text-white mb-1">Gestionar Cuotas</p>
-                  <p class="text-sm text-green-500 dark:text-green-400 font-medium">Marcar pagos y gestionar cuotas</p>
-                </div>
-              </button>
-              
-              <button 
-                routerLink="/collections-simplified/reports"
-                class="group relative flex items-center space-x-4 p-6 bg-gradient-to-br from-purple-50/60 to-pink-50/60 dark:from-purple-900/20 dark:to-pink-900/20 hover:from-purple-100/70 hover:to-pink-100/70 dark:hover:from-purple-800/30 dark:hover:to-pink-800/30 rounded-2xl border border-purple-200/30 dark:border-purple-700/30 transition-all duration-300 transform hover:scale-105 hover:shadow-xl overflow-hidden"
-              >
-                <div class="absolute inset-0 bg-gradient-to-r from-purple-400/8 to-pink-400/8 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div class="bg-gradient-to-br from-purple-400 to-pink-500 p-3 rounded-xl shadow-lg relative z-10">
-                  <lucide-angular [img]="FileTextIcon" class="w-6 h-6 text-white"></lucide-angular>
-                </div>
-                <div class="text-left relative z-10">
-                  <p class="font-bold text-gray-900 dark:text-white mb-1">Ver Reportes</p>
-                  <p class="text-sm text-purple-500 dark:text-purple-400 font-medium">Reportes de estado de pagos</p>
-                </div>
-              </button>
+        <!-- ═══════════════ QUICK ACTIONS ═══════════════ -->
+        <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 overflow-hidden">
+          <div class="px-5 py-4 border-b border-gray-200/50 dark:border-gray-700/50">
+            <div class="flex items-center gap-2.5">
+              <div class="p-1.5 bg-violet-100 dark:bg-violet-900/40 rounded-lg">
+                <svg class="w-4 h-4 text-violet-600 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <h3 class="text-sm font-bold text-gray-900 dark:text-white">Acciones Rápidas</h3>
             </div>
           </div>
+          <div class="p-5 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <a routerLink="/collections-simplified/generator"
+              class="flex items-center gap-4 p-4 rounded-xl bg-gray-50/80 dark:bg-gray-700/30 hover:bg-blue-50/60 dark:hover:bg-blue-900/10 border border-transparent hover:border-blue-200/50 dark:hover:border-blue-800/30 transition-all group">
+              <div class="p-2.5 rounded-xl bg-blue-100 dark:bg-blue-900/40 group-hover:bg-blue-200 dark:group-hover:bg-blue-800/50 transition-colors">
+                <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-gray-900 dark:text-white">Generar Cronograma</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Crear nuevo cronograma de pagos</p>
+              </div>
+            </a>
+            <a routerLink="/collections-simplified/installments"
+              class="flex items-center gap-4 p-4 rounded-xl bg-gray-50/80 dark:bg-gray-700/30 hover:bg-emerald-50/60 dark:hover:bg-emerald-900/10 border border-transparent hover:border-emerald-200/50 dark:hover:border-emerald-800/30 transition-all group">
+              <div class="p-2.5 rounded-xl bg-emerald-100 dark:bg-emerald-900/40 group-hover:bg-emerald-200 dark:group-hover:bg-emerald-800/50 transition-colors">
+                <svg class="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-gray-900 dark:text-white">Gestionar Cuotas</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Marcar pagos y gestionar cuotas</p>
+              </div>
+            </a>
+            <a routerLink="/collections-simplified/reports"
+              class="flex items-center gap-4 p-4 rounded-xl bg-gray-50/80 dark:bg-gray-700/30 hover:bg-violet-50/60 dark:hover:bg-violet-900/10 border border-transparent hover:border-violet-200/50 dark:hover:border-violet-800/30 transition-all group">
+              <div class="p-2.5 rounded-xl bg-violet-100 dark:bg-violet-900/40 group-hover:bg-violet-200 dark:group-hover:bg-violet-800/50 transition-colors">
+                <svg class="w-5 h-5 text-violet-600 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-gray-900 dark:text-white">Ver Reportes</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Reportes de estado de pagos</p>
+              </div>
+            </a>
+          </div>
         </div>
+
+      </div>
     </div>
   `
 })
 export class CollectionsSimplifiedDashboardComponent implements OnInit, OnDestroy {
   private readonly collectionsService = inject(CollectionsSimplifiedService);
   private readonly destroy$ = new Subject<void>();
-
-  // Icons
-  TrendingUpIcon = TrendingUp;
-  TrendingDownIcon = TrendingDown;
-  DollarSignIcon = DollarSign;
-  CalendarIcon = Calendar;
-  AlertTriangleIcon = AlertTriangle;
-  CheckCircleIcon = CheckCircle;
-  ClockIcon = Clock;
-  FileTextIcon = FileText;
-  ActivityIcon = Activity;
 
   // Signals
   dashboardData = signal<CollectionsSimplifiedDashboard | null>(null);
