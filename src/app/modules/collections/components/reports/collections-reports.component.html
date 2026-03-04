@@ -1,445 +1,292 @@
-﻿<div
-    class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
-    <!-- Header -->
-    <div
-        class="sticky top-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200/70 dark:border-slate-700/60 shadow-lg">
-        <div class="container mx-auto px-4 lg:px-8 py-4">
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div class="flex-1 min-w-0">
-                    <h1
-                        class="text-2xl lg:text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-900 via-blue-800 to-indigo-800 dark:from-white dark:via-blue-200 dark:to-indigo-200">
-                        Reportes de Cobranzas
-                    </h1>
-                    <p class="text-slate-600 dark:text-slate-400 mt-1 text-sm lg:text-base">Análisis detallado y
-                        métricas de
-                        rendimiento</p>
-                </div>
+<div class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100/50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+  <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-5">
 
-                <!-- Action Buttons -->
-                <div class="flex items-center gap-3 flex-shrink-0">
-                    <button (click)="exportReport()" [disabled]="!reportData()"
-                        class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 disabled:cursor-not-allowed rounded-lg transition-all duration-200 shadow-md hover:shadow-lg">
-                        <lucide-angular [img]="FileSpreadsheetIcon" class="w-4 h-4"></lucide-angular>
-                        <span class="hidden sm:inline">Excel</span>
-                    </button>
-
-                    <button (click)="exportToPDF()" [disabled]="!reportData()"
-                        class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-all duration-200">
-                        <lucide-angular [img]="DownloadIcon" class="w-4 h-4"></lucide-angular>
-                        <span class="hidden sm:inline">PDF</span>
-                    </button>
-                </div>
-            </div>
+    <!-- HEADER -->
+    <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 px-6 py-5">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="bg-blue-600 p-2.5 rounded-xl shadow-lg shadow-blue-600/20">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          </div>
+          <div>
+            <h1 class="text-lg sm:text-xl font-bold text-gray-900 dark:text-white leading-tight">Reportes de Cobranzas</h1>
+            <p class="text-xs text-gray-500 dark:text-gray-400">Analisis detallado y metricas de rendimiento</p>
+          </div>
         </div>
+        <div class="flex items-center gap-2">
+          <button (click)="exportReport()" [disabled]="!reportData()" class="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            Excel
+          </button>
+          <button (click)="exportToPDF()" [disabled]="!reportData()" class="inline-flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 text-sm font-semibold rounded-xl border border-gray-200 dark:border-gray-600 shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            PDF
+          </button>
+        </div>
+      </div>
     </div>
 
-    <!-- Main Content -->
-    <div class="container mx-auto px-4 lg:px-8 py-6 lg:py-8">
-        <!-- Quick Filters -->
-        <div class="mb-6 animate-fade-in">
-            <div class="flex items-center gap-2 overflow-x-auto pb-2">
-                <span
-                    class="text-sm font-medium text-slate-700 dark:text-slate-300 whitespace-nowrap mr-2">Periodo:</span>
-                <button *ngFor="let filter of [
-            {value: 'today', label: 'Hoy'},
-            {value: 'week', label: 'Semana'},
-            {value: 'month', label: 'Mes'},
-            {value: 'quarter', label: 'Trimestre'},
-            {value: 'year', label: 'Año'}
-          ]" (click)="applyQuickFilter($any(filter.value))"
-                    [class.bg-gradient-to-r]="selectedQuickFilter() === filter.value"
-                    [class.from-blue-600]="selectedQuickFilter() === filter.value"
-                    [class.to-indigo-600]="selectedQuickFilter() === filter.value"
-                    [class.text-white]="selectedQuickFilter() === filter.value"
-                    [class.border-blue-600]="selectedQuickFilter() === filter.value"
-                    [class.bg-white]="selectedQuickFilter() !== filter.value"
-                    [class.dark:bg-slate-800]="selectedQuickFilter() !== filter.value"
-                    [class.text-slate-700]="selectedQuickFilter() !== filter.value"
-                    [class.dark:text-slate-300]="selectedQuickFilter() !== filter.value"
-                    [class.hover:bg-blue-50]="selectedQuickFilter() !== filter.value"
-                    [class.dark:hover:bg-slate-700]="selectedQuickFilter() !== filter.value"
-                    class="px-4 py-2 text-sm font-medium border border-slate-300 dark:border-slate-600 rounded-lg transition-all duration-200 whitespace-nowrap shadow-sm hover:shadow-md">
-                    {{ filter.label }}
-                </button>
-            </div>
-        </div>
-
-        <!-- Filters Card -->
-        <div
-            class="bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm rounded-2xl border border-slate-200/60 dark:border-slate-700/60 shadow-xl mb-8 animate-slide-up">
-            <div class="p-6">
-                <form [formGroup]="filterForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <!-- Date From -->
-                    <div>
-                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                            <lucide-angular [img]="CalendarIcon" class="w-4 h-4 inline mr-2"></lucide-angular>
-                            Fecha Desde
-                        </label>
-                        <input type="date" formControlName="date_from"
-                            class="w-full px-4 py-2.5 text-sm border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" />
-                    </div>
-
-                    <!-- Date To -->
-                    <div>
-                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                            <lucide-angular [img]="CalendarIcon" class="w-4 h-4 inline mr-2"></lucide-angular>
-                            Fecha Hasta
-                        </label>
-                        <input type="date" formControlName="date_to"
-                            class="w-full px-4 py-2.5 text-sm border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" />
-                    </div>
-
-                    <!-- Status Filter -->
-                    <div>
-                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                            <lucide-angular [img]="ActivityIcon" class="w-4 h-4 inline mr-2"></lucide-angular>
-                            Estado
-                        </label>
-                        <select formControlName="status"
-                            class="w-full px-4 py-2.5 text-sm border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-                            <option value="">Todos</option>
-                            <option value="pagado">Pagado</option>
-                            <option value="pendiente">Pendiente</option>
-                            <option value="vencido">Vencido</option>
-                        </select>
-                    </div>
-
-                    <!-- Report Type -->
-                    <div>
-                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                            <lucide-angular [img]="BarChart3Icon" class="w-4 h-4 inline mr-2"></lucide-angular>
-                            Tipo
-                        </label>
-                        <select formControlName="report_type"
-                            class="w-full px-4 py-2.5 text-sm border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-                            <option value="summary">Resumen (solo KPIs y gráficos)</option>
-                            <option value="detailed">Detallado (todo)</option>
-                            <option value="overdue">Solo Vencidos</option>
-                        </select>
-                    </div>
-                </form>
-
-                <!-- Action Buttons -->
-                <div class="flex flex-col sm:flex-row gap-3 mt-6 pt-6 border-t border-slate-200 dark:border-slate-700">
-                    <button (click)="generateReport()" [disabled]="isLoading()"
-                        class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 disabled:from-slate-400 disabled:to-slate-500 disabled:cursor-not-allowed rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
-                        <lucide-angular [img]="BarChart3Icon" class="w-5 h-5"></lucide-angular>
-                        <span>{{ isLoading() ? 'Generando...' : 'Generar Reporte' }}</span>
-                    </button>
-
-                    <button (click)="resetFilters()"
-                        class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 text-sm font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-all duration-200">
-                        <lucide-angular [img]="ArrowLeftIcon" class="w-5 h-5"></lucide-angular>
-                        <span>Limpiar</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Loading State -->
-        <div *ngIf="isLoading()"
-            class="bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm rounded-2xl border border-slate-200/60 dark:border-slate-700/60 shadow-xl p-12 text-center animate-pulse">
-            <div class="flex flex-col items-center space-y-6">
-                <div class="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
-                <div class="space-y-3">
-                    <p class="text-xl font-semibold text-slate-900 dark:text-slate-100">{{ loadingMessage() }}</p>
-                    <div class="w-80 bg-slate-200 dark:bg-slate-700 rounded-full h-3 overflow-hidden">
-                        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 h-3 rounded-full transition-all duration-300"
-                            [style.width.%]="loadingProgress()"></div>
-                    </div>
-                    <p class="text-sm text-slate-600 dark:text-slate-400">{{ loadingProgress() }}% completado</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Error State -->
-        <div *ngIf="errorMessage()"
-            class="bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800 rounded-2xl p-6 mb-8 animate-shake">
-            <div class="flex items-start space-x-4">
-                <lucide-angular [img]="AlertTriangleIcon"
-                    class="w-7 h-7 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5"></lucide-angular>
-                <div class="flex-1">
-                    <h3 class="text-lg font-bold text-red-800 dark:text-red-200 mb-2">Error al generar reporte</h3>
-                    <p class="text-red-700 dark:text-red-300 mb-4">{{ errorMessage() }}</p>
-                    <div class="flex gap-3">
-                        <button (click)="retryLastOperation()"
-                            class="px-5 py-2 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-lg transition-all shadow-md hover:shadow-lg">
-                            Reintentar
-                        </button>
-                        <button (click)="clearError()"
-                            class="px-5 py-2 text-sm font-semibold text-red-700 dark:text-red-300 bg-transparent border-2 border-red-300 dark:border-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-all">
-                            Cerrar
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Report Content -->
-        <div *ngIf="reportData() && !isLoading()" class="space-y-8">
-            <!-- KPI Cards -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <!-- Total Amount -->
-                <div
-                    class="kpi-card bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-2xl border border-blue-200/60 dark:border-blue-800/60 p-6 cursor-pointer hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="p-3 bg-blue-500/10 rounded-xl">
-                            <lucide-angular [img]="DollarSignIcon"
-                                class="w-8 h-8 text-blue-600 dark:text-blue-400"></lucide-angular>
-                        </div>
-                        <lucide-angular [img]="TrendingUpIcon"
-                            class="w-5 h-5 text-blue-600 dark:text-blue-400"></lucide-angular>
-                    </div>
-                    <p class="text-sm font-semibold text-blue-700 dark:text-blue-300 mb-1">Monto Total</p>
-                    <p class="text-xl sm:text-2xl lg:text-3xl font-extrabold text-blue-900 dark:text-blue-100 mb-2">{{
-                        formatCurrency(reportData()?.total_amount || 0) }}</p>
-                    <p class="text-xs text-blue-600 dark:text-blue-400">{{ reportData()?.total_schedules || 0 }}
-                        cronogramas</p>
-                </div>
-
-                <!-- Paid Amount -->
-                <div
-                    class="kpi-card bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-900/20 dark:to-emerald-900/20 rounded-2xl border border-green-200/60 dark:border-green-800/60 p-6 cursor-pointer hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="p-3 bg-green-500/10 rounded-xl">
-                            <lucide-angular [img]="CheckCircleIcon"
-                                class="w-8 h-8 text-green-600 dark:text-green-400"></lucide-angular>
-                        </div>
-                        <div class="px-2 py-1 bg-green-500/20 rounded-lg">
-                            <span class="text-xs font-bold text-green-700 dark:text-green-300">{{ collectionEfficiency()
-                                |
-                                number:'1.1-1' }}%</span>
-                        </div>
-                    </div>
-                    <p class="text-sm font-semibold text-green-700 dark:text-green-300 mb-1">Cobrado</p>
-                    <p class="text-xl sm:text-2xl lg:text-3xl font-extrabold text-green-900 dark:text-green-100 mb-2">{{
-                        formatCurrency(reportData()?.paid_amount || 0) }}</p>
-                    <p class="text-xs text-green-600 dark:text-green-400">{{ reportData()?.paid_schedules || 0 }}
-                        pagados</p>
-                </div>
-
-                <!-- Pending Amount -->
-                <div
-                    class="kpi-card bg-gradient-to-br from-yellow-50 to-orange-100 dark:from-yellow-900/20 dark:to-orange-900/20 rounded-2xl border border-yellow-200/60 dark:border-yellow-800/60 p-6 cursor-pointer hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="p-3 bg-yellow-500/10 rounded-xl">
-                            <lucide-angular [img]="ClockIcon"
-                                class="w-8 h-8 text-yellow-600 dark:text-yellow-400"></lucide-angular>
-                        </div>
-                        <lucide-angular [img]="TrendingDownIcon"
-                            class="w-5 h-5 text-yellow-600 dark:text-yellow-400"></lucide-angular>
-                    </div>
-                    <p class="text-sm font-semibold text-yellow-700 dark:text-yellow-300 mb-1">Pendiente</p>
-                    <p class="text-xl sm:text-2xl lg:text-3xl font-extrabold text-yellow-900 dark:text-yellow-100 mb-2">{{
-                        formatCurrency(reportData()?.pending_amount || 0) }}</p>
-                    <p class="text-xs text-yellow-600 dark:text-yellow-400">{{ reportData()?.pending_schedules || 0 }}
-                        pendientes
-                    </p>
-                </div>
-
-                <!-- Overdue Amount -->
-                <div
-                    class="kpi-card bg-gradient-to-br from-red-50 to-rose-100 dark:from-red-900/20 dark:to-rose-900/20 rounded-2xl border border-red-200/60 dark:border-red-800/60 p-6 cursor-pointer hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="p-3 bg-red-500/10 rounded-xl">
-                            <lucide-angular [img]="AlertCircleIcon"
-                                class="w-8 h-8 text-red-600 dark:text-red-400"></lucide-angular>
-                        </div>
-                        <div class="px-2 py-1 bg-red-500/20 rounded-lg">
-                            <span class="text-xs font-bold text-red-700 dark:text-red-300">{{ averageCollectionDays()
-                                }}d</span>
-                        </div>
-                    </div>
-                    <p class="text-sm font-semibold text-red-700 dark:text-red-300 mb-1">Vencido</p>
-                    <p class="text-xl sm:text-2xl lg:text-3xl font-extrabold text-red-900 dark:text-red-100 mb-2">{{
-                        formatCurrency(reportData()?.overdue_amount || 0) }}</p>
-                    <p class="text-xs text-red-600 dark:text-red-400">{{ reportData()?.overdue_schedules || 0 }}
-                        vencidos</p>
-                </div>
-            </div>
-
-            <!-- Charts Section -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8">
-                <!-- Status Distribution -->
-                <div
-                    class="chart-card bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm rounded-2xl border border-slate-200/60 dark:border-slate-700/60 shadow-xl p-6 hover:shadow-2xl transition-all  duration-300">
-                    <div class="flex items-center justify-between mb-6">
-                        <h3 class="text-lg font-bold text-slate-900 dark:text-slate-100">Distribución por Estado</h3>
-                        <lucide-angular [img]="PieChartIcon"
-                            class="w-6 h-6 text-slate-600 dark:text-slate-400"></lucide-angular>
-                    </div>
-                    <div class="relative h-72">
-                        <canvas #statusChart></canvas>
-                    </div>
-                </div>
-
-                <!-- Amount Distribution -->
-                <div
-                    class="chart-card bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm rounded-2xl border border-slate-200/60 dark:border-slate-700/60 shadow-xl p-6 hover:shadow-2xl transition-all duration-300">
-                    <div class="flex items-center justify-between mb-6">
-                        <h3 class="text-lg font-bold text-slate-900 dark:text-slate-100">Distribución de Montos</h3>
-                        <lucide-angular [img]="BarChart3Icon"
-                            class="w-6 h-6 text-slate-600 dark:text-slate-400"></lucide-angular>
-                    </div>
-                    <div class="relative h-72">
-                        <canvas #amountChart></canvas>
-                    </div>
-                </div>
-
-                <!-- Trends Chart -->
-                <div
-                    class="chart-card bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm rounded-2xl border border-slate-200/60 dark:border-slate-700/60 shadow-xl p-6 hover:shadow-2xl transition-all duration-300">
-                    <div class="flex items-center justify-between mb-6">
-                        <h3 class="text-lg font-bold text-slate-900 dark:text-slate-100">Tendencias Mensuales</h3>
-                        <lucide-angular [img]="TrendingUpIcon"
-                            class="w-6 h-6 text-slate-600 dark:text-slate-400"></lucide-angular>
-                    </div>
-                    <div class="relative h-72">
-                        <canvas #trendsChart></canvas>
-                    </div>
-                </div>
-
-                <!-- Aging Analysis -->
-                <div
-                    class="chart-card bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm rounded-2xl border border-slate-200/60 dark:border-slate-700/60 shadow-xl p-6 hover:shadow-2xl transition-all duration-300">
-                    <div class="flex items-center justify-between mb-6">
-                        <h3 class="text-lg font-bold text-slate-900 dark:text-slate-100">Análisis de Antigüedad</h3>
-                        <lucide-angular [img]="ActivityIcon"
-                            class="w-6 h-6 text-slate-600 dark:text-slate-400"></lucide-angular>
-                    </div>
-                    <div class="relative h-72">
-                        <canvas #agingChart></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Detailed Table -->
-            <div *ngIf="showTable()"
-                class="bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm rounded-2xl border border-slate-200/60 dark:border-slate-700/60 shadow-xl overflow-hidden">
-                <div
-                    class="px-6 py-5 border-b border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-700/30">
-                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                        <h3 class="text-lg font-bold text-slate-900 dark:text-slate-100">Detalle de Cronogramas</h3>
-
-                        <!-- Search Box -->
-                        <div class="relative">
-                            <lucide-angular [img]="SearchIcon"
-                                class="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"></lucide-angular>
-                            <input type="text" [value]="searchTerm()"
-                                (input)="onSearchChange($any($event.target).value)"
-                                placeholder="Buscar contrato, cliente, lote..."
-                                class="pl-10 pr-4 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all min-w-[300px]" />
-                        </div>
-                    </div>
-
-                    <p class="text-sm text-slate-600 dark:text-slate-400 mt-2">
-                        Mostrando {{ paginatedSchedules().length }} de {{ filteredSchedules().length }} registros
-                    </p>
-                </div>
-
-                <div class="overflow-x-auto">
-                    <table class="w-full">
-                        <thead class="bg-slate-50 dark:bg-slate-700/50">
-                            <tr>
-                                <th
-                                    class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                    Contrato</th>
-                                <th
-                                    class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                    Cliente</th>
-                                <th
-                                    class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                    Lote</th>
-                                <th
-                                    class="px-6 py-4 text-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                    Cuota</th>
-                                <th
-                                    class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                    Estado</th>
-                                <th
-                                    class="px-6 py-4 text-right text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                    Monto</th>
-                                <th
-                                    class="px-6 py-4 text-right text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                    Pagado</th>
-                                <th
-                                    class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                    Vencimiento</th>
-                                <th
-                                    class="px-6 py-4 text-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                    Días Vencido</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700">
-                            <tr *ngFor="let schedule of paginatedSchedules(); trackBy: trackByScheduleId"
-                                class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
-                                <td
-                                    class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-slate-900 dark:text-slate-100">
-                                    {{ schedule.contract_number || schedule.contract_id }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600 dark:text-slate-400">
-                                    {{ schedule.client_name && schedule.client_name !== 'N/A' ? schedule.client_name : '—' }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600 dark:text-slate-400">
-                                    {{ schedule.lot_number && schedule.lot_number !== 'N/A' ? schedule.lot_number : '—' }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-slate-600 dark:text-slate-400">
-                                    {{ schedule.installment_number }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span [class]="getStatusClass(getRealStatus(schedule))"
-                                        class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold">
-                                        {{ getStatusLabel(getRealStatus(schedule)) }}
-                                    </span>
-                                </td>
-                                <td
-                                    class="px-6 py-4 whitespace-nowrap text-sm text-right font-bold text-slate-900 dark:text-slate-100">
-                                    {{ formatCurrency(schedule.amount) }}
-                                </td>
-                                <td
-                                    class="px-6 py-4 whitespace-nowrap text-sm text-right font-medium"
-                                    [class.text-green-600]="(schedule.amount_paid ?? 0) > 0"
-                                    [class.dark:text-green-400]="(schedule.amount_paid ?? 0) > 0"
-                                    [class.text-slate-400]="!schedule.amount_paid || schedule.amount_paid === 0"
-                                    [class.dark:text-slate-500]="!schedule.amount_paid || schedule.amount_paid === 0">
-                                    {{ schedule.amount_paid ? formatCurrency(schedule.amount_paid) : '—' }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600 dark:text-slate-400">
-                                    {{ formatDate(schedule.due_date) }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-center"
-                                    [class]="getDaysOverdueClass(getRealDaysOverdue(schedule))">
-                                    {{ getRealDaysOverdue(schedule) > 0 ? getRealDaysOverdue(schedule) + 'd' : '—' }}
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <!--  Pagination Controls -->
-                <div *ngIf="totalPages() > 1"
-                    class="px-6 py-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-700/30">
-                    <div class="flex items-center justify-between">
-                        <div class="text-sm text-slate-600 dark:text-slate-400">
-                            Página {{ currentPage() }} de {{ totalPages() }}
-                        </div>
-
-                        <div class="flex items-center gap-2">
-                            <button (click)="previousPage()" [disabled]="currentPage() === 1"
-                                class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
-                                <lucide-angular [img]="ChevronLeftIcon" class="w-4 h-4"></lucide-angular>
-                                Anterior
-                            </button>
-
-                            <button (click)="nextPage()" [disabled]="currentPage() === totalPages()"
-                                class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
-                                Siguiente
-                                <lucide-angular [img]="ChevronRightIcon" class="w-4 h-4"></lucide-angular>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <!-- QUICK FILTERS -->
+    <div class="flex items-center gap-2 overflow-x-auto pb-1">
+      <span class="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 whitespace-nowrap mr-1">Periodo:</span>
+      @for (filter of quickFilters; track filter.value) {
+        <button (click)="applyQuickFilter(filter.value)"
+          [ngClass]="selectedQuickFilter() === filter.value
+            ? 'bg-blue-600 text-white border-blue-600 shadow-sm shadow-blue-600/20'
+            : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700'"
+          class="px-3.5 py-1.5 text-xs font-semibold border rounded-lg transition-all whitespace-nowrap">
+          {{ filter.label }}
+        </button>
+      }
     </div>
+
+    <!-- FILTERS CARD -->
+    <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-5">
+      <form [formGroup]="filterForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div>
+          <label class="block text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1.5">Fecha desde</label>
+          <input type="date" formControlName="date_from" class="w-full px-3.5 py-2.5 text-sm border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700/50 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition-all" />
+        </div>
+        <div>
+          <label class="block text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1.5">Fecha hasta</label>
+          <input type="date" formControlName="date_to" class="w-full px-3.5 py-2.5 text-sm border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700/50 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition-all" />
+        </div>
+        <div>
+          <label class="block text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1.5">Estado</label>
+          <div class="relative">
+            <select formControlName="status" class="w-full px-3.5 py-2.5 text-sm border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700/50 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition-all appearance-none pr-10">
+              <option value="">Todos</option>
+              <option value="pagado">Pagado</option>
+              <option value="pendiente">Pendiente</option>
+              <option value="vencido">Vencido</option>
+            </select>
+            <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 9l6 6 6-6"/></svg>
+          </div>
+        </div>
+        <div>
+          <label class="block text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1.5">Tipo</label>
+          <div class="relative">
+            <select formControlName="report_type" class="w-full px-3.5 py-2.5 text-sm border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700/50 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition-all appearance-none pr-10">
+              <option value="summary">Resumen (solo KPIs y graficos)</option>
+              <option value="detailed">Detallado (todo)</option>
+              <option value="overdue">Solo Vencidos</option>
+            </select>
+            <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 9l6 6 6-6"/></svg>
+          </div>
+        </div>
+      </form>
+      <div class="flex flex-col sm:flex-row gap-2.5 mt-5 pt-5 border-t border-gray-200/50 dark:border-gray-700/50">
+        <button (click)="generateReport()" [disabled]="isLoading()" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl shadow-sm shadow-blue-600/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          {{ isLoading() ? 'Generando...' : 'Generar Reporte' }}
+        </button>
+        <button (click)="resetFilters()" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 text-sm font-semibold rounded-xl border border-gray-200 dark:border-gray-600 transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          Limpiar
+        </button>
+      </div>
+    </div>
+
+    <!-- LOADING -->
+    @if (isLoading()) {
+      <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-12 text-center">
+        <div class="flex flex-col items-center gap-5">
+          <div class="animate-spin rounded-full h-10 w-10 border-2 border-blue-600 border-t-transparent"></div>
+          <div class="space-y-2">
+            <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ loadingMessage() }}</p>
+            <div class="w-64 bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 overflow-hidden mx-auto">
+              <div class="bg-blue-600 h-1.5 rounded-full transition-all duration-300" [style.width.%]="loadingProgress()"></div>
+            </div>
+            <p class="text-xs text-gray-500 dark:text-gray-400">{{ loadingProgress() }}% completado</p>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- ERROR -->
+    @if (errorMessage()) {
+      <div class="flex items-start gap-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 rounded-xl px-4 py-3">
+        <svg class="w-5 h-5 text-red-500 dark:text-red-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-semibold text-red-800 dark:text-red-200">Error al generar reporte</p>
+          <p class="text-xs text-red-600 dark:text-red-300 mt-0.5">{{ errorMessage() }}</p>
+          <div class="flex gap-2 mt-2">
+            <button (click)="retryLastOperation()" class="px-3 py-1 text-xs font-semibold text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors">Reintentar</button>
+            <button (click)="clearError()" class="px-3 py-1 text-xs font-semibold text-red-700 dark:text-red-300 border border-red-300 dark:border-red-600 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors">Cerrar</button>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- REPORT CONTENT -->
+    @if (reportData() && !isLoading()) {
+
+      <!-- KPI Cards -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <!-- Total Amount -->
+        <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl border border-gray-200/50 dark:border-gray-700/50 p-4 sm:p-5 hover:shadow-md transition-shadow">
+          <div class="flex items-center justify-between mb-3">
+            <div class="p-2 bg-blue-100 dark:bg-blue-900/40 rounded-lg">
+              <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 1v22m5-18H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H7"/></svg>
+            </div>
+            <span class="text-[11px] font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 rounded-full">{{ reportData()?.total_schedules || 0 }} cuotas</span>
+          </div>
+          <div class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">{{ formatCurrency(reportData()?.total_amount || 0) }}</div>
+          <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">Monto total</p>
+        </div>
+        <!-- Paid Amount -->
+        <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl border border-gray-200/50 dark:border-gray-700/50 p-4 sm:p-5 hover:shadow-md transition-shadow">
+          <div class="flex items-center justify-between mb-3">
+            <div class="p-2 bg-emerald-100 dark:bg-emerald-900/40 rounded-lg">
+              <svg class="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M22 4L12 14.01l-3-3"/></svg>
+            </div>
+            <span class="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-2 py-0.5 rounded-full">{{ collectionEfficiency() | number:'1.1-1' }}%</span>
+          </div>
+          <div class="text-2xl sm:text-3xl font-bold text-emerald-600 dark:text-emerald-400">{{ formatCurrency(reportData()?.paid_amount || 0) }}</div>
+          <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">Cobrado ({{ reportData()?.paid_schedules || 0 }})</p>
+        </div>
+        <!-- Pending Amount -->
+        <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl border border-gray-200/50 dark:border-gray-700/50 p-4 sm:p-5 hover:shadow-md transition-shadow">
+          <div class="flex items-center justify-between mb-3">
+            <div class="p-2 bg-amber-100 dark:bg-amber-900/40 rounded-lg">
+              <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <span class="text-[11px] font-semibold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 px-2 py-0.5 rounded-full">{{ reportData()?.pending_schedules || 0 }} pendientes</span>
+          </div>
+          <div class="text-2xl sm:text-3xl font-bold text-amber-600 dark:text-amber-400">{{ formatCurrency(reportData()?.pending_amount || 0) }}</div>
+          <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">Pendiente</p>
+        </div>
+        <!-- Overdue Amount -->
+        <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl border border-gray-200/50 dark:border-gray-700/50 p-4 sm:p-5 hover:shadow-md transition-shadow">
+          <div class="flex items-center justify-between mb-3">
+            <div class="p-2 bg-red-100 dark:bg-red-900/40 rounded-lg">
+              <svg class="w-5 h-5 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <span class="text-[11px] font-semibold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30 px-2 py-0.5 rounded-full">{{ averageCollectionDays() }}d prom</span>
+          </div>
+          <div class="text-2xl sm:text-3xl font-bold text-red-600 dark:text-red-400">{{ formatCurrency(reportData()?.overdue_amount || 0) }}</div>
+          <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">Vencido ({{ reportData()?.overdue_schedules || 0 }})</p>
+        </div>
+      </div>
+
+      <!-- CHARTS -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 overflow-hidden">
+          <div class="px-5 py-4 border-b border-gray-200/50 dark:border-gray-700/50 flex items-center justify-between">
+            <h3 class="text-sm font-bold text-gray-900 dark:text-white">Distribucion por Estado</h3>
+            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/></svg>
+          </div>
+          <div class="p-5"><div class="relative h-64"><canvas #statusChart></canvas></div></div>
+        </div>
+        <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 overflow-hidden">
+          <div class="px-5 py-4 border-b border-gray-200/50 dark:border-gray-700/50 flex items-center justify-between">
+            <h3 class="text-sm font-bold text-gray-900 dark:text-white">Distribucion de Montos</h3>
+            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          </div>
+          <div class="p-5"><div class="relative h-64"><canvas #amountChart></canvas></div></div>
+        </div>
+        <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 overflow-hidden">
+          <div class="px-5 py-4 border-b border-gray-200/50 dark:border-gray-700/50 flex items-center justify-between">
+            <h3 class="text-sm font-bold text-gray-900 dark:text-white">Tendencias Mensuales</h3>
+            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+          </div>
+          <div class="p-5"><div class="relative h-64"><canvas #trendsChart></canvas></div></div>
+        </div>
+        <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 overflow-hidden">
+          <div class="px-5 py-4 border-b border-gray-200/50 dark:border-gray-700/50 flex items-center justify-between">
+            <h3 class="text-sm font-bold text-gray-900 dark:text-white">Analisis de Antiguedad</h3>
+            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          </div>
+          <div class="p-5"><div class="relative h-64"><canvas #agingChart></canvas></div></div>
+        </div>
+      </div>
+
+      <!-- DETAIL TABLE -->
+      @if (showTable()) {
+        <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 overflow-hidden">
+          <div class="px-6 py-4 border-b border-gray-200/50 dark:border-gray-700/50">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div class="flex items-center gap-3">
+                <div class="bg-blue-600 p-2 rounded-lg">
+                  <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                </div>
+                <div>
+                  <h2 class="text-sm font-bold text-gray-900 dark:text-white">Detalle de Cronogramas</h2>
+                  <p class="text-[11px] text-gray-500 dark:text-gray-400">{{ paginatedSchedules().length }} de {{ filteredSchedules().length }} registros</p>
+                </div>
+              </div>
+              <div class="relative">
+                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35"/></svg>
+                <input type="text" [value]="searchTerm()" (input)="onSearchChange($any($event.target).value)" placeholder="Buscar contrato, cliente, lote..." class="pl-10 pr-4 py-2.5 text-sm border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700/50 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition-all sm:min-w-[280px]" />
+              </div>
+            </div>
+          </div>
+          <div class="overflow-x-auto reports-scroll">
+            <table class="w-full">
+              <thead>
+                <tr class="bg-gray-50/80 dark:bg-gray-900/40">
+                  <th class="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Contrato</th>
+                  <th class="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Cliente</th>
+                  <th class="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Lote</th>
+                  <th class="px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Cuota</th>
+                  <th class="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Estado</th>
+                  <th class="px-5 py-3 text-right text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Monto</th>
+                  <th class="px-5 py-3 text-right text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Pagado</th>
+                  <th class="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Vencimiento</th>
+                  <th class="px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Dias vencido</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-100 dark:divide-gray-700/40">
+                @for (schedule of paginatedSchedules(); track schedule.schedule_id) {
+                  <tr class="hover:bg-blue-50/40 dark:hover:bg-blue-900/10 transition-colors">
+                    <td class="px-5 py-3.5 whitespace-nowrap text-sm font-semibold text-gray-900 dark:text-white">{{ schedule.contract_number || schedule.contract_id }}</td>
+                    <td class="px-5 py-3.5 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">{{ schedule.client_name && schedule.client_name !== 'N/A' ? schedule.client_name : '&#8212;' }}</td>
+                    <td class="px-5 py-3.5 whitespace-nowrap">
+                      @if (schedule.lot_number && schedule.lot_number !== 'N/A') {
+                        <span class="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 ring-1 ring-amber-200/70 dark:ring-amber-700/50">{{ schedule.lot_number }}</span>
+                      } @else {
+                        <span class="text-sm text-gray-400">&#8212;</span>
+                      }
+                    </td>
+                    <td class="px-5 py-3.5 whitespace-nowrap text-sm text-center text-gray-600 dark:text-gray-300">{{ schedule.installment_number }}</td>
+                    <td class="px-5 py-3.5 whitespace-nowrap">
+                      <span [ngClass]="{
+                        'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 ring-1 ring-emerald-200/70 dark:ring-emerald-700/50': getRealStatus(schedule) === 'pagado',
+                        'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 ring-1 ring-amber-200/70 dark:ring-amber-700/50': getRealStatus(schedule) === 'pendiente',
+                        'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300 ring-1 ring-red-200/70 dark:ring-red-700/50': getRealStatus(schedule) === 'vencido'
+                      }" class="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold">
+                        {{ getStatusLabel(getRealStatus(schedule)) }}
+                      </span>
+                    </td>
+                    <td class="px-5 py-3.5 whitespace-nowrap text-sm text-right font-bold text-gray-900 dark:text-white">{{ formatCurrency(schedule.amount) }}</td>
+                    <td class="px-5 py-3.5 whitespace-nowrap text-sm text-right font-semibold" [ngClass]="(schedule.amount_paid ?? 0) > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400 dark:text-gray-500'">
+                      {{ schedule.amount_paid ? formatCurrency(schedule.amount_paid) : '&#8212;' }}
+                    </td>
+                    <td class="px-5 py-3.5 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">{{ formatDate(schedule.due_date) }}</td>
+                    <td class="px-5 py-3.5 whitespace-nowrap text-sm text-center">
+                      @if (getRealDaysOverdue(schedule) > 0) {
+                        <span class="inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300 ring-1 ring-red-200/70 dark:ring-red-800/60">{{ getRealDaysOverdue(schedule) }}d</span>
+                      } @else {
+                        <span class="text-gray-300 dark:text-gray-600">&#8212;</span>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          @if (totalPages() > 1) {
+            <div class="px-6 py-4 border-t border-gray-200/50 dark:border-gray-700/50 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <span class="text-xs text-gray-500 dark:text-gray-400">Pagina {{ currentPage() }} de {{ totalPages() }}</span>
+              <div class="flex gap-1">
+                <button (click)="previousPage()" [disabled]="currentPage() === 1" class="px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">Anterior</button>
+                <button (click)="nextPage()" [disabled]="currentPage() === totalPages()" class="px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">Siguiente</button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    }
+
+  </div>
 </div>

@@ -1,12 +1,7 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef, inject, signal, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DecimalPipe } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
-import {
-  Activity, AlertCircle, AlertTriangle, ArrowLeft, BarChart3, Calendar,
-  CheckCircle, Clock, Download, FileSpreadsheet, Filter, LucideAngularModule,
-  PieChart, TrendingUp, TrendingDown, DollarSign, Search, ChevronLeft, ChevronRight
-} from 'lucide-angular';
 import {
   Chart, TooltipItem, ArcElement, BarElement, LineElement, PointElement,
   CategoryScale, LinearScale, Title, Tooltip, Legend,
@@ -42,30 +37,19 @@ type QuickFilterType = 'today' | 'week' | 'month' | 'quarter' | 'year';
 @Component({
   selector: 'app-collections-reports',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule],
+  imports: [CommonModule, ReactiveFormsModule, DecimalPipe],
   templateUrl: './collections-reports.component.html',
   styleUrls: ['./collections-reports.component.scss']
 })
 export class CollectionsReportsComponent implements OnInit, OnDestroy, AfterViewInit {
-  // Lucide icons
-  FilterIcon = Filter;
-  DownloadIcon = Download;
-  CalendarIcon = Calendar;
-  ActivityIcon = Activity;
-  BarChart3Icon = BarChart3;
-  ArrowLeftIcon = ArrowLeft;
-  AlertTriangleIcon = AlertTriangle;
-  DollarSignIcon = DollarSign;
-  CheckCircleIcon = CheckCircle;
-  ClockIcon = Clock;
-  AlertCircleIcon = AlertCircle;
-  PieChartIcon = PieChart;
-  TrendingUpIcon = TrendingUp;
-  TrendingDownIcon = TrendingDown;
-  FileSpreadsheetIcon = FileSpreadsheet;
-  SearchIcon = Search;
-  ChevronLeftIcon = ChevronLeft;
-  ChevronRightIcon = ChevronRight;
+  // Quick filter options for template
+  quickFilters: { value: QuickFilterType; label: string }[] = [
+    { value: 'today', label: 'Hoy' },
+    { value: 'week', label: 'Semana' },
+    { value: 'month', label: 'Mes' },
+    { value: 'quarter', label: 'Trimestre' },
+    { value: 'year', label: 'Año' }
+  ];
 
   // Chart references
   @ViewChild('statusChart') statusChartRef!: ElementRef<HTMLCanvasElement>;
