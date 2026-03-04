@@ -1,218 +1,271 @@
 ﻿<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-indigo-900/30 relative overflow-hidden">
   <!-- Background Pattern -->
   <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.08),transparent_50%)] dark:bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.04),transparent_50%)]"></div>
-  <div class="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.07),transparent_50%)] dark:bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.035),transparent_50%)]"></div>
 
-  <div class="relative p-6">
-    <!-- Header -->
-    <div class="mb-8 relative overflow-hidden rounded-3xl border border-white/25 dark:border-gray-700/50 bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl shadow-2xl">
-      <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-indigo-500/10"></div>
-      <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500"></div>
+  <div class="relative p-4 sm:p-6 lg:p-8 max-w-[1600px] mx-auto">
 
-      <div class="relative flex flex-col gap-6 p-6">
-        <div class="flex items-center justify-between">
+    <!-- ═══════════════ HEADER ═══════════════ -->
+    <div class="mb-6">
+      <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-5 sm:p-6">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <!-- Title -->
           <div class="flex items-center gap-4">
-            <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-4 rounded-2xl shadow-lg">
-              <!-- Avatar/Icon -->
-              <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+            <div class="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/20">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
               </svg>
             </div>
             <div>
-              <h1 class="text-xl sm:text-2xl lg:text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-blue-800 to-indigo-800 dark:from-white dark:via-blue-200 dark:to-indigo-200">
-                {{ 'users.title' | translate }}
-              </h1>
-              <p class="text-gray-600 dark:text-gray-400 mt-1 font-medium">Gestión integral de usuarios del sistema</p>
+              <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{{ 'users.title' | translate }}</h1>
+              <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Gestión integral de usuarios del sistema</p>
             </div>
           </div>
 
-          <div class="flex gap-3">
-            <!-- Import -->
-            <button
-              (click)="onImport()"
-              class="group relative inline-flex items-center gap-3 px-5 py-3 rounded-2xl font-semibold text-white bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 shadow-lg hover:shadow-xl transition"
-            >
-              <div class="absolute inset-0 rounded-2xl bg-white/20 opacity-0 group-hover:opacity-100 transition"></div>
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <!-- Actions -->
+          <div class="flex flex-wrap items-center gap-3">
+            <button (click)="onImport()"
+              class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
               </svg>
-              <span class="relative z-10">{{ 'users.import.button' | translate }}</span>
+              {{ 'users.import.button' | translate }}
             </button>
-
-            <!-- Create -->
-            <button
-              (click)="onCreate()"
-              class="group relative inline-flex items-center gap-3 px-5 py-3 rounded-2xl font-semibold text-white bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 shadow-lg hover:shadow-xl transition"
-            >
-              <div class="absolute inset-0 rounded-2xl bg-white/20 opacity-0 group-hover:opacity-100 transition"></div>
-              <svg class="w-5 h-5 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            <button (click)="onCreate()"
+              class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-xl transition-all duration-200 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/30">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
               </svg>
-              <span class="relative z-10">{{ 'users.create' | translate }}</span>
+              {{ 'users.create' | translate }}
             </button>
-          </div>
-        </div>
-
-        <!-- Filtros -->
-        <div class="relative flex flex-col lg:flex-row items-stretch lg:items-center gap-4">
-          <!-- Search -->
-          <div class="flex-1">
-            <div class="relative">
-              <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M10 18a8 8 0 100-16 8 8 0 000 16z"/>
-                </svg>
-              </span>
-              <input
-                type="text"
-                [(ngModel)]="filter"
-                placeholder="Buscar usuarios por nombre, correo o rol…"
-                class="w-full pl-11 pr-11 py-3 rounded-2xl border border-white/30 dark:border-gray-600/50 bg-white/60 dark:bg-gray-700/60 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 backdrop-blur focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent shadow-lg"
-              />
-              <!-- Clear -->
-              <button
-                *ngIf="filter?.length"
-                (click)="filter = ''"
-                class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
-                title="Limpiar búsqueda"
-              >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-              </button>
-            </div>
-          </div>
-
-          <!-- Status -->
-          <div class="min-w-[220px]">
-            <div class="relative">
-              <span class="pointer-events-none absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z"/>
-                </svg>
-              </span>
-              <select
-                [(ngModel)]="status"
-                class="w-full pl-11 pr-9 py-3 rounded-2xl border border-white/30 dark:border-gray-600/50 bg-white/60 dark:bg-gray-700/60 text-gray-900 dark:text-white backdrop-blur focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent shadow-lg appearance-none"
-              >
-                <option value="">Todos los estados</option>
-                <option value="active">Activos</option>
-                <option value="blocked">Bloqueados</option>
-              </select>
-              <span class="pointer-events-none absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400">▾</span>
-            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Tabla -->
-    <div class="relative overflow-hidden rounded-3xl border border-white/30 dark:border-gray-700/50 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl shadow-2xl">
-      <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500"></div>
-
-      <!-- Top bar de la tabla -->
-      <div class="sticky top-0 z-10 flex items-center justify-between px-6 py-4 bg-white/70 dark:bg-gray-800/70 backdrop-blur border-b border-gray-200/60 dark:border-gray-700/60">
+    <!-- ═══════════════ KPI CARDS ═══════════════ -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <!-- Total -->
+      <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-4">
         <div class="flex items-center gap-3">
-          <div class="h-9 w-9 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white grid place-items-center shadow">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5V9H2v11h5M7 10V5a5 5 0 0110 0v5"/>
+          <div class="p-2 bg-blue-100 dark:bg-blue-900/40 rounded-lg">
+            <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
           </div>
-          <h3 class="text-lg font-bold text-gray-900 dark:text-white">Usuarios</h3>
+          <div>
+            <p class="text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total</p>
+            <p class="text-lg font-bold text-gray-900 dark:text-white">{{ pagination.total }}</p>
+          </div>
         </div>
-
-        <!-- badge de conteo si lo deseas (opcional): -->
-        <ng-container *ngIf="(users$ | async) as usersCount">
-          <span class="text-xs font-semibold px-3 py-1 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-200">
-            {{ (usersCount | userFilter: filter : status)?.length || 0 }} resultados
-          </span>
-        </ng-container>
       </div>
-
-      <!-- Contenido -->
-      <div class="relative">
-        <div class="relative overflow-x-auto">
-          <!-- Datos -->
-          <ng-container *ngIf="(users$ | async) as users; else usersSkeleton">
-            <app-shared-table
-              [columns]="columns"
-              [data]="users | userFilter: filter : status"
-              [idField]="idField"
-              (onEdit)="onEdit($event)"
-              [permissionPrefix]="'security'"
-              componentName="users">
-            </app-shared-table>
-          </ng-container>
-
-          <!-- Skeleton -->
-          <ng-template #usersSkeleton>
-            <div class="p-6 space-y-3">
-              <div class="h-10 rounded-xl bg-gray-200/70 dark:bg-gray-700/40 animate-pulse"></div>
-              <div class="h-10 rounded-xl bg-gray-200/70 dark:bg-gray-700/40 animate-pulse"></div>
-              <div class="h-10 rounded-xl bg-gray-200/70 dark:bg-gray-700/40 animate-pulse"></div>
-              <div class="h-10 rounded-xl bg-gray-200/70 dark:bg-gray-700/40 animate-pulse"></div>
-              <div class="h-10 rounded-xl bg-gray-200/70 dark:bg-gray-700/40 animate-pulse"></div>
-            </div>
-          </ng-template>
+      <!-- Activos -->
+      <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-4">
+        <div class="flex items-center gap-3">
+          <div class="p-2 bg-emerald-100 dark:bg-emerald-900/40 rounded-lg">
+            <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Activos</p>
+            <p class="text-lg font-bold text-gray-900 dark:text-white">{{ activeCount }}</p>
+          </div>
         </div>
-
-        <!-- Paginación -->
-        <div class="border-t border-gray-200/60 dark:border-gray-700/60 bg-gradient-to-r from-white/70 via-slate-50/50 to-white/70 dark:from-gray-800/70 dark:via-gray-700/50 dark:to-gray-800/70 backdrop-blur-sm">
-          <div class="p-6">
-            <app-pagination
-              [currentPage]="pagination.currentPage"
-              [totalPages]="pagination.totalPages"
-              [total]="pagination.total"
-              [perPage]="pagination.perPage"
-              (pageChange)="onPageChange($event)">
-            </app-pagination>
+      </div>
+      <!-- Bloqueados -->
+      <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-4">
+        <div class="flex items-center gap-3">
+          <div class="p-2 bg-red-100 dark:bg-red-900/40 rounded-lg">
+            <svg class="w-4 h-4 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Bloqueados</p>
+            <p class="text-lg font-bold text-gray-900 dark:text-white">{{ blockedCount }}</p>
+          </div>
+        </div>
+      </div>
+      <!-- En esta página -->
+      <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-4">
+        <div class="flex items-center gap-3">
+          <div class="p-2 bg-violet-100 dark:bg-violet-900/40 rounded-lg">
+            <svg class="w-4 h-4 text-violet-600 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">En página</p>
+            <p class="text-lg font-bold text-gray-900 dark:text-white">{{ filteredUsers.length }}</p>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- ═══════════════ TABLE ═══════════════ -->
+    <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 overflow-hidden">
+      <!-- Search + Filter bar -->
+      <div class="px-5 py-4 border-b border-gray-200/50 dark:border-gray-700/50">
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          <div class="flex-1 relative">
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input type="text" [(ngModel)]="filter" (ngModelChange)="applyFilter()"
+              placeholder="Buscar por nombre, correo o rol…"
+              class="w-full pl-10 pr-4 py-2.5 text-sm bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 placeholder-gray-400 dark:placeholder-gray-500 dark:text-white transition-all" />
+          </div>
+          <!-- Status chips -->
+          <div class="flex items-center gap-2">
+            <button (click)="status = ''; applyFilter()"
+              class="px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors"
+              [ngClass]="!status ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-400' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'">
+              Todos
+            </button>
+            <button (click)="status = 'active'; applyFilter()"
+              class="px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors"
+              [ngClass]="status === 'active' ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'">
+              Activos
+            </button>
+            <button (click)="status = 'blocked'; applyFilter()"
+              class="px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors"
+              [ngClass]="status === 'blocked' ? 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'">
+              Bloqueados
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <ng-container *ngIf="!loading; else usersSkeleton">
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr class="border-b border-gray-200/80 dark:border-gray-700/80">
+                <th class="px-5 py-3.5 text-left text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Usuario</th>
+                <th class="px-5 py-3.5 text-left text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Email</th>
+                <th class="px-5 py-3.5 text-left text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">DNI</th>
+                <th class="px-5 py-3.5 text-left text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Roles</th>
+                <th class="px-5 py-3.5 text-left text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Estado</th>
+                <th class="px-5 py-3.5 text-right text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Acciones</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100 dark:divide-gray-700/50">
+              <tr *ngFor="let u of filteredUsers; trackBy: trackUser" class="group hover:bg-blue-50/40 dark:hover:bg-blue-900/10 transition-colors">
+                <!-- User avatar + name -->
+                <td class="px-5 py-3.5">
+                  <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-full flex items-center justify-center text-[11px] font-bold flex-shrink-0 overflow-hidden"
+                      [ngClass]="u.status === 'active' ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400' : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'">
+                      <img *ngIf="u.photo_url" [src]="u.photo_url" class="w-full h-full object-cover" [alt]="u.name" />
+                      <span *ngIf="!u.photo_url">{{ u.first_name?.charAt(0) }}{{ u.last_name?.charAt(0) }}</span>
+                    </div>
+                    <div>
+                      <p class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ u.name || (u.first_name + ' ' + u.last_name) }}</p>
+                      <p class="text-xs text-gray-400 dark:text-gray-500">&#64;{{ u.username }}</p>
+                    </div>
+                  </div>
+                </td>
+                <!-- Email -->
+                <td class="px-5 py-3.5">
+                  <span class="text-sm text-gray-700 dark:text-gray-300">{{ u.email }}</span>
+                </td>
+                <!-- DNI -->
+                <td class="px-5 py-3.5">
+                  <span class="text-sm font-mono text-gray-700 dark:text-gray-300">{{ u.dni || '—' }}</span>
+                </td>
+                <!-- Roles -->
+                <td class="px-5 py-3.5">
+                  <div class="flex flex-wrap gap-1">
+                    <span *ngFor="let role of u.roles"
+                      class="inline-flex items-center px-2 py-0.5 text-[10px] font-semibold rounded-full bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400">
+                      {{ role }}
+                    </span>
+                    <span *ngIf="!u.roles?.length" class="text-xs text-gray-400 italic">Sin rol</span>
+                  </div>
+                </td>
+                <!-- Status -->
+                <td class="px-5 py-3.5">
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-xs font-semibold rounded-full"
+                    [ngClass]="u.status === 'active'
+                      ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400'
+                      : 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400'">
+                    <span class="w-1.5 h-1.5 rounded-full" [ngClass]="u.status === 'active' ? 'bg-emerald-500' : 'bg-red-500'"></span>
+                    {{ u.status === 'active' ? 'Activo' : 'Bloqueado' }}
+                  </span>
+                </td>
+                <!-- Actions -->
+                <td class="px-5 py-3.5 text-right">
+                  <div class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button (click)="onView(u.id)"
+                      class="p-2 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
+                      title="Ver detalle">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                    </button>
+                    <button (click)="onEdit(u.id)"
+                      class="p-2 text-gray-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/30 rounded-lg transition-colors"
+                      title="Editar">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Empty state -->
+        <div *ngIf="filteredUsers.length === 0" class="text-center py-16">
+          <div class="p-4 rounded-full bg-gray-100 dark:bg-gray-700/50 inline-flex mb-4">
+            <svg class="w-8 h-8 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </div>
+          <p class="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">No se encontraron usuarios</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400">Intenta cambiar los filtros de búsqueda</p>
+        </div>
+      </ng-container>
+
+      <!-- Skeleton -->
+      <ng-template #usersSkeleton>
+        <div class="p-5 space-y-3">
+          <div *ngFor="let _ of [1,2,3,4,5]" class="flex items-center gap-4">
+            <div class="w-9 h-9 rounded-full bg-gray-200/70 dark:bg-gray-700/40 animate-pulse"></div>
+            <div class="flex-1 space-y-2">
+              <div class="h-3 w-1/3 rounded bg-gray-200/70 dark:bg-gray-700/40 animate-pulse"></div>
+              <div class="h-2.5 w-1/2 rounded bg-gray-200/70 dark:bg-gray-700/40 animate-pulse"></div>
+            </div>
+            <div class="h-6 w-16 rounded-full bg-gray-200/70 dark:bg-gray-700/40 animate-pulse"></div>
+          </div>
+        </div>
+      </ng-template>
+
+      <!-- Pagination footer -->
+      <div class="px-5 py-3 border-t border-gray-200/50 dark:border-gray-700/50 bg-gray-50/50 dark:bg-gray-800/50">
+        <app-pagination
+          [currentPage]="pagination.currentPage"
+          [totalPages]="pagination.totalPages"
+          [total]="pagination.total"
+          [perPage]="pagination.perPage"
+          (pageChange)="onPageChange($event)">
+        </app-pagination>
+      </div>
+    </div>
+
   </div>
 </div>
 
-<!-- Modal -->
-<div *ngIf="isModalOpen" class="fixed inset-0 z-50">
+<!-- ═══════════════ MODAL ═══════════════ -->
+<div *ngIf="isModalOpen" class="fixed inset-0 z-[60] flex items-center justify-center p-4">
   <div class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
-  <div
-    class="absolute inset-0 flex items-center justify-center p-4"
-    role="dialog"
-    aria-modal="true"
-  >
-    <div class="w-full max-w-5xl max-h-[90vh] overflow-y-auto rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-2xl">
+  <div class="relative w-full max-w-5xl max-h-[90vh] bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 flex flex-col overflow-hidden">
+    <div class="flex-1 overflow-y-auto">
       <router-outlet name="modal" (activate)="onModalActivate($event)"></router-outlet>
     </div>
   </div>
 </div>
-
-<style>
-  /* Animaciones */
-  @keyframes fade-in-up {
-    from { opacity: 0; transform: translateY(30px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  .animate-fade-in-up { animation: fade-in-up .6s ease-out; }
-
-  /* Glow suave reutilizable */
-  @keyframes pulse-glow {
-    0%,100% { box-shadow: 0 0 18px rgba(59,130,246,.28); }
-    50%     { box-shadow: 0 0 28px rgba(99,102,241,.55); }
-  }
-  .animate-pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
-
-  /* Shimmer opcional para placeholders */
-  @keyframes shimmer {
-    0% { background-position: -200% 0; }
-    100% { background-position: 200% 0; }
-  }
-  .animate-shimmer {
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,.24), transparent);
-    background-size: 200% 100%;
-    animation: shimmer 2s infinite;
-  }
-
-  /* Glass más definido en navegadores que soportan */
-  .backdrop-blur-xl { backdrop-filter: blur(16px) saturate(160%); }
-</style>

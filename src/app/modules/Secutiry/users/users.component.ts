@@ -3,30 +3,26 @@ import { UsersService } from '../services/users.service';
 import { User } from './models/user';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { UserFilterPipe } from './user-filter.pipe';
 import { HttpClient } from '@angular/common/http';
 import { UserFormComponent } from './components/user-form/user-form.component';
 import { Role } from './models/role';
-import {  ToastService } from '../../../core/services/toast.service';
-import { ToastContainerComponent } from '../../../shared/components/toast-container/toast-container/toast-container.component';
+import { ToastService } from '../../../core/services/toast.service';
 import { ActivatedRoute, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { PusherListenerService } from '../../../core/services/pusher-listener.service';
 import { PusherService } from '../../../core/services/pusher.service';
-import { ColumnDef, SharedTableComponent } from '../../../shared/components/shared-table/shared-table.component';
 import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
+
 @Component({
   selector: 'app-users',
   standalone: true,
   imports: [
     CommonModule,
     FormsModule,
-    UserFilterPipe,
     RouterLink,
     RouterOutlet,
     TranslateModule,
-    SharedTableComponent,
     PaginationComponent,
   ],
   templateUrl: './users.component.html',
@@ -34,22 +30,13 @@ import { PaginationComponent } from '../../../shared/components/pagination/pagin
 })
 export class UsersComponent {
   users: User[] = [];
+  filteredUsers: User[] = [];
   loading = true;
   filter = '';
   status = '';
   showForm = false;
   editingUser: any = null;
   isModalOpen = false;
-
-  columns: ColumnDef[] = [
-    { field: 'first_name', header: 'crm.clients.first_name' },
-    { field: 'last_name', header: 'crm.clients.last_name' },
-    { field: 'doc_type', header: 'crm.clients.doc_type' },
-    { field: 'doc_number', header: 'crm.clients.doc_number' },
-    { field: 'email', header: 'crm.clients.email' },
-    { field: 'primary_phone', header: 'crm.clients.primary_phone' },
-    { field: 'type', header: 'crm.clients.type' },
-  ];
 
   // Pagination properties
   pagination = {
@@ -63,8 +50,36 @@ export class UsersComponent {
   private usersSubject = new BehaviorSubject<User[]>([]);
   users$ = this.usersSubject.asObservable();
   events = ['created', 'updated', 'deleted'];
-  idField = 'id';
   pusherListenersInitialized = false;
+
+  /* ── KPI getters ─────────────────────────────── */
+  get activeCount(): number {
+    return this.users.filter(u => u.status === 'active').length;
+  }
+  get blockedCount(): number {
+    return this.users.filter(u => u.status === 'blocked').length;
+  }
+
+  /* ── Client-side filter on current page ──────── */
+  applyFilter(): void {
+    let list = [...this.users];
+    const term = this.filter.toLowerCase().trim();
+    if (term) {
+      list = list.filter(u =>
+        (u.name ?? '').toLowerCase().includes(term) ||
+        (u.email ?? '').toLowerCase().includes(term) ||
+        (u.dni ?? '').toLowerCase().includes(term)
+      );
+    }
+    if (this.status) {
+      list = list.filter(u => u.status === this.status);
+    }
+    this.filteredUsers = list;
+  }
+
+  trackUser(_: number, u: User): number {
+    return u.id;
+  }
   private modalSub?: Subscription;
   @ViewChild('modalOutlet', { read: RouterOutlet })
   modalOutlet!: RouterOutlet; // Usa el estado nativo del RouterOutlet
@@ -82,6 +97,13 @@ export class UsersComponent {
     this.pusherService.resubscribe('user', this.events);
     this.pusherService.subscribeToChannel('user', this.events);
     this.setupPusherListeners();
+
+    // Keep filteredUsers in sync when pusher updates arrive
+    this.users$.subscribe(data => {
+      this.users = data;
+      this.applyFilter();
+    });
+
     document.addEventListener('keydown', this.handleKeydown.bind(this));
   }
 
@@ -99,6 +121,7 @@ export class UsersComponent {
     this.loading = true;
     this.userService.list(page, this.pagination.perPage).subscribe({
       next: (res: any) => {
+        this.users = res.data;
         this.usersSubject.next(res.data);
         // Actualizar propiedades de paginación desde meta
         this.pagination = {
@@ -107,6 +130,7 @@ export class UsersComponent {
           total: res.meta?.total || 0,
           perPage: res.meta?.per_page || 10
         };
+        this.applyFilter();
         this.loading = false;
       },
       error: () => {
@@ -179,7 +203,7 @@ export class UsersComponent {
     this.pusherListenerService.setupPusherListeners(
       'user',
       this.events,
-      this.idField,
+      'id',
       this.usersSubject,
       this.usersSubject, // Actualizamos roles tanto en 'created' como en 'updated'
       this.usersSubject // Eliminamos roles en 'deleted'
