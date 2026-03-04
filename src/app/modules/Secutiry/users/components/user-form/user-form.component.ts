@@ -15,36 +15,6 @@ import {
   Validators,
 } from '@angular/forms';
 import {
-  User,
-  Phone,
-  Building,
-  Lock,
-  Users,
-  LucideAngularModule,
-  ChevronUp,
-  ChevronDown,
-  X,
-  Mail,
-  MapPin,
-  Briefcase,
-  Calendar,
-  FileText,
-  Shield,
-  Key,
-  CheckCircle,
-  Circle,
-  Info,
-  UserPlus,
-  Loader2,
-  Save,
-  Upload,
-  Camera,
-  CreditCard,
-  Award,
-  CalendarCheck,
-  Download,
-} from 'lucide-angular';
-import {
   trigger,
   state,
   style,
@@ -74,7 +44,6 @@ interface PassRule {
   imports: [
     ReactiveFormsModule,
     CommonModule,
-    LucideAngularModule,
     TranslateModule,
   ],
   templateUrl: './user-form.component.html', // ← CORRECTO
@@ -150,39 +119,13 @@ export class UserFormComponent {
   isSubmitting = false;
 
   sections = [
-    { title: 'personalInfo', icon: User, key: 'personal', expanded: true },
-    { title: 'contactInfo', icon: Phone, key: 'contact', expanded: false },
-    { title: 'workInfo', icon: Building, key: 'work', expanded: false },
-    { title: 'accessInfo', icon: Lock, key: 'access', expanded: false },
-    { title: 'roles', icon: Users, key: 'roles', expanded: false },
+    { title: 'personalInfo', key: 'personal', expanded: true },
+    { title: 'contactInfo', key: 'contact', expanded: false },
+    { title: 'workInfo', key: 'work', expanded: false },
+    { title: 'accessInfo', key: 'access', expanded: false },
+    { title: 'roles', key: 'roles', expanded: false },
   ];
 
-  ChevronUp = ChevronUp;
-  ChevronDown = ChevronDown;
-  X = X;
-  User = User;
-  Mail = Mail;
-  MapPin = MapPin;
-  Briefcase = Briefcase;
-  Calendar = Calendar;
-  FileText = FileText;
-  Shield = Shield;
-  Key = Key;
-  CheckCircle = CheckCircle;
-  Circle = Circle;
-  Info = Info;
-  UserPlus = UserPlus;
-  Loader2 = Loader2;
-  Save = Save;
-  Upload = Upload;
-  Camera = Camera;
-  CreditCard = CreditCard;
-  Phone = Phone;
-  Award = Award;
-  Building = Building;
-  CalendarCheck = CalendarCheck;
-  Download = Download;
-  Lock = Lock;
   showPassRules = false;
 
   passRules: PassRule[] = [
@@ -315,6 +258,18 @@ export class UserFormComponent {
 
   /* shortcut para template */
   fc = (n: string) => this.form.get(n)!;
+
+  /* section labels for step indicator */
+  getSectionLabel(key: string): string {
+    switch (key) {
+      case 'personal': return 'Personal';
+      case 'contact': return 'Contacto';
+      case 'work': return 'Trabajo';
+      case 'access': return 'Acceso';
+      case 'roles': return 'Roles';
+      default: return key;
+    }
+  }
 
   /* current step */
   get currentStep(): number {
