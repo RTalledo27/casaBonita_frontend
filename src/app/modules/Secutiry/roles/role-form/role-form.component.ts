@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, EventEmitter, Input, Output, output } from '@angular/core';
 import { BehaviorSubject, filter, findIndex, map, Observable, switchMap } from 'rxjs';
 import { Permission } from '../../users/models/permission';
-import { ChevronDown, ChevronUp, Key, LucideAngularModule, Settings, X } from 'lucide-angular';
+
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { PermissionsService } from '../../services/permissions.service';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -18,7 +18,6 @@ import { animate, keyframes, state, style, transition, trigger } from '@angular/
     CommonModule,
     ReactiveFormsModule,
     TranslateModule,
-    LucideAngularModule,
   ],
   templateUrl: './role-form.component.html',
   styleUrl: './role-form.component.scss',
@@ -147,15 +146,17 @@ export class RoleFormComponent {
   currentModuleIndex = 0;
 
   sections = [
-    { title: 'general', icon: Settings, key: 'general', expanded: true },
-    { title: 'permissions', icon: Key, key: 'permissions', expanded: false },
+    { title: 'general', key: 'general', expanded: true },
+    { title: 'permissions', key: 'permissions', expanded: false },
   ];
 
-  ChevronUp = ChevronUp;
-  ChevronDown = ChevronDown;
-  X = X;
-  Settings = Settings;
-  Key = Key;
+  getSectionLabel(key: string): string {
+    switch (key) {
+      case 'general': return 'General';
+      case 'permissions': return 'Permisos';
+      default: return key;
+    }
+  }
 
   form: FormGroup;
 

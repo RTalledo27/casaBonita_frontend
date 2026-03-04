@@ -1,14 +1,12 @@
-import { Component, EventEmitter, Input, Output, TemplateRef } from '@angular/core';
-import { ColumnDef, SharedTableComponent } from "../../../shared/components/shared-table/shared-table.component";
+import { Component } from '@angular/core';
 import { Role } from '../users/models/role';
 import { RolesService } from '../services/roles.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { TranslateModule } from '@ngx-translate/core';
-import { LucideAngularModule, Plus } from 'lucide-angular';
-import { ActivatedRoute, Route, Router, RouterOutlet } from '@angular/router';
-import { Permission } from '../users/models/permission';
+import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { BehaviorSubject, catchError, Observable, of, Subject, take } from 'rxjs';
 import { RoleFormComponent } from './role-form/role-form.component';
 import { SharedDeleteComponent } from '../../../shared/components/shared-delete/shared-delete.component';
@@ -21,11 +19,10 @@ import { PusherListenerService } from '../../../core/services/pusher-listener.se
 @Component({
   selector: 'app-roles',
   imports: [
-    SharedTableComponent,
     TranslateModule,
-    LucideAngularModule,
     CommonModule,
     DatePipe,
+    FormsModule,
     RouterOutlet,
     SharedDeleteComponent,
   ],
@@ -33,24 +30,14 @@ import { PusherListenerService } from '../../../core/services/pusher-listener.se
   styleUrl: './roles.component.scss',
 })
 export class RolesComponent {
-  /** Columnas a mostrar */
-  columns: ColumnDef[] = [
-    { field: 'name', header: 'security.roles.name' },
-    { field: 'description', header: 'security.roles.description' },
-    {
-      field: 'created_at',
-      header: 'common.created',
-      align: 'right',
-      width: '160px',
-      tpl: 'date', // Nueva plantilla para fechas
-    },
-  ];
-  permission: Permission[] = [];
+  loading = true;
+  allRoles: Role[] = [];
+  filteredRoles: Role[] = [];
+  filter = '';
+
   isModalOpen = false;
   showDeleteModal = false;
   private pusherSubscriptions = new Subscription();
-
-  plus = Plus;
 
   selectedItemId: number | null = null;
   selectedItemName: string = '';
@@ -58,11 +45,17 @@ export class RolesComponent {
   /** Datos del backend */
   private destroy$ = new Subject<void>();
   private rolesSubject = new BehaviorSubject<Role[]>([]);
-  private pusherListenersInitialized = false; // ⚠️ para evitar duplicación
+  private pusherListenersInitialized = false;
   events = ['created', 'updated', 'deleted'];
-  idField = 'role_id'; // El campo que se usa para identificar un "Role" en pusher listener
+  idField = 'role_id';
 
   roles$: Observable<Role[]> = this.rolesSubject.asObservable();
+
+  get totalPermissions(): number {
+    const set = new Set<number>();
+    this.allRoles.forEach(r => r.permissions?.forEach(p => set.add(p.id)));
+    return set.size;
+  }
 
   constructor(
     public router: Router,
@@ -75,8 +68,13 @@ export class RolesComponent {
   ) {}
 
   ngOnInit(): void {
-    this.roles$ = this.rolesSubject.asObservable(); // Ahora sí, roles$ reacciona a los cambios
+    this.roles$ = this.rolesSubject.asObservable();
     this.getRoles();
+
+    this.roles$.subscribe(roles => {
+      this.allRoles = roles;
+      this.applyFilter();
+    });
 
     this.pusherService.resubscribe('role', this.events);
     this.pusherService.subscribeToChannel('role', this.events);
@@ -90,6 +88,7 @@ export class RolesComponent {
   }
 
   getRoles(): void {
+    this.loading = true;
     this.roleService
       .getAllRoles()
       .pipe(
@@ -100,7 +99,24 @@ export class RolesComponent {
       )
       .subscribe((roles) => {
         this.rolesSubject.next(roles);
+        this.loading = false;
       });
+  }
+
+  applyFilter(): void {
+    const q = this.filter.toLowerCase().trim();
+    if (!q) {
+      this.filteredRoles = [...this.allRoles];
+    } else {
+      this.filteredRoles = this.allRoles.filter(r =>
+        (r.name || '').toLowerCase().includes(q) ||
+        (r.description || '').toLowerCase().includes(q)
+      );
+    }
+  }
+
+  trackRole(_: number, r: Role): number {
+    return r.role_id;
   }
 
   delete(id: number): void {

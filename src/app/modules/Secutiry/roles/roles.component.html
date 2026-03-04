@@ -1,97 +1,205 @@
 ﻿<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-indigo-900/30 relative overflow-hidden">
   <!-- Background Pattern -->
-  <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.1),transparent_50%)] dark:bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.05),transparent_50%)]"></div>
-  <div class="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.08),transparent_50%)] dark:bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.04),transparent_50%)]"></div>
+  <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.08),transparent_50%)] dark:bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.04),transparent_50%)]"></div>
 
-  <div class="relative p-6">
-    <!-- Modern Header -->
-    <div class="mb-8">
-      <div class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/50 p-8 relative overflow-hidden">
-        <!-- Header Gradient Background -->
-        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/5 to-indigo-500/10 dark:from-blue-600/20 dark:via-purple-600/10 dark:to-indigo-600/20"></div>
-        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500"></div>
+  <div class="relative p-4 sm:p-6 lg:p-8 max-w-[1600px] mx-auto">
 
-        <div class="relative flex justify-between items-center">
-          <!-- Title Section -->
-          <div class="flex items-center space-x-4">
-            <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-4 rounded-2xl shadow-lg">
-              <!-- Icono de roles -->
-              <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+    <!-- ═══════════════ HEADER ═══════════════ -->
+    <div class="mb-6">
+      <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-5 sm:p-6">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <!-- Title -->
+          <div class="flex items-center gap-4">
+            <div class="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/20">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                  d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
               </svg>
             </div>
             <div>
-              <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-indigo-800 dark:from-white dark:via-blue-200 dark:to-indigo-200 bg-clip-text text-transparent">
-                {{ 'security.roles.title' | translate }}
-              </h1>
-              <p class="text-gray-600 dark:text-gray-400 mt-1 font-medium">
-                {{ (roles$ | async)?.length || 0 }} {{ 'common.records' | translate }}
-              </p>
+              <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{{ 'security.roles.title' | translate }}</h1>
+              <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Gestión de roles y permisos del sistema</p>
             </div>
           </div>
 
-          <!-- Action Button -->
-          <div class="flex gap-4" *ngIf="canCreate()">
-            <button 
-              (click)="onCreate()"
-              class="group relative flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 font-semibold overflow-hidden"
-            >
-              <div class="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <lucide-angular [img]="plus" class="w-5 h-5 relative z-10"></lucide-angular>
-              <span class="relative z-10">{{ 'common.new' | translate }}</span>
-              <div class="absolute inset-0 rounded-2xl bg-gradient-to-r from-emerald-400/50 to-green-500/50 blur-xl opacity-0 group-hover:opacity-70 transition-opacity duration-300 -z-10"></div>
+          <!-- Actions -->
+          <div class="flex flex-wrap items-center gap-3" *ngIf="canCreate()">
+            <button (click)="onCreate()"
+              class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-xl transition-all duration-200 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/30">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              {{ 'common.new' | translate }}
             </button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Template fecha -->
-    <ng-template #dateTpl let-row>
-      <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
-        {{ row.created_at | date:'yyyy/dd/MM HH:mm' }}
-      </span>
-    </ng-template>
-
-    <!-- Modern Table Container -->
-    <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/30 dark:border-gray-700/50 overflow-hidden relative">
-      <!-- Table Header Gradient -->
-      <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500"></div>
-
-      <!-- Table Content -->
-      <div class="relative">
-        <!-- Table Header Background -->
-        <div class="absolute inset-0 bg-gradient-to-br from-slate-50/50 via-blue-50/30 to-indigo-50/50 dark:from-gray-800/50 dark:via-blue-900/20 dark:to-indigo-900/30"></div>
-
-        <div class="relative overflow-x-auto">
-          <app-shared-table 
-            [columns]="columns"  
-            [data]="(roles$ | async) ?? []" 
-            (delete)="delete($event)"   
-            (onEdit)="onEdit($event)" 
-            (onViewDetails)="onViewDetails($event)" 
-            [templates]="{ date: dateTpl }"
-            [componentName]="'roles'">
-          </app-shared-table>
-        </div>
-
-        <!-- Si tienes paginación, puedes envolver tu <app-pagination> con el mismo look -->
-        <!--
-        <div class="relative border-t border-gray-200/50 dark:border-gray-700/50 bg-gradient-to-r from-white/70 via-slate-50/50 to-white/70 dark:from-gray-800/70 dark:via-gray-700/50 dark:to-gray-800/70 backdrop-blur-sm">
-          <div class="p-6">
-            <app-pagination
-              [currentPage]="pagination.current_page"
-              [totalPages]="pagination.last_page"
-              [total]="pagination.total"
-              [perPage]="pagination.per_page"
-              (pageChange)="onPageChange($event)">
-            </app-pagination>
+    <!-- ═══════════════ KPI CARDS ═══════════════ -->
+    <div class="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+      <!-- Total Roles -->
+      <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-4">
+        <div class="flex items-center gap-3">
+          <div class="p-2 bg-blue-100 dark:bg-blue-900/40 rounded-lg">
+            <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total Roles</p>
+            <p class="text-lg font-bold text-gray-900 dark:text-white">{{ allRoles.length }}</p>
           </div>
         </div>
-        -->
+      </div>
+      <!-- Total Permisos -->
+      <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-4">
+        <div class="flex items-center gap-3">
+          <div class="p-2 bg-emerald-100 dark:bg-emerald-900/40 rounded-lg">
+            <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Permisos Únicos</p>
+            <p class="text-lg font-bold text-gray-900 dark:text-white">{{ totalPermissions }}</p>
+          </div>
+        </div>
+      </div>
+      <!-- Filtrados -->
+      <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-4">
+        <div class="flex items-center gap-3">
+          <div class="p-2 bg-violet-100 dark:bg-violet-900/40 rounded-lg">
+            <svg class="w-4 h-4 text-violet-600 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Mostrando</p>
+            <p class="text-lg font-bold text-gray-900 dark:text-white">{{ filteredRoles.length }}</p>
+          </div>
+        </div>
       </div>
     </div>
+
+    <!-- ═══════════════ TABLE ═══════════════ -->
+    <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 overflow-hidden">
+      <!-- Search bar -->
+      <div class="px-5 py-4 border-b border-gray-200/50 dark:border-gray-700/50">
+        <div class="relative max-w-md">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input type="text" [(ngModel)]="filter" (ngModelChange)="applyFilter()"
+            placeholder="Buscar por nombre o descripción…"
+            class="w-full pl-10 pr-4 py-2.5 text-sm bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 placeholder-gray-400 dark:placeholder-gray-500 dark:text-white transition-all" />
+        </div>
+      </div>
+
+      <!-- Table -->
+      <ng-container *ngIf="!loading; else rolesSkeleton">
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr class="border-b border-gray-200/80 dark:border-gray-700/80">
+                <th class="px-5 py-3.5 text-left text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Rol</th>
+                <th class="px-5 py-3.5 text-left text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Descripción</th>
+                <th class="px-5 py-3.5 text-left text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Permisos</th>
+                <th class="px-5 py-3.5 text-left text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Creado</th>
+                <th class="px-5 py-3.5 text-right text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Acciones</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100 dark:divide-gray-700/50">
+              <tr *ngFor="let r of filteredRoles; trackBy: trackRole" class="group hover:bg-blue-50/40 dark:hover:bg-blue-900/10 transition-colors">
+                <!-- Role name -->
+                <td class="px-5 py-3.5">
+                  <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center flex-shrink-0">
+                      <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                      </svg>
+                    </div>
+                    <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">{{ r.name }}</span>
+                  </div>
+                </td>
+                <!-- Description -->
+                <td class="px-5 py-3.5">
+                  <span class="text-sm text-gray-600 dark:text-gray-400 line-clamp-1">{{ r.description || '—' }}</span>
+                </td>
+                <!-- Permissions count -->
+                <td class="px-5 py-3.5">
+                  <span class="inline-flex items-center px-2.5 py-0.5 text-[10px] font-semibold rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-400">
+                    {{ r.permissions?.length || 0 }} permisos
+                  </span>
+                </td>
+                <!-- Created -->
+                <td class="px-5 py-3.5">
+                  <span class="text-sm text-gray-500 dark:text-gray-400">{{ r.created_at | date:'dd/MM/yyyy' }}</span>
+                </td>
+                <!-- Actions -->
+                <td class="px-5 py-3.5 text-right">
+                  <div class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button (click)="onViewDetails(r.role_id)"
+                      class="p-2 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
+                      title="Ver detalle">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                    </button>
+                    <button *ngIf="canEdit()" (click)="onEdit(r.role_id)"
+                      class="p-2 text-gray-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/30 rounded-lg transition-colors"
+                      title="Editar">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                    </button>
+                    <button (click)="delete(r.role_id)"
+                      class="p-2 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
+                      title="Eliminar">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Empty state -->
+        <div *ngIf="filteredRoles.length === 0" class="text-center py-16">
+          <div class="p-4 rounded-full bg-gray-100 dark:bg-gray-700/50 inline-flex mb-4">
+            <svg class="w-8 h-8 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+          </div>
+          <p class="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">No se encontraron roles</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400">Intenta cambiar los filtros de búsqueda</p>
+        </div>
+      </ng-container>
+
+      <!-- Skeleton -->
+      <ng-template #rolesSkeleton>
+        <div class="p-5 space-y-3">
+          <div *ngFor="let _ of [1,2,3,4]" class="flex items-center gap-4">
+            <div class="w-9 h-9 rounded-full bg-gray-200/70 dark:bg-gray-700/40 animate-pulse"></div>
+            <div class="flex-1 space-y-2">
+              <div class="h-3 w-1/4 rounded bg-gray-200/70 dark:bg-gray-700/40 animate-pulse"></div>
+              <div class="h-2.5 w-1/2 rounded bg-gray-200/70 dark:bg-gray-700/40 animate-pulse"></div>
+            </div>
+            <div class="h-6 w-20 rounded-full bg-gray-200/70 dark:bg-gray-700/40 animate-pulse"></div>
+          </div>
+        </div>
+      </ng-template>
+    </div>
+
   </div>
 </div>
 
@@ -103,25 +211,12 @@
   (cancel)="showDeleteModal = false">
 </app-shared-delete>
 
-<!-- Modal create/edit con glassmorphism - MÁS GRANDE Y CÓMODO -->
-<div *ngIf="isModalOpen" class="fixed inset-0 z-[60] flex items-center justify-center p-4 overflow-y-auto">
-  <!-- Overlay -->
-  <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" (click)="isModalOpen = false"></div>
-
-  <!-- Card - Más ancho y alto -->
-  <div class="relative bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/50 w-full max-w-5xl max-h-[90vh] overflow-hidden animate-fade-in-up my-8">
-    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500"></div>
-    <div class="overflow-y-auto max-h-[90vh]">
+<!-- ═══════════════ MODAL ═══════════════ -->
+<div *ngIf="isModalOpen" class="fixed inset-0 z-[60] flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" (click)="isModalOpen = false"></div>
+  <div class="relative w-full max-w-5xl max-h-[90vh] bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 flex flex-col overflow-hidden">
+    <div class="flex-1 overflow-y-auto">
       <router-outlet name="modal" (activate)="onModalActivate($event)"></router-outlet>
     </div>
   </div>
 </div>
-
-<!-- Animaciones utilitarias (si no las tienes ya en globales) -->
-<style>
-  @keyframes fade-in-up {
-    from { opacity: 0; transform: translateY(24px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  .animate-fade-in-up { animation: fade-in-up .45s ease-out both; }
-</style>
