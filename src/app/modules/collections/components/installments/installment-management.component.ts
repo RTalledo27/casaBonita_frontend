@@ -4,424 +4,294 @@ import { RouterModule, ActivatedRoute } from '@angular/router';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Subject, takeUntil, debounceTime, distinctUntilChanged, of } from 'rxjs';
 import { switchMap, catchError, finalize } from 'rxjs/operators';
-import { 
-  LucideAngularModule, 
-  Search, 
-  Filter, 
-  Calendar, 
-  DollarSign, 
-  CheckCircle, 
-  AlertTriangle,
-  Clock,
-  ArrowLeft,
-  Download,
-  Eye,
-  Edit,
-  X,
-  ChevronDown,
-  ChevronRight,
-  Users,
-  User,
-  FileText,
-  Mail
-} from 'lucide-angular';
 import { CollectionsSimplifiedService } from '../../services/collections-simplified.service';
 import { PaymentSchedule, ContractSummary, MarkPaymentPaidRequest } from '../../models/payment-schedule';
 
 @Component({
   selector: 'app-installment-management',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, ReactiveFormsModule, LucideAngularModule],
+  imports: [CommonModule, RouterModule, FormsModule, ReactiveFormsModule],
   template: `
     <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-indigo-900/30 relative overflow-hidden">
-      <!-- Background Pattern -->
-      <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.1),transparent_50%)] dark:bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.05),transparent_50%)]"></div>
-      <div class="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.08),transparent_50%)] dark:bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.04),transparent_50%)]"></div>
-      
-      <div class="relative p-6 space-y-8">
-        <!-- Modern Header -->
-        <div class="mb-8">
-          <div class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/50 p-8 relative overflow-hidden">
-            <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/5 to-indigo-500/10 dark:from-blue-600/20 dark:via-purple-600/10 dark:to-indigo-600/20"></div>
-            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500"></div>
-            
-            <div class="relative flex justify-between items-center">
-              <!-- Title Section -->
-              <div class="flex items-center space-x-4">
-                <button 
-                  routerLink="/collections/dashboard"
-                  class="group relative p-3 text-gray-600 hover:text-gray-900 hover:bg-white/50 rounded-2xl transition-all duration-300 transform hover:scale-105"
-                >
-                  <lucide-angular [img]="ArrowLeftIcon" class="w-6 h-6"></lucide-angular>
-                </button>
-                <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-4 rounded-2xl shadow-lg">
-                  <lucide-angular [img]="DollarSignIcon" class="w-8 h-8 text-white"></lucide-angular>
-                </div>
-                <div>
-                  <h1 class="text-3xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-indigo-800 dark:from-white dark:via-blue-200 dark:to-indigo-200 bg-clip-text text-transparent">
-                    Gestión de Contratos y Cuotas
-                  </h1>
-                  <p class="text-gray-600 dark:text-gray-400 mt-1 font-medium">Administrar contratos con sus cronogramas de pago</p>
-                </div>
+      <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.08),transparent_50%)]"></div>
+      <div class="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.06),transparent_50%)]"></div>
+
+      <div class="relative max-w-[1600px] mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+        <!-- Header -->
+        <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-6">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div class="flex items-center gap-4">
+              <button routerLink="/collections/dashboard" class="p-2 rounded-xl text-gray-500 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+              </button>
+              <div class="bg-blue-600 p-2.5 rounded-xl">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 1v22m5-18H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H7"/></svg>
               </div>
-              
-              <!-- Action Buttons -->
-              <div class="flex gap-4">
-                <button 
-                  (click)="exportContracts()"
-                  [disabled]="isLoading()"
-                  class="group relative flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 font-semibold overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <div class="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <lucide-angular [img]="DownloadIcon" class="w-5 h-5 relative z-10"></lucide-angular>
-                  <span class="relative z-10">Exportar</span>
-                  <div class="absolute inset-0 rounded-2xl bg-gradient-to-r from-emerald-400/50 to-green-500/50 blur-xl opacity-0 group-hover:opacity-70 transition-opacity duration-300 -z-10"></div>
-                </button>
+              <div>
+                <h1 class="text-xl font-bold text-gray-900 dark:text-white">Gestión de Contratos y Cuotas</h1>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Administrar contratos con sus cronogramas de pago</p>
               </div>
             </div>
+            <button (click)="exportContracts()" [disabled]="isLoading()" class="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-colors disabled:opacity-50">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4m4-5l5 5 5-5m-5 5V3"/></svg>
+              Exportar
+            </button>
           </div>
         </div>
 
-        <!-- Modern Filters -->
-        <div class="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl rounded-3xl shadow-xl border border-white/20 dark:border-gray-700/50 p-8 relative overflow-hidden">
-          <div class="flex items-center justify-between mb-6">
-            <div class="flex items-center gap-4">
-              <div class="bg-gradient-to-br from-purple-500 to-indigo-600 p-3 rounded-2xl shadow-lg">
-                <lucide-angular [img]="FilterIcon" class="w-6 h-6 text-white"></lucide-angular>
+        <!-- Filters -->
+        <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-6">
+          <div class="flex items-center justify-between mb-5">
+            <div class="flex items-center gap-3">
+              <div class="bg-indigo-600 p-2 rounded-lg">
+                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></svg>
               </div>
-              <h2 class="text-xl font-bold bg-gradient-to-r from-gray-900 via-purple-800 to-indigo-800 dark:from-white dark:via-purple-200 dark:to-indigo-200 bg-clip-text text-transparent">
-                Filtros de Búsqueda
-              </h2>
+              <h2 class="text-sm font-bold text-gray-900 dark:text-white">Filtros de Búsqueda</h2>
             </div>
-            <button 
-              (click)="clearFilters()
-              "
-              class="group relative px-6 py-3 bg-gradient-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 dark:from-gray-700 dark:to-gray-600 dark:hover:from-gray-600 dark:hover:to-gray-500 text-gray-700 dark:text-gray-300 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 font-semibold overflow-hidden"
-            >
-              <div class="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <span class="relative z-10">Limpiar Filtros</span>
+            <button (click)="clearFilters()" class="text-xs font-semibold text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors">
+              Limpiar Filtros
             </button>
           </div>
-          
-          <form [formGroup]="filterForm" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="group">
-              <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 transition-colors group-focus-within:text-blue-600">
-                Número de Contrato
-              </label>
+          <form [formGroup]="filterForm" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1.5">Número de Contrato</label>
               <div class="relative">
-                <lucide-angular [img]="SearchIcon" class="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors duration-300"></lucide-angular>
-                <input
-                  type="text"
-                  formControlName="contract_number"
-                  placeholder="Buscar por contrato..."
-                  class="w-full pl-12 pr-4 py-3 bg-white/80 dark:bg-gray-700/80 border border-gray-200 dark:border-gray-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all duration-300 backdrop-blur-sm shadow-sm hover:shadow-md font-medium placeholder-gray-400 dark:placeholder-gray-500 text-gray-900 dark:text-white"
-                >
-                <div class="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-500/10 to-purple-500/10 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                <input type="text" formControlName="contract_number" placeholder="Buscar por contrato..." class="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition-colors">
               </div>
             </div>
-
-            <div class="group">
-              <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 transition-colors group-focus-within:text-blue-600">
-                Cliente
-              </label>
+            <div>
+              <label class="block text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1.5">Cliente</label>
               <div class="relative">
-                <lucide-angular [img]="UserIcon" class="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors duration-300"></lucide-angular>
-                <input
-                  type="text"
-                  formControlName="client_name"
-                  placeholder="Buscar por cliente..."
-                  class="w-full pl-12 pr-4 py-3 bg-white/80 dark:bg-gray-700/80 border border-gray-200 dark:border-gray-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all duration-300 backdrop-blur-sm shadow-sm hover:shadow-md font-medium placeholder-gray-400 dark:placeholder-gray-500 text-gray-900 dark:text-white"
-                >
-                <div class="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-500/10 to-purple-500/10 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2m8-10a4 4 0 100-8 4 4 0 000 8z"/></svg>
+                <input type="text" formControlName="client_name" placeholder="Buscar por cliente..." class="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition-colors">
               </div>
             </div>
-
-            <div class="group">
-              <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 transition-colors group-focus-within:text-blue-600">
-                Estado
-              </label>
+            <div>
+              <label class="block text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1.5">Estado</label>
               <div class="relative">
-                <select
-                  formControlName="status"
-                  class="w-full px-4 py-3 bg-white/80 dark:bg-gray-700/80 border border-gray-200 dark:border-gray-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all duration-300 backdrop-blur-sm shadow-sm hover:shadow-md font-medium text-gray-900 dark:text-white appearance-none cursor-pointer"
-                >
+                <select formControlName="status" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-white appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition-colors">
                   <option value="">Todos los estados</option>
                   <option value="pendiente">Pendiente</option>
                   <option value="pagado">Pagado</option>
                   <option value="vencido">Vencido</option>
                 </select>
-                <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
-                  <lucide-angular [img]="ChevronDownIcon" class="w-5 h-5 text-gray-400"></lucide-angular>
-                </div>
-                <div class="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-500/10 to-purple-500/10 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 9l6 6 6-6"/></svg>
               </div>
             </div>
           </form>
         </div>
 
-        <!-- Modern Contracts List -->
-        <div class="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl rounded-3xl shadow-xl border border-white/20 dark:border-gray-700/50 overflow-hidden">
-          <!-- List Header -->
-          <div class="bg-gradient-to-r from-blue-500/10 via-purple-500/5 to-indigo-500/10 dark:from-blue-600/20 dark:via-purple-600/10 dark:to-indigo-600/20 px-8 py-6 border-b border-white/20 dark:border-gray-700/50">
-            <div class="flex justify-between items-center">
-              <div class="flex items-center gap-4">
-                <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-3 rounded-2xl shadow-lg">
-                  <lucide-angular [img]="DollarSignIcon" class="w-6 h-6 text-white"></lucide-angular>
+        <!-- KPI Cards -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <!-- Total Cuotas -->
+          <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl border border-gray-200/50 dark:border-gray-700/50 p-4 sm:p-5 hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between mb-3">
+              <div class="p-2 bg-blue-100 dark:bg-blue-900/40 rounded-lg">
+                <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              </div>
+              <span class="text-[11px] font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 rounded-full">{{ collectionRate() }}%</span>
+            </div>
+            <div class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">{{ totalSchedules() }}</div>
+            <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">Total cuotas</p>
+          </div>
+
+          <!-- Pagadas -->
+          <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl border border-gray-200/50 dark:border-gray-700/50 p-4 sm:p-5 hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between mb-3">
+              <div class="p-2 bg-emerald-100 dark:bg-emerald-900/40 rounded-lg">
+                <svg class="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M22 4L12 14.01l-3-3"/></svg>
+              </div>
+              <span class="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-2 py-0.5 rounded-full">{{ formatCurrency(paidAmount()) }}</span>
+            </div>
+            <div class="text-2xl sm:text-3xl font-bold text-emerald-600 dark:text-emerald-400">{{ paidSchedules() }}</div>
+            <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">Cuotas pagadas</p>
+          </div>
+
+          <!-- Pendientes -->
+          <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl border border-gray-200/50 dark:border-gray-700/50 p-4 sm:p-5 hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between mb-3">
+              <div class="p-2 bg-amber-100 dark:bg-amber-900/40 rounded-lg">
+                <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              </div>
+              <span class="text-[11px] font-semibold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 px-2 py-0.5 rounded-full">{{ formatCurrency(pendingAmount()) }}</span>
+            </div>
+            <div class="text-2xl sm:text-3xl font-bold text-amber-600 dark:text-amber-400">{{ pendingSchedules() }}</div>
+            <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">Cuotas pendientes</p>
+          </div>
+
+          <!-- Vencidas -->
+          <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl border border-gray-200/50 dark:border-gray-700/50 p-4 sm:p-5 hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between mb-3">
+              <div class="p-2 bg-red-100 dark:bg-red-900/40 rounded-lg">
+                <svg class="w-5 h-5 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              </div>
+              <span class="text-[11px] font-semibold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30 px-2 py-0.5 rounded-full">{{ formatCurrency(overdueAmount()) }}</span>
+            </div>
+            <div class="text-2xl sm:text-3xl font-bold text-red-600 dark:text-red-400">{{ overdueSchedules() }}</div>
+            <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">Cuotas vencidas</p>
+          </div>
+        </div>
+
+        <!-- Contracts Table -->
+        <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 overflow-hidden">
+          <!-- Table Header -->
+          <div class="px-6 py-4 border-b border-gray-200/50 dark:border-gray-700/50">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="bg-blue-600 p-2 rounded-lg">
+                  <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 1v22m5-18H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H7"/></svg>
                 </div>
-                <h2 class="text-xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-indigo-800 dark:from-white dark:via-blue-200 dark:to-indigo-200 bg-clip-text text-transparent">
-                  Contratos con Cronogramas
-                </h2>
+                <h2 class="text-sm font-bold text-gray-900 dark:text-white">Contratos con Cronogramas</h2>
               </div>
-              <div class="bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/50 dark:to-indigo-900/50 px-4 py-2 rounded-2xl">
-                <span class="text-sm font-bold text-blue-800 dark:text-blue-200">
-                  {{ filteredContracts().length }} contratos encontrados
-                </span>
-              </div>
+              <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full">{{ filteredContracts().length }} contratos</span>
             </div>
           </div>
 
           @if (isLoading()) {
             <div class="text-center py-12">
-              <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-              <p class="text-gray-600 mt-2">Cargando contratos...</p>
+              <div class="animate-spin rounded-full h-8 w-8 border-2 border-blue-600 border-t-transparent mx-auto"></div>
+              <p class="text-sm text-gray-500 mt-3">Cargando contratos...</p>
             </div>
           } @else {
             @if (filteredContracts().length > 0) {
               <div class="overflow-x-auto">
                 <table class="w-full">
-                  <thead class="bg-gradient-to-r from-gray-50/80 via-blue-50/40 to-indigo-50/60 dark:from-gray-800/80 dark:via-blue-900/40 dark:to-indigo-900/60 backdrop-blur-sm">
-                    <tr>
-                      <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-b border-gray-200/50 dark:border-gray-700/50">Contrato</th>
-                      <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-b border-gray-200/50 dark:border-gray-700/50">Cliente</th>
-                      <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-b border-gray-200/50 dark:border-gray-700/50">Asesor</th>
-                      <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-b border-gray-200/50 dark:border-gray-700/50">Lote</th>
-                      <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-b border-gray-200/50 dark:border-gray-700/50">Cuotas</th>
-                      <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-b border-gray-200/50 dark:border-gray-700/50">Progreso</th>
-                      <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-b border-gray-200/50 dark:border-gray-700/50">Próximo Vencimiento</th>
-                      <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider border-b border-gray-200/50 dark:border-gray-700/50">Acciones</th>
+                  <thead>
+                    <tr class="bg-gray-50/80 dark:bg-gray-900/40">
+                      <th class="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Contrato</th>
+                      <th class="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Cliente</th>
+                      <th class="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Asesor</th>
+                      <th class="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Lote</th>
+                      <th class="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Cuotas</th>
+                      <th class="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Progreso</th>
+                      <th class="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Próximo Vencimiento</th>
+                      <th class="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Acciones</th>
                     </tr>
                   </thead>
-                  <tbody class="bg-white/40 dark:bg-gray-800/40 backdrop-blur-sm divide-y divide-gray-200/30 dark:divide-gray-700/30">
+                  <tbody class="divide-y divide-gray-100 dark:divide-gray-700/50">
                     @for (contract of paginatedContracts(); track contract.contract_id) {
-                      <!-- Contract Row -->
-                      <tr class="group hover:bg-white/60 dark:hover:bg-gray-700/60 cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-[1.01] transform" (click)="toggleContractExpansion(contract)">
-                        <td class="px-6 py-5 whitespace-nowrap">
-                          <div class="flex items-center">
-                            <div class="bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/50 dark:to-indigo-900/50 p-2 rounded-xl mr-3 group-hover:shadow-lg transition-all duration-300">
-                              <lucide-angular 
-                                [img]="contract.expanded ? ChevronDownIcon : ChevronRightIcon" 
-                                class="w-4 h-4 text-blue-600 dark:text-blue-400 transition-transform duration-300 group-hover:scale-110"
-                              ></lucide-angular>
-                            </div>
+                      <tr class="hover:bg-gray-50/80 dark:hover:bg-gray-700/40 cursor-pointer transition-colors" (click)="toggleContractExpansion(contract)">
+                        <td class="px-5 py-4 whitespace-nowrap">
+                          <div class="flex items-center gap-2">
+                            <svg class="w-4 h-4 text-gray-400 transition-transform" [ngClass]="{'rotate-90': contract.expanded}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 18l6-6-6-6"/></svg>
                             <div>
-                              <p class="text-sm font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300">{{ contract.contract_number }}</p>
-                              <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">ID: {{ contract.contract_id }}</p>
+                              <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ contract.contract_number }}</p>
+                              <p class="text-[11px] text-gray-400">ID: {{ contract.contract_id }}</p>
                             </div>
                           </div>
                         </td>
-                        <td class="px-6 py-5 whitespace-nowrap">
-                          <div class="flex items-center">
-                            <div class="bg-gradient-to-br from-emerald-100 to-green-100 dark:from-emerald-900/50 dark:to-green-900/50 p-2 rounded-xl mr-3 group-hover:shadow-lg transition-all duration-300">
-                              <lucide-angular [img]="UserIcon" class="w-4 h-4 text-emerald-600 dark:text-emerald-400 transition-transform duration-300 group-hover:scale-110"></lucide-angular>
-                            </div>
-                            <span class="text-sm font-semibold text-gray-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors duration-300">{{ contract.client_name }}</span>
+                        <td class="px-5 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">{{ contract.client_name }}</td>
+                        <td class="px-5 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">{{ contract.advisor_name }}</td>
+                        <td class="px-5 py-4 whitespace-nowrap">
+                          <span class="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 ring-1 ring-amber-200/70 dark:ring-amber-700/50">{{ contract.lot_name }}</span>
+                        </td>
+                        <td class="px-5 py-4 whitespace-nowrap">
+                          <div class="flex flex-wrap items-center gap-1.5">
+                            <span class="text-sm font-bold text-gray-900 dark:text-white">{{ contract.total_schedules }}</span>
+                            <span class="text-[11px] text-gray-400">total</span>
+                            <span class="inline-flex rounded-full px-1.5 py-0.5 text-[10px] font-semibold bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300">{{ contract.paid_schedules }}</span>
+                            <span class="inline-flex rounded-full px-1.5 py-0.5 text-[10px] font-semibold bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300">{{ contract.pending_schedules }}</span>
+                            @if (contract.overdue_schedules > 0) {
+                              <span class="inline-flex rounded-full px-1.5 py-0.5 text-[10px] font-semibold bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300">{{ contract.overdue_schedules }}</span>
+                            }
                           </div>
                         </td>
-                        <td class="px-6 py-5 whitespace-nowrap">
-                          <div class="flex items-center">
-                            <div class="bg-gradient-to-br from-purple-100 to-indigo-100 dark:from-purple-900/50 dark:to-indigo-900/50 p-2 rounded-xl mr-3 group-hover:shadow-lg transition-all duration-300">
-                              <lucide-angular [img]="UsersIcon" class="w-4 h-4 text-purple-600 dark:text-purple-400 transition-transform duration-300 group-hover:scale-110"></lucide-angular>
+                        <td class="px-5 py-4 whitespace-nowrap">
+                          <div class="w-28">
+                            <div class="flex items-center justify-between mb-1">
+                              <span class="text-[11px] font-semibold text-gray-600 dark:text-gray-300">{{ contract.payment_rate }}%</span>
                             </div>
-                            <span class="text-sm font-semibold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors duration-300">{{ contract.advisor_name }}</span>
-                          </div>
-                        </td>
-                        <td class="px-6 py-5 whitespace-nowrap">
-                          <div class="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/30 dark:to-orange-900/30 px-3 py-2 rounded-xl border border-amber-200/50 dark:border-amber-700/50">
-                            <span class="text-sm font-semibold text-amber-800 dark:text-amber-200">{{ contract.lot_name }}</span>
-                          </div>
-                        </td>
-                        <td class="px-6 py-5 whitespace-nowrap">
-                          <div class="bg-gradient-to-r from-blue-50/80 to-indigo-50/80 dark:from-blue-900/30 dark:to-indigo-900/30 p-3 rounded-xl border border-blue-200/50 dark:border-blue-700/50">
-                            <div class="flex items-center space-x-2 mb-2">
-                              <span class="font-bold text-gray-900 dark:text-white text-lg">{{ contract.total_schedules }}</span>
-                              <span class="text-gray-600 dark:text-gray-400 font-medium">cuotas</span>
-                            </div>
-                            <div class="flex flex-wrap gap-2 text-xs">
-                              <span class="bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 px-2 py-1 rounded-lg font-semibold border border-green-200 dark:border-green-700">{{ contract.paid_schedules }} pagadas</span>
-                              <span class="bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-300 px-2 py-1 rounded-lg font-semibold border border-yellow-200 dark:border-yellow-700">{{ contract.pending_schedules }} pendientes</span>
-                              @if (contract.overdue_schedules > 0) {
-                                <span class="bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300 px-2 py-1 rounded-lg font-semibold border border-red-200 dark:border-red-700">{{ contract.overdue_schedules }} vencidas</span>
-                              }
+                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+                              <div class="bg-blue-600 h-1.5 rounded-full transition-all" [style.width.%]="contract.payment_rate"></div>
                             </div>
                           </div>
                         </td>
-                        <td class="px-6 py-5 whitespace-nowrap">
-                          <div class="bg-gradient-to-r from-gray-50/80 to-blue-50/80 dark:from-gray-800/80 dark:to-blue-900/30 p-3 rounded-xl border border-gray-200/50 dark:border-gray-700/50">
-                            <div class="w-full bg-gray-200/60 dark:bg-gray-700/60 rounded-full h-3 mb-2 overflow-hidden shadow-inner">
-                              <div 
-                                class="bg-gradient-to-r from-blue-500 to-indigo-600 h-3 rounded-full shadow-sm transition-all duration-500 ease-out" 
-                                [style.width.%]="contract.payment_rate"
-                              ></div>
-                            </div>
-                            <div class="flex justify-between items-center">
-                              <span class="text-xs font-bold text-gray-700 dark:text-gray-300">{{ contract.payment_rate }}% completado</span>
-                              <div class="bg-blue-100 dark:bg-blue-900/50 px-2 py-1 rounded-lg">
-                                <span class="text-xs font-semibold text-blue-700 dark:text-blue-300">{{ contract.payment_rate }}%</span>
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-                        <td class="px-6 py-5 whitespace-nowrap">
+                        <td class="px-5 py-4 whitespace-nowrap">
                           @if (contract.next_due_date) {
-                            <div class="bg-gradient-to-r from-orange-50/80 to-red-50/80 dark:from-orange-900/30 dark:to-red-900/30 p-3 rounded-xl border border-orange-200/50 dark:border-orange-700/50">
-                              <div class="flex items-center mb-1">
-                                <div class="bg-gradient-to-br from-orange-100 to-red-100 dark:from-orange-900/50 dark:to-red-900/50 p-2 rounded-xl mr-3">
-                                  <lucide-angular [img]="CalendarIcon" class="w-4 h-4 text-orange-600 dark:text-orange-400"></lucide-angular>
-                                </div>
-                                <div>
-                                  <span class="text-sm font-bold text-gray-900 dark:text-white">{{ formatDate(contract.next_due_date) }}</span>
-                                  <p class="text-xs text-orange-600 dark:text-orange-400 font-medium">Próximo vencimiento</p>
-                                </div>
-                              </div>
-                            </div>
+                            <span class="text-sm text-gray-700 dark:text-gray-300">{{ formatDate(contract.next_due_date) }}</span>
                           } @else {
-                            <div class="bg-gradient-to-r from-green-50/80 to-emerald-50/80 dark:from-green-900/30 dark:to-emerald-900/30 p-3 rounded-xl border border-green-200/50 dark:border-green-700/50">
-                              <span class="text-sm font-semibold text-green-700 dark:text-green-300">Sin cuotas pendientes</span>
-                            </div>
+                            <span class="text-xs text-green-600 dark:text-green-400 font-medium">Sin pendientes</span>
                           }
                         </td>
-                        <td class="px-6 py-5 whitespace-nowrap text-sm font-medium">
-                          <div class="flex gap-2">
-                            <button 
-                              (click)="viewContractDetails(contract); $event.stopPropagation()"
-                              class="group relative p-3 bg-gradient-to-r from-blue-100 to-indigo-100 hover:from-blue-200 hover:to-indigo-200 dark:from-blue-900/50 dark:to-indigo-900/50 dark:hover:from-blue-800/60 dark:hover:to-indigo-800/60 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 transform hover:scale-105 border border-blue-200/50 dark:border-blue-700/50"
-                              title="Ver detalles"
-                            >
-                              <lucide-angular [img]="EyeIcon" class="w-4 h-4 transition-transform duration-300 group-hover:scale-110"></lucide-angular>
-                              <div class="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-400/20 to-indigo-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                            </button>
-                          </div>
+                        <td class="px-5 py-4 whitespace-nowrap">
+                          <button (click)="viewContractDetails(contract); $event.stopPropagation()" class="p-2 rounded-lg text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900/30 transition-colors" title="Ver detalles">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                          </button>
                         </td>
                       </tr>
-                      
+
                       <!-- Expanded Schedules -->
-                     <!-- Expanded Schedules -->
-@if (contract.expanded) {
-  <tr>
-    <td colspan="8" class="px-6 py-0">
-      <div class="rounded-2xl border border-slate-200/70 dark:border-slate-700/60 overflow-hidden shadow-sm bg-white/70 dark:bg-slate-800/60 backdrop-blur">
-        <!-- Subheader -->
-        <div class="px-5 py-3 text-xs font-bold tracking-wide text-slate-700 dark:text-slate-200 bg-gradient-to-r from-slate-50 to-indigo-50 dark:from-slate-900/40 dark:to-indigo-900/30 border-b border-slate-200/70 dark:border-slate-700/60">
-          Cronograma de Cuotas
-        </div>
-
-        <div class="overflow-x-auto max-h-[420px]">
-          <table class="w-full text-sm">
-            <thead class="sticky top-0 z-10 bg-white/95 dark:bg-slate-900/80 backdrop-blur">
-              <tr class="text-left text-[11px] uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                <th class="py-3 px-4 font-semibold">Cuota</th>
-                <th class="py-3 px-4 font-semibold">Vencimiento</th>
-                <th class="py-3 px-4 font-semibold text-right">Monto</th>
-                <th class="py-3 px-4 font-semibold text-right">Pagado</th>
-                <th class="py-3 px-4 font-semibold text-right">Saldo</th>
-                <th class="py-3 px-4 font-semibold">Estado</th>
-                <th class="py-3 px-4 font-semibold">Días Vencido</th>
-                <th class="py-3 px-4 font-semibold text-right">Acciones</th>
-              </tr>
-            </thead>
-
-            <tbody class="divide-y divide-slate-200/70 dark:divide-slate-700/50">
-              @for (schedule of contract.schedules; track schedule.schedule_id) {
-                <tr class="hover:bg-slate-50/70 dark:hover:bg-slate-700/40 transition-colors">
-                  <td class="py-3 px-4">
-                    <div class="flex items-center gap-2">
-                      <span class="font-medium text-slate-900 dark:text-slate-100">
-                        {{ schedule.installment_number || 'N/A' }}
-                      </span>
-                      @if (schedule.notes) {
-                        <span class="text-xs text-slate-500 dark:text-slate-300">/ {{ schedule.notes }}</span>
-                      }
-                      @if (schedule.type) {
-                        <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold bg-slate-100 text-slate-700 dark:bg-slate-900/40 dark:text-slate-300 ring-1 ring-slate-200/70 dark:ring-slate-700/60">
-                          {{ schedule.type }}
-                        </span>
-                      }
-                    </div>
-                  </td>
-
-                  <td class="py-3 px-4 text-slate-700 dark:text-slate-300">
-                    {{ formatDate(schedule.due_date) }}
-                  </td>
-
-                  <td class="py-3 px-4 text-right">
-                    <span class="font-semibold text-slate-900 dark:text-white">
-                      {{ formatCurrency(schedule.amount) }}
-                    </span>
-                  </td>
-
-                  <td class="py-3 px-4 text-right">
-                    <span class="font-semibold text-slate-900 dark:text-white">
-                      {{ formatCurrency(schedule.amount_paid || 0) }}
-                    </span>
-                  </td>
-
-                  <td class="py-3 px-4 text-right">
-                    <span class="font-semibold text-slate-900 dark:text-white">
-                      {{ formatCurrency((schedule.amount || 0) - (schedule.amount_paid || 0)) }}
-                    </span>
-                  </td>
-
-                  <td class="py-3 px-4">
-                    <span [class]="getStatusClass(schedule.status)">
-                      {{ getStatusLabel(schedule.status) }}
-                    </span>
-                  </td>
-
-                  <td class="py-3 px-4">
-                    @if (schedule.status === 'vencido') {
-                      <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300 ring-1 ring-red-200/70 dark:ring-red-800/60">
-                        {{ getDaysOverdue(schedule.due_date) }} días
-                      </span>
-                    } @else {
-                      <span class="text-slate-400">-</span>
-                    }
-                  </td>
-
-                  <td class="py-3 px-4 text-right">
-                    <div class="flex justify-end gap-2">
-                      <button
-                        (click)="sendReminder(schedule); $event.stopPropagation()"
-                        class="inline-flex items-center justify-center h-8 w-8 rounded-full text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 ring-1 ring-blue-200/70 dark:ring-blue-800/60 transition"
-                        title="Enviar aviso"
-                      >
-                        <lucide-angular [img]="MailIcon" class="w-4 h-4"></lucide-angular>
-                      </button>
-                      <button
-                        (click)="openCustomMessageModal(schedule); $event.stopPropagation()"
-                        class="inline-flex items-center justify-center h-8 w-8 rounded-full text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 ring-1 ring-indigo-200/70 dark:ring-indigo-800/60 transition"
-                        title="Mensaje personalizado"
-                      >
-                        <lucide-angular [img]="EditIcon" class="w-4 h-4"></lucide-angular>
-                      </button>
-                      @if (schedule.status !== 'pagado') {
-                        <button
-                          (click)="openMarkPaidModalWithContext(schedule, contract)"
-                          class="inline-flex items-center justify-center h-8 w-8 rounded-full text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 ring-1 ring-emerald-200/70 dark:ring-emerald-800/60 transition"
-                          title="Marcar como pagado"
-                        >
-                          <lucide-angular [img]="CheckCircleIcon" class="w-4 h-4"></lucide-angular>
-                        </button>
-                      }
-                    </div>
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </td>
-  </tr>
+                      @if (contract.expanded) {
+                        <tr>
+                          <td colspan="8" class="px-5 py-0 pb-3">
+                            <div class="rounded-xl border border-gray-200/70 dark:border-gray-700/50 overflow-hidden bg-gray-50/50 dark:bg-gray-900/30">
+                              <div class="px-4 py-2.5 text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 bg-gray-100/80 dark:bg-gray-800/60 border-b border-gray-200/70 dark:border-gray-700/50">
+                                Cronograma de Cuotas
+                              </div>
+                              <div class="overflow-x-auto max-h-[400px] installment-scroll">
+                                <table class="w-full text-sm">
+                                  <thead class="sticky top-0 z-10 bg-white/95 dark:bg-gray-900/90 backdrop-blur">
+                                    <tr>
+                                      <th class="py-2.5 px-4 text-left text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Cuota</th>
+                                      <th class="py-2.5 px-4 text-left text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Vencimiento</th>
+                                      <th class="py-2.5 px-4 text-right text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Monto</th>
+                                      <th class="py-2.5 px-4 text-right text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Pagado</th>
+                                      <th class="py-2.5 px-4 text-right text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Saldo</th>
+                                      <th class="py-2.5 px-4 text-left text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Estado</th>
+                                      <th class="py-2.5 px-4 text-left text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Días Vencido</th>
+                                      <th class="py-2.5 px-4 text-right text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Acciones</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody class="divide-y divide-gray-100 dark:divide-gray-700/40">
+                                    @for (schedule of contract.schedules; track schedule.schedule_id) {
+                                      <tr class="hover:bg-white/70 dark:hover:bg-gray-800/40 transition-colors">
+                                        <td class="py-2.5 px-4">
+                                          <div class="flex items-center gap-2">
+                                            <span class="font-medium text-gray-900 dark:text-white text-sm">{{ schedule.installment_number || 'N/A' }}</span>
+                                            @if (schedule.notes) {
+                                              <span class="text-[11px] text-gray-400">/ {{ schedule.notes }}</span>
+                                            }
+                                            @if (schedule.type) {
+                                              <span class="inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300 ring-1 ring-gray-200/70 dark:ring-gray-600/50">{{ schedule.type }}</span>
+                                            }
+                                          </div>
+                                        </td>
+                                        <td class="py-2.5 px-4 text-sm text-gray-600 dark:text-gray-300">{{ formatDate(schedule.due_date) }}</td>
+                                        <td class="py-2.5 px-4 text-right text-sm font-semibold text-gray-900 dark:text-white">{{ formatCurrency(schedule.amount) }}</td>
+                                        <td class="py-2.5 px-4 text-right text-sm font-semibold text-gray-900 dark:text-white">{{ formatCurrency(schedule.amount_paid || 0) }}</td>
+                                        <td class="py-2.5 px-4 text-right text-sm font-semibold text-gray-900 dark:text-white">{{ formatCurrency((schedule.amount || 0) - (schedule.amount_paid || 0)) }}</td>
+                                        <td class="py-2.5 px-4"><span [class]="getStatusClass(schedule.status)">{{ getStatusLabel(schedule.status) }}</span></td>
+                                        <td class="py-2.5 px-4">
+                                          @if (schedule.status === 'vencido') {
+                                            <span class="inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300 ring-1 ring-red-200/70 dark:ring-red-800/60">{{ getDaysOverdue(schedule.due_date) }} días</span>
+                                          } @else {
+                                            <span class="text-gray-300 dark:text-gray-600">-</span>
+                                          }
+                                        </td>
+                                        <td class="py-2.5 px-4 text-right">
+                                          <div class="flex justify-end gap-1">
+                                            <button (click)="sendReminder(schedule); $event.stopPropagation()" class="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900/30 transition-colors" title="Enviar aviso">
+                                              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M22 6l-10 7L2 6"/></svg>
+                                            </button>
+                                            <button (click)="openCustomMessageModal(schedule); $event.stopPropagation()" class="p-1.5 rounded-lg text-indigo-600 hover:bg-indigo-50 dark:text-indigo-400 dark:hover:bg-indigo-900/30 transition-colors" title="Mensaje personalizado">
+                                              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                            </button>
+                                            @if (schedule.status !== 'pagado') {
+                                              <button (click)="openMarkPaidModalWithContext(schedule, contract)" class="p-1.5 rounded-lg text-emerald-600 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-900/30 transition-colors" title="Marcar como pagado">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M22 4L12 14.01l-3-3"/></svg>
+                                              </button>
+                                            }
+                                          </div>
+                                        </td>
+                                      </tr>
+                                    }
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
                       }
                     }
                   </tbody>
@@ -430,299 +300,181 @@ import { PaymentSchedule, ContractSummary, MarkPaymentPaidRequest } from '../../
 
               <!-- Pagination -->
               @if (totalPages() > 1 || contracts().length > 0) {
-                <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
-                  <div class="flex items-center space-x-4">
-                    <div class="text-sm text-gray-700">
-                      @if (paginationInfo()) {
-                        Mostrando {{ paginationInfo()!.from }} a {{ paginationInfo()!.to }} de {{ paginationInfo()!.total }} resultados
-                      } @else {
-                        Mostrando {{ contracts().length }} resultados
-                      }
-                    </div>
-                    <div class="flex items-center space-x-2">
-                      <label class="text-sm text-gray-700">Mostrar:</label>
-                      <select 
-                        [value]="pageSize()"
-                        (change)="onPageSizeChange($event)"
-                        class="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      >
+                <div class="px-6 py-4 border-t border-gray-200/50 dark:border-gray-700/50 flex flex-col sm:flex-row items-center justify-between gap-3">
+                  <div class="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+                    @if (paginationInfo()) {
+                      <span>{{ paginationInfo()!.from }}–{{ paginationInfo()!.to }} de {{ paginationInfo()!.total }}</span>
+                    } @else {
+                      <span>{{ contracts().length }} resultados</span>
+                    }
+                    <div class="flex items-center gap-2">
+                      <label class="text-xs text-gray-500">Mostrar:</label>
+                      <select [value]="pageSize()" (change)="onPageSizeChange($event)" class="border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 rounded-lg px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/40">
                         <option value="10">10</option>
                         <option value="25">25</option>
                         <option value="50">50</option>
                         <option value="100">100</option>
                       </select>
-                      <span class="text-sm text-gray-700">por página</span>
                     </div>
                   </div>
-                  <div class="flex space-x-2">
-                    <button 
-                      (click)="previousPage()"
-                      [disabled]="currentPage() === 1"
-                      class="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Anterior
-                    </button>
+                  <div class="flex gap-1">
+                    <button (click)="previousPage()" [disabled]="currentPage() === 1" class="px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">Anterior</button>
                     @for (page of getPageNumbers(); track page) {
-                      <button 
-                        (click)="goToPage(page)"
-                        [class]="page === currentPage() ? 
-                          'px-3 py-1 bg-blue-600 text-white rounded text-sm' : 
-                          'px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50'"
-                      >
-                        {{ page }}
-                      </button>
+                      <button (click)="goToPage(page)" [class]="page === currentPage() ? 'px-3 py-1.5 text-xs font-semibold rounded-lg bg-blue-600 text-white' : 'px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors'">{{ page }}</button>
                     }
-                    <button 
-                      (click)="nextPage()"
-                      [disabled]="currentPage() === totalPages()"
-                      class="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Siguiente
-                    </button>
+                    <button (click)="nextPage()" [disabled]="currentPage() === totalPages()" class="px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">Siguiente</button>
                   </div>
                 </div>
               }
             } @else {
-              <!-- Empty state -->
-              <div class="text-center py-16 relative">
-                <div class="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl rounded-3xl shadow-xl border border-white/20 dark:border-gray-700/50 p-12 relative overflow-hidden">
-                  <div class="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-purple-50/30 to-indigo-50/50 dark:from-blue-900/20 dark:via-purple-900/10 dark:to-indigo-900/20"></div>
-                  <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500"></div>
-                
-                  <div class="relative">
-                    <div class="bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 p-6 rounded-3xl shadow-lg mb-6 mx-auto w-fit">
-                      <lucide-angular [img]="CalendarIcon" class="w-16 h-16 text-gray-400 dark:text-gray-500"></lucide-angular>
-                    </div>
-                    <h3 class="text-2xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-indigo-800 dark:from-white dark:via-blue-200 dark:to-indigo-200 bg-clip-text text-transparent mb-3">
-                      No se encontraron contratos
-                    </h3>
-                    <p class="text-gray-600 dark:text-gray-400 font-medium max-w-md mx-auto">
-                      Intenta ajustar los filtros de búsqueda para encontrar los contratos que necesitas
-                    </p>
-                  </div>
+              <!-- Empty State -->
+              <div class="text-center py-16 px-6">
+                <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-2xl w-fit mx-auto mb-4">
+                  <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                 </div>
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-1">No se encontraron contratos</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 max-w-md mx-auto">Intenta ajustar los filtros de búsqueda para encontrar los contratos que necesitas</p>
               </div>
             }
           }
 
         </div> <!-- /Modern Contracts List -->
 
-        <!-- Modern Mark as Paid Modal -->
+        <!-- Mark as Paid Modal -->
         @if (showMarkPaidModal()) {
-          <div class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div class="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl shadow-2xl w-[min(94vw,64rem)] border border-white/20 dark:border-gray-700/50 relative overflow-hidden max-h-[90vh] overflow-y-auto">
-              <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500"></div>
-              
-              <div class="p-6 sm:p-8">
+          <div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-[min(94vw,56rem)] border border-gray-200/50 dark:border-gray-700/50 max-h-[90vh] overflow-y-auto installment-scroll">
+              <div class="p-6">
                 <div class="flex justify-between items-center mb-6">
-                  <div class="flex items-center gap-4">
-                    <div class="bg-gradient-to-br from-green-500 to-emerald-600 p-3 rounded-2xl shadow-lg">
-                      <lucide-angular [img]="CheckCircleIcon" class="w-6 h-6 text-white"></lucide-angular>
+                  <div class="flex items-center gap-3">
+                    <div class="bg-emerald-600 p-2 rounded-lg">
+                      <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M22 4L12 14.01l-3-3"/></svg>
                     </div>
-                    <h3 class="text-xl font-bold bg-gradient-to-r from-gray-900 via-green-800 to-emerald-800 dark:from-white dark:via-green-200 dark:to-emerald-200 bg-clip-text text-transparent">Marcar como Pagado</h3>
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">Marcar como Pagado</h3>
                   </div>
-                  <button 
-                    (click)="closeMarkPaidModal()"
-                    class="group relative p-3 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-2xl transition-all duration-300 transform hover:scale-105"
-                  >
-                    <lucide-angular [img]="XIcon" class="w-5 h-5 transition-transform duration-300 group-hover:rotate-90"></lucide-angular>
+                  <button (click)="closeMarkPaidModal()" class="p-2 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                   </button>
                 </div>
-                
+
                 @if (selectedScheduleForPayment()) {
-                  <form [formGroup]="markPaidForm" (ngSubmit)="markAsPaid()" class="space-y-6">
-                    <div class="bg-gradient-to-r from-blue-50/80 to-indigo-50/80 dark:from-blue-900/30 dark:to-indigo-900/30 p-6 rounded-2xl border border-blue-200/50 dark:border-blue-700/50">
+                  <form [formGroup]="markPaidForm" (ngSubmit)="markAsPaid()" class="space-y-5">
+                    <!-- Schedule Info Card -->
+                    <div class="bg-blue-50/80 dark:bg-blue-900/20 p-5 rounded-xl border border-blue-200/50 dark:border-blue-700/50">
                       <div class="flex items-start justify-between gap-4">
                         <div class="min-w-0">
-                          <div class="text-xs font-semibold text-slate-500 dark:text-slate-300">Cliente</div>
-                          <div class="text-base font-bold text-slate-900 dark:text-white truncate">
-                            {{ selectedScheduleForPayment()!.client_name || '—' }}
-                          </div>
-                          <div class="text-xs text-slate-600 dark:text-slate-300 truncate">
-                            {{ selectedScheduleForPayment()!.lot_name || selectedScheduleForPayment()!.lot_number || '' }}
-                          </div>
-                          <div class="mt-2 flex flex-wrap gap-2">
-                            <span class="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold bg-white/70 dark:bg-slate-900/30 text-slate-700 dark:text-slate-200 ring-1 ring-slate-200/70 dark:ring-slate-700/60">
-                              Contrato {{ selectedScheduleForPayment()!.contract_number || selectedScheduleForPayment()!.contract_id }}
-                            </span>
-                            <span class="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold bg-white/70 dark:bg-slate-900/30 text-slate-700 dark:text-slate-200 ring-1 ring-slate-200/70 dark:ring-slate-700/60">
-                              Cuota #{{ selectedScheduleForPayment()!.installment_number }}
-                            </span>
-                            <span class="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold bg-white/70 dark:bg-slate-900/30 text-slate-700 dark:text-slate-200 ring-1 ring-slate-200/70 dark:ring-slate-700/60">
-                              Cronograma #{{ selectedScheduleForPayment()!.schedule_id }}
-                            </span>
+                          <div class="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Cliente</div>
+                          <div class="text-sm font-bold text-gray-900 dark:text-white truncate">{{ selectedScheduleForPayment()!.client_name || '—' }}</div>
+                          <div class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ selectedScheduleForPayment()!.lot_name || selectedScheduleForPayment()!.lot_number || '' }}</div>
+                          <div class="mt-2 flex flex-wrap gap-1.5">
+                            <span class="inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 ring-1 ring-gray-200/70 dark:ring-gray-700/60">Contrato {{ selectedScheduleForPayment()!.contract_number || selectedScheduleForPayment()!.contract_id }}</span>
+                            <span class="inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 ring-1 ring-gray-200/70 dark:ring-gray-700/60">Cuota #{{ selectedScheduleForPayment()!.installment_number }}</span>
+                            <span class="inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 ring-1 ring-gray-200/70 dark:ring-gray-700/60">Cronograma #{{ selectedScheduleForPayment()!.schedule_id }}</span>
                           </div>
                         </div>
-
                         <div class="text-right shrink-0">
-                          <div class="text-xs font-semibold text-slate-500 dark:text-slate-300">Vencimiento</div>
-                          <div class="font-bold text-slate-900 dark:text-white">{{ formatDate(selectedScheduleForPayment()!.due_date) }}</div>
+                          <div class="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Vencimiento</div>
+                          <div class="text-sm font-bold text-gray-900 dark:text-white">{{ formatDate(selectedScheduleForPayment()!.due_date) }}</div>
                         </div>
                       </div>
-
-                      <div class="mt-5 grid grid-cols-3 gap-3">
-                        <div class="rounded-2xl bg-white/70 dark:bg-slate-900/30 p-3 ring-1 ring-white/40 dark:ring-slate-700/50">
-                          <div class="text-[11px] font-semibold text-slate-600 dark:text-slate-300">Monto</div>
-                          <div class="text-sm font-bold text-slate-900 dark:text-white">{{ formatCurrency(selectedScheduleForPayment()!.amount) }}</div>
+                      <div class="mt-4 grid grid-cols-3 gap-3">
+                        <div class="rounded-xl bg-white dark:bg-gray-800 p-3 ring-1 ring-gray-200/70 dark:ring-gray-700/50">
+                          <div class="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Monto</div>
+                          <div class="text-sm font-bold text-gray-900 dark:text-white">{{ formatCurrency(selectedScheduleForPayment()!.amount) }}</div>
                         </div>
-                        <div class="rounded-2xl bg-white/70 dark:bg-slate-900/30 p-3 ring-1 ring-white/40 dark:ring-slate-700/50">
-                          <div class="text-[11px] font-semibold text-slate-600 dark:text-slate-300">Pagado</div>
-                          <div class="text-sm font-bold text-emerald-700 dark:text-emerald-300">{{ formatCurrency(selectedScheduleForPayment()!.amount_paid || 0) }}</div>
+                        <div class="rounded-xl bg-white dark:bg-gray-800 p-3 ring-1 ring-gray-200/70 dark:ring-gray-700/50">
+                          <div class="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Pagado</div>
+                          <div class="text-sm font-bold text-emerald-600 dark:text-emerald-400">{{ formatCurrency(selectedScheduleForPayment()!.amount_paid || 0) }}</div>
                         </div>
-                        <div class="rounded-2xl bg-white/70 dark:bg-slate-900/30 p-3 ring-1 ring-white/40 dark:ring-slate-700/50">
-                          <div class="text-[11px] font-semibold text-slate-600 dark:text-slate-300">Saldo</div>
-                          <div class="text-sm font-bold text-indigo-700 dark:text-indigo-300">{{ formatCurrency((selectedScheduleForPayment()!.remaining_amount ?? (selectedScheduleForPayment()!.amount - (selectedScheduleForPayment()!.amount_paid || 0))) || 0) }}</div>
+                        <div class="rounded-xl bg-white dark:bg-gray-800 p-3 ring-1 ring-gray-200/70 dark:ring-gray-700/50">
+                          <div class="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Saldo</div>
+                          <div class="text-sm font-bold text-blue-600 dark:text-blue-400">{{ formatCurrency((selectedScheduleForPayment()!.remaining_amount ?? (selectedScheduleForPayment()!.amount - (selectedScheduleForPayment()!.amount_paid || 0))) || 0) }}</div>
                         </div>
                       </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-6">
-                      <div class="group">
-                        <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-3 transition-colors group-focus-within:text-blue-600">Fecha de Pago</label>
-                        <div class="relative">
-                          <input
-                            type="date"
-                            formControlName="payment_date"
-                            class="w-full px-4 py-3 bg-white/80 dark:bg-gray-700/80 border border-gray-200 dark:border-gray-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all duration-300 backdrop-blur-sm shadow-sm hover:shadow-md font-medium text-gray-900 dark:text-white"
-                          >
-                          <div class="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-500/10 to-purple-500/10 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-                        </div>
-                        <div class="mt-2 flex justify-end">
-                          <button type="button" (click)="setPayToday()" class="text-xs font-semibold text-blue-700 dark:text-blue-300 hover:underline">
-                            Hoy
-                          </button>
+                    <!-- Form Fields -->
+                    <div class="grid grid-cols-2 gap-4">
+                      <div>
+                        <label class="block text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1.5">Fecha de Pago</label>
+                        <input type="date" formControlName="payment_date" class="w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition-colors">
+                        <div class="mt-1 flex justify-end">
+                          <button type="button" (click)="setPayToday()" class="text-[11px] font-semibold text-blue-600 dark:text-blue-400 hover:underline">Hoy</button>
                         </div>
                         @if (markPaidSubmitted && markPaidForm.get('payment_date')?.errors?.['required']) {
-                          <div class="mt-1 text-xs font-semibold text-red-600">La fecha es requerida</div>
+                          <div class="mt-1 text-[11px] font-semibold text-red-600">La fecha es requerida</div>
                         }
                       </div>
-                      <div class="group">
-                        <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-3 transition-colors group-focus-within:text-green-600">Monto Pagado</label>
-                        <div class="relative">
-                          <input
-                            type="number"
-                            step="0.01"
-                            formControlName="amount_paid"
-                            class="w-full px-4 py-3 bg-white/80 dark:bg-gray-700/80 border border-gray-200 dark:border-gray-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500 transition-all duration-300 backdrop-blur-sm shadow-sm hover:shadow-md font-medium text-gray-900 dark:text-white"
-                          >
-                          <div class="absolute inset-0 rounded-2xl bg-gradient-to-r from-green-500/10 to-emerald-500/10 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-                        </div>
-                        <div class="mt-2 flex items-center justify-between gap-2">
-                          <div class="text-[11px] text-slate-600 dark:text-slate-300">
-                            Saldo después: {{ formatCurrency(Math.max(0, num(selectedScheduleForPayment()!.amount) - (num(selectedScheduleForPayment()!.amount_paid) + num(markPaidForm.value.amount_paid)))) }}
-                          </div>
-                          <button type="button" (click)="setPayRemaining()" class="text-xs font-semibold text-emerald-700 dark:text-emerald-300 hover:underline">
-                            Completar saldo
-                          </button>
+                      <div>
+                        <label class="block text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1.5">Monto Pagado</label>
+                        <input type="number" step="0.01" formControlName="amount_paid" class="w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition-colors">
+                        <div class="mt-1 flex items-center justify-between gap-2">
+                          <span class="text-[11px] text-gray-500">Saldo después: {{ formatCurrency(Math.max(0, num(selectedScheduleForPayment()!.amount) - (num(selectedScheduleForPayment()!.amount_paid) + num(markPaidForm.value.amount_paid)))) }}</span>
+                          <button type="button" (click)="setPayRemaining()" class="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 hover:underline">Completar saldo</button>
                         </div>
                         @if (markPaidSubmitted && markPaidForm.get('amount_paid')?.errors?.['required']) {
-                          <div class="mt-1 text-xs font-semibold text-red-600">El monto es requerido</div>
+                          <div class="mt-1 text-[11px] font-semibold text-red-600">El monto es requerido</div>
                         }
                         @if (markPaidSubmitted && markPaidForm.get('amount_paid')?.errors?.['min']) {
-                          <div class="mt-1 text-xs font-semibold text-red-600">El monto debe ser mayor a 0</div>
+                          <div class="mt-1 text-[11px] font-semibold text-red-600">El monto debe ser mayor a 0</div>
                         }
                       </div>
                     </div>
 
-                    <div class="group">
-                      <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-3 transition-colors group-focus-within:text-purple-600">Método de Pago</label>
-                      <div class="relative">
-                        <select
-                          formControlName="payment_method"
-                          class="w-full px-4 py-3 bg-white/80 dark:bg-gray-700/80 border border-gray-200 dark:border-gray-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition-all duration-300 backdrop-blur-sm shadow-sm hover:shadow-md font-medium text-gray-900 dark:text-white appearance-none cursor-pointer"
-                        >
-                          <option value="cash">💵 Efectivo</option>
-                          <option value="transfer">🏦 Transferencia</option>
-                          <option value="check">📄 Cheque</option>
-                          <option value="card">💳 Tarjeta</option>
-                        </select>
-                        <div class="absolute inset-0 rounded-2xl bg-gradient-to-r from-purple-500/10 to-indigo-500/10 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-                      </div>
+                    <div>
+                      <label class="block text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1.5">Método de Pago</label>
+                      <select formControlName="payment_method" class="w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-white appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition-colors">
+                        <option value="cash">Efectivo</option>
+                        <option value="transfer">Transferencia</option>
+                        <option value="check">Cheque</option>
+                        <option value="card">Tarjeta</option>
+                      </select>
                     </div>
 
-                    <div class="group">
-                      <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-3 transition-colors group-focus-within:text-amber-600">Referencia (banco)</label>
-                      <div class="relative">
-                        <input
-                          type="text"
-                          formControlName="reference"
-                          placeholder="No. boleta / referencia / autorización"
-                          class="w-full px-4 py-3 bg-white/80 dark:bg-gray-700/80 border border-gray-200 dark:border-gray-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all duration-300 backdrop-blur-sm shadow-sm hover:shadow-md font-medium placeholder-gray-400 dark:placeholder-gray-500 text-gray-900 dark:text-white"
-                        >
-                        <div class="absolute inset-0 rounded-2xl bg-gradient-to-r from-amber-500/10 to-orange-500/10 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-                      </div>
+                    <div>
+                      <label class="block text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1.5">Referencia (banco)</label>
+                      <input type="text" formControlName="reference" placeholder="No. boleta / referencia / autorización" class="w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition-colors">
                       @if (markPaidSubmitted && markPaidForm.get('reference')?.errors?.['required']) {
-                        <div class="mt-1 text-xs font-semibold text-red-600">La referencia es requerida para pagos no en efectivo</div>
+                        <div class="mt-1 text-[11px] font-semibold text-red-600">La referencia es requerida para pagos no en efectivo</div>
                       }
                       @if (markPaidSubmitted && markPaidForm.get('reference')?.errors?.['maxlength']) {
-                        <div class="mt-1 text-xs font-semibold text-red-600">Máximo 60 caracteres</div>
+                        <div class="mt-1 text-[11px] font-semibold text-red-600">Máximo 60 caracteres</div>
                       }
                     </div>
 
-                    <div class="group">
-                      <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-3 transition-colors group-focus-within:text-slate-600">Voucher / Comprobante</label>
-                      <div class="relative">
-                        <input
-                          type="file"
-                          accept=".jpg,.jpeg,.png,.pdf"
-                          (change)="onVoucherSelected($event)"
-                          class="w-full px-4 py-3 bg-white/80 dark:bg-gray-700/80 border border-gray-200 dark:border-gray-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-slate-500/50 focus:border-slate-500 transition-all duration-300 backdrop-blur-sm shadow-sm hover:shadow-md font-medium text-gray-900 dark:text-white"
-                        >
-                        <div class="absolute inset-0 rounded-2xl bg-gradient-to-r from-slate-500/10 to-gray-500/10 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-                      </div>
-                      <div class="mt-2 flex items-center justify-between gap-3 text-xs text-slate-600 dark:text-slate-300">
+                    <div>
+                      <label class="block text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1.5">Voucher / Comprobante</label>
+                      <input type="file" accept=".jpg,.jpeg,.png,.pdf" (change)="onVoucherSelected($event)" class="w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/40 transition-colors">
+                      <div class="mt-1 flex items-center justify-between gap-3 text-[11px] text-gray-500">
                         <span class="truncate">{{ selectedVoucherFile?.name || 'Sin archivo seleccionado' }}</span>
                         @if (selectedVoucherFile) {
-                          <button type="button" (click)="clearVoucher()" class="font-semibold text-slate-700 dark:text-slate-200 hover:underline">
-                            Quitar
-                          </button>
+                          <button type="button" (click)="clearVoucher()" class="font-semibold text-gray-600 dark:text-gray-300 hover:underline">Quitar</button>
                         }
                       </div>
                       @if (voucherFieldError) {
-                        <div class="mt-1 text-xs font-semibold text-red-600">{{ voucherFieldError }}</div>
+                        <div class="mt-1 text-[11px] font-semibold text-red-600">{{ voucherFieldError }}</div>
                       }
                     </div>
 
-                    <div class="group">
-                      <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-3 transition-colors group-focus-within:text-indigo-600">Notas</label>
-                      <div class="relative">
-                        <textarea
-                          formControlName="notes"
-                          rows="3"
-                          placeholder="Notas adicionales sobre el pago..."
-                          class="w-full px-4 py-3 bg-white/80 dark:bg-gray-700/80 border border-gray-200 dark:border-gray-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all duration-300 backdrop-blur-sm shadow-sm hover:shadow-md font-medium placeholder-gray-400 dark:placeholder-gray-500 text-gray-900 dark:text-white resize-none"
-                        ></textarea>
-                        <div class="absolute inset-0 rounded-2xl bg-gradient-to-r from-indigo-500/10 to-blue-500/10 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-                      </div>
+                    <div>
+                      <label class="block text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1.5">Notas</label>
+                      <textarea formControlName="notes" rows="3" placeholder="Notas adicionales sobre el pago..." class="w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition-colors resize-none"></textarea>
                       @if (markPaidSubmitted && markPaidForm.get('notes')?.errors?.['maxlength']) {
-                        <div class="mt-1 text-xs font-semibold text-red-600">Máximo 500 caracteres</div>
+                        <div class="mt-1 text-[11px] font-semibold text-red-600">Máximo 500 caracteres</div>
                       }
                     </div>
 
-                    <div class="flex space-x-4 pt-6">
-                      <button
-                        type="submit"
-                        [disabled]="isMarkingPaid()"
-                        class="group relative flex-1 flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 font-semibold overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                      >
-                        <div class="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div class="flex gap-3 pt-4">
+                      <button type="submit" [disabled]="isMarkingPaid()" class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                         @if (isMarkingPaid()) {
-                          <div class="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent relative z-10"></div>
-                          <span class="relative z-10">Procesando...</span>
+                          <div class="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                          Procesando...
                         } @else {
-                          <lucide-angular [img]="CheckCircleIcon" class="w-5 h-5 relative z-10"></lucide-angular>
-                          <span class="relative z-10">Marcar como Pagado</span>
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M22 4L12 14.01l-3-3"/></svg>
+                          Marcar como Pagado
                         }
-                        <div class="absolute inset-0 rounded-2xl bg-gradient-to-r from-green-400/50 to-emerald-500/50 blur-xl opacity-0 group-hover:opacity-70 transition-opacity duration-300 -z-10"></div>
                       </button>
-                      <button
-                        type="button"
-                        (click)="closeMarkPaidModal()"
-                        class="group relative px-6 py-4 bg-gradient-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 dark:from-gray-700 dark:to-gray-600 dark:hover:from-gray-600 dark:hover:to-gray-500 text-gray-700 dark:text-gray-300 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 font-semibold overflow-hidden"
-                      >
-                        <div class="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                        <span class="relative z-10">Cancelar</span>
-                      </button>
+                      <button type="button" (click)="closeMarkPaidModal()" class="px-4 py-2.5 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 text-sm font-semibold rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">Cancelar</button>
                     </div>
                   </form>
                 }
@@ -731,54 +483,52 @@ import { PaymentSchedule, ContractSummary, MarkPaymentPaidRequest } from '../../
           </div>
         }
 
-        <!-- Modern Error/Success Messages -->
+        <!-- Messages -->
         @if (errorMessage()) {
-          <div class="bg-red-50/80 dark:bg-red-900/20 backdrop-blur-xl border border-red-200/50 dark:border-red-800/50 rounded-2xl shadow-xl p-6 flex items-center space-x-4 relative overflow-hidden">
-            <div class="absolute inset-0 bg-gradient-to-r from-red-500/10 to-pink-500/5 dark:from-red-600/20 dark:to-pink-600/10"></div>
-            <div class="bg-gradient-to-br from-red-500 to-pink-600 p-3 rounded-2xl shadow-lg relative z-10">
-              <lucide-angular [img]="AlertTriangleIcon" class="w-6 h-6 text-white"></lucide-angular>
+          <div class="bg-red-50 dark:bg-red-900/20 border border-red-200/50 dark:border-red-800/50 rounded-xl p-4 flex items-center gap-3">
+            <div class="bg-red-600 p-1.5 rounded-lg shrink-0">
+              <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
             </div>
-            <p class="text-red-800 dark:text-red-200 font-semibold relative z-10">{{ errorMessage() }}</p>
+            <p class="text-sm font-medium text-red-800 dark:text-red-200">{{ errorMessage() }}</p>
           </div>
         }
 
         @if (successMessage()) {
-          <div class="bg-green-50/80 dark:bg-green-900/20 backdrop-blur-xl border border-green-200/50 dark:border-green-800/50 rounded-2xl shadow-xl p-6 flex items-center space-x-4 relative overflow-hidden">
-            <div class="absolute inset-0 bg-gradient-to-r from-green-500/10 to-emerald-500/5 dark:from-green-600/20 dark:to-emerald-600/10"></div>
-            <div class="bg-gradient-to-br from-green-500 to-emerald-600 p-3 rounded-2xl shadow-lg relative z-10">
-              <lucide-angular [img]="CheckCircleIcon" class="w-6 h-6 text-white"></lucide-angular>
+          <div class="bg-green-50 dark:bg-green-900/20 border border-green-200/50 dark:border-green-800/50 rounded-xl p-4 flex items-center gap-3">
+            <div class="bg-emerald-600 p-1.5 rounded-lg shrink-0">
+              <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M22 4L12 14.01l-3-3"/></svg>
             </div>
-            <p class="text-green-800 dark:text-green-200 font-semibold relative z-10">{{ successMessage() }}</p>
+            <p class="text-sm font-medium text-green-800 dark:text-green-200">{{ successMessage() }}</p>
           </div>
         }
-      </div> <!-- /relative p-6 -->
-    </div> <!-- /min-h-screen -->
+      </div>
+    </div>
 
+    <!-- Custom Message Modal -->
     @if (showCustomMessageModal()) {
-      <div class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-        <div class="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl shadow-2xl max-w-lg w-full border border-white/20 dark:border-gray-700/50 relative overflow-hidden">
-          <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-blue-500 to-purple-500"></div>
-          <div class="p-8">
-            <div class="flex justify-between items-center mb-6">
-              <div class="flex items-center gap-4">
-                <div class="bg-gradient-to-br from-indigo-500 to-purple-600 p-3 rounded-2xl shadow-lg">
-                  <lucide-angular [img]="EditIcon" class="w-6 h-6 text-white"></lucide-angular>
+      <div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-lg w-full border border-gray-200/50 dark:border-gray-700/50 max-h-[90vh] overflow-y-auto installment-scroll">
+          <div class="p-6">
+            <div class="flex justify-between items-center mb-5">
+              <div class="flex items-center gap-3">
+                <div class="bg-indigo-600 p-2 rounded-lg">
+                  <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                 </div>
-                <h3 class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-gray-900 via-indigo-800 to-purple-800 dark:from-white dark:via-indigo-200 dark:to-purple-200">Mensaje personalizado</h3>
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white">Mensaje personalizado</h3>
               </div>
-              <button (click)="closeCustomMessageModal()" class="p-2 rounded-xl text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
-                <lucide-angular [img]="XIcon" class="w-5 h-5"></lucide-angular>
+              <button (click)="closeCustomMessageModal()" class="p-2 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
               </button>
             </div>
 
-            <form [formGroup]="customMessageForm" (ngSubmit)="sendCustomMessage()" class="space-y-5">
+            <form [formGroup]="customMessageForm" (ngSubmit)="sendCustomMessage()" class="space-y-4">
               <div>
-                <label class="block text-sm font-bold mb-2">Asunto</label>
-                <input type="text" formControlName="subject" aria-label="Asunto" class="w-full px-4 py-3 rounded-2xl border" />
+                <label class="block text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1.5">Asunto</label>
+                <input type="text" formControlName="subject" aria-label="Asunto" class="w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition-colors">
               </div>
               <div>
-                <label class="block text-sm font-bold mb-2">Plantilla</label>
-                <select formControlName="template" aria-label="Plantilla" (change)="applyTemplate($event)" class="w-full px-4 py-3 rounded-2xl border">
+                <label class="block text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1.5">Plantilla</label>
+                <select formControlName="template" aria-label="Plantilla" (change)="applyTemplate($event)" class="w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-white appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition-colors">
                   <option value="">Sin plantilla</option>
                   <option value="friendly">Recordatorio amistoso</option>
                   <option value="last_notice">Último aviso</option>
@@ -786,16 +536,14 @@ import { PaymentSchedule, ContractSummary, MarkPaymentPaidRequest } from '../../
                 </select>
               </div>
               <div>
-                <label class="block text-sm font-bold mb-2">Mensaje</label>
-                <textarea formControlName="message" rows="5" aria-label="Mensaje" class="w-full px-4 py-3 rounded-2xl border" placeholder="Escribe tu mensaje..."></textarea>
-                <div class="text-xs mt-1" [class]="customMessageForm.controls['message'].invalid && customMessageForm.controls['message'].touched ? 'text-red-600' : 'text-gray-500'">
-                  Mínimo 10 y máximo 500 caracteres
-                </div>
+                <label class="block text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1.5">Mensaje</label>
+                <textarea formControlName="message" rows="4" aria-label="Mensaje" placeholder="Escribe tu mensaje..." class="w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition-colors resize-none"></textarea>
+                <div class="text-[11px] mt-1" [class]="customMessageForm.controls['message'].invalid && customMessageForm.controls['message'].touched ? 'text-red-600' : 'text-gray-400'">Mínimo 10 y máximo 500 caracteres</div>
               </div>
               <div class="grid grid-cols-2 gap-4">
                 <div>
-                  <label class="block text-sm font-bold mb-2">Fuente</label>
-                  <select formControlName="font" aria-label="Fuente" class="w-full px-4 py-3 rounded-2xl border">
+                  <label class="block text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1.5">Fuente</label>
+                  <select formControlName="font" aria-label="Fuente" class="w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-white appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500/40 transition-colors">
                     <option>Arial</option>
                     <option>Georgia</option>
                     <option>Times New Roman</option>
@@ -803,55 +551,41 @@ import { PaymentSchedule, ContractSummary, MarkPaymentPaidRequest } from '../../
                   </select>
                 </div>
                 <div>
-                  <label class="block text-sm font-bold mb-2">Color</label>
-                  <input type="color" formControlName="color" aria-label="Color" class="w-10 h-10 p-0 border rounded" />
+                  <label class="block text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1.5">Color</label>
+                  <input type="color" formControlName="color" aria-label="Color" class="w-10 h-10 p-0 border border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer">
                 </div>
               </div>
               <div>
-                <label class="block text-sm font-bold mb-2">Imagen (URL)</label>
-                <input type="url" formControlName="imageUrl" aria-label="Imagen" class="w-full px-4 py-3 rounded-2xl border" placeholder="https://..." />
+                <label class="block text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1.5">Imagen (URL)</label>
+                <input type="url" formControlName="imageUrl" aria-label="Imagen" placeholder="https://..." class="w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/40 transition-colors">
               </div>
-              <div class="p-4 rounded-2xl border">
+              <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/30">
                 <div [ngStyle]="{ 'font-family': customMessageForm.value.font, 'color': customMessageForm.value.color }">
-                  <p class="mb-2">Vista previa</p>
+                  <p class="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Vista previa</p>
                   <div [innerHTML]="previewHtml()"></div>
                 </div>
               </div>
-              <button type="submit" [disabled]="customMessageForm.invalid" class="w-full px-6 py-3 rounded-2xl bg-indigo-600 text-white">
-                Enviar mensaje
-              </button>
+              <button type="submit" [disabled]="customMessageForm.invalid" class="w-full px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed">Enviar mensaje</button>
             </form>
           </div>
         </div>
       </div>
     }
-  `
+  `,
+  styles: [`
+    .installment-scroll::-webkit-scrollbar { width: 4px; height: 4px; }
+    .installment-scroll::-webkit-scrollbar-track { background: transparent; }
+    .installment-scroll::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 9999px; }
+    .installment-scroll::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+    :host-context(.dark) .installment-scroll::-webkit-scrollbar-thumb { background: #4b5563; }
+    :host-context(.dark) .installment-scroll::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+  `]
 })
 export class InstallmentManagementComponent implements OnInit, OnDestroy {
   private readonly collectionsService = inject(CollectionsSimplifiedService);
   private readonly fb = inject(FormBuilder);
   private readonly route = inject(ActivatedRoute);
   private readonly destroy$ = new Subject<void>();
-
-  // Icons
-  SearchIcon = Search;
-  FilterIcon = Filter;
-  CalendarIcon = Calendar;
-  DollarSignIcon = DollarSign;
-  CheckCircleIcon = CheckCircle;
-  AlertTriangleIcon = AlertTriangle;
-  ClockIcon = Clock;
-  ArrowLeftIcon = ArrowLeft;
-  DownloadIcon = Download;
-  EyeIcon = Eye;
-  EditIcon = Edit;
-  XIcon = X;
-  ChevronDownIcon = ChevronDown;
-  ChevronRightIcon = ChevronRight;
-  UsersIcon = Users;
-  UserIcon = User;
-  FileTextIcon = FileText;
-  MailIcon = Mail;
 
   // Signals
   contracts = signal<ContractSummary[]>([]);
@@ -896,6 +630,20 @@ export class InstallmentManagementComponent implements OnInit, OnDestroy {
 
   filteredContracts = computed(() => {
     return this.contracts();
+  });
+
+  // KPI computed properties
+  totalSchedules = computed(() => this.contracts().reduce((sum, c) => sum + c.total_schedules, 0));
+  paidSchedules = computed(() => this.contracts().reduce((sum, c) => sum + c.paid_schedules, 0));
+  pendingSchedules = computed(() => this.contracts().reduce((sum, c) => sum + c.pending_schedules, 0));
+  overdueSchedules = computed(() => this.contracts().reduce((sum, c) => sum + c.overdue_schedules, 0));
+  totalAmount = computed(() => this.contracts().reduce((sum, c) => sum + (c.total_amount || 0), 0));
+  paidAmount = computed(() => this.contracts().reduce((sum, c) => sum + (c.paid_amount || 0), 0));
+  pendingAmount = computed(() => this.contracts().reduce((sum, c) => sum + (c.pending_amount || 0), 0));
+  overdueAmount = computed(() => this.contracts().reduce((sum, c) => sum + (c.overdue_amount || 0), 0));
+  collectionRate = computed(() => {
+    const total = this.totalAmount();
+    return total > 0 ? Math.round((this.paidAmount() / total) * 100) : 0;
   });
 
   Math = Math;
