@@ -43,8 +43,7 @@
           <div *ngIf="item.children && item.children.length > 0">
             <button (click)="toggle(item)"
                     class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/60 hover:text-gray-900 dark:hover:text-gray-200 transition-all duration-200 group"
-                    [class.bg-gray-50]="item.expanded"
-                    [class.dark:bg-gray-800/40]="item.expanded">
+                    [ngClass]="{ 'bg-gray-50 dark:bg-gray-800/40': item.expanded }">
               <div class="flex items-center gap-3">
                 <lucide-icon [name]="item.icon" class="w-[18px] h-[18px] flex-shrink-0 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors"></lucide-icon>
                 <span class="text-[13px] font-medium">{{ item.label | translate }}</span>
