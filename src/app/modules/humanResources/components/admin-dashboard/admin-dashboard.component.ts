@@ -1,7 +1,6 @@
 import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, ChevronDown, RefreshCw, Download, AlertCircle, DollarSign, TrendingUp, Award, Users, BarChart, PieChart, Trophy, Filter, TrendingDown, AlertTriangle, ShoppingCart, Activity, Bell, FileText, Clock, AlertOctagon } from 'lucide-angular';
 import { EmployeeService } from '../../services/employee.service';
 
 // Interfaces para tipado
@@ -96,7 +95,7 @@ interface AdminDashboardData {
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.scss']
 })
@@ -115,28 +114,6 @@ export class AdminDashboardComponent implements OnInit {
   comparisonData = signal<any>(null);
   currentFilter = signal<string>('all');
   selectedEmployeeFilter = signal<string>('all');
-
-  // Iconos de Lucide
-  ChevronDown = ChevronDown;
-  RefreshCw = RefreshCw;
-  Download = Download;
-  AlertCircle = AlertCircle;
-  DollarSign = DollarSign;
-  TrendingUp = TrendingUp;
-  Award = Award;
-  Users = Users;
-  BarChart = BarChart;
-  PieChart = PieChart;
-  Trophy = Trophy;
-  Filter = Filter;
-  TrendingDown = TrendingDown;
-  AlertTriangle = AlertTriangle;
-  ShoppingCart = ShoppingCart;
-  Activity = Activity;
-  Bell = Bell;
-  FileText = FileText;
-  Clock = Clock;
-  AlertOctagon = AlertOctagon;
 
   // Computed values
   totalRevenue = computed(() => {

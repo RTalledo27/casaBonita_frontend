@@ -13,9 +13,9 @@ import { ToastService } from '../../../../core/services/toast.service';
   standalone: true,
   imports: [CommonModule, TranslateModule, FormsModule, RouterModule, SharedTableComponent, DecimalPipe],
   template: `
-    <div class="min-h-screen bg-gradient-to-br from-slate-50 via-rose-50/30 to-red-50 dark:from-gray-900 dark:via-rose-900/20 dark:to-red-900/30 relative overflow-hidden">
+    <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-indigo-900/30 relative overflow-hidden">
       <!-- Background Pattern -->
-      <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(244,63,94,0.08),transparent_50%)] dark:bg-[radial-gradient(circle_at_30%_20%,rgba(244,63,94,0.04),transparent_50%)]"></div>
+      <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.08),transparent_50%)] dark:bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.04),transparent_50%)]"></div>
 
       <div class="relative p-4 sm:p-6 lg:p-8 max-w-[1600px] mx-auto">
 
