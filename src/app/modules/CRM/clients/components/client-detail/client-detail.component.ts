@@ -1,8 +1,7 @@
 import { Component } from '@angular/core';
 import { Observable, switchMap } from 'rxjs';
 import { Client } from '../../../models/client';
-import { LucideAngularModule, UserIcon } from 'lucide-angular';
-import { ActivatedRoute, Router, RouterLinkActive, RouterModule, RouterOutlet } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule, RouterOutlet } from '@angular/router';
 import { ClientsService } from '../../../services/clients.service';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -15,7 +14,6 @@ import { TranslateModule } from '@ngx-translate/core';
   imports: [
     RouterOutlet,
     ReactiveFormsModule,
-    LucideAngularModule,
     TranslateModule,
     CommonModule,
     RouterModule
@@ -27,8 +25,6 @@ export class ClientDetailComponent {
   isModalOpen = false;
   client$: Observable<Client>;
   private currentId?: number;
-
-  User = UserIcon;
 
   constructor(
     private route: ActivatedRoute,
