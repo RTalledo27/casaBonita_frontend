@@ -11,7 +11,6 @@ import { LangSwitcherComponent } from '../../../shared/components/lang-switcher/
 import { TranslateModule } from '@ngx-translate/core';
 import { ThemeSwitcherComponent } from '../../../shared/components/theme-switcher/theme-switcher.component';
 import { NotificationsPanelComponent } from '../notifications-panel/notifications-panel.component';
-import { LucideAngularModule, User, Clock } from 'lucide-angular';
 
 @Component({
   selector: 'app-navbar',
@@ -21,7 +20,6 @@ import { LucideAngularModule, User, Clock } from 'lucide-angular';
     ThemeSwitcherComponent,
     TranslateModule,
     NotificationsPanelComponent,
-    LucideAngularModule,
   ],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.scss',
@@ -30,8 +28,6 @@ export class NavbarComponent {
   user: UserResource | null = null;
   menuOpen = false;
   refreshingPermissions = false;
-  readonly UserIcon = User;
-  readonly ClockIcon = Clock;
   sidebarService = inject(SidebarService);
 
   constructor(
