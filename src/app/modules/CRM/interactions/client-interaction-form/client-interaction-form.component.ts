@@ -3,7 +3,6 @@ import { Component, EventEmitter, Output } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { LucideAngularModule, X } from 'lucide-angular';
 import { InteractionsService } from '../../services/interactions.service';
 
 @Component({
@@ -12,7 +11,6 @@ import { InteractionsService } from '../../services/interactions.service';
     CommonModule,
     ReactiveFormsModule,
     TranslateModule,
-    LucideAngularModule
   ],
   templateUrl: './client-interaction-form.component.html',
   styleUrl: './client-interaction-form.component.scss',
@@ -20,10 +18,9 @@ import { InteractionsService } from '../../services/interactions.service';
 export class ClientInteractionFormComponent {
   @Output() modalClosed = new EventEmitter<boolean>();
 
-  form:any;
+  form: any;
 
   channels = ['call', 'email', 'whatsapp', 'visit', 'other'];
-  X = X;
   clientId: number;
   editingId?: number;
   isEditMode = false;
@@ -68,5 +65,16 @@ export class ClientInteractionFormComponent {
     this.router.navigate([{ outlets: { modal: null } }], {
       relativeTo: this.route.parent,
     });
+  }
+
+  getChannelLabel(channel: string): string {
+    const labels: Record<string, string> = {
+      call: 'Llamada',
+      email: 'Email',
+      whatsapp: 'WhatsApp',
+      visit: 'Visita',
+      other: 'Otro',
+    };
+    return labels[channel] || channel;
   }
 }
