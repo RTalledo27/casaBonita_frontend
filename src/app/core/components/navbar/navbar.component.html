@@ -1,35 +1,35 @@
 
-<nav class="flex items-center justify-between h-full px-1 sm:px-2 text-gray-800 dark:text-white">
+<nav class="flex items-center justify-between h-full px-1 sm:px-3 text-gray-800 dark:text-white">
 
     <!-- Left: Hamburger + Welcome -->
-    <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+    <div class="flex items-center gap-2 sm:gap-4 min-w-0">
         <!-- Hamburger — mobile only -->
         <button (click)="sidebarService.toggleMobile()"
-            class="lg:hidden p-2 -ml-1 rounded-xl text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200"
+            class="lg:hidden p-2.5 -ml-1 rounded-xl text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200"
             aria-label="Abrir menú">
-            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
         </button>
 
         <!-- Welcome -->
         <div class="flex items-center gap-3 min-w-0">
-            <div class="hidden sm:flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-100 dark:border-blue-800/40">
-                <svg class="w-4 h-4 text-blue-500 dark:text-blue-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="hidden sm:flex items-center gap-3 px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-100 dark:border-blue-800/40">
+                <svg class="w-5 h-5 text-blue-500 dark:text-blue-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <div class="min-w-0">
-                    <p class="text-[10px] text-gray-400 dark:text-gray-500 font-medium leading-none mb-0.5">{{ 'navbar.welcome' | translate }}</p>
-                    <p class="text-xs font-semibold text-gray-700 dark:text-gray-200 truncate leading-tight">{{ user?.name || 'Usuario' }}</p>
+                    <p class="text-[11px] text-gray-400 dark:text-gray-500 font-medium leading-none mb-0.5">{{ 'navbar.welcome' | translate }}</p>
+                    <p class="text-sm font-semibold text-gray-700 dark:text-gray-200 truncate leading-tight">{{ user?.name || 'Usuario' }}</p>
                 </div>
             </div>
             <!-- Mobile: compact name -->
-            <p class="sm:hidden text-sm font-semibold text-gray-800 dark:text-white truncate">{{ user?.name || 'Usuario' }}</p>
+            <p class="sm:hidden text-base font-semibold text-gray-800 dark:text-white truncate">{{ user?.name || 'Usuario' }}</p>
         </div>
     </div>
 
     <!-- Right: Actions -->
-    <div class="relative flex items-center gap-1 sm:gap-1.5">
+    <div class="relative flex items-center gap-1.5 sm:gap-2">
 
         <!-- Panel de Notificaciones -->
         <app-notifications-panel></app-notifications-panel>
@@ -38,60 +38,60 @@
         <button (click)="refreshPermissions()" aria-label="Actualizar permisos"
             [disabled]="refreshingPermissions"
             title="Actualizar permisos"
-            class="hidden sm:flex items-center justify-center w-9 h-9 rounded-xl text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed group">
-            <svg class="h-[18px] w-[18px] group-hover:scale-110 transition-transform" [class.animate-spin]="refreshingPermissions" viewBox="0 0 20 20" fill="currentColor">
+            class="hidden sm:flex items-center justify-center w-10 h-10 rounded-xl text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed group">
+            <svg class="h-5 w-5 group-hover:scale-110 transition-transform" [class.animate-spin]="refreshingPermissions" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" />
             </svg>
         </button>
 
         <!-- Divider -->
-        <div class="h-6 w-px bg-gray-200 dark:bg-gray-700/60 hidden md:block mx-0.5"></div>
+        <div class="h-7 w-px bg-gray-200 dark:bg-gray-700/60 hidden md:block mx-1"></div>
 
         <!-- Lang & Theme -->
-        <div class="hidden md:flex items-center gap-1">
+        <div class="hidden md:flex items-center gap-1.5">
             <app-lang-switcher></app-lang-switcher>
             <app-theme-switcher></app-theme-switcher>
         </div>
 
         <!-- Divider -->
-        <div class="h-6 w-px bg-gray-200 dark:bg-gray-700/60 hidden lg:block mx-0.5"></div>
+        <div class="h-7 w-px bg-gray-200 dark:bg-gray-700/60 hidden lg:block mx-1"></div>
 
         <!-- Active Session Widget -->
         @if (sessionService.isTracking() && sessionService.activeSession() && sessionService.sessionDuration()) {
-        <div class="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200/80 dark:border-emerald-800/50 transition-all"
+        <div class="hidden lg:flex items-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200/80 dark:border-emerald-800/50 transition-all"
              title="Tiempo activo en el sistema">
-            <svg class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <span class="text-xs font-semibold text-emerald-700 dark:text-emerald-300 tabular-nums">
+            <span class="text-sm font-semibold text-emerald-700 dark:text-emerald-300 tabular-nums">
                 {{ sessionService.sessionDuration() }}
             </span>
             @if (sessionService.isPaused()) {
-                <span class="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse" title="Pausado"></span>
+                <span class="w-2 h-2 rounded-full bg-yellow-500 animate-pulse" title="Pausado"></span>
             } @else if (sessionService.isActive()) {
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" title="Activo"></span>
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" title="Activo"></span>
             }
         </div>
         }
 
         <!-- Divider -->
-        <div class="h-6 w-px bg-gray-200 dark:bg-gray-700/60 hidden sm:block mx-0.5"></div>
+        <div class="h-7 w-px bg-gray-200 dark:bg-gray-700/60 hidden sm:block mx-1"></div>
 
         <!-- Profile -->
         <div class="relative">
             <button (click)="toggleMenu()" aria-label="Perfil"
-                class="flex items-center gap-2 px-1.5 sm:px-2.5 py-1.5 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none transition-all duration-200 group">
+                class="flex items-center gap-2.5 px-2 sm:px-3 py-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none transition-all duration-200 group">
                 <div class="relative">
-                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-xs shadow-md shadow-blue-500/20 group-hover:shadow-lg group-hover:shadow-blue-500/30 transition-all">
+                    <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm shadow-md shadow-blue-500/20 group-hover:shadow-lg group-hover:shadow-blue-500/30 transition-all">
                         {{ user?.name?.charAt(0) || 'U' }}
                     </div>
                     <div class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 border-2 border-white dark:border-gray-900 rounded-full"></div>
                 </div>
                 <div class="hidden sm:block text-left min-w-0">
-                    <p class="text-xs font-semibold text-gray-700 dark:text-gray-200 truncate max-w-[100px] leading-tight">{{ user?.name || 'Usuario' }}</p>
-                    <p class="text-[10px] text-gray-400 dark:text-gray-500 truncate max-w-[100px] leading-tight">{{ user?.email || '' }}</p>
+                    <p class="text-sm font-semibold text-gray-700 dark:text-gray-200 truncate max-w-[120px] leading-tight">{{ user?.name || 'Usuario' }}</p>
+                    <p class="text-[11px] text-gray-400 dark:text-gray-500 truncate max-w-[120px] leading-tight">{{ user?.email || '' }}</p>
                 </div>
-                <svg class="h-3.5 w-3.5 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors hidden sm:block"
+                <svg class="h-4 w-4 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors hidden sm:block"
                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                 </svg>
