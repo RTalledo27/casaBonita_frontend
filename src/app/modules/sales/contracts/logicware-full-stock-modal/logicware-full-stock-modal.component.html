@@ -2,62 +2,56 @@
   <!-- Backdrop -->
   <div class="modal-backdrop" (click)="onClose()"></div>
 
-  <!-- Modal Container -->
+  <!-- Modal Container - estilo Contratos -->
   <div class="modal-container">
-    <div
-      class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden border border-gray-200 dark:border-gray-700">
-
-      <!-- Header -->
-      <div class="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 p-6 relative overflow-hidden">
-        <div
-          class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzBoLTJ2LTJoMnYyem0wLTRoLTJ2LTJoMnYyem0wLTRoLTJ2LTJoMnYyem0wLTRoLTJ2LTJoMnYyem0wLTRoLTJ2LTJoMnYyem0wLTRoLTJ2LTJoMnYyem0wLTRoLTJ2LTJoMnYyem0wLTRoLTJ2LTJoMnYyem0wLTRoLTJ2LTJoMnYyeiIvPjwvZz48L2c+PC9zdmc+')] opacity-20">
-        </div>
-
-        <div class="relative flex items-center justify-between">
+    <div class="relative rounded-3xl shadow-2xl overflow-hidden border border-gray-200/50 dark:border-gray-700 bg-white dark:bg-gray-800">
+      <!-- Header - mismo estilo que Contratos -->
+      <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-700/50 p-5 sm:p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div class="flex items-center gap-4">
-            <div class="bg-white/20 backdrop-blur-sm p-3 rounded-2xl">
-              <lucide-angular [img]="Database" [size]="32" class="text-white"></lucide-angular>
+            <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-3 rounded-xl shadow-lg shadow-blue-500/20">
+              <lucide-angular [img]="Database" [size]="28" class="text-white"></lucide-angular>
             </div>
             <div>
-              <h2 class="text-2xl font-bold text-white">Stock Completo - Logicware</h2>
-              <p class="text-blue-100 text-sm mt-1">Datos sincronizados con sistema externo</p>
+              <h2 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Stock Completo - Logicware</h2>
+              <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Datos sincronizados con sistema externo</p>
             </div>
           </div>
-
-          <div class="flex items-center gap-3">
-            <!-- Refresh Button -->
+          <div class="flex items-center gap-2">
             <button (click)="onRefresh()" [disabled]="!canRefresh()" [title]="getRefreshTooltip()"
-              class="p-2 rounded-xl bg-white/20 hover:bg-white/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              class="p-2.5 rounded-xl border border-blue-200/50 dark:border-blue-700/50 bg-blue-50/80 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               [class.animate-spin]="loading">
-              <lucide-angular [img]="RefreshCw" [size]="20" class="text-white"></lucide-angular>
+              <lucide-angular [img]="RefreshCw" [size]="20"></lucide-angular>
             </button>
-
-            <!-- Close Button -->
-            <button (click)="onClose()" class="p-2 rounded-xl bg-white/20 hover:bg-white/30 transition-all">
-              <lucide-angular [img]="X" [size]="20" class="text-white"></lucide-angular>
+            <button (click)="onClose()"
+              class="p-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/50 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-600 transition-all">
+              <lucide-angular [img]="X" [size]="20"></lucide-angular>
             </button>
           </div>
         </div>
       </div>
 
-      <!-- Loading State -->
-      <div *ngIf="loading" class="p-12 flex flex-col items-center justify-center">
-        <div class="animate-spin rounded-full h-16 w-16 border-4 border-blue-500 border-t-transparent mb-4"></div>
+      <!-- Loading State - estilo Contratos -->
+      <div *ngIf="loading" class="p-12 flex flex-col items-center justify-center bg-gradient-to-br from-slate-50/80 to-blue-50/20 dark:from-gray-900 dark:to-blue-900/10">
+        <div class="flex gap-1.5 mb-4">
+          <div class="w-2.5 h-2.5 bg-blue-500 rounded-full animate-bounce"></div>
+          <div class="w-2.5 h-2.5 bg-blue-500 rounded-full animate-bounce" style="animation-delay:0.1s"></div>
+          <div class="w-2.5 h-2.5 bg-blue-500 rounded-full animate-bounce" style="animation-delay:0.2s"></div>
+        </div>
         <p class="text-gray-600 dark:text-gray-400 font-medium">Obteniendo datos de Logicware...</p>
         <p class="text-sm text-gray-500 dark:text-gray-500 mt-2">Esto puede tardar unos segundos</p>
       </div>
 
       <!-- Content -->
-      <div *ngIf="!loading && stockData" class="overflow-y-auto" style="max-height: calc(90vh - 100px);">
+      <div *ngIf="!loading && stockData" class="overflow-y-auto bg-gradient-to-br from-slate-50/80 via-blue-50/20 to-indigo-50/20 dark:from-gray-900 dark:via-blue-900/5 dark:to-indigo-900/10" style="max-height: calc(90vh - 100px);">
 
-        <!-- Statistics Dashboard -->
-        <div
-          class="p-6 bg-gradient-to-br from-slate-50 to-blue-50 dark:from-gray-900 dark:to-blue-900/20 border-b border-gray-200 dark:border-gray-700">
-          <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <!-- Statistics - KPI cards estilo Contratos -->
+        <div class="p-4 sm:p-6">
+          <div class="grid grid-cols-2 lg:grid-cols-6 gap-3 sm:gap-4">
 
             <!-- Total Units -->
             <div
-              class="stat-card bg-white dark:bg-gray-800 rounded-xl p-4 shadow-md border border-gray-100 dark:border-gray-700">
+              class="stat-card bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl p-4 sm:p-5 border border-gray-200/50 dark:border-gray-700/50 hover:shadow-md transition-shadow">
               <div class="flex items-center justify-between">
                 <div>
                   <p class="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">Total Unidades
@@ -74,7 +68,7 @@
 
             <!-- Available -->
             <div
-              class="stat-card bg-white dark:bg-gray-800 rounded-xl p-4 shadow-md border border-gray-100 dark:border-gray-700">
+              class="stat-card bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl p-4 sm:p-5 border border-gray-200/50 dark:border-gray-700/50 hover:shadow-md transition-shadow">
               <div class="flex items-center justify-between">
                 <div>
                   <p class="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">Disponibles
@@ -92,7 +86,7 @@
 
             <!-- Reserved -->
             <div
-              class="stat-card bg-white dark:bg-gray-800 rounded-xl p-4 shadow-md border border-gray-100 dark:border-gray-700">
+              class="stat-card bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl p-4 sm:p-5 border border-gray-200/50 dark:border-gray-700/50 hover:shadow-md transition-shadow">
               <div class="flex items-center justify-between">
                 <div>
                   <p class="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">Reservados</p>
@@ -109,7 +103,7 @@
 
             <!-- Sold -->
             <div
-              class="stat-card bg-white dark:bg-gray-800 rounded-xl p-4 shadow-md border border-gray-100 dark:border-gray-700">
+              class="stat-card bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl p-4 sm:p-5 border border-gray-200/50 dark:border-gray-700/50 hover:shadow-md transition-shadow">
               <div class="flex items-center justify-between">
                 <div>
                   <p class="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">Vendidos</p>
@@ -126,7 +120,7 @@
 
             <!-- With Advisor -->
             <div
-              class="stat-card bg-white dark:bg-gray-800 rounded-xl p-4 shadow-md border border-gray-100 dark:border-gray-700">
+              class="stat-card bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl p-4 sm:p-5 border border-gray-200/50 dark:border-gray-700/50 hover:shadow-md transition-shadow">
               <div class="flex items-center justify-between">
                 <div>
                   <p class="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">Con Asesor</p>
@@ -143,7 +137,7 @@
 
             <!-- Blocked -->
             <div
-              class="stat-card bg-white dark:bg-gray-800 rounded-xl p-4 shadow-md border border-gray-100 dark:border-gray-700">
+              class="stat-card bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl p-4 sm:p-5 border border-gray-200/50 dark:border-gray-700/50 hover:shadow-md transition-shadow">
               <div class="flex items-center justify-between">
                 <div>
                   <p class="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">Bloqueados</p>
@@ -159,162 +153,103 @@
             </div>
           </div>
 
-          <!-- Cache Info -->
+          <!-- Cache Info - barra estilo Contratos -->
           <div
-            class="mt-4 flex items-center justify-between text-xs text-gray-600 dark:text-gray-400 bg-white/60 dark:bg-gray-800/60 rounded-lg px-4 py-2">
+            class="mt-4 flex flex-wrap items-center justify-between gap-2 text-xs text-gray-600 dark:text-gray-400 bg-white/80 dark:bg-gray-800/60 rounded-xl px-4 py-2.5 border border-gray-200/50 dark:border-gray-700/50">
             <div class="flex items-center gap-2">
               <lucide-angular [img]="Clock" [size]="14"></lucide-angular>
-              <span>
-                <span class="font-medium">Última actualización:</span>
-                {{ formatDate(stockData?.cache_info?.cached_at) }}
-              </span>
+              <span><span class="font-medium">Última actualización:</span> {{ formatDate(stockData?.cache_info?.cached_at) }}</span>
             </div>
             <div class="flex items-center gap-2">
               <lucide-angular [img]="AlertCircle" [size]="14"></lucide-angular>
-              <span>
-                <span class="font-medium">Consultas usadas:</span>
-                {{ stockData?.api_info?.daily_requests_used || 0 }} de {{ stockData?.api_info?.daily_requests_limit || 4
-                }}
-              </span>
+              <span><span class="font-medium">Consultas usadas:</span> {{ stockData?.api_info?.daily_requests_used || 0 }} de {{ stockData?.api_info?.daily_requests_limit || 4 }}</span>
             </div>
           </div>
         </div>
 
-        <!-- Filters -->
-        <div class="p-6 bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-
-            <!-- Search -->
-            <div class="md:col-span-2">
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                <lucide-angular [img]="Search" [size]="14" class="inline mr-1"></lucide-angular>
-                Buscar
-              </label>
+        <!-- Filters - barra estilo Contratos -->
+        <div class="p-4 sm:p-5 border-b border-gray-200/50 dark:border-gray-700/50 bg-white/60 dark:bg-gray-800/40">
+          <div class="flex flex-col sm:flex-row gap-3 sm:items-center">
+            <div class="relative flex-1">
+              <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                <lucide-angular [img]="Search" [size]="16" class="text-gray-400"></lucide-angular>
+              </div>
               <input type="text" [(ngModel)]="searchTerm" placeholder="Código, nombre, lote, cliente, asesor..."
-                class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                class="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/50 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition-all">
             </div>
-
-            <!-- Status Filter -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                <lucide-angular [img]="Filter" [size]="14" class="inline mr-1"></lucide-angular>
-                Estado
-              </label>
-              <select [(ngModel)]="filterStatus"
-                class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500">
-                <option value="all">Todos</option>
-                <option value="disponible">Disponible</option>
-                <option value="reservado">Reservado</option>
-                <option value="vendido">Vendido</option>
-                <option value="bloqueado">Bloqueado</option>
-              </select>
-            </div>
-
-            <!-- Advisor Filter -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Asesor</label>
-              <select [(ngModel)]="filterAdvisor"
-                class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500">
-                <option value="all">Todos</option>
-                <option value="with">Con asesor</option>
-                <option value="without">Sin asesor</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Reset Filters -->
-          <div class="mt-4 flex justify-between items-center">
-            <p class="text-sm text-gray-600 dark:text-gray-400">
-              Mostrando <span class="font-bold text-gray-900 dark:text-white">{{ totalFiltered }}</span> de
-              <span class="font-bold">{{ stockData?.statistics?.total_units || 0 }}</span> unidades
-            </p>
+            <select [(ngModel)]="filterStatus"
+              class="px-4 py-2.5 text-sm rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500/30">
+              <option value="all">Todos</option>
+              <option value="disponible">Disponible</option>
+              <option value="reservado">Reservado</option>
+              <option value="vendido">Vendido</option>
+              <option value="bloqueado">Bloqueado</option>
+            </select>
+            <select [(ngModel)]="filterAdvisor"
+              class="px-4 py-2.5 text-sm rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500/30">
+              <option value="all">Todos</option>
+              <option value="with">Con asesor</option>
+              <option value="without">Sin asesor</option>
+            </select>
             <button (click)="resetFilters()"
-              class="text-sm text-blue-600 dark:text-blue-400 hover:underline font-medium">
+              class="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline whitespace-nowrap">
               Limpiar filtros
             </button>
+            <span class="text-xs text-gray-400 dark:text-gray-500 tabular-nums">
+              Mostrando {{ totalFiltered }} de {{ stockData?.statistics?.total_units || 0 }} unidades
+            </span>
           </div>
         </div>
 
-        <!-- Table -->
+        <!-- Table - estilo Contratos -->
         <div class="overflow-x-auto">
-          <table class="w-full">
-            <thead class="bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-              <tr>
-                <th
-                  class="px-6 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                  Unidad</th>
-                <th
-                  class="px-6 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                  Estado</th>
-                <th
-                  class="px-6 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                  Asesor</th>
-                <th
-                  class="px-6 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                  Cliente</th>
-                <th
-                  class="px-6 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                  Área</th>
-                <th
-                  class="px-6 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                  Precio</th>
-                <th
-                  class="px-6 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                  Reserva</th>
+          <table class="w-full text-sm min-w-full">
+            <thead>
+              <tr class="border-b border-gray-200/80 dark:border-gray-700/80">
+                <th class="px-5 py-3.5 text-left text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Unidad</th>
+                <th class="px-5 py-3.5 text-left text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Estado</th>
+                <th class="px-5 py-3.5 text-left text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Asesor</th>
+                <th class="px-5 py-3.5 text-left text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cliente</th>
+                <th class="px-5 py-3.5 text-left text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Área</th>
+                <th class="px-5 py-3.5 text-left text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Precio</th>
+                <th class="px-5 py-3.5 text-center text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Reserva</th>
               </tr>
             </thead>
-            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-              <tr *ngFor="let unit of paginatedUnits" class="table-row">
+            <tbody class="divide-y divide-gray-100 dark:divide-gray-700/50">
+              <tr *ngFor="let unit of paginatedUnits" class="group hover:bg-blue-50/40 dark:hover:bg-blue-900/10 transition-colors">
                 <!-- Unit -->
-                <td class="px-6 py-4">
+                <td class="px-5 py-3.5">
                   <div>
-                    <div class="font-medium text-gray-900 dark:text-white">{{ unit.code }}</div>
-                    <div class="text-sm text-gray-500 dark:text-gray-400">
-                      {{ unit.block ? 'Mz. ' + unit.block : '' }}
-                      {{ unit.lot ? 'Lt. ' + unit.lot : '' }}
+                    <div class="font-semibold text-gray-900 dark:text-white">{{ unit.code }}</div>
+                    <div class="text-xs text-gray-500 dark:text-gray-400">
+                      {{ unit.block ? 'Mz. ' + unit.block : '' }} {{ unit.lot ? 'Lt. ' + unit.lot : '' }}
                     </div>
                   </div>
                 </td>
-
                 <!-- Status -->
-                <td class="px-6 py-4">
-                  <span [class]="'filter-badge ' + getStatusBadgeClass(unit.status)">
+                <td class="px-5 py-3.5">
+                  <span [class]="'inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded-full ' + getStatusBadgeClass(unit.status)">
                     {{ getStatusText(unit.status) }}
                   </span>
                 </td>
-
                 <!-- Advisor -->
-                <td class="px-6 py-4">
-                  <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium"
-                      [class]="unit.advisor?.name ? 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400' : 'bg-gray-100 dark:bg-gray-700 text-gray-400'">
+                <td class="px-5 py-3.5">
+                  <div class="flex items-center gap-2.5">
+                    <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
+                      [class]="unit.advisor?.name ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400' : 'bg-gray-100 dark:bg-gray-700 text-gray-400'">
                       {{ unit.advisor?.name ? (unit.advisor?.name || '').substring(0, 2).toUpperCase() : '?' }}
                     </div>
-                    <span class="text-sm"
-                      [class]="unit.advisor?.name ? 'text-gray-900 dark:text-white font-medium' : 'text-gray-400 dark:text-gray-500'">
-                      {{ getAdvisorName(unit) }}
-                    </span>
+                    <span class="text-sm truncate max-w-[140px]" [class]="unit.advisor?.name ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-500'">{{ getAdvisorName(unit) }}</span>
                   </div>
                 </td>
-
                 <!-- Client -->
-                <td class="px-6 py-4">
-                  <span class="text-sm text-gray-900 dark:text-white">{{ getClientName(unit) }}</span>
-                </td>
-
+                <td class="px-5 py-3.5 text-sm text-gray-900 dark:text-gray-100">{{ getClientName(unit) }}</td>
                 <!-- Area -->
-                <td class="px-6 py-4">
-                  <span class="text-sm text-gray-700 dark:text-gray-300">{{ formatArea(unit.area) }}</span>
-                </td>
-
+                <td class="px-5 py-3.5 text-sm text-gray-700 dark:text-gray-300">{{ formatArea(unit.area) }}</td>
                 <!-- Price -->
-                <td class="px-6 py-4">
-                  <span class="text-sm font-medium text-gray-900 dark:text-white">{{ formatCurrency(unit.price)
-                    }}</span>
-                </td>
-
-                <!-- Reservation Badge -->
-                <td class="px-6 py-4 text-center">
+                <td class="px-5 py-3.5 text-sm font-semibold text-gray-900 dark:text-white tabular-nums">{{ formatCurrency(unit.price) }}</td>
+                <!-- Reservation -->
+                <td class="px-5 py-3.5 text-center">
                   <span *ngIf="hasReservation(unit)"
                     class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200">
                     <lucide-angular [img]="Clock" [size]="12" class="mr-1"></lucide-angular>
@@ -326,7 +261,7 @@
 
               <!-- Empty State -->
               <tr *ngIf="paginatedUnits.length === 0">
-                <td colspan="7" class="px-6 py-12 text-center">
+                <td colspan="7" class="px-5 py-16 text-center">
                   <div class="flex flex-col items-center justify-center">
                     <lucide-angular [img]="stockData?.success === false ? AlertCircle : AlertCircle" [size]="48"
                       [class]="stockData?.success === false ? 'text-red-400 mb-4' : 'text-gray-400 mb-4'">
@@ -357,32 +292,29 @@
           </table>
         </div>
 
-        <!-- Pagination -->
-        <div class="p-6 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700">
-          <div class="flex items-center justify-between">
-            <div class="text-sm text-gray-600 dark:text-gray-400">
-              Página <span class="font-medium text-gray-900 dark:text-white">{{ currentPage }}</span> de
-              <span class="font-medium">{{ totalPages || 1 }}</span>
-            </div>
-
-            <div class="flex items-center gap-2">
-              <button (click)="onPageChange(currentPage - 1)" [disabled]="currentPage === 1"
-                class="pagination-button px-3 py-1 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed">
-                Anterior
-              </button>
-
-              <button (click)="onPageChange(currentPage + 1)" [disabled]="currentPage === totalPages"
-                class="pagination-button px-3 py-1 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed">
-                Siguiente
-              </button>
-            </div>
+        <!-- Pagination - estilo Contratos -->
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-3 px-5 py-4 border-t border-gray-200/50 dark:border-gray-700/50 bg-gray-50/50 dark:bg-gray-800/50">
+          <p class="text-xs text-gray-500 dark:text-gray-400">
+            Página <span class="font-semibold text-gray-700 dark:text-gray-300">{{ currentPage }}</span> de <span class="font-semibold">{{ totalPages || 1 }}</span>
+          </p>
+          <div class="flex items-center gap-2">
+            <button (click)="onPageChange(currentPage - 1)" [disabled]="currentPage === 1"
+              class="px-3 py-2 text-sm font-medium rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+              Anterior
+            </button>
+            <button (click)="onPageChange(currentPage + 1)" [disabled]="currentPage === totalPages"
+              class="px-3 py-2 text-sm font-medium rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+              Siguiente
+            </button>
           </div>
         </div>
       </div>
 
-      <!-- No Data State -->
-      <div *ngIf="!loading && !stockData" class="p-12 flex flex-col items-center justify-center">
-        <lucide-angular [img]="AlertCircle" [size]="64" class="text-gray-400 mb-4"></lucide-angular>
+      <!-- No Data State - estilo Contratos -->
+      <div *ngIf="!loading && !stockData" class="p-12 flex flex-col items-center justify-center bg-gradient-to-br from-slate-50/80 to-blue-50/20 dark:from-gray-900 dark:to-blue-900/10">
+        <div class="p-3 bg-gray-100 dark:bg-gray-700 rounded-full mb-4">
+          <lucide-angular [img]="AlertCircle" [size]="48" class="text-gray-400 dark:text-gray-500"></lucide-angular>
+        </div>
         <p class="text-gray-600 dark:text-gray-400 font-medium text-lg">No hay datos disponibles</p>
         <p class="text-sm text-gray-500 dark:text-gray-500 mt-2">Intenta actualizar los datos desde Logicware</p>
       </div>

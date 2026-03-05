@@ -154,6 +154,8 @@ export class ContractsComponent implements OnInit {
       case 'vigente': return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300';
       case 'cancelado': return 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300';
       case 'pendiente': return 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300';
+      case 'pendiente_aprobacion': return 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300';
+      case 'resuelto': return 'bg-slate-100 text-slate-700 dark:bg-slate-900/40 dark:text-slate-300';
       case 'vencido': return 'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300';
       default: return 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400';
     }
@@ -164,6 +166,8 @@ export class ContractsComponent implements OnInit {
       case 'vigente': return 'bg-emerald-500';
       case 'cancelado': return 'bg-red-500';
       case 'pendiente': return 'bg-amber-500';
+      case 'pendiente_aprobacion': return 'bg-amber-500';
+      case 'resuelto': return 'bg-slate-500';
       case 'vencido': return 'bg-orange-500';
       default: return 'bg-gray-400';
     }

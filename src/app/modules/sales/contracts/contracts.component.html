@@ -1,4 +1,4 @@
-﻿<div
+<div
   class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-indigo-900/30 relative overflow-hidden">
   <!-- Background Pattern -->
   <div
@@ -179,6 +179,11 @@
               ? 'px-3 py-1.5 text-xs font-semibold rounded-lg bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300 border border-amber-200 dark:border-amber-700'
               : 'px-3 py-1.5 text-xs font-medium rounded-lg bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400 border border-gray-200 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors'">
               Pendientes
+            </button>
+            <button (click)="filterByStatus('resuelto')" [class]="statusFilter === 'resuelto'
+              ? 'px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-700 dark:bg-slate-900/50 dark:text-slate-300 border border-slate-200 dark:border-slate-700'
+              : 'px-3 py-1.5 text-xs font-medium rounded-lg bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400 border border-gray-200 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors'">
+              Resueltos
             </button>
             <span class="ml-1 text-xs text-gray-400 dark:text-gray-500 tabular-nums">
               {{ totalItems }} resultado{{ totalItems !== 1 ? 's' : '' }}

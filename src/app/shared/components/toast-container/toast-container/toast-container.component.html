@@ -1,31 +1,30 @@
-<!-- toast-container.component.html -->
-<div class="toast-root fixed top-4 right-4 flex flex-col items-end space-y-3">
-    <div *ngFor="let t of toasts" [@toastAnim]
-        class="flex items-center max-w-xs w-full bg-gray-900 text-white shadow-xl rounded-2xl overflow-hidden"
-        [ngClass]="{
-           'border-l-4 border-green-500': t.type==='success',
-           'border-l-4 border-red-500':   t.type==='error',
-           'border-l-4 border-blue-500':  t.type==='info'
-         }">
-        <div class="p-3 flex-shrink-0" [ngClass]="{
-             'text-green-500': t.type==='success',
-             'text-red-500':   t.type==='error',
-             'text-blue-500':  t.type==='info'
-           }">
-            <ng-container [ngSwitch]="t.type">
-                <lucide-icon *ngSwitchCase="'success'" [name]="CheckCircle" class="w-6 h-6" />
-                <lucide-icon *ngSwitchCase="'error'" [name]="XCircle" class="w-6 h-6" />
-                <lucide-icon *ngSwitchDefault [name]="Info" class="w-6 h-6" />
-            </ng-container>
-        </div>
-
-        <div class="px-4 py-3 flex-1 text-sm">
-            {{ t.message }}
-        </div>
-
-        <button (click)="dismiss(t.id)" class="p-3 text-gray-400 hover:text-gray-200 transition-colors">
-            <lucide-icon [name]="X" class="w-5 h-5" />
-        </button>
+<!-- toast-container.component.html - estilo Contratos, fondo sólido para que no se superponga nada -->
+<div class="toast-root fixed top-4 right-4 flex flex-col items-end gap-3">
+  <div *ngFor="let t of toasts" [@toastAnim]
+    class="flex items-center gap-0 min-w-[300px] max-w-md w-full rounded-xl overflow-hidden border-2 transition-all duration-200 shadow-xl"
+    [ngClass]="{
+      'bg-white dark:bg-gray-800 border-emerald-400/80 dark:border-emerald-500/80': t.type === 'success',
+      'bg-white dark:bg-gray-800 border-red-400/80 dark:border-red-500/80': t.type === 'error',
+      'bg-white dark:bg-gray-800 border-blue-400/80 dark:border-blue-500/80': t.type === 'info'
+    }">
+    <div class="p-3 flex-shrink-0 rounded-l-xl bg-opacity-100" [ngClass]="{
+      'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300': t.type === 'success',
+      'bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300': t.type === 'error',
+      'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300': t.type === 'info'
+    }">
+      <ng-container [ngSwitch]="t.type">
+        <lucide-icon *ngSwitchCase="'success'" [name]="CheckCircle" class="w-6 h-6" />
+        <lucide-icon *ngSwitchCase="'error'" [name]="XCircle" class="w-6 h-6" />
+        <lucide-icon *ngSwitchDefault [name]="Info" class="w-6 h-6" />
+      </ng-container>
     </div>
+    <div class="px-4 py-3 flex-1 text-sm font-semibold text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800">
+      {{ t.message }}
+    </div>
+    <button (click)="dismiss(t.id)" type="button"
+      class="p-3 text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors rounded-r-xl bg-white dark:bg-gray-800">
+      <lucide-icon [name]="X" class="w-5 h-5" />
+    </button>
+  </div>
 </div>
   
