@@ -9,6 +9,7 @@ export const routes: Routes = [
   // Rutas directas para auth (sin prefijo /auth)
   {
     path: 'login',
+    title: 'Iniciar Sesión | Casa Bonita',
     loadComponent: () =>
       import('./modules/Secutiry/auth/login/login.component').then(
         (m) => m.LoginComponent
@@ -91,6 +92,7 @@ export const routes: Routes = [
         children: [
           {
             path: 'dashboard',
+            title: 'Dashboard | Casa Bonita',
             loadComponent: () =>
               import('./modules/dashboard/pages/dashboard.component').then(
                 (m) => m.DashboardComponent
@@ -136,6 +138,7 @@ export const routes: Routes = [
           },
           {
             path: 'crm',
+            title: 'CRM | Casa Bonita',
             loadChildren: () =>
               import('./modules/CRM/routes/crm.routes').then(
                 (m) => m.CRM_ROUTES
@@ -144,6 +147,7 @@ export const routes: Routes = [
           },
           {
             path: 'inventory',
+            title: 'Inventario | Casa Bonita',
             loadChildren: () =>
               import('./modules/inventory/routes/inventory.routes').then(
                 (m) => m.INVENTORY_ROUTES
@@ -152,6 +156,7 @@ export const routes: Routes = [
           },
           {
             path: 'hr',
+            title: 'Recursos Humanos | Casa Bonita',
             loadChildren: () =>
               import('./modules/humanResources/routes/hr.routes').then(
                 (m) => m.HR_ROUTES
@@ -159,6 +164,7 @@ export const routes: Routes = [
           },
           {
             path: 'collections',
+            title: 'Cobranzas | Casa Bonita',
             loadChildren: () =>
               import('./modules/collections/routes/collections.routes').then(
                 (m) => m.collectionsRoutes
@@ -176,6 +182,7 @@ export const routes: Routes = [
           },
           {
             path: 'sales',
+            title: 'Ventas | Casa Bonita',
             loadChildren: () =>
               import('./modules/sales/routes/sales.routes').then(
                 (m) => m.SALES_ROUTES
@@ -196,6 +203,7 @@ export const routes: Routes = [
           },
           {
             path: 'reports',
+            title: 'Reportes | Casa Bonita',
             loadChildren: () =>
               import('./modules/reports/routes/reports.routes').then(
                 (m) => m.REPORTS_ROUTES
