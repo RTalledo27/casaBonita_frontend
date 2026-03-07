@@ -126,6 +126,20 @@ export interface SingleCommissionResponse {
   message: string;
 }
 
+export interface UnassignedContract {
+  contract_id: number;
+  contract_number: string;
+  client_name: string;
+  project_name: string;
+  lot_number: string;
+  financing_amount: number;
+  total_price: number;
+  term_months: number;
+  sign_date: string;
+  effective_date: string;
+  potential_commission: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -135,10 +149,10 @@ export class CommissionService {
 
   getCommissions(filters: CommissionFilters = {}): Observable<CommissionResponse> {
     let params = new HttpParams();
-    
+
     // Include employee relationship
     params = params.set('include', 'employee');
-    
+
     Object.keys(filters).forEach((key) => {
       const value = filters[key as keyof CommissionFilters];
       if (value !== undefined && value !== null && value !== '') {
@@ -161,8 +175,8 @@ export class CommissionService {
     return this.http.put<SingleCommissionResponse>(`${API_ROUTES.HR.COMMISSIONS}/${id}`, commission);
   }
 
-  deleteCommission(id: number): Observable<{success: boolean; message: string}> {
-    return this.http.delete<{success: boolean; message: string}>(`${API_ROUTES.HR.COMMISSIONS}/${id}`);
+  deleteCommission(id: number): Observable<{ success: boolean; message: string }> {
+    return this.http.delete<{ success: boolean; message: string }>(`${API_ROUTES.HR.COMMISSIONS}/${id}`);
   }
 
   processCommissionsForPeriod(period: string): Observable<any>;
@@ -195,8 +209,8 @@ export class CommissionService {
     return this.http.post(`${API_ROUTES.HR.COMMISSIONS}/${commissionId}/split-payment`, splitData);
   }
 
-  getSplitPaymentSummary(commissionId: number): Observable<{success: boolean; summary: SplitPaymentSummary}> {
-    return this.http.get<{success: boolean; summary: SplitPaymentSummary}>(`${API_ROUTES.HR.COMMISSIONS}/${commissionId}/split-summary`);
+  getSplitPaymentSummary(commissionId: number): Observable<{ success: boolean; summary: SplitPaymentSummary }> {
+    return this.http.get<{ success: boolean; summary: SplitPaymentSummary }>(`${API_ROUTES.HR.COMMISSIONS}/${commissionId}/split-summary`);
   }
 
   getCommissionsByPeriod(period: string): Observable<CommissionResponse> {
@@ -214,11 +228,11 @@ export class CommissionService {
       commission_period: commissionPeriod,
       payment_period: paymentPeriod
     };
-    
+
     if (commissionIds && commissionIds.length > 0) {
       body.commission_ids = commissionIds;
     }
-    
+
     return this.http.post(`${API_ROUTES.HR.COMMISSIONS}/process-for-payroll`, body);
   }
 
@@ -236,8 +250,8 @@ export class CommissionService {
   }
 
   // Verificar si una comisión puede ser pagada según las cuotas del cliente
-  canPayCommissionPart(commissionId: number, paymentPart: number): Observable<{can_pay: boolean; reason?: string}> {
-    return this.http.get<{can_pay: boolean; reason?: string}>(`${API_ROUTES.HR.COMMISSIONS}/${commissionId}/can-pay-part/${paymentPart}`);
+  canPayCommissionPart(commissionId: number, paymentPart: number): Observable<{ can_pay: boolean; reason?: string }> {
+    return this.http.get<{ can_pay: boolean; reason?: string }>(`${API_ROUTES.HR.COMMISSIONS}/${commissionId}/can-pay-part/${paymentPart}`);
   }
 
   getSalesDetail(employeeId: number, month: number, year: number): Observable<SalesDetailResponse> {
@@ -262,5 +276,13 @@ export class CommissionService {
   // Obtener información completa de la comisión con contrato y cronograma
   getCommissionWithContractDetails(commissionId: number): Observable<CommissionWithContractDetails> {
     return this.http.get<CommissionWithContractDetails>(`${API_ROUTES.HR.COMMISSIONS}/${commissionId}/with-contract-details`);
+  }
+
+  // Obtener contratos sin asesor asignado para un período
+  getUnassignedContracts(month: number, year: number): Observable<{ success: boolean; data: UnassignedContract[]; count: number }> {
+    let params = new HttpParams()
+      .set('month', month.toString())
+      .set('year', year.toString());
+    return this.http.get<{ success: boolean; data: UnassignedContract[]; count: number }>(`${API_ROUTES.HR.COMMISSIONS}/unassigned-contracts`, { params });
   }
 }

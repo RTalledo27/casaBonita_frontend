@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { LucideAngularModule, DollarSign, Calendar, Filter, Search, Eye, CheckCircle, XCircle, Clock, TrendingUp, Plus, Edit, Trash2, FileText, ChevronLeft, ChevronRight, Users, User, AlertTriangle, Shield, CheckCircle2, CreditCard, RefreshCw } from 'lucide-angular';
 import { AdvisorCommissionsModalComponent, AdvisorGroup } from '../advisor-commissions-modal/advisor-commissions-modal.component';
 import { CommissionService } from '../../services/commission.service';
+import { UnassignedContract } from '../../services/commission.service';
 import { Commission } from '../../models/commission';
 import { ToastService } from '../../../../core/services/toast.service';
 import { Employee } from '../../models/employee';
@@ -53,6 +54,7 @@ export class CommissionListComponent implements OnInit {
   showSplitPayments = signal<boolean>(false);
   showAdvisorModal = signal<boolean>(false);
   selectedAdvisorGroup = signal<AdvisorGroup | null>(null);
+  unassignedContracts = signal<UnassignedContract[]>([]);
 
   // Iconos de Lucide
   DollarSign = DollarSign;
@@ -263,6 +265,19 @@ export class CommissionListComponent implements OnInit {
 
       if (response && response.data) {
         this.commissions.set(response.data);
+      }
+
+      // Cargar contratos sin asesor
+      try {
+        const unassignedResponse = await this.commissionService.getUnassignedContracts(
+          this.selectedMonth(),
+          this.selectedYear()
+        ).toPromise();
+        if (unassignedResponse && unassignedResponse.data) {
+          this.unassignedContracts.set(unassignedResponse.data);
+        }
+      } catch (e) {
+        console.warn('Could not load unassigned contracts:', e);
       }
     } catch (error) {
       console.error('Error loading commissions:', error);
@@ -593,24 +608,10 @@ export class CommissionListComponent implements OnInit {
     });
 
     // Crear un AdvisorGroup temporal para el modal (mantener compatibilidad)
+    const realEmployee = advisorGroup.employee || advisorGroup.commissions[0]?.employee;
+
     const tempAdvisorGroup: AdvisorGroup = {
-      employee: {
-        employee_id: 0,
-        user_id: 0,
-        employee_code: advisorGroup.commissions[0]?.employee?.employee_code || 'N/A',
-        employee_type: 'asesor_inmobiliario',
-        base_salary: 0,
-        is_commission_eligible: true,
-        is_bonus_eligible: true,
-        hire_date: new Date().toISOString().split('T')[0],
-        employment_status: 'activo',
-        contract_type: 'indefinido',
-        status: 'active',
-        first_name: '',
-        last_name: '',
-        full_name: `${advisorGroup.commissions[0]?.employee?.user?.first_name || ''} ${advisorGroup.commissions[0]?.employee?.user?.last_name || ''}`.trim(),
-        user: { id: 0, username: '', first_name: '', last_name: '', name: '', email: '', status: 'active' as const, roles: [] }
-      },
+      employee: realEmployee as any, // TypeScript might complain, but it's the real object from API
       commissions: allCommissions,
       totalAmount: advisorGroup.totalAmount,
       paidAmount: advisorGroup.paidAmount,

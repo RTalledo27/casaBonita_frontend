@@ -40,16 +40,16 @@ export class BonusGoalModalComponent implements OnInit {
   Check = Check;
 
   bonusGoalForm!: FormGroup;
-  
+
   // Signals para el estado reactivo
   employees = signal<Employee[]>([]);
   filteredEmployees = signal<Employee[]>([]);
   selectedEmployees = signal<Employee[]>([]);
-  
+
   // Estados de carga
   loadingEmployees = signal(false);
   creatingGoal = signal(false);
-  
+
   // Estados de UI
   employeeSearchTerm = '';
 
@@ -82,7 +82,7 @@ export class BonusGoalModalComponent implements OnInit {
     this.bonusGoalForm.get('end_date')?.valueChanges.subscribe(() => {
       this.validateDates();
     });
-    
+
     this.bonusGoalForm.get('start_date')?.valueChanges.subscribe(() => {
       this.validateDates();
     });
@@ -91,7 +91,7 @@ export class BonusGoalModalComponent implements OnInit {
   private validateDates() {
     const startDate = this.bonusGoalForm.get('start_date')?.value;
     const endDate = this.bonusGoalForm.get('end_date')?.value;
-    
+
     if (startDate && endDate && new Date(startDate) >= new Date(endDate)) {
       this.bonusGoalForm.get('end_date')?.setErrors({ 'dateInvalid': true });
     } else {
@@ -107,7 +107,7 @@ export class BonusGoalModalComponent implements OnInit {
 
   private loadEmployees() {
     this.loadingEmployees.set(true);
-    
+
     this.employeeService.getEmployees().subscribe({
       next: (response: EmployeeResponse) => {
         this.employees.set(response.data);
@@ -124,24 +124,24 @@ export class BonusGoalModalComponent implements OnInit {
   searchEmployees(event: any) {
     const term = event.target.value.toLowerCase();
     this.employeeSearchTerm = term;
-    
+
     if (!term.trim()) {
       this.filteredEmployees.set(this.employees());
       return;
     }
 
-    const filtered = this.employees().filter(employee => 
-      employee.full_name.toLowerCase().includes(term) ||
+    const filtered = this.employees().filter(employee =>
+      (employee.first_name?.toLowerCase().includes(term) ?? false) ||
       (employee.email && employee.email.toLowerCase().includes(term))
     );
-    
+
     this.filteredEmployees.set(filtered);
   }
 
   toggleEmployeeSelection(employee: Employee) {
     const currentSelected = this.selectedEmployees();
     const isSelected = currentSelected.some(emp => emp.employee_id === employee.employee_id);
-    
+
     if (isSelected) {
       this.selectedEmployees.set(currentSelected.filter(emp => emp.employee_id !== employee.employee_id));
     } else {
@@ -174,7 +174,7 @@ export class BonusGoalModalComponent implements OnInit {
     }
 
     this.creatingGoal.set(true);
-    
+
     const formData = this.bonusGoalForm.value;
     const goalData: BonusGoalCreationData = {
       ...formData,
@@ -212,7 +212,7 @@ export class BonusGoalModalComponent implements OnInit {
       end_date: '',
       status: 'active'
     });
-    
+
     this.selectedEmployees.set([]);
     this.employeeSearchTerm = '';
     this.filteredEmployees.set(this.employees());

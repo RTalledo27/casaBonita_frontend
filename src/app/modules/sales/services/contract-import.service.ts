@@ -30,7 +30,7 @@ export interface ImportLog {
 export class ContractImportService {
   private baseUrl = API_ROUTES.SALES.CONTRACT_IMPORT;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   /**
    * Validar estructura del archivo
@@ -38,7 +38,7 @@ export class ContractImportService {
   validateStructure(file: File): Observable<ImportResponse> {
     const formData = new FormData();
     formData.append('file', file);
-    
+
     // El token interceptor se encarga de agregar automáticamente el header de autorización
     return this.http.post<ImportResponse>(`${this.baseUrl}/validate`, formData);
   }
@@ -49,7 +49,7 @@ export class ContractImportService {
   importSync(file: File): Observable<ImportResponse> {
     const formData = new FormData();
     formData.append('file', file);
-    
+
     // El token interceptor se encarga de agregar automáticamente el header de autorización
     return this.http.post<ImportResponse>(`${this.baseUrl}`, formData);
   }
@@ -60,7 +60,7 @@ export class ContractImportService {
   importAsync(file: File): Observable<ImportResponse> {
     const formData = new FormData();
     formData.append('file', file);
-    
+
     // El token interceptor se encarga de agregar automáticamente el header de autorización
     return this.http.post<ImportResponse>(`${this.baseUrl}/async`, formData);
   }
@@ -76,9 +76,9 @@ export class ContractImportService {
   /**
    * Obtener historial de importaciones
    */
-  getImportHistory(): Observable<{ data: ImportLog[] }> {
+  getImportHistory(): Observable<{ data: { data: ImportLog[] } | ImportLog[] }> {
     // El token interceptor se encarga de agregar automáticamente el header de autorización
-    return this.http.get<{ data: ImportLog[] }>(`${this.baseUrl}/history`);
+    return this.http.get<{ data: { data: ImportLog[] } | ImportLog[] }>(`${this.baseUrl}/history`);
   }
 
   /**
@@ -88,7 +88,7 @@ export class ContractImportService {
     // Agregar timestamp para evitar cache del navegador
     const timestamp = new Date().getTime();
     const url = `${this.baseUrl}/template?t=${timestamp}`;
-    
+
     // El token interceptor se encarga de agregar automáticamente el header de autorización
     return this.http.get(url, {
       responseType: 'blob',

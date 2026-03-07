@@ -71,6 +71,13 @@ export const routes: Routes = [
     ],
   },
   {
+    path: 'not-found',
+    loadComponent: () =>
+      import('./core/components/not-found/not-found.component').then(
+        (m) => m.NotFoundComponent
+      ),
+  },
+  {
     path: '',
     loadComponent: () => import('./app.component').then((m) => m.AppComponent),
     children: [
@@ -237,10 +244,14 @@ export const routes: Routes = [
           },
 
           { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-          { path: '**', redirectTo: 'dashboard' },
+          { path: '**', redirectTo: '/not-found' },
         ],
       },
     ],
   },
+  {
+    path: '**',
+    redirectTo: '/not-found'
+  }
 ];
 

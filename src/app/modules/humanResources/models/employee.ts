@@ -19,11 +19,11 @@ export interface Employee {
   user_id: number;
   employee_code: string;
   employee_type:
-    | 'asesor_inmobiliario'
-    | 'vendedor'
-    | 'administrativo'
-    | 'gerente'
-    | 'supervisor';
+  | 'asesor_inmobiliario'
+  | 'vendedor'
+  | 'administrativo'
+  | 'gerente'
+  | 'supervisor';
   base_salary: number;
   variable_salary?: number;
   commission_percentage?: number;
@@ -38,37 +38,36 @@ export interface Employee {
   emergency_contact_relationship?: string;
   team_id?: number;
   supervisor_id?: number;
-  
   hire_date: string;
   termination_date?: string;
   employment_status: 'activo' | 'inactivo' | 'suspendido';
   contract_type: 'indefinido' | 'temporal' | 'practicas' | 'freelance';
   work_schedule?: string;
-  
+
   // Sistema Pensionario (nuevos campos para nóminas mejoradas)
   pension_system?: 'AFP' | 'ONP' | 'NINGUNO';
   afp_provider?: 'PRIMA' | 'INTEGRA' | 'PROFUTURO' | 'HABITAT';
   cuspp?: string;
   has_family_allowance?: boolean;
   number_of_children?: number;
-  
+
   // Campos heredados/legacy
   social_security_number?: string;
   afp_code?: string;
   health_insurance?: string;
-  
+
   // Campos organizacionales
   department?: string;
   position?: string | Position;
   position_id?: number;
-  
+
   notes?: string;
-  status:string;
+  status: string;
 
   // Propiedades que vienen directamente de la API
   first_name: string;
   last_name: string;
-  full_name: string;
+  full_name?: string;
   email?: string;
   phone?: string;
 

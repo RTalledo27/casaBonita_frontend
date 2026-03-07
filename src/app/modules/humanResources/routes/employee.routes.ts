@@ -21,14 +21,6 @@ export const employeeROUTES: Routes = [
         component: EmployeeListComponent
       },
       {
-        path: 'create',
-        component: EmployeeFormComponent
-      },
-      {
-        path: 'edit/:id',
-        component: EmployeeFormComponent
-      },
-      {
         path: 'view/:id',
         component: EmployeeDetailComponent
       },

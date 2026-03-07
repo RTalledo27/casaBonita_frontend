@@ -1,7 +1,7 @@
 import { Route } from '@angular/router';
+import { InvoiceFormComponent } from './components/invoice-form/invoice-form.component';
 import { BillingDashboardComponent } from './components/billing-dashboard/billing-dashboard.component';
 import { InvoiceListComponent } from './components/invoice-list/invoice-list.component';
-import { InvoiceFormComponent } from './components/invoice-form/invoice-form.component';
 
 export const BILLING_ROUTES: Route[] = [
     {

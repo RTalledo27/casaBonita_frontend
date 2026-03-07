@@ -1,7 +1,7 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, OnChanges, signal, inject, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
 import { EmployeeService } from '../../services/employee.service';
 import { Employee } from '../../models/employee';
 import { User as UserModel } from '../../../Secutiry/users/models/user';
@@ -21,16 +21,22 @@ export class EmployeeFormComponent implements OnInit {
   private fb = inject(FormBuilder);
   private employeeService = inject(EmployeeService);
   private router = inject(Router);
-  private route = inject(ActivatedRoute);
   private toastService = inject(ToastService);
   private positionService = inject(PositionService);
+
+  // Inputs para el modal
+  @Input() isOpen = false;
+  @Input() employeeId: number | null = null;
+
+  // Outputs para el modal
+  @Output() closeForm = new EventEmitter<void>();
+  @Output() saved = new EventEmitter<void>();
 
   // Señales para el estado del componente
   loading = signal<boolean>(false);
   saving = signal<boolean>(false);
   error = signal<string | null>(null);
   isEditMode = signal<boolean>(false);
-  employeeId = signal<number | null>(null);
   users = signal<UserModel[]>([]);
   teams = signal<Team[]>([]);
   positions = signal<Position[]>([]);
@@ -75,7 +81,21 @@ export class EmployeeFormComponent implements OnInit {
 
   ngOnInit() {
     this.loadInitialData();
-    this.checkEditMode();
+  }
+
+  ngOnChanges(changes: any) {
+    if (changes.isOpen && changes.isOpen.currentValue) {
+      if (this.employeeId) {
+        this.isEditMode.set(true);
+        this.loadEmployee(this.employeeId);
+      } else {
+        this.isEditMode.set(false);
+        this.employeeForm.reset({
+          employment_status: 'activo',
+          commission_percentage: 0
+        });
+      }
+    }
   }
 
   private async loadInitialData() {
@@ -103,15 +123,6 @@ export class EmployeeFormComponent implements OnInit {
       this.error.set('Error al cargar los datos iniciales');
     } finally {
       this.loading.set(false);
-    }
-  }
-
-  private checkEditMode() {
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.isEditMode.set(true);
-      this.employeeId.set(parseInt(id));
-      this.loadEmployee(parseInt(id));
     }
   }
 
@@ -171,14 +182,15 @@ export class EmployeeFormComponent implements OnInit {
       });
 
       if (this.isEditMode()) {
-        await this.employeeService.updateEmployee(this.employeeId()!, formData).toPromise();
+        await this.employeeService.updateEmployee(this.employeeId!, formData).toPromise();
         this.toastService.success('Empleado actualizado exitosamente');
       } else {
         await this.employeeService.createEmployee(formData).toPromise();
         this.toastService.success('Empleado creado exitosamente');
       }
 
-      this.router.navigate(['/hr/employees']);
+      this.saved.emit();
+      this.closeForm.emit();
     } catch (error: any) {
       console.error('Error saving employee:', error);
       this.error.set(error.error?.message || 'Error al guardar el empleado');
@@ -196,7 +208,7 @@ export class EmployeeFormComponent implements OnInit {
   }
 
   onCancel() {
-    this.router.navigate(['/hr/employees']);
+    this.closeForm.emit();
   }
 
   isFieldInvalid(fieldName: string): boolean {

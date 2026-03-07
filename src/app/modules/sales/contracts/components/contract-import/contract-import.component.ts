@@ -204,10 +204,10 @@ export class ContractImportComponent {
     this.salesImporting = true;
     this.salesError = null;
     this.salesImportResult = null;
-    
+
     // Reset sales preview para indicar que está procesando
     const previousPreview = [...this.salesPreview];
-    
+
     this.externalImport.importSales(this.salesStartDate || undefined, this.salesEndDate || undefined, forceRefresh)
       .pipe(finalize(() => {
         this.salesImporting = false;
@@ -263,7 +263,7 @@ export class ContractImportComponent {
   onDrop(event: DragEvent) {
     event.preventDefault();
     this.dragOver = false;
-    
+
     const files = event.dataTransfer?.files;
     if (files && files.length > 0) {
       this.selectedFile = files[0];
@@ -279,7 +279,7 @@ export class ContractImportComponent {
     this.importResult = null;
     this.resetValidationProgress();
 
-   
+
     // Simulate step-by-step validation progress
     this.simulateValidationProgress();
 
@@ -316,8 +316,8 @@ export class ContractImportComponent {
     // Simulate step-by-step import progress
     this.simulateImportProgress();
 
-    const importMethod = async ? 
-      this.importService.importAsync(this.selectedFile) : 
+    const importMethod = async ?
+      this.importService.importAsync(this.selectedFile) :
       this.importService.importSync(this.selectedFile);
 
     importMethod
@@ -364,10 +364,18 @@ export class ContractImportComponent {
   loadImportHistory() {
     this.importService.getImportHistory().subscribe({
       next: (response) => {
-        this.importHistory = response.data;
+        // La API devuelve un objeto paginado en response.data
+        if (response.data && Array.isArray((response.data as any).data)) {
+          this.importHistory = (response.data as any).data;
+        } else if (Array.isArray(response.data)) {
+          this.importHistory = response.data as ImportLog[];
+        } else {
+          this.importHistory = [];
+        }
       },
       error: (error) => {
         console.error('Error loading import history:', error);
+        this.importHistory = [];
       }
     });
   }
@@ -442,7 +450,7 @@ export class ContractImportComponent {
   private simulateValidationProgress() {
     const stepDuration = 800; // milliseconds per step
     const totalSteps = this.validationProgress.steps.length;
-    
+
     const progressInterval = setInterval(() => {
       if (!this.isValidating || this.validationProgress.currentStepIndex >= totalSteps) {
         clearInterval(progressInterval);
@@ -459,7 +467,7 @@ export class ContractImportComponent {
     const stepDuration = 1200; // milliseconds per step
     const totalSteps = this.importProgress.steps.length;
     const startTime = Date.now();
-    
+
     const progressInterval = setInterval(() => {
       if (!this.isUploading || this.importProgress.currentStepIndex >= totalSteps) {
         clearInterval(progressInterval);
@@ -468,18 +476,18 @@ export class ContractImportComponent {
 
       this.importProgress.currentStep = this.importProgress.steps[this.importProgress.currentStepIndex];
       this.importProgress.percentage = Math.floor((this.importProgress.currentStepIndex / totalSteps) * 85); // Max 85% during simulation
-      
+
       // Simulate processed rows
       if (this.importProgress.currentStepIndex >= 1) { // After "Preparando importación..."
         const progressRatio = this.importProgress.currentStepIndex / totalSteps;
         this.importProgress.processedRows = Math.floor(this.importProgress.totalRows * progressRatio * 0.8);
-        
+
         // Calculate estimated time remaining
         const elapsedTime = Date.now() - startTime;
         const estimatedTotalTime = elapsedTime / progressRatio;
         this.importProgress.estimatedTimeRemaining = Math.max(0, Math.floor((estimatedTotalTime - elapsedTime) / 1000));
       }
-      
+
       this.importProgress.currentStepIndex++;
     }, stepDuration);
   }

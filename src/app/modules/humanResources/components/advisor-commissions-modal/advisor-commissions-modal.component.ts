@@ -686,27 +686,35 @@ export class AdvisorCommissionsModalComponent implements OnInit, OnChanges {
 
     const employee = this.advisorGroup.employee;
 
-    // Verificar si tenemos first_name y last_name
-    if (employee.first_name && employee.last_name) {
+    console.log('Employee:', employee);
+
+    // Verificar si tenemos first_name y last_name válidos
+    if (employee.first_name?.trim() && employee.last_name?.trim()) {
       return `${employee.first_name} ${employee.last_name}`;
     }
 
-    // Si tenemos full_name, usarlo
-    if (employee.full_name) {
-      return employee.full_name;
+
+
+    // Verificar en el objeto User anidado (muy común en esta API)
+    if (employee.user) {
+      if (employee.user.first_name?.trim() && employee.user.last_name?.trim()) {
+        return `${employee.user.first_name} ${employee.user.last_name}`;
+      }
+      if (employee.user.name?.trim()) {
+        return employee.user.name;
+      }
     }
 
-    // Si solo tenemos first_name
-    if (employee.first_name) {
+    // Si solo tenemos uno de los nombres
+    if (employee.first_name?.trim()) {
       return employee.first_name;
     }
 
-    // Si solo tenemos last_name
-    if (employee.last_name) {
+    if (employee.last_name?.trim()) {
       return employee.last_name;
     }
 
-    // Fallback al código del empleado
+    // Fallback final al código del empleado
     return employee.employee_code || 'Empleado sin nombre';
   }
 

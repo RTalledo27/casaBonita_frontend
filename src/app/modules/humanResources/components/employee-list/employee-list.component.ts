@@ -7,11 +7,12 @@ import { Employee, Position } from '../../models/employee';
 import { ToastService } from '../../../../core/services/toast.service';
 import { GenerateUserModalComponent } from '../generate-user-modal/generate-user-modal.component';
 import { EmployeeImportModalComponent } from '../employee-import-modal/employee-import-modal.component';
+import { EmployeeFormComponent } from '../employee-form/employee-form.component';
 
 @Component({
   selector: 'app-employee-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, GenerateUserModalComponent, EmployeeImportModalComponent],
+  imports: [CommonModule, FormsModule, GenerateUserModalComponent, EmployeeImportModalComponent, EmployeeFormComponent],
   templateUrl: './employee-list.component.html',
   styleUrls: ['./employee-list.component.scss']
 })
@@ -40,6 +41,10 @@ export class EmployeeListComponent implements OnInit {
   showGenerateUserModal = signal<boolean>(false);
   selectedEmployeeForUser = signal<Employee | null>(null);
   showImportModal = signal<boolean>(false);
+
+  // Estado del modal de formulario de empleado
+  isEmployeeModalOpen = signal<boolean>(false);
+  selectedEmployeeId = signal<number | null>(null);
 
   // Opciones para filtros
   statusOptions = [
@@ -78,7 +83,7 @@ export class EmployeeListComponent implements OnInit {
     const positionId = this.selectedPosition();
 
     return employees.filter((employee: Employee) => {
-      const matchesSearch = !search || 
+      const matchesSearch = !search ||
         employee.user?.first_name?.toLowerCase().includes(search) ||
         employee.user?.last_name?.toLowerCase().includes(search) ||
         employee.user?.email?.toLowerCase().includes(search) ||
@@ -87,7 +92,7 @@ export class EmployeeListComponent implements OnInit {
 
       const matchesStatus = !status || employee.employment_status === status;
       const matchesType = !type || employee.employee_type === type;
-      const matchesPosition = !positionId || 
+      const matchesPosition = !positionId ||
         employee.position_id?.toString() === positionId ||
         (employee.position && typeof employee.position === 'object' && (employee.position as Position).position_id?.toString() === positionId);
 
@@ -150,7 +155,7 @@ export class EmployeeListComponent implements OnInit {
       };
 
       const response = await this.employeeService.getEmployees(filters).toPromise();
-      
+
       if (response?.data) {
         this.allEmployees.set(response.data); // Guardar TODOS en memoria
         console.log(`✅ Cargados ${response.data.length} empleados en memoria`);
@@ -207,11 +212,23 @@ export class EmployeeListComponent implements OnInit {
   }
 
   createEmployee() {
-    this.router.navigate(['/hr/employees/create']);
+    this.selectedEmployeeId.set(null);
+    this.isEmployeeModalOpen.set(true);
   }
 
   editEmployee(employee: Employee) {
-    this.router.navigate(['/hr/employees/edit', employee.employee_id]);
+    this.selectedEmployeeId.set(employee.employee_id);
+    this.isEmployeeModalOpen.set(true);
+  }
+
+  closeEmployeeModal() {
+    this.isEmployeeModalOpen.set(false);
+    this.selectedEmployeeId.set(null);
+  }
+
+  onEmployeeSaved() {
+    this.loadEmployees();
+    this.closeEmployeeModal();
   }
 
   viewEmployee(employee: Employee) {
@@ -333,7 +350,7 @@ export class EmployeeListComponent implements OnInit {
   // Exportar a Excel
   exportToExcel() {
     const employees = this.filteredEmployees(); // Exportar solo los filtrados
-    
+
     if (employees.length === 0) {
       this.toastService.show('No hay empleados para exportar', 'info');
       return;
@@ -365,8 +382,8 @@ export class EmployeeListComponent implements OnInit {
       ...data.map(row => headers.map(header => {
         const value = row[header as keyof typeof row];
         // Escapar valores que contienen comas
-        return typeof value === 'string' && value.includes(',') 
-          ? `"${value}"` 
+        return typeof value === 'string' && value.includes(',')
+          ? `"${value}"`
           : value;
       }).join(','))
     ].join('\n');
@@ -375,11 +392,11 @@ export class EmployeeListComponent implements OnInit {
     const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
-    
+
     link.setAttribute('href', url);
     link.setAttribute('download', `empleados_completo_${new Date().toISOString().split('T')[0]}.csv`);
     link.style.visibility = 'hidden';
-    
+
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
